@@ -14,7 +14,6 @@
 
 int main()
 {
-    while (trm::Poll())
 
     return 0;
 }

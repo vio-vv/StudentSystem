@@ -12,10 +12,9 @@
  * @author 梁祖章
  */
 
-#include <SFML/Window.hpp>
 #include <string>
 #include <list>
-#include <unordered_map>
+#include "SFML/Graphics.hpp"
 
 namespace ui{
 
@@ -25,8 +24,9 @@ class Control;
             class Screen;
         class Center;
         class LinearBox;
-            class Vertical;
             class Horizontal;
+            class Vertical;
+    class Label;
 
 class Control{
 public:
@@ -45,9 +45,9 @@ public:
     void SetAnchor    (Direction directrion, int percentage) noexcept;
     void SetPotistion (Direction directrion, int absolute)   noexcept;
 
-    virtual void Update ()                       noexcept = 0;
-    virtual void Process(const sf::Event &event) noexcept = 0;
-    virtual void Draw   (const Screen &screen)   noexcept = 0;
+    virtual void Update ()                         noexcept = 0;
+    virtual void Process(const sf::Event &event)   noexcept = 0;
+    virtual void Draw   (sf::RenderWindow &screen) noexcept = 0;
 
     void SetParent        (Container *container)                        noexcept;
     void SetGlobalSize    (Direction directrion, unsigned int absolute) noexcept;
@@ -70,7 +70,14 @@ protected:
     public: 
         T horizontal; 
         T vertical; 
-        T &operator[](Direction direction) const noexcept 
+        T       &operator[](Direction direction)       noexcept 
+        {
+            switch (direction) {
+                case Direction::HORIZONTAL: return horizontal;
+                case Direction::VERTICAL:   return vertical;
+            }
+        }
+        const T &operator[](Direction direction) const noexcept 
         {
             switch (direction) {
                 case Direction::HORIZONTAL: return horizontal;
@@ -98,9 +105,9 @@ public:
     void Remove  (Control *control) noexcept;
     void FreeAll ()                 noexcept;
 
-    void Update ()                       noexcept = 0;
-    void Process(const sf::Event &event) noexcept;
-    void Draw   (const Screen &screen)   noexcept;
+    void Update ()                         noexcept = 0;
+    void Process(const sf::Event &event)   noexcept;
+    void Draw   (sf::RenderWindow &screen) noexcept;
 
     ~Container() noexcept;
 protected:
@@ -111,7 +118,7 @@ protected:
     static int          ObtainDefaultGlobalPosition(Direction direction, const Control *child, unsigned int parentSize, int parentPosition)                                          noexcept;
     static unsigned int ObtainDefaultGlobalSize    (ValueType sizeValueType, bool wrap,   unsigned int size,     unsigned int minSize,  unsigned int parentSize)                     noexcept;
     static int          ObtainDefaultGlobalPosition(int       center,        int  anchor, int          position, unsigned int thisSize, unsigned int parentSize, int parentPosition) noexcept;
-    std::list<Control *> children;
+    std::list<Control *> children = {};
 };
 
 class Flat : public Container{
@@ -125,12 +132,16 @@ public:
     {
         screen.create(sf::VideoMode({globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]}), "Caption");
     }
+    Screen(unsigned int width, unsigned int height, const std::wstring &caption) noexcept
+    {
+        screen.create(sf::VideoMode({width, height}), caption);
+    }
     void SetRange(unsigned int width, unsigned int height) noexcept;
     void SetCaption(const std::wstring &caption) noexcept;
     bool IsOpen() const noexcept;
     void Tick() noexcept;
 protected:
-    sf::Window screen;
+    sf::RenderWindow screen;
 };
 
 class Center : public Container{
@@ -142,8 +153,14 @@ class LinearBox : public Container{
 public:
     void SetGap(int absolute) noexcept;
     void Update() noexcept = 0;
-private:
+protected:
+    void UpdateLinear(Direction direction) noexcept;
     int gap = 5;
+};
+
+class Horizontal : public LinearBox{
+public:
+    void Update() noexcept;
 };
 
 class Vertical : public LinearBox{
@@ -151,9 +168,25 @@ public:
     void Update() noexcept;
 };
 
-class Horizontal : public LinearBox{
+class Label : public Control{
+    static const std::string FONT_FILE_PATH;
 public:
-    void Update() noexcept;
+    Label() noexcept
+    {
+        SetFont(FONT_FILE_PATH);
+    }
+    void SetContent(const std::wstring &newContent) noexcept;
+    void SetFont(const std::string &fontFile)       noexcept;
+    void SetFontSize(unsigned int size)             noexcept;
+    void Update ()                         noexcept;
+    void Process(const sf::Event &event)   noexcept {}
+    void Draw   (sf::RenderWindow &screen) noexcept;
+protected:
+    std::wstring content = L"";
+    sf::Font font;
+    sf::Text text;
+    unsigned int fontSize = 16;
+    bool error = false;
 };
 
 }

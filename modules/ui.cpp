@@ -91,7 +91,7 @@ void ui::Container::Process(const sf::Event &event) noexcept
     }
 }
 
-void ui::Container::Draw(const Screen &screen) noexcept
+void ui::Container::Draw(sf::RenderWindow &screen) noexcept
 {
     for (auto child : children) {
         child->Draw(screen);
@@ -133,6 +133,9 @@ void ui::Screen::Tick() noexcept
         } else {
             Process(event);
         }
+        screen.clear();
+        Draw(screen);
+        screen.display();
     }
 }
 
@@ -156,27 +159,11 @@ void ui::Container::UpdateByDefault(Direction direction, Control *child) noexcep
 
 void ui::Container::UpdateSizeByDefault(Direction direction, Control *child) noexcept
 {
-    unsigned int tmpSize;
-    switch (sizeValueType) {
-        case ValueType::ABSOLUTE:
-            if (wrap) tmpSize =  minSize;
-            else      tmpSize = size;
-            break;
-        case ValueType::PERCENTAGE:
-            tmpSize = size * parentSize / 100;
-            break;
-    }
-    return std::max(minSize, tmpSize);
     child->SetGlobalSize(direction, ObtainDefaultGlobalSize(direction, child, globalSize[direction]));
 }
 
 void ui::Container::UpdatePositionByDefault(Direction direction, Control *child) noexcept
 {
-    int thisPosition = parentPosition;
-    thisPosition -= center * thisSize / 100;
-    thisPosition += anchor * parentSize / 100;
-    thisPosition += position;
-    return thisPosition;
     child->SetGlobalPosition(direction, ObtainDefaultGlobalPosition(direction, child, globalSize[direction], globalPosition[direction]));
 }
 
@@ -192,10 +179,26 @@ int ui::Container::ObtainDefaultGlobalPosition(Direction direction, const Contro
 
 unsigned int ui::Container::ObtainDefaultGlobalSize(ValueType sizeValueType, bool wrap, unsigned int size, unsigned int minSize, unsigned int parentSize) noexcept
 {
+    unsigned int tmpSize;
+    switch (sizeValueType) {
+        case ValueType::ABSOLUTE:
+            if (wrap) tmpSize =  minSize;
+            else      tmpSize = size;
+            break;
+        case ValueType::PERCENTAGE:
+            tmpSize = size * parentSize / 100;
+            break;
+    }
+    return std::max(minSize, tmpSize);
 }
 
 int ui::Container::ObtainDefaultGlobalPosition(int center, int anchor, int position, unsigned int thisSize, unsigned int parentSize, int parentPosition) noexcept
 {
+    int thisPosition = parentPosition;
+    thisPosition -= center * thisSize / 100;
+    thisPosition += anchor * parentSize / 100;
+    thisPosition += position;
+    return thisPosition;
 }
 
 void ui::Center::Update() noexcept
@@ -217,39 +220,94 @@ void ui::LinearBox::SetGap(int absolute) noexcept
     Update();
 }
 
-void ui::Vertical::Update() noexcept
+void ui::LinearBox::UpdateLinear(Direction direction) noexcept
 {
-    unsigned int horizontalMinSize = 0;
-    for (auto child : children) {
-        UpdateByDefault(Direction::HORIZONTAL, child);
-        horizontalMinSize = std::max(horizontalMinSize, child->GetGlobalSize(Direction::HORIZONTAL));
+    Direction another;
+    switch (direction) {
+        case Direction::HORIZONTAL:
+            another = Direction::VERTICAL;
+            break;
+        case Direction::VERTICAL:
+            another = Direction::HORIZONTAL;
+            break;
     }
-    SetMinSize(Direction::HORIZONTAL, horizontalMinSize);
 
-    unsigned int verticalMinSize = 0;
-    unsigned int sizeOccupied    = 0;
-    unsigned int ratioSum        = 0;
+    unsigned int anotherMinSize = 0;
     for (auto child : children) {
-        switch (child->GetSizeValueType(Direction::VERTICAL)) {
+        UpdateByDefault(another, child);
+        anotherMinSize = std::max(anotherMinSize, child->GetGlobalSize(another));
+    }
+    SetMinSize(another, anotherMinSize);
+
+    unsigned int directionMinSize = 0;
+    unsigned int sizeOccupied     = 0;
+    unsigned int ratioSum         = 0;
+    for (auto child : children) {
+        switch (child->GetSizeValueType(direction)) {
             case ValueType::ABSOLUTE:
-                UpdateSizeByDefault(Direction::VERTICAL, child);
-                verticalMinSize += child->GetGlobalSize(Direction::VERTICAL);
-                sizeOccupied    += child->GetGlobalSize(Direction::VERTICAL);
+                UpdateSizeByDefault(direction, child);
+                directionMinSize += child->GetGlobalSize(direction);
+                sizeOccupied     += child->GetGlobalSize(direction);
                 break;
             case ValueType::PERCENTAGE:
-                verticalMinSize += child->GetMinSize(Direction::VERTICAL);
-                ratioSum        += child->GetSize(Direction::VERTICAL);
+                directionMinSize += child->GetMinSize(direction);
+                ratioSum         += child->GetSize(direction);
                 break;
         }
     }
-    SetMinSize(Direction::VERTICAL, verticalMinSize);
-    unsigned int sizeLeft    = globalSize[Direction::VERTICAL] - sizeOccupied;
+    SetMinSize(direction, directionMinSize);
+    unsigned int sizeLeft    = globalSize[direction] - sizeOccupied;
     unsigned int tmpPosition = 0;
     for (auto child : children) {
-        if (child->GetSizeValueType(Direction::VERTICAL) == ValueType::PERCENTAGE) {
-            child->SetGlobalSize(Direction::VERTICAL, child->GetSize(Direction::VERTICAL) * sizeLeft / ratioSum);
+        if (child->GetSizeValueType(direction) == ValueType::PERCENTAGE) {
+            child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / ratioSum);
         }
-        child->SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL] + tmpPosition);
-        tmpPosition += child->GetGlobalSize(Direction::VERTICAL);
+        child->SetGlobalPosition(direction, globalPosition[direction] + tmpPosition);
+        tmpPosition += child->GetGlobalSize(direction);
     }
+}
+
+void ui::Horizontal::Update() noexcept
+{
+    UpdateLinear(Direction::HORIZONTAL);
+}
+
+void ui::Vertical::Update() noexcept
+{
+    UpdateLinear(Direction::VERTICAL);
+}
+
+const std::string ui::Label::FONT_FILE_PATH = "../assets/simfang.ttf";
+
+void ui::Label::SetContent(const std::wstring &newContent) noexcept
+{
+    content = newContent;
+    Update();
+}
+
+void ui::Label::SetFont(const std::string &fontFile) noexcept
+{
+    if (!font.loadFromFile(fontFile)) {
+        error = true;
+    }
+    Update();
+}
+
+void ui::Label::SetFontSize(unsigned int size) noexcept
+{
+    fontSize = size;
+    Update();
+}
+
+void ui::Label::Update() noexcept
+{
+    text.setFont(font);
+    text.setString(content);
+    text.setCharacterSize(fontSize);
+    text.setPosition({globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]});
+}
+
+void ui::Label::Draw(sf::RenderWindow &screen) noexcept
+{
+    screen.draw(text);
 }
