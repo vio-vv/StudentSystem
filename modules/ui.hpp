@@ -1,6 +1,14 @@
 #ifndef __UI_HPP__
 #define __UI_HPP__
 
+#define DRAW_DEBUG_RECT \
+    sf::RectangleShape ____(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL])); \
+    ____.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]}); \
+    ____.setOutlineColor(sf::Color::Yellow); \
+    ____.setOutlineThickness(1); \
+    ____.setFillColor(sf::Color(0, 0, 0, 0)); \
+    screen.draw(____) \
+
 /**
  * @brief 实现 UI 界面的布局和绘制。
  * 
@@ -14,10 +22,11 @@
 
 #include <string>
 #include <list>
+#include <functional>
 #include "SFML/Graphics.hpp"
 
 namespace ui{
-
+    
 class Control;
     class Container;
         class Flat;
@@ -26,7 +35,9 @@ class Control;
         class LinearBox;
             class Horizontal;
             class Vertical;
+        class Margen;
     class Label;
+    class Button;
 
 class Control{
 public:
@@ -48,7 +59,7 @@ public:
     void SetMinSize      (Direction directrion, unsigned int absolute) noexcept;
     void SetCenter    (Direction directrion, int percentage) noexcept;
     void SetAnchor    (Direction directrion, int percentage) noexcept;
-    void SetPosition (Direction directrion, int absolute)   noexcept;
+    void SetPosition  (Direction directrion, int absolute)   noexcept;
 
     void AddTo    (Container *container)               noexcept;
     void SetPreset(Direction direction, Preset preset) noexcept;
@@ -68,6 +79,14 @@ public:
     void SetVPosition     (int absolute)          noexcept { SetPosition(Direction::VERTICAL,   absolute); }
     void SetHPreset       (Preset preset)         noexcept { SetPreset(Direction::HORIZONTAL, preset); }
     void SetVPreset       (Preset preset)         noexcept { SetPreset(Direction::VERTICAL,   preset); }
+    void SetSizeValueType (ValueType valueType)                            noexcept { SetHSizeValueType(valueType);   SetVSizeValueType(valueType); }
+    void SetSizeWrap      (bool flag)                                      noexcept { SetHSizeWrap     (flag);        SetVSizeWrap     (flag); }
+    void SetSize          (unsigned int valueH, unsigned int valueV)       noexcept { SetHSize         (valueH);      SetVSize         (valueV); }
+    void SetMinSize       (unsigned int absoluteH, unsigned int absoluteV) noexcept { SetHMinSize      (absoluteH);   SetVMinSize      (absoluteV); }
+    void SetCenter        (int percentageH, int percentageV)               noexcept { SetHCenter       (percentageH); SetVCenter       (percentageV); }
+    void SetAnchor        (int percentageH, int percentageV)               noexcept { SetHAnchor       (percentageH); SetVAnchor       (percentageV); }
+    void SetPosition      (int absoluteH, int absoluteV)                   noexcept { SetHPosition     (absoluteH);   SetVPosition     (absoluteV); }
+    void SetPreset        (Preset preset)                                  noexcept { SetHPreset       (preset);      SetVPreset       (preset); }
 
     virtual void Update  (bool resetMinSize = true) noexcept = 0;
     virtual void Process (const sf::Event &event)   noexcept = 0;
@@ -88,13 +107,17 @@ public:
     int  GetPosition(Direction direction) const noexcept { return position[direction]; }
 
     virtual ~Control() noexcept;
+
+    
 protected:
-    template<typename T>
+    bool IsInside(int x, int y) const noexcept;
+
+    template<typename DataType>
     class Around{
     public: 
-        T horizontal; 
-        T vertical; 
-        T       &operator[](Direction direction)       noexcept 
+        DataType horizontal; 
+        DataType vertical; 
+        DataType       &operator[](Direction direction)       noexcept 
         {
             switch (direction) {
                 case Direction::HORIZONTAL: return horizontal;
@@ -102,7 +125,7 @@ protected:
             }
             return horizontal;
         }
-        const T &operator[](Direction direction) const noexcept 
+        const DataType &operator[](Direction direction) const noexcept 
         {
             switch (direction) {
                 case Direction::HORIZONTAL: return horizontal;
@@ -187,8 +210,8 @@ public:
     void SetGap(int absolute) noexcept;
     void Update(bool resetMinSize = true) noexcept = 0;
 protected:
-    void UpdateLinear(Direction direction, bool resetMinSize = true) noexcept;
-    int gap = 5;
+    void UpdateLinear(Direction direction, bool resetMinSize) noexcept;
+    int gap = 25;
 };
 
 class Horizontal : public LinearBox{
@@ -199,6 +222,23 @@ public:
 class Vertical : public LinearBox{
 public:
     void Update(bool resetMinSize = true) noexcept;
+};
+
+class Margen : public Container{
+public:
+    void SetMargin(unsigned int top, unsigned int bottom, unsigned int left, unsigned int right) noexcept;
+    void SetMarginTop   (unsigned int top)    noexcept;
+    void SetMarginBottom(unsigned int bottom) noexcept;
+    void SetMarginLeft  (unsigned int left)   noexcept;
+    void SetMarginRight (unsigned int right)  noexcept;
+    void Update(bool resetMinSize = true) noexcept;
+private:
+    struct{
+        unsigned int top = 25;
+        unsigned int bottom = 25;
+        unsigned int left = 25;
+        unsigned int right = 25;
+    }margin;
 };
 
 class Label : public Control{
@@ -215,11 +255,51 @@ public:
     void Process(const sf::Event &event)   noexcept {}
     void Draw   (sf::RenderWindow &screen) noexcept;
 protected:
+    static const unsigned int REVISION_X = 15;
+    static const unsigned int REVISION_Y = 20;
     std::wstring content = L"";
     unsigned int fontSize = 50;
     sf::Font font;
     bool error = false;
     sf::Text text;
+};
+
+template<typename IndexType>
+class Button : public Control{
+public:
+    Button() noexcept
+    {
+        label->SetPreset(Preset::WRAP_AT_CENTER);
+        layer.Add(label);
+    }
+    void  SetCaption(const std::wstring &caption)   noexcept;
+    void  SetFontSize(unsigned int size)            noexcept;
+    void  SetFont(const std::string &fontFile)      noexcept;
+    void  SetName(const std::wstring &newName)      noexcept;
+    void  SetEnterCallback(Callback function)       noexcept;
+    void  SetLeaveCallback(Callback function)       noexcept;
+    void  SetPressDownCallback(Callback function)   noexcept;
+    void  SetPressUpCallback(Callback function)     noexcept;
+    void  SetClickCallback(Callback function)       noexcept;
+    bool  GetEntered()                       const  noexcept { return entered; }
+    bool  GetPressed()                       const  noexcept { return pressed; }
+    void Update (bool resetMinSize = true) noexcept;
+    void Process(const sf::Event &event)   noexcept;
+    void Draw   (sf::RenderWindow &screen) noexcept;
+protected:
+    using Callback = std::function<void (IndexType, const sf::Event &)>;
+    void SetEntered(bool flag) noexcept;
+    void SetPressed(bool flag) noexcept;
+    Label *label = new Label;
+    bool entered = false;
+    bool pressed = false;
+    std::wstring name = L"default";
+    Callback enterCallback = [](IndexType name, const sf::Event &event){};
+    Callback leaveCallback = [](IndexType name, const sf::Event &event){};
+    Callback pressDownCallback = [](IndexType name, const sf::Event &event){};
+    Callback pressUpCallback = [](IndexType name, const sf::Event &event){};
+    Callback clickCallback = [](IndexType name, const sf::Event &event){};
+    Flat layer;
 };
 
 }

@@ -60,7 +60,7 @@ void ui::Control::SetPreset(Direction direction, Preset preset) noexcept
             SetAnchor(direction, 50);
             break;
     }
-    SetPotistion(direction, 0);
+    SetPosition(direction, 0);
 }
 
 void ui::Control::SetMinSize(Direction directrion, unsigned int absolute) noexcept
@@ -112,6 +112,7 @@ ui::Control::~Control() noexcept
 void ui::Container::Add(Control *control) noexcept
 {
     children.push_back(control);
+    control->SetParent(this);
     Update();
 }
 
@@ -138,23 +139,16 @@ void ui::Container::Process(const sf::Event &event) noexcept
 
 void ui::Container::Draw(sf::RenderWindow &screen) noexcept
 {
-    sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
-    rect.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]});
-    rect.setOutlineColor(sf::Color::Yellow);
-    rect.setOutlineThickness(1);
-    rect.setFillColor(sf::Color(0, 0, 0, 0));
-    screen.draw(rect);
-
     for (auto child : children) {
         child->Draw(screen);
     }
+
+    DRAW_DEBUG_RECT;
 }
 
 ui::Container::~Container() noexcept
 {
-    for (auto child : children) {
-        delete child;
-    }
+    FreeAll();
 }
 
 void ui::Screen::SetRange(unsigned int width, unsigned int height) noexcept
@@ -306,15 +300,15 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
                 break;
         }
     }
-    if (resetMinSize) SetMinSize(direction, directionMinSize);
-    unsigned int sizeLeft    = globalSize[direction] - sizeOccupied;
+    if (resetMinSize) SetMinSize(direction, directionMinSize + std::max(0ull, children.size() - 1) * gap);
+    unsigned int sizeLeft    = globalSize[direction] - std::max(0ull, children.size() - 1) * gap - sizeOccupied;
     unsigned int tmpPosition = 0;
     for (auto child : children) {
         if (child->GetSizeValueType(direction) == ValueType::PERCENTAGE) {
             child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / ratioSum);
         }
         child->SetGlobalPosition(direction, globalPosition[direction] + tmpPosition);
-        tmpPosition += child->GetGlobalSize(direction);
+        tmpPosition += child->GetGlobalSize(direction) + gap;
     }
 }
 
@@ -351,8 +345,8 @@ void ui::Label::Update(bool resetMinSize) noexcept
     text.setFont(font);
     text.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]});
     if (resetMinSize) {
-        SetMinSize(Direction::HORIZONTAL, text.getGlobalBounds().getSize().x);
-        SetMinSize(Direction::VERTICAL, text.getGlobalBounds().getSize().y);
+        SetMinSize(Direction::HORIZONTAL, text.getGlobalBounds().getSize().x + REVISION_X);
+        SetMinSize(Direction::VERTICAL, text.getGlobalBounds().getSize().y + REVISION_Y);
     }
 }
 
@@ -364,14 +358,194 @@ void ui::Label::SetFontSize(unsigned int size) noexcept
 
 void ui::Label::Draw(sf::RenderWindow &screen) noexcept
 {
-    sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
-    rect.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]});
-    rect.setOutlineColor(sf::Color::Yellow);
-    rect.setOutlineThickness(1);
-    rect.setFillColor(sf::Color(0, 0, 0, 0));
-    screen.draw(rect);
-
     if (!error) {
         screen.draw(text);
+    }
+
+    DRAW_DEBUG_RECT;
+}
+
+void ui::Button::SetCaption(const std::wstring &caption) noexcept
+{
+    label->SetContent(caption);
+    Update();
+}
+
+void ui::Button::SetFontSize(unsigned int size) noexcept
+{
+    label->SetFontSize(size);
+    Update();
+}
+
+void ui::Button::SetFont(const std::string &fontFile) noexcept
+{
+    label->SetFont(fontFile);
+    Update();
+}
+
+void ui::Button::SetName(const std::wstring &newName) noexcept
+{
+    name = newName;
+}
+
+void ui::Button::SetEnterCallback(Callback function) noexcept
+{
+    enterCallback = function;
+}
+
+void ui::Button::SetLeaveCallback(Callback function) noexcept
+{
+    leaveCallback = function;
+}
+
+void ui::Button::SetPressDownCallback(Callback function) noexcept
+{
+    pressDownCallback = function;
+}
+
+void ui::Button::SetPressUpCallback(Callback function) noexcept
+{
+    pressUpCallback = function;
+}
+
+void ui::Button::SetClickCallback(Callback function) noexcept
+{
+    clickCallback = function;
+}
+
+void ui::Button::Update(bool resetMinSize) noexcept
+{
+    layer.SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL]);
+    layer.SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL]);
+    layer.SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL]);
+    layer.SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL]);
+    if (resetMinSize) {
+        SetMinSize(Direction::HORIZONTAL, label->GetMinSize(Direction::HORIZONTAL));
+        SetMinSize(Direction::VERTICAL, label->GetMinSize(Direction::VERTICAL));
+    }
+}
+
+bool ui::Control::IsInside(int x, int y) const noexcept
+{
+    auto x0 = globalPosition[Direction::HORIZONTAL];
+    auto xx = x0 + globalSize[Direction::HORIZONTAL];
+    auto y0 = globalPosition[Direction::VERTICAL];
+    auto yy = y0 + globalSize[Direction::VERTICAL];
+    if (x0 <= x && x <= xx && y0 <= y && y <= yy) {
+        return true;
+    }
+    return false;
+}
+
+void ui::Button::Process(const sf::Event &event) noexcept
+{
+    if (event.type == sf::Event::MouseMoved) {
+        if (IsInside(event.mouseMove.x, event.mouseMove.y)) {
+            if (!entered) {
+                SetEntered(true);
+                enterCallback(name, event);
+            }
+        } else {
+            if (entered) {
+                SetEntered(false);
+                leaveCallback(name, event);
+            }
+        }
+    } else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            if (IsInside(event.mouseButton.x, event.mouseButton.y)) {
+                if (!pressed) {
+                    SetPressed(true);
+                    pressDownCallback(name, event);
+                }
+            }
+        }
+    } else if (event.type == sf::Event::MouseButtonReleased) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            if (pressed) {
+                SetPressed(false);
+                pressUpCallback(name, event);
+                if (IsInside(event.mouseButton.x, event.mouseButton.y)) {
+                    clickCallback(name, event);
+                }
+            }
+        }
+    }
+}
+
+void ui::Button::Draw(sf::RenderWindow &screen) noexcept
+{
+    sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
+    rect.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]});
+    rect.setOutlineThickness(5);
+    if (entered) {
+        rect.setOutlineColor(sf::Color::Blue);
+    } else {
+        rect.setOutlineColor(sf::Color::White);
+    }
+    if (pressed) {
+        rect.setFillColor(sf::Color::Blue);
+    } else {
+        rect.setFillColor(sf::Color(0, 0, 0, 0));
+    }
+    screen.draw(rect);
+    layer.Draw(screen);
+
+    DRAW_DEBUG_RECT;
+}
+
+void ui::Button::SetEntered(bool flag) noexcept
+{
+    entered = flag;
+    Update();
+}
+
+void ui::Button::SetPressed(bool flag) noexcept
+{
+    pressed = flag;
+    Update();
+}
+
+void ui::Margen::SetMargin(unsigned int top, unsigned int bottom, unsigned int left, unsigned int right) noexcept
+{
+    margin = {top, bottom, left, right};
+    Update();
+}
+
+void ui::Margen::SetMarginTop(unsigned int top) noexcept
+{
+    margin.top = top;
+    Update();
+}
+
+void ui::Margen::SetMarginBottom(unsigned int bottom) noexcept
+{
+    margin.bottom = bottom;
+    Update();
+}
+
+void ui::Margen::SetMarginLeft(unsigned int left) noexcept
+{
+    margin.left = left;
+    Update();
+}
+
+void ui::Margen::SetMarginRight(unsigned int right) noexcept
+{
+    margin.right = right;
+    Update();
+}
+
+void ui::Margen::Update(bool resetMinSize) noexcept
+{
+    for (auto child : children) {
+        child->SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL] - margin.left - margin.right);
+        child->SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL] - margin.top - margin.bottom);
+        child->SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL] + margin.left);
+        child->SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL] + margin.top);
+        if (resetMinSize) {
+            SetMinSize(Direction::HORIZONTAL, child->GetMinSize(Direction::HORIZONTAL) + margin.left + margin.right);
+            SetMinSize(Direction::VERTICAL, child->GetMinSize(Direction::VERTICAL) + margin.top + margin.bottom);
+        }
     }
 }
