@@ -12,10 +12,55 @@ void ui::Control::SetAnchor(Direction directrion, int percentage) noexcept
     if (parent) parent->Update();
 }
 
-void ui::Control::SetPotistion(Direction directrion, int absolute) noexcept
+void ui::Control::SetPosition(Direction directrion, int absolute) noexcept
 {
     position[directrion] = absolute;
     if (parent) parent->Update();
+}
+
+void ui::Control::AddTo(Container *container) noexcept
+{
+    container->Add(this);
+}
+
+void ui::Control::SetPreset(Direction direction, Preset preset) noexcept
+{
+    switch (preset) {
+        case Preset::WRAP_AT_FRONT:
+        case Preset::WRAP_AT_END:
+        case Preset::WRAP_AT_CENTER:
+            SetSizeValueType(direction, ValueType::ABSOLUTE);
+            SetSizeWrap(direction, true);
+            break;
+        case Preset::FILL_FROM_FRONT:
+        case Preset::FILL_FROM_END:
+        case Preset::FILL_FROM_CENTER:
+            SetSizeValueType(direction, ValueType::PERCENTAGE);
+            SetSize(direction, 100);
+            break;
+    }
+
+    switch (preset) {
+        case Preset::PLACR_AT_FRONT:
+        case Preset::WRAP_AT_FRONT:
+        case Preset::FILL_FROM_FRONT:
+            SetCenter(direction, 0);
+            SetAnchor(direction, 0);
+            break;
+        case Preset::PLACR_AT_END:
+        case Preset::WRAP_AT_END:
+        case Preset::FILL_FROM_END:
+            SetCenter(direction, 100);
+            SetAnchor(direction, 100);
+            break;
+        case Preset::PLACR_AT_CENTER:
+        case Preset::WRAP_AT_CENTER:
+        case Preset::FILL_FROM_CENTER:
+            SetCenter(direction, 50);
+            SetAnchor(direction, 50);
+            break;
+    }
+    SetPotistion(direction, 0);
 }
 
 void ui::Control::SetMinSize(Direction directrion, unsigned int absolute) noexcept
@@ -50,13 +95,13 @@ void ui::Control::SetParent(Container *container) noexcept
 void ui::Control::SetGlobalPosition(Direction directrion, int absolute) noexcept
 {
     globalPosition[directrion] = absolute;
-    Update();
+    Update(false);
 }
 
 void ui::Control::SetGlobalSize(Direction directrion, unsigned int absolute) noexcept
 {
     globalSize[directrion] = absolute;
-    Update();
+    Update(false);
 }
 
 ui::Control::~Control() noexcept
@@ -93,6 +138,13 @@ void ui::Container::Process(const sf::Event &event) noexcept
 
 void ui::Container::Draw(sf::RenderWindow &screen) noexcept
 {
+    sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
+    rect.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]});
+    rect.setOutlineColor(sf::Color::Yellow);
+    rect.setOutlineThickness(1);
+    rect.setFillColor(sf::Color(0, 0, 0, 0));
+    screen.draw(rect);
+
     for (auto child : children) {
         child->Draw(screen);
     }
@@ -130,6 +182,8 @@ void ui::Screen::Tick() noexcept
         } else if (event.type == sf::Event::Resized) {
             SetGlobalSize(Direction::HORIZONTAL, event.size.width);
             SetGlobalSize(Direction::VERTICAL, event.size.height);
+            sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
+            screen.setView(sf::View(visibleArea));
         } else {
             Process(event);
         }
@@ -139,15 +193,12 @@ void ui::Screen::Tick() noexcept
     }
 }
 
-void ui::Flat::Update() noexcept
+void ui::Flat::Update(bool resetMinSize) noexcept
 {
     for (auto direction : {Direction::HORIZONTAL, Direction::VERTICAL}) {
-        unsigned int myMinSize = 0;
         for (auto child : children) {
             UpdateByDefault(direction, child);
-            myMinSize = std::max(myMinSize, child->GetGlobalSize(direction));
         }
-        SetMinSize(direction, myMinSize);
     }
 }
 
@@ -182,7 +233,7 @@ unsigned int ui::Container::ObtainDefaultGlobalSize(ValueType sizeValueType, boo
     unsigned int tmpSize;
     switch (sizeValueType) {
         case ValueType::ABSOLUTE:
-            if (wrap) tmpSize =  minSize;
+            if (wrap) tmpSize = minSize;
             else      tmpSize = size;
             break;
         case ValueType::PERCENTAGE:
@@ -201,7 +252,7 @@ int ui::Container::ObtainDefaultGlobalPosition(int center, int anchor, int posit
     return thisPosition;
 }
 
-void ui::Center::Update() noexcept
+void ui::Center::Update(bool resetMinSize) noexcept
 {
     for (auto direction : {Direction::HORIZONTAL, Direction::VERTICAL}) {
         unsigned int myMinSize = 0;
@@ -210,7 +261,7 @@ void ui::Center::Update() noexcept
             child->SetGlobalPosition(direction, globalPosition[direction] + (globalSize[direction] - child->GetGlobalSize(direction)) / 2);
             myMinSize = std::max(myMinSize, child->GetGlobalSize(direction));
         }
-        SetMinSize(direction, myMinSize);
+        if (resetMinSize) SetMinSize(direction, myMinSize);
     }
 }
 
@@ -220,7 +271,7 @@ void ui::LinearBox::SetGap(int absolute) noexcept
     Update();
 }
 
-void ui::LinearBox::UpdateLinear(Direction direction) noexcept
+void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcept
 {
     Direction another;
     switch (direction) {
@@ -237,7 +288,7 @@ void ui::LinearBox::UpdateLinear(Direction direction) noexcept
         UpdateByDefault(another, child);
         anotherMinSize = std::max(anotherMinSize, child->GetGlobalSize(another));
     }
-    SetMinSize(another, anotherMinSize);
+    if (resetMinSize) SetMinSize(another, anotherMinSize);
 
     unsigned int directionMinSize = 0;
     unsigned int sizeOccupied     = 0;
@@ -255,7 +306,7 @@ void ui::LinearBox::UpdateLinear(Direction direction) noexcept
                 break;
         }
     }
-    SetMinSize(direction, directionMinSize);
+    if (resetMinSize) SetMinSize(direction, directionMinSize);
     unsigned int sizeLeft    = globalSize[direction] - sizeOccupied;
     unsigned int tmpPosition = 0;
     for (auto child : children) {
@@ -267,14 +318,14 @@ void ui::LinearBox::UpdateLinear(Direction direction) noexcept
     }
 }
 
-void ui::Horizontal::Update() noexcept
+void ui::Horizontal::Update(bool resetMinSize) noexcept
 {
-    UpdateLinear(Direction::HORIZONTAL);
+    UpdateLinear(Direction::HORIZONTAL, resetMinSize);
 }
 
-void ui::Vertical::Update() noexcept
+void ui::Vertical::Update(bool resetMinSize) noexcept
 {
-    UpdateLinear(Direction::VERTICAL);
+    UpdateLinear(Direction::VERTICAL, resetMinSize);
 }
 
 const std::string ui::Label::FONT_FILE_PATH = "../assets/simfang.ttf";
@@ -293,21 +344,34 @@ void ui::Label::SetFont(const std::string &fontFile) noexcept
     Update();
 }
 
+void ui::Label::Update(bool resetMinSize) noexcept
+{
+    text.setString(content);
+    text.setCharacterSize(fontSize);
+    text.setFont(font);
+    text.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]});
+    if (resetMinSize) {
+        SetMinSize(Direction::HORIZONTAL, text.getGlobalBounds().getSize().x);
+        SetMinSize(Direction::VERTICAL, text.getGlobalBounds().getSize().y);
+    }
+}
+
 void ui::Label::SetFontSize(unsigned int size) noexcept
 {
     fontSize = size;
     Update();
 }
 
-void ui::Label::Update() noexcept
-{
-    text.setFont(font);
-    text.setString(content);
-    text.setCharacterSize(fontSize);
-    text.setPosition({globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]});
-}
-
 void ui::Label::Draw(sf::RenderWindow &screen) noexcept
 {
-    screen.draw(text);
+    sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
+    rect.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]});
+    rect.setOutlineColor(sf::Color::Yellow);
+    rect.setOutlineThickness(1);
+    rect.setFillColor(sf::Color(0, 0, 0, 0));
+    screen.draw(rect);
+
+    if (!error) {
+        screen.draw(text);
+    }
 }

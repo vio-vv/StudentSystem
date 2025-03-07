@@ -36,6 +36,11 @@ public:
     enum class ValueType{
         PERCENTAGE, ABSOLUTE
     };
+    enum class Preset{
+        PLACR_AT_FRONT,  PLACR_AT_END,  PLACR_AT_CENTER,
+        WRAP_AT_FRONT,   WRAP_AT_END,   WRAP_AT_CENTER,
+        FILL_FROM_FRONT, FILL_FROM_END, FILL_FROM_CENTER
+    };
 
     void SetSizeValueType(Direction direction, ValueType valueType)    noexcept;
     void SetSizeWrap     (Direction directrion, bool flag)             noexcept;
@@ -43,11 +48,30 @@ public:
     void SetMinSize      (Direction directrion, unsigned int absolute) noexcept;
     void SetCenter    (Direction directrion, int percentage) noexcept;
     void SetAnchor    (Direction directrion, int percentage) noexcept;
-    void SetPotistion (Direction directrion, int absolute)   noexcept;
+    void SetPosition (Direction directrion, int absolute)   noexcept;
 
-    virtual void Update ()                         noexcept = 0;
-    virtual void Process(const sf::Event &event)   noexcept = 0;
-    virtual void Draw   (sf::RenderWindow &screen) noexcept = 0;
+    void AddTo    (Container *container)               noexcept;
+    void SetPreset(Direction direction, Preset preset) noexcept;
+    void SetHSizeValueType(ValueType valueType)   noexcept { SetSizeValueType(Direction::HORIZONTAL, valueType); }
+    void SetVSizeValueType(ValueType valueType)   noexcept { SetSizeValueType(Direction::VERTICAL,   valueType); }
+    void SetHSizeWrap     (bool flag)             noexcept { SetSizeWrap(Direction::HORIZONTAL, flag); }
+    void SetVSizeWrap     (bool flag)             noexcept { SetSizeWrap(Direction::VERTICAL,   flag); }
+    void SetHSize         (unsigned int value)    noexcept { SetSize(Direction::HORIZONTAL, value); }
+    void SetVSize         (unsigned int value)    noexcept { SetSize(Direction::VERTICAL,   value); }
+    void SetHMinSize      (unsigned int absolute) noexcept { SetMinSize(Direction::HORIZONTAL, absolute); }
+    void SetVMinSize      (unsigned int absolute) noexcept { SetMinSize(Direction::VERTICAL,   absolute); }
+    void SetHCenter       (int percentage)        noexcept { SetCenter(Direction::HORIZONTAL, percentage); }
+    void SetVCenter       (int percentage)        noexcept { SetCenter(Direction::VERTICAL,   percentage); }
+    void SetHAnchor       (int percentage)        noexcept { SetAnchor(Direction::HORIZONTAL, percentage); }
+    void SetVAnchor       (int percentage)        noexcept { SetAnchor(Direction::VERTICAL,   percentage); }
+    void SetHPosition     (int absolute)          noexcept { SetPosition(Direction::HORIZONTAL, absolute); }
+    void SetVPosition     (int absolute)          noexcept { SetPosition(Direction::VERTICAL,   absolute); }
+    void SetHPreset       (Preset preset)         noexcept { SetPreset(Direction::HORIZONTAL, preset); }
+    void SetVPreset       (Preset preset)         noexcept { SetPreset(Direction::VERTICAL,   preset); }
+
+    virtual void Update  (bool resetMinSize = true) noexcept = 0;
+    virtual void Process (const sf::Event &event)   noexcept = 0;
+    virtual void Draw    (sf::RenderWindow &screen) noexcept = 0;
 
     void SetParent        (Container *container)                        noexcept;
     void SetGlobalSize    (Direction directrion, unsigned int absolute) noexcept;
@@ -58,7 +82,7 @@ public:
     ValueType    GetSizeValueType(Direction direction) const noexcept { return sizeValueType[direction]; }
     bool         GetSizeWrap     (Direction direction) const noexcept { return sizeWrap[direction]; }
     unsigned int GetSize         (Direction direction) const noexcept { return size[direction]; }
-    unsigned int GetMinSize      (Direction direction) const noexcept { return sizeWrap[direction]; }
+    unsigned int GetMinSize      (Direction direction) const noexcept { return minSize[direction]; }
     int  GetCenter  (Direction direction) const noexcept { return center[direction]; }
     int  GetAnchor  (Direction direction) const noexcept { return anchor[direction]; }
     int  GetPosition(Direction direction) const noexcept { return position[direction]; }
@@ -76,6 +100,7 @@ protected:
                 case Direction::HORIZONTAL: return horizontal;
                 case Direction::VERTICAL:   return vertical;
             }
+            return horizontal;
         }
         const T &operator[](Direction direction) const noexcept 
         {
@@ -83,6 +108,7 @@ protected:
                 case Direction::HORIZONTAL: return horizontal;
                 case Direction::VERTICAL:   return vertical;
             }
+            return horizontal;
         }
     };
 
@@ -105,7 +131,7 @@ public:
     void Remove  (Control *control) noexcept;
     void FreeAll ()                 noexcept;
 
-    void Update ()                         noexcept = 0;
+    void Update (bool resetMinSize = true) noexcept = 0;
     void Process(const sf::Event &event)   noexcept;
     void Draw   (sf::RenderWindow &screen) noexcept;
 
@@ -123,49 +149,56 @@ protected:
 
 class Flat : public Container{
 public:
-    void Update() noexcept;
+    void Update(bool resetMinSize = true) noexcept;
 };
 
 class Screen : public Flat{
 public:
+    sf::RenderWindow &Get() noexcept { return screen; }
     Screen() noexcept
     {
-        screen.create(sf::VideoMode({globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]}), "Caption");
+        unsigned int width = globalSize[Direction::HORIZONTAL];
+        unsigned int height = globalSize[Direction::VERTICAL];
+        screen.create(sf::VideoMode({width, height}), "Caption");
+        screen.setVerticalSyncEnabled(true);
     }
     Screen(unsigned int width, unsigned int height, const std::wstring &caption) noexcept
     {
         screen.create(sf::VideoMode({width, height}), caption);
+        screen.setVerticalSyncEnabled(true);
+        SetGlobalSize(Direction::HORIZONTAL, width);
+        SetGlobalSize(Direction::VERTICAL, height);
     }
-    void SetRange(unsigned int width, unsigned int height) noexcept;
-    void SetCaption(const std::wstring &caption) noexcept;
-    bool IsOpen() const noexcept;
-    void Tick() noexcept;
+    void SetRange  (unsigned int width, unsigned int height) noexcept;
+    void SetCaption(const std::wstring &caption)             noexcept;
+    bool IsOpen    ()                                  const noexcept;
+    void Tick      ()                                        noexcept;
 protected:
     sf::RenderWindow screen;
 };
 
 class Center : public Container{
 public:
-    void Update() noexcept;
+    void Update(bool resetMinSize = true) noexcept;
 };
 
 class LinearBox : public Container{
 public:
     void SetGap(int absolute) noexcept;
-    void Update() noexcept = 0;
+    void Update(bool resetMinSize = true) noexcept = 0;
 protected:
-    void UpdateLinear(Direction direction) noexcept;
+    void UpdateLinear(Direction direction, bool resetMinSize = true) noexcept;
     int gap = 5;
 };
 
 class Horizontal : public LinearBox{
 public:
-    void Update() noexcept;
+    void Update(bool resetMinSize = true) noexcept;
 };
 
 class Vertical : public LinearBox{
 public:
-    void Update() noexcept;
+    void Update(bool resetMinSize = true) noexcept;
 };
 
 class Label : public Control{
@@ -176,17 +209,17 @@ public:
         SetFont(FONT_FILE_PATH);
     }
     void SetContent(const std::wstring &newContent) noexcept;
-    void SetFont(const std::string &fontFile)       noexcept;
     void SetFontSize(unsigned int size)             noexcept;
-    void Update ()                         noexcept;
+    void SetFont(const std::string &fontFile)       noexcept;
+    void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event)   noexcept {}
     void Draw   (sf::RenderWindow &screen) noexcept;
 protected:
     std::wstring content = L"";
+    unsigned int fontSize = 50;
     sf::Font font;
-    sf::Text text;
-    unsigned int fontSize = 16;
     bool error = false;
+    sf::Text text;
 };
 
 }
