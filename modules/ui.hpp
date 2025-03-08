@@ -1,13 +1,19 @@
 #ifndef __UI_HPP__
 #define __UI_HPP__
 
+#define DEBUG
+
+#ifdef DEBUG
 #define DRAW_DEBUG_RECT \
     sf::RectangleShape ____(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL])); \
-    ____.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]}); \
+    ____.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL])); \
     ____.setOutlineColor(sf::Color::Yellow); \
     ____.setOutlineThickness(1); \
     ____.setFillColor(sf::Color(0, 0, 0, 0)); \
-    screen.draw(____) \
+    screen.draw(____)
+#else
+#define DRAW_DEBUG_RECT
+#endif
 
 /**
  * @brief 实现 UI 界面的布局和绘制。
@@ -38,6 +44,7 @@ class Control;
         class Margen;
     class Label;
     class Button;
+    class InputBox;
 
 class Control{
 public:
@@ -60,6 +67,7 @@ public:
     void SetCenter    (Direction directrion, int percentage) noexcept;
     void SetAnchor    (Direction directrion, int percentage) noexcept;
     void SetPosition  (Direction directrion, int absolute)   noexcept;
+    void SetVisible (bool flag) noexcept;
 
     void AddTo    (Container *container)               noexcept;
     void SetPreset(Direction direction, Preset preset) noexcept;
@@ -105,10 +113,9 @@ public:
     int  GetCenter  (Direction direction) const noexcept { return center[direction]; }
     int  GetAnchor  (Direction direction) const noexcept { return anchor[direction]; }
     int  GetPosition(Direction direction) const noexcept { return position[direction]; }
+    bool GetVisible() const noexcept { return visible; }
 
     virtual ~Control() noexcept;
-
-    
 protected:
     bool IsInside(int x, int y) const noexcept;
 
@@ -134,14 +141,16 @@ protected:
             return horizontal;
         }
     };
+    using Callback = std::function<void (std::wstring, const sf::Event &)>;
 
     Around<ValueType>    sizeValueType = {ValueType::ABSOLUTE, ValueType::ABSOLUTE};
     Around<bool>         sizeWrap      = {false, false};
     Around<unsigned int> size          = {200, 100};
-    Around<unsigned int> minSize       = {200, 100};
+    Around<unsigned int> minSize       = {0, 0};
     Around<int> center   = {0, 0};
     Around<int> anchor   = {0, 0};
     Around<int> position = {0, 0};
+    bool        visible = true;
 
     Container           *parent         = nullptr;
     Around<unsigned int> globalSize     = {200, 100};
@@ -202,6 +211,10 @@ protected:
 
 class Center : public Container{
 public:
+    Center() noexcept
+    {
+        Update(true);
+    }
     void Update(bool resetMinSize = true) noexcept;
 };
 
@@ -216,16 +229,28 @@ protected:
 
 class Horizontal : public LinearBox{
 public:
+    Horizontal() noexcept
+    {
+        Update(true);
+    }
     void Update(bool resetMinSize = true) noexcept;
 };
 
 class Vertical : public LinearBox{
 public:
+    Vertical() noexcept
+    {
+        Update(true);
+    }
     void Update(bool resetMinSize = true) noexcept;
 };
 
 class Margen : public Container{
 public:
+    Margen() noexcept
+    {
+        Update(true);
+    }
     void SetMargin(unsigned int top, unsigned int bottom, unsigned int left, unsigned int right) noexcept;
     void SetMarginTop   (unsigned int top)    noexcept;
     void SetMarginBottom(unsigned int bottom) noexcept;
@@ -247,10 +272,14 @@ public:
     Label() noexcept
     {
         SetFont(FONT_FILE_PATH);
+        Update(true);
     }
     void SetContent(const std::wstring &newContent) noexcept;
     void SetFontSize(unsigned int size)             noexcept;
+    void SetFontColor(const sf::Color &color)       noexcept;
     void SetFont(const std::string &fontFile)       noexcept;
+    std::wstring GetContent() const noexcept { return content; }
+    bool         GetError()   const noexcept { return error; }
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event)   noexcept {}
     void Draw   (sf::RenderWindow &screen) noexcept;
@@ -259,46 +288,92 @@ protected:
     static const unsigned int REVISION_Y = 20;
     std::wstring content = L"";
     unsigned int fontSize = 50;
+    sf::Color fontColor = sf::Color::White;
     sf::Font font;
     bool error = false;
     sf::Text text;
 };
 
-template<typename IndexType>
 class Button : public Control{
 public:
     Button() noexcept
     {
         label->SetPreset(Preset::WRAP_AT_CENTER);
         layer.Add(label);
+        Update(true);
     }
-    void  SetCaption(const std::wstring &caption)   noexcept;
-    void  SetFontSize(unsigned int size)            noexcept;
-    void  SetFont(const std::string &fontFile)      noexcept;
-    void  SetName(const std::wstring &newName)      noexcept;
-    void  SetEnterCallback(Callback function)       noexcept;
-    void  SetLeaveCallback(Callback function)       noexcept;
-    void  SetPressDownCallback(Callback function)   noexcept;
-    void  SetPressUpCallback(Callback function)     noexcept;
-    void  SetClickCallback(Callback function)       noexcept;
-    bool  GetEntered()                       const  noexcept { return entered; }
-    bool  GetPressed()                       const  noexcept { return pressed; }
+    void SetCaption(const std::wstring &caption)   noexcept;
+    void SetFontSize(unsigned int size)            noexcept;
+    void SetFontColor(const sf::Color &color)      noexcept;
+    void SetFont(const std::string &fontFile)      noexcept;
+    void SetName(const std::wstring &newName)    noexcept { name = newName; }
+    void SetEnterCallback(Callback function)     noexcept { enterCallback = function; }
+    void SetLeaveCallback(Callback function)     noexcept { leaveCallback = function; }
+    void SetPressDownCallback(Callback function) noexcept { pressDownCallback = function; }
+    void SetPressUpCallback(Callback function)   noexcept { pressUpCallback = function; }
+    void SetClickCallback(Callback function)     noexcept { clickCallback = function; }
+    std::wstring GetCaption() const noexcept { return label->GetContent(); }
+    bool         GetEntered() const noexcept { return entered; }
+    bool         GetPressed() const noexcept { return pressed; }
+    bool         GetError()   const noexcept { return label->GetError(); }
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event)   noexcept;
     void Draw   (sf::RenderWindow &screen) noexcept;
 protected:
-    using Callback = std::function<void (IndexType, const sf::Event &)>;
     void SetEntered(bool flag) noexcept;
     void SetPressed(bool flag) noexcept;
     Label *label = new Label;
     bool entered = false;
     bool pressed = false;
     std::wstring name = L"default";
-    Callback enterCallback = [](IndexType name, const sf::Event &event){};
-    Callback leaveCallback = [](IndexType name, const sf::Event &event){};
-    Callback pressDownCallback = [](IndexType name, const sf::Event &event){};
-    Callback pressUpCallback = [](IndexType name, const sf::Event &event){};
-    Callback clickCallback = [](IndexType name, const sf::Event &event){};
+    Callback enterCallback = [](std::wstring name, const sf::Event &event){};
+    Callback leaveCallback = [](std::wstring name, const sf::Event &event){};
+    Callback pressDownCallback = [](std::wstring name, const sf::Event &event){};
+    Callback pressUpCallback = [](std::wstring name, const sf::Event &event){};
+    Callback clickCallback = [](std::wstring name, const sf::Event &event){};
+    Flat layer;
+};
+
+class InputBox : public Control{
+public:
+    InputBox() noexcept
+    {
+        button->SetPreset(Preset::FILL_FROM_CENTER);
+        button->SetClickCallback([this](std::wstring name, const sf::Event &event){
+            this->SetInputting(true);
+        });
+        label->SetPreset(Preset::FILL_FROM_CENTER);
+        layer.Add(button);
+        layer.Add(label);
+        Update(true);
+    }
+    void SetText(std::wstring text)                noexcept;
+    void SetFontSize(unsigned int size)            noexcept;
+    void SetFontColor(const sf::Color &color)      noexcept;
+    void SetFont(const std::string &fontFile)      noexcept;
+    void SetSensitivity(unsigned int value)        noexcept { sensitivity = value; }
+    void SetContinuousInterval(unsigned int value) noexcept { continuousInterval = value; }
+    void SetName(const std::wstring &newName) noexcept { name = newName; }
+    void SetBeginCallback(Callback function)  noexcept { beginCallback = function; }
+    void SetInputCallback(Callback function)  noexcept { inputCallback = function; }
+    void SetEndCallback(Callback function)    noexcept { endCallback = function; }
+    std::wstring GetText() const noexcept { return label->GetContent(); }
+    bool GetInputting()    const noexcept { return inputting; }
+    bool GetError()        const noexcept { return button->GetError() || label->GetError(); }
+    void Update (bool resetMinSize = true) noexcept;
+    void Process(const sf::Event &event)   noexcept;
+    void Draw   (sf::RenderWindow &screen) noexcept;
+protected:
+    void SetInputting(bool flag) noexcept;
+    Button *button = new Button;
+    Label *label = new Label;
+    unsigned int sensitivity = 800;
+    unsigned int continuousInterval = 50;
+    bool inputting = false;
+    std::wstring name = L"default";
+    Callback beginCallback = [](std::wstring name, const sf::Event &event){};
+    Callback inputCallback = [](std::wstring name, const sf::Event &event){};
+    Callback endCallback = [](std::wstring name, const sf::Event &event){};
     Flat layer;
 };
 

@@ -18,6 +18,12 @@ void ui::Control::SetPosition(Direction directrion, int absolute) noexcept
     if (parent) parent->Update();
 }
 
+void ui::Control::SetVisible(bool flag) noexcept
+{
+    visible = flag;
+    if (parent) parent->Update();
+}
+
 void ui::Control::AddTo(Container *container) noexcept
 {
     container->Add(this);
@@ -133,6 +139,7 @@ void ui::Container::FreeAll() noexcept
 void ui::Container::Process(const sf::Event &event) noexcept
 {
     for (auto child : children) {
+        if (!child->GetVisible()) continue;
         child->Process(event);
     }
 }
@@ -140,6 +147,7 @@ void ui::Container::Process(const sf::Event &event) noexcept
 void ui::Container::Draw(sf::RenderWindow &screen) noexcept
 {
     for (auto child : children) {
+        if (!child->GetVisible()) continue;
         child->Draw(screen);
     }
 
@@ -191,6 +199,7 @@ void ui::Flat::Update(bool resetMinSize) noexcept
 {
     for (auto direction : {Direction::HORIZONTAL, Direction::VERTICAL}) {
         for (auto child : children) {
+            if (!child->GetVisible()) continue;
             UpdateByDefault(direction, child);
         }
     }
@@ -251,9 +260,17 @@ void ui::Center::Update(bool resetMinSize) noexcept
     for (auto direction : {Direction::HORIZONTAL, Direction::VERTICAL}) {
         unsigned int myMinSize = 0;
         for (auto child : children) {
+            if (!child->GetVisible()) continue;
             UpdateSizeByDefault(direction, child);
             child->SetGlobalPosition(direction, globalPosition[direction] + (globalSize[direction] - child->GetGlobalSize(direction)) / 2);
-            myMinSize = std::max(myMinSize, child->GetGlobalSize(direction));
+            switch (child->GetSizeValueType(direction)) {
+                case ValueType::ABSOLUTE:
+                    myMinSize = std::max(myMinSize, child->GetGlobalSize(direction));
+                    break;
+                case ValueType::PERCENTAGE:
+                    myMinSize = std::max(myMinSize, child->GetMinSize(direction));
+                    break;
+            }
         }
         if (resetMinSize) SetMinSize(direction, myMinSize);
     }
@@ -279,15 +296,25 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
 
     unsigned int anotherMinSize = 0;
     for (auto child : children) {
+        if (!child->GetVisible()) continue;
         UpdateByDefault(another, child);
-        anotherMinSize = std::max(anotherMinSize, child->GetGlobalSize(another));
+        switch (child->GetSizeValueType(another)) {
+            case ValueType::ABSOLUTE:
+                anotherMinSize = std::max(anotherMinSize, child->GetGlobalSize(another));
+                break;
+            case ValueType::PERCENTAGE:
+                anotherMinSize = std::max(anotherMinSize, child->GetMinSize(another));
+                break;
+        }
     }
     if (resetMinSize) SetMinSize(another, anotherMinSize);
 
     unsigned int directionMinSize = 0;
     unsigned int sizeOccupied     = 0;
     unsigned int ratioSum         = 0;
+    unsigned int childCount       = 0;
     for (auto child : children) {
+        if (!child->GetVisible()) continue;
         switch (child->GetSizeValueType(direction)) {
             case ValueType::ABSOLUTE:
                 UpdateSizeByDefault(direction, child);
@@ -299,11 +326,13 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
                 ratioSum         += child->GetSize(direction);
                 break;
         }
+        ++childCount;
     }
-    if (resetMinSize) SetMinSize(direction, directionMinSize + std::max(0ull, children.size() - 1) * gap);
-    unsigned int sizeLeft    = globalSize[direction] - std::max(0ull, children.size() - 1) * gap - sizeOccupied;
+    if (resetMinSize) SetMinSize(direction, directionMinSize + std::max(0u, childCount - 1) * gap);
+    unsigned int sizeLeft    = globalSize[direction] - std::max(0u, childCount - 1) * gap - sizeOccupied;
     unsigned int tmpPosition = 0;
     for (auto child : children) {
+        if (!child->GetVisible()) continue;
         if (child->GetSizeValueType(direction) == ValueType::PERCENTAGE) {
             child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / ratioSum);
         }
@@ -342,8 +371,9 @@ void ui::Label::Update(bool resetMinSize) noexcept
 {
     text.setString(content);
     text.setCharacterSize(fontSize);
+    text.setFillColor(fontColor);
     text.setFont(font);
-    text.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]});
+    text.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
     if (resetMinSize) {
         SetMinSize(Direction::HORIZONTAL, text.getGlobalBounds().getSize().x + REVISION_X);
         SetMinSize(Direction::VERTICAL, text.getGlobalBounds().getSize().y + REVISION_Y);
@@ -356,10 +386,21 @@ void ui::Label::SetFontSize(unsigned int size) noexcept
     Update();
 }
 
+void ui::Label::SetFontColor(const sf::Color &color) noexcept
+{
+    fontColor = color;
+    Update();
+}
+
 void ui::Label::Draw(sf::RenderWindow &screen) noexcept
 {
     if (!error) {
         screen.draw(text);
+    } else {
+        sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
+        rect.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
+        rect.setFillColor(sf::Color::Red);
+        screen.draw(rect);
     }
 
     DRAW_DEBUG_RECT;
@@ -377,40 +418,16 @@ void ui::Button::SetFontSize(unsigned int size) noexcept
     Update();
 }
 
+void ui::Button::SetFontColor(const sf::Color &color) noexcept
+{
+    label->SetFontColor(color);
+    Update();
+}
+
 void ui::Button::SetFont(const std::string &fontFile) noexcept
 {
     label->SetFont(fontFile);
     Update();
-}
-
-void ui::Button::SetName(const std::wstring &newName) noexcept
-{
-    name = newName;
-}
-
-void ui::Button::SetEnterCallback(Callback function) noexcept
-{
-    enterCallback = function;
-}
-
-void ui::Button::SetLeaveCallback(Callback function) noexcept
-{
-    leaveCallback = function;
-}
-
-void ui::Button::SetPressDownCallback(Callback function) noexcept
-{
-    pressDownCallback = function;
-}
-
-void ui::Button::SetPressUpCallback(Callback function) noexcept
-{
-    pressUpCallback = function;
-}
-
-void ui::Button::SetClickCallback(Callback function) noexcept
-{
-    clickCallback = function;
 }
 
 void ui::Button::Update(bool resetMinSize) noexcept
@@ -476,7 +493,7 @@ void ui::Button::Process(const sf::Event &event) noexcept
 void ui::Button::Draw(sf::RenderWindow &screen) noexcept
 {
     sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
-    rect.setPosition({(float)globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL]});
+    rect.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
     rect.setOutlineThickness(5);
     if (entered) {
         rect.setOutlineColor(sf::Color::Blue);
@@ -538,14 +555,121 @@ void ui::Margen::SetMarginRight(unsigned int right) noexcept
 
 void ui::Margen::Update(bool resetMinSize) noexcept
 {
+    unsigned int minSizeH = 0;
+    unsigned int minSizeV = 0;
     for (auto child : children) {
+        if (!child->GetVisible()) continue;
         child->SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL] - margin.left - margin.right);
         child->SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL] - margin.top - margin.bottom);
         child->SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL] + margin.left);
         child->SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL] + margin.top);
-        if (resetMinSize) {
-            SetMinSize(Direction::HORIZONTAL, child->GetMinSize(Direction::HORIZONTAL) + margin.left + margin.right);
-            SetMinSize(Direction::VERTICAL, child->GetMinSize(Direction::VERTICAL) + margin.top + margin.bottom);
+        minSizeH = std::max(minSizeH, child->GetMinSize(Direction::HORIZONTAL));
+        minSizeV = std::max(minSizeV, child->GetMinSize(Direction::VERTICAL));
+    }
+    if (resetMinSize) {
+        SetMinSize(Direction::HORIZONTAL, minSizeH + margin.left + margin.right);
+        SetMinSize(Direction::VERTICAL, minSizeV + margin.top + margin.bottom);
+    }
+}
+
+void ui::InputBox::SetText(std::wstring text) noexcept
+{
+    label->SetContent(text);
+    Update();
+}
+
+void ui::InputBox::SetFontSize(unsigned int size) noexcept
+{
+    label->SetFontSize(size);
+    Update();
+}
+
+void ui::InputBox::SetFontColor(const sf::Color &color) noexcept
+{
+    label->SetFontColor(color);
+    Update();
+}
+
+void ui::InputBox::SetFont(const std::string &fontFile) noexcept
+{
+    label->SetFont(fontFile);
+    Update();
+}
+
+void ui::InputBox::Update(bool resetMinSize) noexcept
+{
+    layer.SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL]);
+    layer.SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL]);
+    layer.SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL]);
+    layer.SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL]);
+    if (resetMinSize) {
+        SetMinSize(Direction::HORIZONTAL, label->GetMinSize(Direction::HORIZONTAL));
+        SetMinSize(Direction::VERTICAL, label->GetMinSize(Direction::VERTICAL));
+    }
+}
+
+void ui::InputBox::Process(const sf::Event &event) noexcept
+{
+    button->Process(event);
+
+    auto input = [this](wchar_t c){
+        auto content = label->GetContent();
+        switch (c)
+        {
+            case L'\b':
+                SetText(content.substr(0, content.length() - 1));
+                break;
+            default:
+                SetText(content + c);
+                break;
+        }
+    };
+    static bool continous = false;
+    static sf::Clock clock;
+    static sf::Clock interval;
+    if (event.type == sf::Event::KeyPressed) {
+        continous = false;
+    } else if (event.type == sf::Event::TextEntered) {
+        if (inputting) {
+            if (continous) {
+                if (clock.getElapsedTime().asMilliseconds() > sensitivity &&
+                    interval.getElapsedTime().asMilliseconds() > continuousInterval) {
+                    input(static_cast<wchar_t>(event.text.unicode));
+                    interval.restart();
+                }
+            } else {
+                input(static_cast<wchar_t>(event.text.unicode));
+                continous = true;
+                clock.restart();
+            }
+        }
+    } else if (event.type == sf::Event::MouseButtonReleased) {
+        if (!IsInside(event.mouseButton.x, event.mouseButton.y)) {
+            SetInputting(false);
         }
     }
+}
+
+void ui::InputBox::Draw(sf::RenderWindow &screen) noexcept
+{
+    sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
+    rect.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
+    if (inputting) {
+        rect.setOutlineColor(sf::Color::White);
+        label->SetFontColor(sf::Color::Black);
+    } else {
+        rect.setFillColor(sf::Color(0, 0, 0, 0));
+        label->SetFontColor(sf::Color::White);
+    }
+    screen.draw(rect);
+
+    layer.Draw(screen);
+
+    DRAW_DEBUG_RECT;
+}
+
+void ui::InputBox::SetInputting(bool flag) noexcept
+{
+    inputting = flag;
+    Update();
 }
