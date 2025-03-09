@@ -141,7 +141,7 @@ protected:
             return horizontal;
         }
     };
-    using Callback = std::function<void (std::wstring, const sf::Event &)>;
+    using Callback = std::function<void (const sf::String &, const sf::Event &)>;
 
     Around<ValueType>    sizeValueType = {ValueType::ABSOLUTE, ValueType::ABSOLUTE};
     Around<bool>         sizeWrap      = {false, false};
@@ -194,7 +194,7 @@ public:
         screen.create(sf::VideoMode({width, height}), "Caption");
         screen.setVerticalSyncEnabled(true);
     }
-    Screen(unsigned int width, unsigned int height, const std::wstring &caption) noexcept
+    Screen(unsigned int width, unsigned int height, const sf::String &caption) noexcept
     {
         screen.create(sf::VideoMode({width, height}), caption);
         screen.setVerticalSyncEnabled(true);
@@ -202,7 +202,7 @@ public:
         SetGlobalSize(Direction::VERTICAL, height);
     }
     void SetRange  (unsigned int width, unsigned int height) noexcept;
-    void SetCaption(const std::wstring &caption)             noexcept;
+    void SetCaption(const sf::String &caption)             noexcept;
     bool IsOpen    ()                                  const noexcept;
     void Tick      ()                                        noexcept;
 protected:
@@ -267,18 +267,18 @@ private:
 };
 
 class Label : public Control{
-    static const std::string FONT_FILE_PATH;
+    static const sf::String FONT_FILE_PATH;
 public:
     Label() noexcept
     {
         SetFont(FONT_FILE_PATH);
         Update(true);
     }
-    void SetContent(const std::wstring &newContent) noexcept;
+    void SetContent(const sf::String &newContent) noexcept;
     void SetFontSize(unsigned int size)             noexcept;
     void SetFontColor(const sf::Color &color)       noexcept;
-    void SetFont(const std::string &fontFile)       noexcept;
-    std::wstring GetContent() const noexcept { return content; }
+    void SetFont(const sf::String &fontFile)       noexcept;
+    const sf::String &GetContent() const noexcept { return content; }
     bool         GetError()   const noexcept { return error; }
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event)   noexcept {}
@@ -286,7 +286,7 @@ public:
 protected:
     static const unsigned int REVISION_X = 15;
     static const unsigned int REVISION_Y = 20;
-    std::wstring content = L"";
+    sf::String content = "";
     unsigned int fontSize = 50;
     sf::Color fontColor = sf::Color::White;
     sf::Font font;
@@ -302,17 +302,17 @@ public:
         layer.Add(label);
         Update(true);
     }
-    void SetCaption(const std::wstring &caption)   noexcept;
+    void SetCaption(const sf::String &caption)   noexcept;
     void SetFontSize(unsigned int size)            noexcept;
     void SetFontColor(const sf::Color &color)      noexcept;
-    void SetFont(const std::string &fontFile)      noexcept;
-    void SetName(const std::wstring &newName)    noexcept { name = newName; }
+    void SetFont(const sf::String &fontFile)      noexcept;
+    void SetName(const sf::String &newName)    noexcept { name = newName; }
     void SetEnterCallback(Callback function)     noexcept { enterCallback = function; }
     void SetLeaveCallback(Callback function)     noexcept { leaveCallback = function; }
     void SetPressDownCallback(Callback function) noexcept { pressDownCallback = function; }
     void SetPressUpCallback(Callback function)   noexcept { pressUpCallback = function; }
     void SetClickCallback(Callback function)     noexcept { clickCallback = function; }
-    std::wstring GetCaption() const noexcept { return label->GetContent(); }
+    const sf::String &GetCaption() const noexcept { return label->GetContent(); }
     bool         GetEntered() const noexcept { return entered; }
     bool         GetPressed() const noexcept { return pressed; }
     bool         GetError()   const noexcept { return label->GetError(); }
@@ -325,12 +325,12 @@ protected:
     Label *label = new Label;
     bool entered = false;
     bool pressed = false;
-    std::wstring name = L"default";
-    Callback enterCallback = [](std::wstring name, const sf::Event &event){};
-    Callback leaveCallback = [](std::wstring name, const sf::Event &event){};
-    Callback pressDownCallback = [](std::wstring name, const sf::Event &event){};
-    Callback pressUpCallback = [](std::wstring name, const sf::Event &event){};
-    Callback clickCallback = [](std::wstring name, const sf::Event &event){};
+    sf::String name = "default";
+    Callback enterCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback leaveCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback pressDownCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback pressUpCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback clickCallback = [](const sf::String &name, const sf::Event &event){};
     Flat layer;
 };
 
@@ -339,7 +339,7 @@ public:
     InputBox() noexcept
     {
         button->SetPreset(Preset::FILL_FROM_CENTER);
-        button->SetClickCallback([this](std::wstring name, const sf::Event &event){
+        button->SetClickCallback([this](const sf::String &name, const sf::Event &event){
             this->SetInputting(true);
         });
         label->SetPreset(Preset::FILL_FROM_CENTER);
@@ -347,17 +347,17 @@ public:
         layer.Add(label);
         Update(true);
     }
-    void SetText(std::wstring text)                noexcept;
+    void SetText(const sf::String &text)                noexcept;
     void SetFontSize(unsigned int size)            noexcept;
     void SetFontColor(const sf::Color &color)      noexcept;
-    void SetFont(const std::string &fontFile)      noexcept;
+    void SetFont(const sf::String &fontFile)      noexcept;
     void SetSensitivity(unsigned int value)        noexcept { sensitivity = value; }
     void SetContinuousInterval(unsigned int value) noexcept { continuousInterval = value; }
-    void SetName(const std::wstring &newName) noexcept { name = newName; }
+    void SetName(const sf::String &newName) noexcept { name = newName; }
     void SetBeginCallback(Callback function)  noexcept { beginCallback = function; }
     void SetInputCallback(Callback function)  noexcept { inputCallback = function; }
     void SetEndCallback(Callback function)    noexcept { endCallback = function; }
-    std::wstring GetText() const noexcept { return label->GetContent(); }
+    const sf::String &GetText() const noexcept { return label->GetContent(); }
     bool GetInputting()    const noexcept { return inputting; }
     bool GetError()        const noexcept { return button->GetError() || label->GetError(); }
     void Update (bool resetMinSize = true) noexcept;
@@ -367,13 +367,13 @@ protected:
     void SetInputting(bool flag) noexcept;
     Button *button = new Button;
     Label *label = new Label;
-    unsigned int sensitivity = 800;
-    unsigned int continuousInterval = 50;
+    unsigned int sensitivity = 900;
+    unsigned int continuousInterval = 90;
     bool inputting = false;
-    std::wstring name = L"default";
-    Callback beginCallback = [](std::wstring name, const sf::Event &event){};
-    Callback inputCallback = [](std::wstring name, const sf::Event &event){};
-    Callback endCallback = [](std::wstring name, const sf::Event &event){};
+    sf::String name = "default";
+    Callback beginCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback inputCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback endCallback = [](const sf::String &name, const sf::Event &event){};
     Flat layer;
 };
 

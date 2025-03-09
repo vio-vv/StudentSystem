@@ -164,7 +164,7 @@ void ui::Screen::SetRange(unsigned int width, unsigned int height) noexcept
     screen.setSize({width, height});
 }
 
-void ui::Screen::SetCaption(const std::wstring &caption) noexcept
+void ui::Screen::SetCaption(const sf::String &caption) noexcept
 {
     screen.setTitle(caption);
 }
@@ -178,16 +178,21 @@ void ui::Screen::Tick() noexcept
 {
     if (IsOpen()) {
         sf::Event event;
-        screen.pollEvent(event);
-        if (event.type == sf::Event::Closed) {
-            screen.close();
-        } else if (event.type == sf::Event::Resized) {
-            SetGlobalSize(Direction::HORIZONTAL, event.size.width);
-            SetGlobalSize(Direction::VERTICAL, event.size.height);
-            sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
-            screen.setView(sf::View(visibleArea));
-        } else {
-            Process(event);
+        if (screen.pollEvent(event)) {
+            switch (event.type) {
+                case sf::Event::Closed:
+                    screen.close();
+                    break;
+                case sf::Event::Resized:
+                    SetGlobalSize(Direction::HORIZONTAL, event.size.width);
+                    SetGlobalSize(Direction::VERTICAL, event.size.height);
+                    sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
+                    screen.setView(sf::View(visibleArea));
+                    break;
+                default:
+                    Process(event);
+                    break;
+            }
         }
         screen.clear();
         Draw(screen);
@@ -351,15 +356,15 @@ void ui::Vertical::Update(bool resetMinSize) noexcept
     UpdateLinear(Direction::VERTICAL, resetMinSize);
 }
 
-const std::string ui::Label::FONT_FILE_PATH = "../assets/simfang.ttf";
+const sf::String ui::Label::FONT_FILE_PATH = "../assets/simfang.ttf";
 
-void ui::Label::SetContent(const std::wstring &newContent) noexcept
+void ui::Label::SetContent(const sf::String &newContent) noexcept
 {
     content = newContent;
     Update();
 }
 
-void ui::Label::SetFont(const std::string &fontFile) noexcept
+void ui::Label::SetFont(const sf::String &fontFile) noexcept
 {
     if (!font.loadFromFile(fontFile)) {
         error = true;
@@ -406,7 +411,7 @@ void ui::Label::Draw(sf::RenderWindow &screen) noexcept
     DRAW_DEBUG_RECT;
 }
 
-void ui::Button::SetCaption(const std::wstring &caption) noexcept
+void ui::Button::SetCaption(const sf::String &caption) noexcept
 {
     label->SetContent(caption);
     Update();
@@ -424,7 +429,7 @@ void ui::Button::SetFontColor(const sf::Color &color) noexcept
     Update();
 }
 
-void ui::Button::SetFont(const std::string &fontFile) noexcept
+void ui::Button::SetFont(const sf::String &fontFile) noexcept
 {
     label->SetFont(fontFile);
     Update();
@@ -456,37 +461,41 @@ bool ui::Control::IsInside(int x, int y) const noexcept
 
 void ui::Button::Process(const sf::Event &event) noexcept
 {
-    if (event.type == sf::Event::MouseMoved) {
-        if (IsInside(event.mouseMove.x, event.mouseMove.y)) {
-            if (!entered) {
-                SetEntered(true);
-                enterCallback(name, event);
-            }
-        } else {
-            if (entered) {
-                SetEntered(false);
-                leaveCallback(name, event);
-            }
-        }
-    } else if (event.type == sf::Event::MouseButtonPressed) {
-        if (event.mouseButton.button == sf::Mouse::Left) {
-            if (IsInside(event.mouseButton.x, event.mouseButton.y)) {
-                if (!pressed) {
-                    SetPressed(true);
-                    pressDownCallback(name, event);
+    switch (event.type) {
+        case sf::Event::MouseMoved:
+            if (IsInside(event.mouseMove.x, event.mouseMove.y)) {
+                if (!entered) {
+                    SetEntered(true);
+                    enterCallback(name, event);
+                }
+            } else {
+                if (entered) {
+                    SetEntered(false);
+                    leaveCallback(name, event);
                 }
             }
-        }
-    } else if (event.type == sf::Event::MouseButtonReleased) {
-        if (event.mouseButton.button == sf::Mouse::Left) {
-            if (pressed) {
-                SetPressed(false);
-                pressUpCallback(name, event);
+            break;
+        case sf::Event::MouseButtonPressed:
+            if (event.mouseButton.button == sf::Mouse::Left) {
                 if (IsInside(event.mouseButton.x, event.mouseButton.y)) {
-                    clickCallback(name, event);
+                    if (!pressed) {
+                        SetPressed(true);
+                        pressDownCallback(name, event);
+                    }
                 }
             }
-        }
+            break;
+        case sf::Event::MouseButtonReleased:
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                if (pressed) {
+                    SetPressed(false);
+                    pressUpCallback(name, event);
+                    if (IsInside(event.mouseButton.x, event.mouseButton.y)) {
+                        clickCallback(name, event);
+                    }
+                }
+            }
+            break;
     }
 }
 
@@ -572,7 +581,7 @@ void ui::Margen::Update(bool resetMinSize) noexcept
     }
 }
 
-void ui::InputBox::SetText(std::wstring text) noexcept
+void ui::InputBox::SetText(const sf::String &text) noexcept
 {
     label->SetContent(text);
     Update();
@@ -590,7 +599,7 @@ void ui::InputBox::SetFontColor(const sf::Color &color) noexcept
     Update();
 }
 
-void ui::InputBox::SetFont(const std::string &fontFile) noexcept
+void ui::InputBox::SetFont(const sf::String &fontFile) noexcept
 {
     label->SetFont(fontFile);
     Update();
@@ -616,32 +625,41 @@ void ui::InputBox::Process(const sf::Event &event) noexcept
         auto content = label->GetContent();
         switch (c)
         {
-            case L'\b':
-                SetText(content.substr(0, content.length() - 1));
+            case '\b':
+                //SetText(content.substr(0, content.length() - 1));
                 break;
             default:
                 SetText(content + c);
                 break;
         }
     };
+    static wchar_t lastChar = '\0';
     static bool continous = false;
     static sf::Clock clock;
     static sf::Clock interval;
     if (event.type == sf::Event::KeyPressed) {
-        continous = false;
+        lastChar = '\0';
     } else if (event.type == sf::Event::TextEntered) {
         if (inputting) {
-            if (continous) {
-                if (clock.getElapsedTime().asMilliseconds() > sensitivity &&
-                    interval.getElapsedTime().asMilliseconds() > continuousInterval) {
-                    input(static_cast<wchar_t>(event.text.unicode));
-                    interval.restart();
-                }
-            } else {
-                input(static_cast<wchar_t>(event.text.unicode));
-                continous = true;
-                clock.restart();
-            }
+            static sf::String buf;
+            buf += event.text.unicode;
+            SetText(buf);
+            // if (c == lastChar) {
+            //     continous = true;
+            // } else {
+            //     lastChar = c;
+            //     continous = false;
+            // }
+            // if (continous) {
+            //     if (clock.getElapsedTime().asMilliseconds() > sensitivity &&
+            //         interval.getElapsedTime().asMilliseconds() > continuousInterval) {
+            //         input(c);
+            //         interval.restart();
+            //     }
+            // } else {
+            //     input(c);
+            //     clock.restart();
+            // }
         }
     } else if (event.type == sf::Event::MouseButtonReleased) {
         if (!IsInside(event.mouseButton.x, event.mouseButton.y)) {
