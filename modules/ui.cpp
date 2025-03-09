@@ -179,19 +179,15 @@ void ui::Screen::Tick() noexcept
     if (IsOpen()) {
         sf::Event event;
         if (screen.pollEvent(event)) {
-            switch (event.type) {
-                case sf::Event::Closed:
-                    screen.close();
-                    break;
-                case sf::Event::Resized:
-                    SetGlobalSize(Direction::HORIZONTAL, event.size.width);
-                    SetGlobalSize(Direction::VERTICAL, event.size.height);
-                    sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
-                    screen.setView(sf::View(visibleArea));
-                    break;
-                default:
-                    Process(event);
-                    break;
+            if (event.type == sf::Event::Closed) {
+                screen.close();
+            } else if (event.type ==  sf::Event::Resized) {
+                SetGlobalSize(Direction::HORIZONTAL, event.size.width);
+                SetGlobalSize(Direction::VERTICAL, event.size.height);
+                sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
+                screen.setView(sf::View(visibleArea));
+            } else {
+                Process(event);
             }
         }
         screen.clear();
@@ -461,41 +457,37 @@ bool ui::Control::IsInside(int x, int y) const noexcept
 
 void ui::Button::Process(const sf::Event &event) noexcept
 {
-    switch (event.type) {
-        case sf::Event::MouseMoved:
-            if (IsInside(event.mouseMove.x, event.mouseMove.y)) {
-                if (!entered) {
-                    SetEntered(true);
-                    enterCallback(name, event);
-                }
-            } else {
-                if (entered) {
-                    SetEntered(false);
-                    leaveCallback(name, event);
+    if (event.type == sf::Event::MouseMoved) {
+        if (IsInside(event.mouseMove.x, event.mouseMove.y)) {
+            if (!entered) {
+                SetEntered(true);
+                enterCallback(name, event);
+            }
+        } else {
+            if (entered) {
+                SetEntered(false);
+                leaveCallback(name, event);
+            }
+        }
+    } else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            if (IsInside(event.mouseButton.x, event.mouseButton.y)) {
+                if (!pressed) {
+                    SetPressed(true);
+                    pressDownCallback(name, event);
                 }
             }
-            break;
-        case sf::Event::MouseButtonPressed:
-            if (event.mouseButton.button == sf::Mouse::Left) {
+        }
+    } else if (event.type == sf::Event::MouseButtonReleased) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            if (pressed) {
+                SetPressed(false);
+                pressUpCallback(name, event);
                 if (IsInside(event.mouseButton.x, event.mouseButton.y)) {
-                    if (!pressed) {
-                        SetPressed(true);
-                        pressDownCallback(name, event);
-                    }
+                    clickCallback(name, event);
                 }
             }
-            break;
-        case sf::Event::MouseButtonReleased:
-            if (event.mouseButton.button == sf::Mouse::Left) {
-                if (pressed) {
-                    SetPressed(false);
-                    pressUpCallback(name, event);
-                    if (IsInside(event.mouseButton.x, event.mouseButton.y)) {
-                        clickCallback(name, event);
-                    }
-                }
-            }
-            break;
+        }
     }
 }
 
@@ -621,49 +613,31 @@ void ui::InputBox::Process(const sf::Event &event) noexcept
 {
     button->Process(event);
 
-    auto input = [this](wchar_t c){
+    auto input = [this](sf::Uint32 c){
         auto content = label->GetContent();
         switch (c)
         {
             case '\b':
-                //SetText(content.substr(0, content.length() - 1));
+                SetText(content.substring(0, content.getSize() - 1));
                 break;
             default:
                 SetText(content + c);
                 break;
         }
     };
-    static wchar_t lastChar = '\0';
-    static bool continous = false;
-    static sf::Clock clock;
-    static sf::Clock interval;
-    if (event.type == sf::Event::KeyPressed) {
-        lastChar = '\0';
-    } else if (event.type == sf::Event::TextEntered) {
+    if (event.type == sf::Event::TextEntered) {
         if (inputting) {
-            static sf::String buf;
-            buf += event.text.unicode;
-            SetText(buf);
-            // if (c == lastChar) {
-            //     continous = true;
-            // } else {
-            //     lastChar = c;
-            //     continous = false;
-            // }
-            // if (continous) {
-            //     if (clock.getElapsedTime().asMilliseconds() > sensitivity &&
-            //         interval.getElapsedTime().asMilliseconds() > continuousInterval) {
-            //         input(c);
-            //         interval.restart();
-            //     }
-            // } else {
-            //     input(c);
-            //     clock.restart();
-            // }
+            input(event.text.unicode);
+            inputCallback(name, event);
         }
-    } else if (event.type == sf::Event::MouseButtonReleased) {
-        if (!IsInside(event.mouseButton.x, event.mouseButton.y)) {
-            SetInputting(false);
+    } else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            if (!IsInside(event.mouseButton.x, event.mouseButton.y)) {
+                if (inputting) {
+                    SetInputting(false);
+                    endCallback(name, event);
+                }
+            }
         }
     }
 }

@@ -340,7 +340,10 @@ public:
     {
         button->SetPreset(Preset::FILL_FROM_CENTER);
         button->SetClickCallback([this](const sf::String &name, const sf::Event &event){
-            this->SetInputting(true);
+            if (!this->inputting) {
+                this->SetInputting(true);
+                this->beginCallback(this->name, event);
+            }
         });
         label->SetPreset(Preset::FILL_FROM_CENTER);
         layer.Add(button);
@@ -351,8 +354,6 @@ public:
     void SetFontSize(unsigned int size)            noexcept;
     void SetFontColor(const sf::Color &color)      noexcept;
     void SetFont(const sf::String &fontFile)      noexcept;
-    void SetSensitivity(unsigned int value)        noexcept { sensitivity = value; }
-    void SetContinuousInterval(unsigned int value) noexcept { continuousInterval = value; }
     void SetName(const sf::String &newName) noexcept { name = newName; }
     void SetBeginCallback(Callback function)  noexcept { beginCallback = function; }
     void SetInputCallback(Callback function)  noexcept { inputCallback = function; }
@@ -367,8 +368,6 @@ protected:
     void SetInputting(bool flag) noexcept;
     Button *button = new Button;
     Label *label = new Label;
-    unsigned int sensitivity = 900;
-    unsigned int continuousInterval = 90;
     bool inputting = false;
     sf::String name = "default";
     Callback beginCallback = [](const sf::String &name, const sf::Event &event){};
