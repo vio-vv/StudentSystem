@@ -9,7 +9,7 @@
     ____.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL])); \
     ____.setOutlineColor(sf::Color::Yellow); \
     ____.setOutlineThickness(1); \
-    ____.setFillColor(sf::Color(0, 0, 0, 0)); \
+    ____.setFillColor(sf::Color::Transparent); \
     screen.draw(____)
 #else
 #define DRAW_DEBUG_RECT
@@ -22,6 +22,7 @@
  * NONE
  * 
  * @par PROVIDES
+ * 各种组件类。
  * 
  * @author 梁祖章
  */
@@ -32,44 +33,186 @@
 #include "SFML/Graphics.hpp"
 
 namespace ui{
-    
+
+/*****************************************
+ * @brief 所有组件类的声明及它们的继承关系。*
+ * ***************************************
+ */
+/**
+ * @class 组件类
+ * @brief 所有组件的基类。
+ */
 class Control;
+    /**
+     * @class 容器类
+     * @brief 所有容器类的基类。
+     */
     class Container;
+        /**
+         * @class 平凡容器类
+         * @brief 仅为组件提供尺寸和位置的参考。
+         */
         class Flat;
+            /**
+             * @class 屏幕类
+             * @brief 所有组件都要放在屏幕上才能起作用。
+             */
             class Screen;
+        /**
+         * @class 中心布局类
+         * @brief 将组件居中。
+         * @note 仅能接受一个子组件。
+         */
         class Center;
+        /**
+         * @class 线性布局类
+         * @brief 按行或列排列子组件的水平布局类和垂直布局类的基类。
+         */
         class LinearBox;
-            class Horizontal;
-            class Vertical;
+            /**
+             * @class 水平布局类
+             * @brief 按行排列子组件。
+             */
+            class HorizontalBox;
+            /**
+             * @class 垂直布局类
+             * @brief 按列排列子组件。
+             */
+            class VerticalBox;
+        /**
+         * @class 边距容器类
+         * @brief 给组件添加边距。
+         */
         class Margen;
+    /**
+     * @class 间隔类
+     * @brief 用于调整组件之间的距离或绘制一个矩形。
+     */
+    class Spacer;
+    /**
+     * @class 标签类
+     * @brief 显示文本的组件。
+     */
     class Label;
+    /**
+     * @class 按钮类
+     * @brief 响应用户按键操作的组件。
+     */
     class Button;
+    /**
+     * @class 输入框类
+     * @brief 允许用户输入文本的组件。
+     */
     class InputBox;
+    /**
+     * @class 滚动条类
+     * @brief 水平滚动条类和垂直滚动条类的基类。
+     */
+    class ScrollBar;
+        /**
+         * @class 水平滚动条类
+         * @brief 提供一个水平方向的滚动条。
+         */
+        class HorizontalBar;
+        /**
+         * @class 垂直滚动条类
+         * @brief 提供一个垂直方向的滚动条。
+         */
+        class VerticalBar;
+
+/******************************
+ * @brief 所有组件类的接口声明。*
+ * ****************************
+ */
 
 class Control{
 public:
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    /**
+     * @enum 方向枚举
+     */
     enum class Direction{
-        HORIZONTAL, VERTICAL
+        HORIZONTAL, // 水平方向
+        VERTICAL    // 垂直方向
     };
+    /**
+     * @enum 尺寸值类型枚举
+     */
     enum class ValueType{
-        PERCENTAGE, ABSOLUTE
+        PERCENTAGE, // 百分值
+        ABSOLUTE    // 绝对值
     };
+    /**
+     * @enum 预设尺寸和位置枚举
+     */
     enum class Preset{
-        PLACR_AT_FRONT,  PLACR_AT_END,  PLACR_AT_CENTER,
-        WRAP_AT_FRONT,   WRAP_AT_END,   WRAP_AT_CENTER,
-        FILL_FROM_FRONT, FILL_FROM_END, FILL_FROM_CENTER
+        PLACR_AT_FRONT,  PLACR_AT_END,  PLACR_AT_CENTER,  // 置于容器前端、末端、中间
+        WRAP_AT_FRONT,   WRAP_AT_END,   WRAP_AT_CENTER,   // 紧缩在容器前端、末端、中间
+        FILL_FROM_FRONT, FILL_FROM_END, FILL_FROM_CENTER  // 自容器前端、末端、中间填充
     };
 
+    /**********************************
+     * @brief 期望尺寸和位置的设置接口。*
+     * ********************************
+     */
+    /**
+     * @fn 设置期望尺寸值类型。
+     * @param direction 方向。
+     * @param valueType 尺寸值类型。
+     * @note 百分值表示相对于父容器的尺寸，绝对值表示像素值。
+     */
     void SetSizeValueType(Direction direction, ValueType valueType)    noexcept;
+    /**
+     * @fn 设置自动紧缩。
+     * @param direction 方向。
+     * @param flag 是否自动紧缩。
+     * @note 仅当期望尺寸值类型为绝对值时有效，当值为 true 时，组件的尺寸会自动缩小到最小尺寸，并使期望尺寸失效。
+     */
     void SetSizeWrap     (Direction directrion, bool flag)             noexcept;
+    /**
+     * @fn 设置期望尺寸。
+     * @param direction 方向。
+     * @param value 期望尺寸。
+     * @note 当期望尺寸值类型为百分值时，其值表示所占父容器的百分比或权重；当期望尺寸值类型为绝对值时，要求自动紧缩为 false 时有效，其值为绝对尺寸。
+     */
     void SetSize         (Direction directrion, unsigned int value)    noexcept;
+    /**
+     * @fn 设置最小尺寸。
+     * @param direction 方向。
+     * @param absolute 最小绝对尺寸。
+     */
     void SetMinSize      (Direction directrion, unsigned int absolute) noexcept;
+    /**
+     * @fn 设置组件的中心点。
+     * @param direction 方向。
+     * @param percentage 从前端算起中心点所在位置相对于最终尺寸的百分比。
+     */
     void SetCenter    (Direction directrion, int percentage) noexcept;
+    /**
+     * @fn 设置组件的锚点。
+     * @param direction 方向。
+     * @param percentage 从父容器前端算起锚点所在位置相对于父容器最终尺寸的百分比。
+     */
     void SetAnchor    (Direction directrion, int percentage) noexcept;
+    /**
+     * @fn 设置组件的位置。
+     * @param direction 方向。
+     * @param absolute 中心点偏离锚点的绝对位置。
+     */
     void SetPosition  (Direction directrion, int absolute)   noexcept;
+    /**
+     * @fn 设置组件的可见性。
+     * @param flag 是否可见。
+     */
     void SetVisible (bool flag) noexcept;
 
-    void AddTo    (Container *container)               noexcept;
+    /*****************************************
+     * @brief 封装后的设置期望尺寸和位置的接口。*
+     * ***************************************
+     */
     void SetPreset(Direction direction, Preset preset) noexcept;
     void SetHSizeValueType(ValueType valueType)   noexcept { SetSizeValueType(Direction::HORIZONTAL, valueType); }
     void SetVSizeValueType(ValueType valueType)   noexcept { SetSizeValueType(Direction::VERTICAL,   valueType); }
@@ -96,9 +239,22 @@ public:
     void SetPosition      (int absoluteH, int absoluteV)                   noexcept { SetHPosition     (absoluteH);   SetVPosition     (absoluteV); }
     void SetPreset        (Preset preset)                                  noexcept { SetHPreset       (preset);      SetVPreset       (preset); }
 
+    /************************************************
+     * @brief 要求派生提供的抽象方法，以实现具体的功能。*
+     * **********************************************
+     */
+    /**
+     * @fn 组件的更新接口。
+     */
     virtual void Update  (bool resetMinSize = true) noexcept = 0;
     virtual void Process (const sf::Event &event)   noexcept = 0;
     virtual void Draw    (sf::RenderWindow &screen) noexcept = 0;
+
+    /**************************************************
+     * @brief 耦合组件与容器的接口，以确定最终尺寸和位置。*
+     * ************************************************
+     */
+    void AddTo            (Container *container)                        noexcept;
 
     void SetParent        (Container *container)                        noexcept;
     void SetGlobalSize    (Direction directrion, unsigned int absolute) noexcept;
@@ -117,8 +273,16 @@ public:
 
     virtual ~Control() noexcept;
 protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
     bool IsInside(int x, int y) const noexcept;
 
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
     template<typename DataType>
     class Around{
     public: 
@@ -143,6 +307,10 @@ protected:
     };
     using Callback = std::function<void (const sf::String &, const sf::Event &)>;
 
+    /****************************
+     * @brief 期望尺寸和位置属性。*
+     * **************************
+     */
     Around<ValueType>    sizeValueType = {ValueType::ABSOLUTE, ValueType::ABSOLUTE};
     Around<bool>         sizeWrap      = {false, false};
     Around<unsigned int> size          = {200, 100};
@@ -150,8 +318,12 @@ protected:
     Around<int> center   = {0, 0};
     Around<int> anchor   = {0, 0};
     Around<int> position = {0, 0};
-    bool        visible = true;
+    bool visible = true;
 
+    /****************************
+     * @brief 最终尺寸和位置属性。*
+     * **************************
+     */
     Container           *parent         = nullptr;
     Around<unsigned int> globalSize     = {200, 100};
     Around<int>          globalPosition = {0, 0};
@@ -227,18 +399,18 @@ protected:
     int gap = 25;
 };
 
-class Horizontal : public LinearBox{
+class HorizontalBox : public LinearBox{
 public:
-    Horizontal() noexcept
+    HorizontalBox() noexcept
     {
         Update(true);
     }
     void Update(bool resetMinSize = true) noexcept;
 };
 
-class Vertical : public LinearBox{
+class VerticalBox : public LinearBox{
 public:
-    Vertical() noexcept
+    VerticalBox() noexcept
     {
         Update(true);
     }
@@ -294,11 +466,32 @@ protected:
     sf::Text text;
 };
 
+class Spacer : public Control{
+public:
+    Spacer() noexcept
+    {
+        rect.setOutlineThickness(0);
+        rect.setOutlineColor(sf::Color::Transparent);
+        rect.setFillColor(sf::Color::Transparent);
+    }
+    void SetOutlineThickness(float thickness)    noexcept;
+    void SetOutlineColor(const sf::Color &color) noexcept;
+    void SetFillColor(const sf::Color &color)    noexcept;
+    void Update (bool resetMinSize = true) noexcept;
+    void Process(const sf::Event &event)   noexcept {}
+    void Draw   (sf::RenderWindow &screen) noexcept;
+protected:
+    sf::RectangleShape rect;
+};
+
 class Button : public Control{
 public:
     Button() noexcept
     {
+        rect->SetPreset(Preset::FILL_FROM_CENTER);
+        rect->SetOutlineThickness(5);
         label->SetPreset(Preset::WRAP_AT_CENTER);
+        layer.Add(rect);
         layer.Add(label);
         Update(true);
     }
@@ -322,6 +515,7 @@ public:
 protected:
     void SetEntered(bool flag) noexcept;
     void SetPressed(bool flag) noexcept;
+    Spacer *rect = new Spacer;
     Label *label = new Label;
     bool entered = false;
     bool pressed = false;
@@ -345,14 +539,19 @@ public:
                 this->beginCallback(this->name, event);
             }
         });
+        rect->SetPreset(Preset::FILL_FROM_CENTER);
         label->SetPreset(Preset::FILL_FROM_CENTER);
         layer.Add(button);
+        layer.Add(rect);
         layer.Add(label);
         Update(true);
     }
     void SetText(const sf::String &text)                noexcept;
     void SetFontSize(unsigned int size)            noexcept;
     void SetFontColor(const sf::Color &color)      noexcept;
+    void SetInputtingFontColor(const sf::Color &color) noexcept;
+    void SetBackColor(const sf::Color &color)      noexcept;
+    void SetInputtingBackColor(const sf::Color &color) noexcept;
     void SetFont(const sf::String &fontFile)      noexcept;
     void SetName(const sf::String &newName) noexcept { name = newName; }
     void SetBeginCallback(Callback function)  noexcept { beginCallback = function; }
@@ -367,12 +566,27 @@ public:
 protected:
     void SetInputting(bool flag) noexcept;
     Button *button = new Button;
+    Spacer *rect = new Spacer;
     Label *label = new Label;
     bool inputting = false;
     sf::String name = "default";
+    sf::Color fontColor = sf::Color::White;
+    sf::Color inputtingFontColor = sf::Color::Black;
+    sf::Color backColor = sf::Color::Transparent;
+    sf::Color inputtingBackColor = sf::Color::White;
     Callback beginCallback = [](const sf::String &name, const sf::Event &event){};
     Callback inputCallback = [](const sf::String &name, const sf::Event &event){};
     Callback endCallback = [](const sf::String &name, const sf::Event &event){};
+    Flat layer;
+};
+
+class ScrollBar : public Control{
+public:
+    void Update (bool resetMinSize = true) noexcept;
+    void Process(const sf::Event &event)   noexcept;
+    void Draw   (sf::RenderWindow &screen) noexcept;
+protected:
+    Button *button = new Button;
     Flat layer;
 };
 

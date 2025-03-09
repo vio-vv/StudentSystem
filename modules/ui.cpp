@@ -342,12 +342,12 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
     }
 }
 
-void ui::Horizontal::Update(bool resetMinSize) noexcept
+void ui::HorizontalBox::Update(bool resetMinSize) noexcept
 {
     UpdateLinear(Direction::HORIZONTAL, resetMinSize);
 }
 
-void ui::Vertical::Update(bool resetMinSize) noexcept
+void ui::VerticalBox::Update(bool resetMinSize) noexcept
 {
     UpdateLinear(Direction::VERTICAL, resetMinSize);
 }
@@ -390,7 +390,6 @@ void ui::Label::SetFontSize(unsigned int size) noexcept
 void ui::Label::SetFontColor(const sf::Color &color) noexcept
 {
     fontColor = color;
-    Update();
 }
 
 void ui::Label::Draw(sf::RenderWindow &screen) noexcept
@@ -422,7 +421,6 @@ void ui::Button::SetFontSize(unsigned int size) noexcept
 void ui::Button::SetFontColor(const sf::Color &color) noexcept
 {
     label->SetFontColor(color);
-    Update();
 }
 
 void ui::Button::SetFont(const sf::String &fontFile) noexcept
@@ -493,20 +491,16 @@ void ui::Button::Process(const sf::Event &event) noexcept
 
 void ui::Button::Draw(sf::RenderWindow &screen) noexcept
 {
-    sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
-    rect.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
-    rect.setOutlineThickness(5);
     if (entered) {
-        rect.setOutlineColor(sf::Color::Blue);
+        rect->SetOutlineColor(sf::Color::Blue);
     } else {
-        rect.setOutlineColor(sf::Color::White);
+        rect->SetOutlineColor(sf::Color::White);
     }
     if (pressed) {
-        rect.setFillColor(sf::Color::Blue);
+        rect->SetFillColor(sf::Color::Blue);
     } else {
-        rect.setFillColor(sf::Color(0, 0, 0, 0));
+        rect->SetFillColor(sf::Color::Transparent);
     }
-    screen.draw(rect);
     layer.Draw(screen);
 
     DRAW_DEBUG_RECT;
@@ -588,7 +582,22 @@ void ui::InputBox::SetFontSize(unsigned int size) noexcept
 void ui::InputBox::SetFontColor(const sf::Color &color) noexcept
 {
     label->SetFontColor(color);
-    Update();
+    fontColor = color;
+}
+
+void ui::InputBox::SetInputtingFontColor(const sf::Color &color) noexcept
+{
+    inputtingFontColor = color;
+}
+
+void ui::InputBox::SetBackColor(const sf::Color &color) noexcept
+{
+    backColor = color;
+}
+
+void ui::InputBox::SetInputtingBackColor(const sf::Color &color) noexcept
+{
+    inputtingBackColor = color;
 }
 
 void ui::InputBox::SetFont(const sf::String &fontFile) noexcept
@@ -644,17 +653,13 @@ void ui::InputBox::Process(const sf::Event &event) noexcept
 
 void ui::InputBox::Draw(sf::RenderWindow &screen) noexcept
 {
-    sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
-    rect.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
     if (inputting) {
-        rect.setOutlineColor(sf::Color::White);
+        rect->SetFillColor(sf::Color::White);
         label->SetFontColor(sf::Color::Black);
     } else {
-        rect.setFillColor(sf::Color(0, 0, 0, 0));
+        rect->SetFillColor(sf::Color::Transparent);
         label->SetFontColor(sf::Color::White);
     }
-    screen.draw(rect);
-
     layer.Draw(screen);
 
     DRAW_DEBUG_RECT;
@@ -664,4 +669,33 @@ void ui::InputBox::SetInputting(bool flag) noexcept
 {
     inputting = flag;
     Update();
+}
+
+void ui::Spacer::SetOutlineThickness(float thickness) noexcept
+{
+    rect.setOutlineThickness(thickness);
+    Update();
+}
+
+void ui::Spacer::SetOutlineColor(const sf::Color &color) noexcept
+{
+    rect.setOutlineColor(color);
+}
+
+void ui::Spacer::SetFillColor(const sf::Color &color) noexcept
+{
+    rect.setFillColor(color);
+}
+
+void ui::Spacer::Update(bool resetMinSize) noexcept
+{
+    rect.setSize(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
+    rect.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
+}
+
+void ui::Spacer::Draw(sf::RenderWindow &screen) noexcept
+{
+    screen.draw(rect);
+
+    DRAW_DEBUG_RECT;
 }
