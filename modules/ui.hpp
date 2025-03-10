@@ -41,16 +41,19 @@ namespace ui{
 /**
  * @class 组件类
  * @brief 所有组件的基类。
+ * @note 抽象类
  */
 class Control;
     /**
      * @class 容器类
      * @brief 所有容器类的基类。
+     * @note 抽象类
      */
     class Container;
         /**
          * @class 平凡容器类
          * @brief 仅为组件提供尺寸和位置的参考。
+         * @note minSize 属性由用户决定。
          */
         class Flat;
             /**
@@ -62,46 +65,57 @@ class Control;
          * @class 中心布局类
          * @brief 将组件居中。
          * @note 仅能接受一个子组件。
+         * @note minSize 属性由组件决定。
          */
         class Center;
         /**
          * @class 线性布局类
          * @brief 按行或列排列子组件的水平布局类和垂直布局类的基类。
+         * @note 抽象类
          */
         class LinearBox;
             /**
              * @class 水平布局类
              * @brief 按行排列子组件。
+             * @note minSize 属性由组件决定。
              */
             class HorizontalBox;
             /**
              * @class 垂直布局类
              * @brief 按列排列子组件。
+             * @note minSize 属性由组件决定。
              */
             class VerticalBox;
         /**
          * @class 边距容器类
          * @brief 给组件添加边距。
+         * @note 仅能接受一个子组件。
+         * @note 无视子组件的期望尺寸和位置。
+         * @note minSize 属性由组件决定。
          */
         class Margen;
     /**
      * @class 间隔类
      * @brief 用于调整组件之间的距离或绘制一个矩形。
+     * @note minSize 属性由用户决定。
      */
     class Spacer;
     /**
      * @class 标签类
      * @brief 显示文本的组件。
+     * @note minSize 属性由组件决定。
      */
     class Label;
     /**
      * @class 按钮类
      * @brief 响应用户按键操作的组件。
+     * @note minSize 属性由组件决定。
      */
     class Button;
     /**
      * @class 输入框类
      * @brief 允许用户输入文本的组件。
+     * @note minSize 属性由组件决定。
      */
     class InputBox;
     /**
@@ -112,6 +126,7 @@ class Control;
         /**
          * @class 水平滚动条类
          * @brief 提供一个水平方向的滚动条。
+         * @note 抽象类
          */
         class HorizontalBar;
         /**
@@ -154,58 +169,61 @@ public:
         FILL_FROM_FRONT, FILL_FROM_END, FILL_FROM_CENTER  // 自容器前端、末端、中间填充
     };
 
-    /**********************************
-     * @brief 期望尺寸和位置的设置接口。*
-     * ********************************
+    /********************************************
+     * @brief 期望尺寸和位置的设置接口。          *
+     * @note 会引起父容器的“内容尺寸和位置的变化”。*
+     * ******************************************
      */
     /**
-     * @fn 设置期望尺寸值类型。
-     * @param direction 方向。
-     * @param valueType 尺寸值类型。
+     * @fn 设置期望尺寸值类型
+     * @param direction 方向
+     * @param valueType 尺寸值类型
      * @note 百分值表示相对于父容器的尺寸，绝对值表示像素值。
      */
     void SetSizeValueType(Direction direction, ValueType valueType)    noexcept;
     /**
-     * @fn 设置自动紧缩。
-     * @param direction 方向。
-     * @param flag 是否自动紧缩。
+     * @fn 设置自动紧缩
+     * @param direction 方向
+     * @param flag 是否自动紧缩
      * @note 仅当期望尺寸值类型为绝对值时有效，当值为 true 时，组件的尺寸会自动缩小到最小尺寸，并使期望尺寸失效。
      */
     void SetSizeWrap     (Direction directrion, bool flag)             noexcept;
     /**
-     * @fn 设置期望尺寸。
-     * @param direction 方向。
-     * @param value 期望尺寸。
+     * @fn 设置期望尺寸
+     * @param direction 方向
+     * @param value 期望尺寸
      * @note 当期望尺寸值类型为百分值时，其值表示所占父容器的百分比或权重；当期望尺寸值类型为绝对值时，要求自动紧缩为 false 时有效，其值为绝对尺寸。
      */
     void SetSize         (Direction directrion, unsigned int value)    noexcept;
     /**
-     * @fn 设置最小尺寸。
-     * @param direction 方向。
-     * @param absolute 最小绝对尺寸。
+     * @fn 设置最小尺寸
+     * @param direction 方向
+     * @param absolute 最小绝对尺寸
+     * @note 默认该值由用户自由设定，但更多情况是由组件自行决定。此时请注意该值的初始化。
+     * @see “组件类一览”
      */
     void SetMinSize      (Direction directrion, unsigned int absolute) noexcept;
     /**
-     * @fn 设置组件的中心点。
-     * @param direction 方向。
-     * @param percentage 从前端算起中心点所在位置相对于最终尺寸的百分比。
+     * @fn 设置组件的中心点
+     * @param direction 方向
+     * @param percentage 从前端算起中心点所在位置相对于最终尺寸的百分比
      */
     void SetCenter    (Direction directrion, int percentage) noexcept;
     /**
-     * @fn 设置组件的锚点。
-     * @param direction 方向。
-     * @param percentage 从父容器前端算起锚点所在位置相对于父容器最终尺寸的百分比。
+     * @fn 设置组件的锚点
+     * @param direction 方向
+     * @param percentage 从父容器前端算起锚点所在位置相对于父容器最终尺寸的百分比
      */
     void SetAnchor    (Direction directrion, int percentage) noexcept;
     /**
-     * @fn 设置组件的位置。
-     * @param direction 方向。
-     * @param absolute 中心点偏离锚点的绝对位置。
+     * @fn 设置组件的位置
+     * @param direction 方向
+     * @param absolute 中心点偏离锚点的绝对位置
      */
     void SetPosition  (Direction directrion, int absolute)   noexcept;
     /**
-     * @fn 设置组件的可见性。
-     * @param flag 是否可见。
+     * @fn 设置组件的可见性
+     * @param flag 是否可见
      */
     void SetVisible (bool flag) noexcept;
 
@@ -238,26 +256,58 @@ public:
     void SetAnchor        (int percentageH, int percentageV)               noexcept { SetHAnchor       (percentageH); SetVAnchor       (percentageV); }
     void SetPosition      (int absoluteH, int absoluteV)                   noexcept { SetHPosition     (absoluteH);   SetVPosition     (absoluteV); }
     void SetPreset        (Preset preset)                                  noexcept { SetHPreset       (preset);      SetVPreset       (preset); }
+    /**
+     * @fn 将组件添加到容器中
+     * @param container 容器
+     */
+    void AddTo            (Container *container)                           noexcept;
 
     /************************************************
      * @brief 要求派生提供的抽象方法，以实现具体的功能。*
      * **********************************************
      */
     /**
-     * @fn 组件的更新接口。
+     * @fn 更新组件内容尺寸位置
+     * @param resetMinSize 是否重置最小尺寸
+     * @note 调用时机：组件最终尺寸和位置变化时，调用 Update(false)；组件内容尺寸和位置变化时，调用 Update(true)。
+     * @note 实现功能：确定内容的最终尺寸和位置。
      */
     virtual void Update  (bool resetMinSize = true) noexcept = 0;
+    /**
+     * @fn 处理事件
+     * @param event 事件
+     * @note 调用时机：父容器转送事件时。
+     * @note 实现功能：处理事件。
+     */
     virtual void Process (const sf::Event &event)   noexcept = 0;
+    /**
+     * @fn 绘制组件
+     * @param screen 待绘制的窗口
+     * @note 调用时机：父容器需要组件被绘制时。
+     * @note 实现功能：绘制组件。
+     */
     virtual void Draw    (sf::RenderWindow &screen) noexcept = 0;
 
-    /**************************************************
-     * @brief 耦合组件与容器的接口，以确定最终尺寸和位置。*
-     * ************************************************
+    /*****************************************
+     * @brief 父容器更新内容的尺寸和位置的接口。*
+     * ***************************************
      */
-    void AddTo            (Container *container)                        noexcept;
-
+    /**
+     * @fn 设置父容器
+     * @param container 父容器
+     */
     void SetParent        (Container *container)                        noexcept;
+    /**
+     * @fn 设置最终尺寸
+     * @param direction 方向
+     * @param absolute 最终绝对尺寸
+     */
     void SetGlobalSize    (Direction directrion, unsigned int absolute) noexcept;
+    /**
+     * @fn 设置最终位置
+     * @param direction 方向
+     * @param absolute 最终绝对位置
+     */
     void SetGlobalPosition(Direction directrion, int absolute)          noexcept;
     unsigned int GetGlobalSize    (Direction direction) const noexcept { return globalSize[direction]; }
     int          GetGlobalPosition(Direction direction) const noexcept { return globalPosition[direction]; }
@@ -331,16 +381,50 @@ protected:
 
 class Container : public Control{
 public:
-    void Add     (Control *control) noexcept;
-    void Remove  (Control *control) noexcept;
-    void FreeAll ()                 noexcept;
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
 
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+    /**
+     * @fn 向容器中添加子组件
+     * @param control 子组件
+     */
+    void Add     (Control *control) noexcept;
+    /**
+     * @fn 从容器中移除子组件
+     * @param control 子组件
+     */
+    void Remove  (Control *control) noexcept;
+    /**
+     * @fn 释放所有子组件
+     * @note 所有组组件地址都将被释放，请注意空指针。
+     */
+    void FreeAll ()                 noexcept;
+    
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update (bool resetMinSize = true) noexcept = 0;
     void Process(const sf::Event &event)   noexcept;
     void Draw   (sf::RenderWindow &screen) noexcept;
 
     ~Container() noexcept;
 protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
     void UpdateByDefault(Direction direction, Control *child) noexcept;
     void UpdateSizeByDefault    (Direction direction, Control *child) noexcept;
     void UpdatePositionByDefault(Direction direction, Control *child) noexcept;
@@ -348,17 +432,70 @@ protected:
     static int          ObtainDefaultGlobalPosition(Direction direction, const Control *child, unsigned int parentSize, int parentPosition)                                          noexcept;
     static unsigned int ObtainDefaultGlobalSize    (ValueType sizeValueType, bool wrap,   unsigned int size,     unsigned int minSize,  unsigned int parentSize)                     noexcept;
     static int          ObtainDefaultGlobalPosition(int       center,        int  anchor, int          position, unsigned int thisSize, unsigned int parentSize, int parentPosition) noexcept;
+    
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+    
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
     std::list<Control *> children = {};
+    
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
 };
 
 class Flat : public Container{
 public:
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update(bool resetMinSize = true) noexcept;
+protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+    
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
 };
 
 class Screen : public Flat{
 public:
-    sf::RenderWindow &Get() noexcept { return screen; }
     Screen() noexcept
     {
         unsigned int width = globalSize[Direction::HORIZONTAL];
@@ -374,7 +511,7 @@ public:
         SetGlobalSize(Direction::VERTICAL, height);
     }
     void SetRange  (unsigned int width, unsigned int height) noexcept;
-    void SetCaption(const sf::String &caption)             noexcept;
+    void SetCaption(const sf::String &caption)               noexcept;
     bool IsOpen    ()                                  const noexcept;
     void Tick      ()                                        noexcept;
 protected:
@@ -387,16 +524,94 @@ public:
     {
         Update(true);
     }
+    
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update(bool resetMinSize = true) noexcept;
+protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+    
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+    
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
 };
 
 class LinearBox : public Container{
 public:
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
     void SetGap(int absolute) noexcept;
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update(bool resetMinSize = true) noexcept = 0;
 protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
     void UpdateLinear(Direction direction, bool resetMinSize) noexcept;
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
     int gap = 25;
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
 };
 
 class HorizontalBox : public LinearBox{
@@ -405,7 +620,47 @@ public:
     {
         Update(true);
     }
+    
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update(bool resetMinSize = true) noexcept;
+protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+    
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
 };
 
 class VerticalBox : public LinearBox{
@@ -414,7 +669,47 @@ public:
     {
         Update(true);
     }
+    
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update(bool resetMinSize = true) noexcept;
+protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+    
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
 };
 
 class Margen : public Container{
@@ -423,19 +718,58 @@ public:
     {
         Update(true);
     }
+    
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
     void SetMargin(unsigned int top, unsigned int bottom, unsigned int left, unsigned int right) noexcept;
     void SetMarginTop   (unsigned int top)    noexcept;
     void SetMarginBottom(unsigned int bottom) noexcept;
     void SetMarginLeft  (unsigned int left)   noexcept;
     void SetMarginRight (unsigned int right)  noexcept;
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update(bool resetMinSize = true) noexcept;
 private:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
     struct{
         unsigned int top = 25;
         unsigned int bottom = 25;
         unsigned int left = 25;
         unsigned int right = 25;
     }margin;
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
 };
 
 class Label : public Control{
@@ -446,24 +780,65 @@ public:
         SetFont(FONT_FILE_PATH);
         Update(true);
     }
-    void SetContent(const sf::String &newContent) noexcept;
-    void SetFontSize(unsigned int size)             noexcept;
-    void SetFontColor(const sf::Color &color)       noexcept;
-    void SetFont(const sf::String &fontFile)       noexcept;
     const sf::String &GetContent() const noexcept { return content; }
-    bool         GetError()   const noexcept { return error; }
+    bool              GetError()   const noexcept { return error; }
+
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+    void SetContent(const sf::String &newContent) noexcept;
+    void SetFontSize(unsigned int size)           noexcept;
+    void SetFont(const sf::String &fontFile)      noexcept;
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    void SetFontColor(const sf::Color &color)       noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event)   noexcept {}
     void Draw   (sf::RenderWindow &screen) noexcept;
 protected:
     static const unsigned int REVISION_X = 15;
     static const unsigned int REVISION_Y = 20;
+
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
     sf::String content = "";
     unsigned int fontSize = 50;
-    sf::Color fontColor = sf::Color::White;
     sf::Font font;
-    bool error = false;
     sf::Text text;
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+    sf::Color fontColor = sf::Color::White;
+    bool error = false;
+
 };
 
 class Spacer : public Control{
@@ -474,13 +849,53 @@ public:
         rect.setOutlineColor(sf::Color::Transparent);
         rect.setFillColor(sf::Color::Transparent);
     }
+    
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
     void SetOutlineThickness(float thickness)    noexcept;
     void SetOutlineColor(const sf::Color &color) noexcept;
     void SetFillColor(const sf::Color &color)    noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event)   noexcept {}
     void Draw   (sf::RenderWindow &screen) noexcept;
 protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+
     sf::RectangleShape rect;
 };
 
@@ -495,37 +910,77 @@ public:
         layer.Add(label);
         Update(true);
     }
-    void SetCaption(const sf::String &caption)   noexcept;
-    void SetFontSize(unsigned int size)            noexcept;
-    void SetFontColor(const sf::Color &color)      noexcept;
-    void SetFont(const sf::String &fontFile)      noexcept;
-    void SetName(const sf::String &newName)    noexcept { name = newName; }
+    void SetName(const sf::String &newName)      noexcept { name = newName; }
     void SetEnterCallback(Callback function)     noexcept { enterCallback = function; }
     void SetLeaveCallback(Callback function)     noexcept { leaveCallback = function; }
     void SetPressDownCallback(Callback function) noexcept { pressDownCallback = function; }
     void SetPressUpCallback(Callback function)   noexcept { pressUpCallback = function; }
     void SetClickCallback(Callback function)     noexcept { clickCallback = function; }
     const sf::String &GetCaption() const noexcept { return label->GetContent(); }
-    bool         GetEntered() const noexcept { return entered; }
-    bool         GetPressed() const noexcept { return pressed; }
-    bool         GetError()   const noexcept { return label->GetError(); }
+    bool              GetEntered() const noexcept { return entered; }
+    bool              GetPressed() const noexcept { return pressed; }
+    bool              GetError()   const noexcept { return label->GetError(); }
+
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+    void SetCaption(const sf::String &caption)   noexcept;
+    void SetFontSize(unsigned int size)            noexcept;
+    void SetFont(const sf::String &fontFile)      noexcept;
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    void SetFontColor(const sf::Color &color)      noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event)   noexcept;
     void Draw   (sf::RenderWindow &screen) noexcept;
 protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
     void SetEntered(bool flag) noexcept;
     void SetPressed(bool flag) noexcept;
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
     Spacer *rect = new Spacer;
     Label *label = new Label;
+    Flat layer;
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
     bool entered = false;
     bool pressed = false;
+
     sf::String name = "default";
-    Callback enterCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback leaveCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback pressDownCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback pressUpCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback clickCallback = [](const sf::String &name, const sf::Event &event){};
-    Flat layer;
+    Callback   enterCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback   leaveCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback   pressDownCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback   pressUpCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback   clickCallback = [](const sf::String &name, const sf::Event &event){};
 };
 
 class InputBox : public Control{
@@ -546,48 +1001,126 @@ public:
         layer.Add(label);
         Update(true);
     }
-    void SetText(const sf::String &text)                noexcept;
-    void SetFontSize(unsigned int size)            noexcept;
-    void SetFontColor(const sf::Color &color)      noexcept;
-    void SetInputtingFontColor(const sf::Color &color) noexcept;
-    void SetBackColor(const sf::Color &color)      noexcept;
-    void SetInputtingBackColor(const sf::Color &color) noexcept;
-    void SetFont(const sf::String &fontFile)      noexcept;
-    void SetName(const sf::String &newName) noexcept { name = newName; }
+    void SetName(const sf::String &newName)   noexcept { name = newName; }
     void SetBeginCallback(Callback function)  noexcept { beginCallback = function; }
     void SetInputCallback(Callback function)  noexcept { inputCallback = function; }
     void SetEndCallback(Callback function)    noexcept { endCallback = function; }
     const sf::String &GetText() const noexcept { return label->GetContent(); }
-    bool GetInputting()    const noexcept { return inputting; }
-    bool GetError()        const noexcept { return button->GetError() || label->GetError(); }
+    bool GetInputting()         const noexcept { return inputting; }
+    bool GetError()             const noexcept { return button->GetError() || label->GetError(); }
+
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+    void SetText(const sf::String &text)           noexcept;
+    void SetFontSize(unsigned int size)            noexcept;
+    void SetFont(const sf::String &fontFile)       noexcept;
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    void SetFontColor(const sf::Color &color)          noexcept;
+    void SetInputtingFontColor(const sf::Color &color) noexcept;
+    void SetBackColor(const sf::Color &color)          noexcept;
+    void SetInputtingBackColor(const sf::Color &color) noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event)   noexcept;
     void Draw   (sf::RenderWindow &screen) noexcept;
 protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
     void SetInputting(bool flag) noexcept;
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
     Button *button = new Button;
-    Spacer *rect = new Spacer;
-    Label *label = new Label;
-    bool inputting = false;
-    sf::String name = "default";
-    sf::Color fontColor = sf::Color::White;
-    sf::Color inputtingFontColor = sf::Color::Black;
-    sf::Color backColor = sf::Color::Transparent;
-    sf::Color inputtingBackColor = sf::Color::White;
-    Callback beginCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback inputCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback endCallback = [](const sf::String &name, const sf::Event &event){};
+    Spacer *rect   = new Spacer;
+    Label  *label  = new Label;
     Flat layer;
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+    bool inputting = false;
+    sf::Color fontColor          = sf::Color::White;
+    sf::Color inputtingFontColor = sf::Color::Black;
+    sf::Color backColor          = sf::Color::Transparent;
+    sf::Color inputtingBackColor = sf::Color::White;
+
+    sf::String name = "default";
+    Callback   beginCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback   inputCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback   endCallback = [](const sf::String &name, const sf::Event &event){};
 };
 
 class ScrollBar : public Control{
 public:
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event)   noexcept;
-    void Draw   (sf::RenderWindow &screen) noexcept;
+    void Draw   (sf::RenderWindow &screen) noexcept = 0;
 protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
     Button *button = new Button;
     Flat layer;
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
 };
 
 }
