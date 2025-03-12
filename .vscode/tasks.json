@@ -6,16 +6,13 @@
             "command": "C:\\Programme\\MinGW\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
-                "-g",
-
-                "${workspaceFolder}/modules/ui.cpp",
+                "${workspaceFolder}\\modules\\*.cpp",
                 "${file}",
-                
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
 
                 "-std=gnu++20",
-                
+
                 "-I", "C:\\Programme\\SFML\\SFML-2.6.1\\include",
                 "-L", "C:\\Programme\\SFML\\SFML-2.6.1\\lib",
                 "-l", "openal32",
@@ -24,8 +21,10 @@
                 "-l", "sfml-network",
                 "-l", "sfml-system",
                 "-l", "sfml-window",
+                "-I", "${workspaceFolder}\\modules",
 
-                "-I", "${workspaceFolder}/modules",
+                "-lcomdlg32",
+                "-std=gnu++20"
             ],
             "options": {
                 "cwd": "${fileDirname}"

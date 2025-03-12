@@ -57,8 +57,8 @@ class Control;
          */
         class Flat;
             /**
-             * @class 屏幕类
-             * @brief 所有组件都要放在屏幕上才能起作用。
+             * @class 窗口类
+             * @brief 所有组件都要放在窗口上才能起作用。
              */
             class Screen;
         /**
@@ -120,28 +120,33 @@ class Control;
     class InputBox;
     /**
      * @class 滚动条类
-     * @brief 水平滚动条类和垂直滚动条类的基类。
+     * @brief 水平滚动条类和垂直滚动条的基类。
+     * @note 抽象类
      */
     class ScrollBar;
         /**
          * @class 水平滚动条类
-         * @brief 提供一个水平方向的滚动条。
-         * @note 抽象类
+         * @brief 响应用户滚动操作的组件。
+         * @note minSize 属性由用户决定。
          */
-        class HorizontalBar;
+        class HorizontalScrollBar;
         /**
          * @class 垂直滚动条类
-         * @brief 提供一个垂直方向的滚动条。
+         * @brief 响应用户滚动操作的组件。
+         * @note minSize 属性由用户决定。
          */
-        class VerticalBar;
+        class VerticalScrollBar;
 
 /******************************
  * @brief 所有组件类的接口声明。*
  * ****************************
  */
-
 class Control{
 public:
+    using Callback = std::function<void (const sf::String &, const sf::Event &)>;
+    static const Callback DO_NOTHING;
+    void SetName(const sf::String &newName) noexcept { name = newName; }
+
     /******************************
      * @brief 约定的常量和数据类型。*
      * ****************************
@@ -168,7 +173,7 @@ public:
         WRAP_AT_FRONT,   WRAP_AT_END,   WRAP_AT_CENTER,   // 紧缩在容器前端、末端、中间
         FILL_FROM_FRONT, FILL_FROM_END, FILL_FROM_CENTER  // 自容器前端、末端、中间填充
     };
-
+    
     /********************************************
      * @brief 期望尺寸和位置的设置接口。          *
      * @note 会引起父容器的“内容尺寸和位置的变化”。*
@@ -323,11 +328,14 @@ public:
 
     virtual ~Control() noexcept;
 protected:
+    sf::String name = "default";
+
     /*************************
      * @brief 封装的工具方法。*
      * ***********************
      */
     bool IsInside(int x, int y) const noexcept;
+    static Direction GetAnotherDirection(Direction direction) noexcept;
 
     /*************************
      * @brief 封装的数据类型。*
@@ -355,7 +363,6 @@ protected:
             return horizontal;
         }
     };
-    using Callback = std::function<void (const sf::String &, const sf::Event &)>;
 
     /****************************
      * @brief 期望尺寸和位置属性。*
@@ -510,9 +517,26 @@ public:
         SetGlobalSize(Direction::HORIZONTAL, width);
         SetGlobalSize(Direction::VERTICAL, height);
     }
+    /**
+     * @fn 设置窗口大小
+     * @param width 宽度
+     * @param height 高度
+     */
     void SetRange  (unsigned int width, unsigned int height) noexcept;
+    /**
+     * @fn 设置窗口标题
+     * @param caption 标题
+     */
     void SetCaption(const sf::String &caption)               noexcept;
+    /**
+     * @fn 检查窗口是否打开
+     * @return 是否打开
+     */
     bool IsOpen    ()                                  const noexcept;
+    /**
+     * @fn 刷新窗口
+     * @note 务必在事件循环中调用。
+     */
     void Tick      ()                                        noexcept;
 protected:
     sf::RenderWindow screen;
@@ -910,7 +934,6 @@ public:
         layer.Add(label);
         Update(true);
     }
-    void SetName(const sf::String &newName)      noexcept { name = newName; }
     void SetEnterCallback(Callback function)     noexcept { enterCallback = function; }
     void SetLeaveCallback(Callback function)     noexcept { leaveCallback = function; }
     void SetPressDownCallback(Callback function) noexcept { pressDownCallback = function; }
@@ -975,12 +998,11 @@ protected:
     bool entered = false;
     bool pressed = false;
 
-    sf::String name = "default";
-    Callback   enterCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback   leaveCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback   pressDownCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback   pressUpCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback   clickCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback   enterCallback = DO_NOTHING;
+    Callback   leaveCallback = DO_NOTHING;
+    Callback   pressDownCallback = DO_NOTHING;
+    Callback   pressUpCallback = DO_NOTHING;
+    Callback   clickCallback = DO_NOTHING;
 };
 
 class InputBox : public Control{
@@ -1001,7 +1023,6 @@ public:
         layer.Add(label);
         Update(true);
     }
-    void SetName(const sf::String &newName)   noexcept { name = newName; }
     void SetBeginCallback(Callback function)  noexcept { beginCallback = function; }
     void SetInputCallback(Callback function)  noexcept { inputCallback = function; }
     void SetEndCallback(Callback function)    noexcept { endCallback = function; }
@@ -1065,18 +1086,170 @@ protected:
      */
     bool inputting = false;
     sf::Color fontColor          = sf::Color::White;
-    sf::Color inputtingFontColor = sf::Color::Black;
     sf::Color backColor          = sf::Color::Transparent;
+    sf::Color inputtingFontColor = sf::Color::Black;
     sf::Color inputtingBackColor = sf::Color::White;
 
-    sf::String name = "default";
-    Callback   beginCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback   inputCallback = [](const sf::String &name, const sf::Event &event){};
-    Callback   endCallback = [](const sf::String &name, const sf::Event &event){};
+    Callback   beginCallback = DO_NOTHING;
+    Callback   inputCallback = DO_NOTHING;
+    Callback   endCallback = DO_NOTHING;
 };
 
 class ScrollBar : public Control{
 public:
+    ScrollBar() noexcept
+    {
+        background->SetPreset(Preset::FILL_FROM_CENTER);
+        background->SetOutlineThickness(5);
+        background->SetOutlineColor(backColor);
+        front->SetOutlineThickness(5);
+        front->SetOutlineColor(frontColor);
+
+        background->SetFillColor(sf::Color::Transparent);
+        front->SetFillColor(backColor);
+        
+        layer.Add(background);
+        layer.Add(front);
+    }
+    void SetEnteredCallback(Callback function) noexcept { enteredCallback = function; }
+    void SetLeaveCallback  (Callback function) noexcept { leaveCallback = function; }
+    void SetScrollCallback (Callback function) noexcept { scrollCallback = function; }
+    void SetDragCallback   (Callback function) noexcept { dragCallback = function; }
+    unsigned int GetPort() const noexcept { return port; }
+    unsigned int GetSum()  const noexcept { return sum; }
+    unsigned int GetRate() const noexcept { return rate; }
+    bool GetEntered()  const noexcept { return entered; }
+    bool GetDragging() const noexcept { return dragging; }
+
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+    void SetPort(unsigned int absolute) noexcept;
+    void SetSum (unsigned int absolute) noexcept;
+    void SetRate(unsigned int absolute) noexcept;
+    void AddRate(int delta)             noexcept;
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    void SetSensitivity(float real)               noexcept;
+    void SetReserve    (bool flag)                noexcept;
+    void SetBackColor  (const sf::Color &color)   noexcept;
+    void SetFrontColor (const sf::Color &color)   noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update (bool resetMinSize = true) noexcept = 0;
+    void Process(const sf::Event &event)   noexcept;
+    void Draw   (sf::RenderWindow &screen) noexcept;
+    virtual void DragTo (int x, int y)     noexcept = 0;
+protected:
+    Callback enteredCallback = DO_NOTHING;
+    Callback leaveCallback = DO_NOTHING;
+    Callback scrollCallback = DO_NOTHING;
+    Callback dragCallback = DO_NOTHING;
+
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+    void UpdateTo(Direction direction) noexcept;
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+    unsigned int sum  = 100;
+    unsigned int rate = 20;
+    unsigned int port = 10;
+    Spacer *background = new Spacer;
+    Spacer *front      = new Spacer;
+    Flat layer;
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+    float sensitivity = 1;
+    bool reserve = false;
+    sf::Color backColor = sf::Color::White;
+    sf::Color frontColor = sf::Color::Blue;
+    bool entered  = false;
+    bool dragging = false;
+};
+
+class HorizontalScrollBar : public ScrollBar{
+public:
+    HorizontalScrollBar() noexcept
+    {
+        Update();
+    }
+    
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update(bool resetMinSize = true) noexcept;
+    void DragTo(int x, int y)             noexcept;
+protected:
+    
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型。*
+     * ***********************
+     */
+    
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+};
+
+class VerticalScrollBar : public ScrollBar{
+public:
+    VerticalScrollBar() noexcept
+    {
+        Update();
+    }
+
     /******************************
      * @brief 约定的常量和数据类型。*
      * ****************************
@@ -1096,9 +1269,8 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event)   noexcept;
-    void Draw   (sf::RenderWindow &screen) noexcept = 0;
+    void Update(bool resetMinSize = true) noexcept;
+    void DragTo(int x, int y)             noexcept;
 protected:
     /*************************
      * @brief 封装的工具方法。*
@@ -1114,8 +1286,6 @@ protected:
      * @brief 内容属性。*
      * ******************
      */
-    Button *button = new Button;
-    Flat layer;
 
     /********************
      * @brief 样式属性。*

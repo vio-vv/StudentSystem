@@ -17,7 +17,6 @@
 
 const std::wstring SERVER_LINK_PATH = L"./server_link.txt";
 
-
 std::pair<bool, std::wstring> GetServerLink() noexcept
 {
     if (!trm::CheckFileExist(SERVER_LINK_PATH)) return std::make_pair(false, L"");
