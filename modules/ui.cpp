@@ -2,6 +2,14 @@
 
 const ui::Button::Callback ui::Control::DO_NOTHING = [](const sf::String &name, const sf::Event &event){};
 
+const float ui::ScrollingBox::DEFAULT_SENSITIVITY = 10;
+
+const unsigned int ui::Label::REVISION_X = 15;
+
+const unsigned int ui::Label::REVISION_Y = 20;
+
+const sf::String ui::Label::FONT_FILE_PATH = "../assets/simfang.ttf";
+
 void ui::Control::SetCenter(Direction directrion, int percentage) noexcept
 {
     center[directrion] = percentage;
@@ -119,37 +127,44 @@ ui::Control::~Control() noexcept
 
 void ui::Container::Add(Control *control) noexcept
 {
-    children.push_back(control);
+    children->push_back(control);
     control->SetParent(this);
     Update();
 }
 
 void ui::Container::Remove(Control *control) noexcept
 {
-    children.remove(control);
+    children->remove(control);
     control->SetParent(nullptr);
     Update();
 }
 
 void ui::Container::FreeAll() noexcept
 {
-    auto tmp = children;
+    auto tmp = *children;
     for (auto each : tmp) {
         delete each;
     }
 }
 
-void ui::Container::Process(const sf::Event &event) noexcept
+void ui::Container::SyncChildren(Children *pointer) noexcept
 {
-    for (auto child : children) {
+    delete children;
+    children = pointer;
+    Update();
+}
+
+void ui::Container::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
+{
+    for (auto child : *children) {
         if (!child->GetVisible()) continue;
-        child->Process(event);
+        child->Process(event, screen);
     }
 }
 
 void ui::Container::Draw(sf::RenderWindow &screen) noexcept
 {
-    for (auto child : children) {
+    for (auto child : *children) {
         if (!child->GetVisible()) continue;
         child->Draw(screen);
     }
@@ -190,7 +205,7 @@ void ui::Screen::Tick() noexcept
                 sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
                 screen.setView(sf::View(visibleArea));
             } else {
-                Process(event);
+                Process(event, screen);
             }
         }
         screen.clear();
@@ -202,7 +217,7 @@ void ui::Screen::Tick() noexcept
 void ui::Flat::Update(bool resetMinSize) noexcept
 {
     for (auto direction : {Direction::HORIZONTAL, Direction::VERTICAL}) {
-        for (auto child : children) {
+        for (auto child : *children) {
             if (!child->GetVisible()) continue;
             UpdateByDefault(direction, child);
         }
@@ -263,7 +278,7 @@ void ui::Center::Update(bool resetMinSize) noexcept
 {
     for (auto direction : {Direction::HORIZONTAL, Direction::VERTICAL}) {
         unsigned int myMinSize = 0;
-        for (auto child : children) {
+        for (auto child : *children) {
             if (!child->GetVisible()) continue;
             UpdateSizeByDefault(direction, child);
             child->SetGlobalPosition(direction, globalPosition[direction] + (globalSize[direction] - child->GetGlobalSize(direction)) / 2);
@@ -286,12 +301,23 @@ void ui::LinearBox::SetGap(int absolute) noexcept
     Update();
 }
 
+void ui::LinearBox::SetProportionMode(bool flag) noexcept
+{
+    proportionMode = flag;
+    Update();
+}
+
+void ui::LinearBox::SetDelta(int absolute) noexcept
+{
+    delta = absolute;
+    Update();
+}
+
 void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcept
 {
     auto another = GetAnotherDirection(direction);
-
     unsigned int anotherMinSize = 0;
-    for (auto child : children) {
+    for (auto child : *children) {
         if (!child->GetVisible()) continue;
         UpdateByDefault(another, child);
         switch (child->GetSizeValueType(another)) {
@@ -305,41 +331,52 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
     }
     if (resetMinSize) SetMinSize(another, anotherMinSize);
 
-    unsigned int directionMinSize = 0;
-    unsigned int sizeOccupied     = 0;
-    unsigned int ratioSum         = 0;
-    unsigned int childCount       = 0;
-    for (auto child : children) {
-        if (!child->GetVisible()) continue;
-        switch (child->GetSizeValueType(direction)) {
-            case ValueType::ABSOLUTE:
-                UpdateSizeByDefault(direction, child);
-                directionMinSize += child->GetGlobalSize(direction);
-                sizeOccupied     += child->GetGlobalSize(direction);
-                break;
-            case ValueType::PERCENTAGE:
-                directionMinSize += child->GetMinSize(direction);
-                ratioSum         += child->GetSize(direction);
-                break;
-        }
-        ++childCount;
-    }
-    if (resetMinSize) SetMinSize(direction, directionMinSize + std::max(0u, childCount - 1) * gap);
-    else {
-        unsigned int sizeLeft    = globalSize[direction] - std::max(0u, childCount - 1) * gap - sizeOccupied;
-        unsigned int tmpPosition = 0;
-        for (auto child : children) {
+    if (proportionMode) {
+        unsigned int directionMinSize = 0;
+        unsigned int sizeOccupied     = 0;
+        unsigned int ratioSum         = 0;
+        int          childCount       = 0;
+        for (auto child : *children) {
             if (!child->GetVisible()) continue;
-            sizeLeft -= child->GetMinSize(direction);
-        }
-        for (auto child : children) {
-            if (!child->GetVisible()) continue;
-            if (child->GetSizeValueType(direction) == ValueType::PERCENTAGE) {
-                    child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / ratioSum + child->GetMinSize(direction));
+            switch (child->GetSizeValueType(direction)) {
+                case ValueType::ABSOLUTE:
+                    UpdateSizeByDefault(direction, child);
+                    directionMinSize += child->GetGlobalSize(direction);
+                    sizeOccupied     += child->GetGlobalSize(direction);
+                    break;
+                case ValueType::PERCENTAGE:
+                    directionMinSize += child->GetMinSize(direction);
+                    ratioSum         += child->GetSize(direction);
+                    break;
             }
-            child->SetGlobalPosition(direction, globalPosition[direction] + tmpPosition);
+            ++childCount;
+        }
+        if (resetMinSize) SetMinSize(direction, directionMinSize + std::max(0, childCount - 1) * gap);
+        else {
+            unsigned int sizeLeft    = globalSize[direction] - std::max(0, childCount - 1) * gap - sizeOccupied;
+            unsigned int tmpPosition = 0;
+            for (auto child : *children) {
+                if (!child->GetVisible()) continue;
+                sizeLeft -= child->GetMinSize(direction);
+            }
+            for (auto child : *children) {
+                if (!child->GetVisible()) continue;
+                if (child->GetSizeValueType(direction) == ValueType::PERCENTAGE) {
+                        child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / ratioSum + child->GetMinSize(direction));
+                }
+                child->SetGlobalPosition(direction, globalPosition[direction] + tmpPosition);
+                tmpPosition += child->GetGlobalSize(direction) + gap;
+            }
+        }
+    } else {
+        unsigned int tmpPosition = 0;
+        for (auto child : *children) {
+            if (!child->GetVisible()) continue;
+            UpdateSizeByDefault(direction, child);
+            child->SetGlobalPosition(direction, globalPosition[direction] + tmpPosition + delta);
             tmpPosition += child->GetGlobalSize(direction) + gap;
         }
+        totalSize = tmpPosition != 0 ? tmpPosition - gap : 0;
     }
 }
 
@@ -352,8 +389,6 @@ void ui::VerticalBox::Update(bool resetMinSize) noexcept
 {
     UpdateLinear(Direction::VERTICAL, resetMinSize);
 }
-
-const sf::String ui::Label::FONT_FILE_PATH = "../assets/simfang.ttf";
 
 void ui::Label::SetContent(const sf::String &newContent) noexcept
 {
@@ -467,7 +502,7 @@ ui::Control::Direction ui::Control::GetAnotherDirection(Direction direction) noe
     return Direction::VERTICAL;
 }
 
-void ui::Button::Process(const sf::Event &event) noexcept
+void ui::Button::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
 {
     if (event.type == sf::Event::MouseMoved) {
         if (IsInside(event.mouseMove.x, event.mouseMove.y)) {
@@ -564,7 +599,7 @@ void ui::Margen::Update(bool resetMinSize) noexcept
 {
     unsigned int minSizeH = 0;
     unsigned int minSizeV = 0;
-    for (auto child : children) {
+    for (auto child : *children) {
         if (!child->GetVisible()) continue;
         child->SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL] - margin.left - margin.right);
         child->SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL] - margin.top - margin.bottom);
@@ -630,9 +665,9 @@ void ui::InputBox::Update(bool resetMinSize) noexcept
     }
 }
 
-void ui::InputBox::Process(const sf::Event &event) noexcept
+void ui::InputBox::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
 {
-    button->Process(event);
+    button->Process(event, screen);
 
     auto input = [this](sf::Uint32 c){
         auto content = label->GetContent();
@@ -747,9 +782,9 @@ void ui::ScrollBar::SetRate(unsigned int absolute) noexcept
     Update();
 }
 
-void ui::ScrollBar::AddRate(int delta) noexcept
+void ui::ScrollBar::AddRate(int absolute) noexcept
 {
-    SetRate(std::max(0, (int)rate + delta));
+    SetRate(std::max(0, (int)rate + absolute));
 }
 
 void ui::ScrollBar::SetSensitivity(float real) noexcept
@@ -784,12 +819,8 @@ void ui::ScrollBar::UpdateTo(Direction direction) noexcept
     front->SetPosition(direction, rate * globalSize[direction] / sum);
 }
 
-void ui::ScrollBar::Process(const sf::Event &event) noexcept
+void ui::ScrollBar::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
 {
-    auto drag = [](){
-        
-    };
-
     if (event.type == sf::Event::MouseMoved) {
         if (IsInside(event.mouseMove.x, event.mouseMove.y)) {
             background->SetFillColor(backColor);
@@ -802,12 +833,6 @@ void ui::ScrollBar::Process(const sf::Event &event) noexcept
             entered = false;
             leaveCallback(name, event);
         }
-
-        if (dragging) {
-            DragTo(event.mouseMove.x - globalPosition[Direction::HORIZONTAL], event.mouseMove.y - globalPosition[Direction::VERTICAL]);
-            dragCallback(name, event);
-            scrollCallback(name, event);
-        }
     } else if (event.type == sf::Event::MouseWheelScrolled) {
         if (entered) {
             AddRate((reserve ? -1 : 1) * -sensitivity * event.mouseWheelScroll.delta);
@@ -817,10 +842,6 @@ void ui::ScrollBar::Process(const sf::Event &event) noexcept
         if (event.mouseButton.button == sf::Mouse::Left) {
             if (entered) {
                 dragging = true;
-                
-                DragTo(event.mouseButton.x - globalPosition[Direction::HORIZONTAL], event.mouseButton.y - globalPosition[Direction::VERTICAL]);
-                dragCallback(name, event);
-                scrollCallback(name, event);
             }
         }
     } else if (event.type == sf::Event::MouseButtonReleased) {
@@ -828,7 +849,13 @@ void ui::ScrollBar::Process(const sf::Event &event) noexcept
             dragging = false;
         }
     }
-
+    
+    if (dragging) {
+        auto mousePosition = sf::Mouse::getPosition(screen);
+        DragTo(mousePosition.x - globalPosition[Direction::HORIZONTAL], mousePosition.y - globalPosition[Direction::VERTICAL]);
+        dragCallback(name, event);
+        scrollCallback(name, event);
+    }
 }
 
 void ui::ScrollBar::Draw(sf::RenderWindow &screen) noexcept
@@ -866,4 +893,127 @@ void ui::VerticalScrollBar::DragTo(int x, int y) noexcept
     if (expected < 0) expected = 0;
     if (expected > 1) expected = 1;
     SetRate(expected * (sum - port));
+}
+
+void ui::ScrollingBox::SetBarSize(unsigned int size) noexcept
+{
+    barSize = size;
+    Update();
+}
+
+void ui::ScrollingBox::SetBarAtFront(bool flag) noexcept
+{
+    barAtFront = flag;
+    Update();
+}
+
+void ui::HorizontalScrollingBox::SetRate(unsigned int absolute) noexcept
+{
+    bar->SetRate(absolute);
+    box->SetDelta(-bar->GetRate());
+}
+
+void ui::HorizontalScrollingBox::SetSensitivity(float real) noexcept
+{
+    bar->SetSensitivity(real);
+}
+
+void ui::HorizontalScrollingBox::SetReserve(bool flag) noexcept
+{
+    bar->SetReserve(flag);
+}
+
+void ui::HorizontalScrollingBox::Update(bool resetMinSize) noexcept
+{
+    SharedUpdate();
+
+    if (resetMinSize) {
+        SetMinSize(Direction::VERTICAL, box->GetMinSize(Direction::VERTICAL) + barSize);
+    }
+
+    if (barAtFront) {
+        bar->SetPreset(Direction::VERTICAL, Preset::PLACR_AT_FRONT);
+        box->SetPreset(Direction::VERTICAL, Preset::PLACR_AT_END);
+    } else {
+        bar->SetPreset(Direction::VERTICAL, Preset::PLACR_AT_END);
+        box->SetPreset(Direction::VERTICAL, Preset::PLACR_AT_FRONT);
+    }
+
+    box->SetSize(Direction::VERTICAL, globalSize[Direction::VERTICAL] - barSize);
+    bar->SetSize(Direction::VERTICAL, barSize);
+
+    bar->SetPort(globalSize[Direction::HORIZONTAL]);
+    bar->SetSum(box->GetTotalSize());
+    box->SetDelta(-bar->GetRate());
+}
+
+void ui::ScrollingBox::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
+{
+    auto mousePosition = sf::Mouse::getPosition(screen);
+    switch (event.type) {
+        case sf::Event::MouseWheelMoved:
+        case sf::Event::MouseWheelScrolled:
+        case sf::Event::MouseButtonPressed:
+        case sf::Event::MouseButtonReleased:
+        case sf::Event::MouseMoved:
+        case sf::Event::MouseEntered:
+        case sf::Event::MouseLeft:
+            if (!IsInside(mousePosition.x, mousePosition.y)) return;
+            break;
+    }
+
+    layer.Process(event, screen);
+}
+
+void ui::ScrollingBox::Draw(sf::RenderWindow &screen) noexcept
+{
+    DRAW_DEBUG_RECT;
+}
+
+void ui::ScrollingBox::SharedUpdate() noexcept
+{
+    layer.SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL]);
+    layer.SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL]);
+    layer.SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL]);
+    layer.SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL]);
+}
+
+void ui::VerticalScrollingBox::SetRate(unsigned int absolute) noexcept
+{
+    bar->SetRate(absolute);
+    box->SetDelta(-bar->GetRate());
+}
+
+void ui::VerticalScrollingBox::SetSensitivity(float real) noexcept
+{
+    bar->SetSensitivity(real);
+}
+
+void ui::VerticalScrollingBox::SetReserve(bool flag) noexcept
+{
+    bar->SetReserve(flag);
+}
+
+void ui::VerticalScrollingBox::Update(bool resetMinSize) noexcept
+{
+    SharedUpdate();
+
+    if (resetMinSize) {
+        SetMinSize(Direction::HORIZONTAL, box->GetMinSize(Direction::HORIZONTAL) + barSize);
+    }
+
+    if (barAtFront) {
+        bar->SetPreset(Direction::HORIZONTAL, Preset::PLACR_AT_FRONT);
+        box->SetPreset(Direction::HORIZONTAL, Preset::PLACR_AT_END);
+    } else {
+        bar->SetPreset(Direction::HORIZONTAL, Preset::PLACR_AT_END);
+        box->SetPreset(Direction::HORIZONTAL, Preset::PLACR_AT_FRONT);
+    }
+
+    box->SetSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL] - barSize);
+    bar->SetSize(Direction::HORIZONTAL, barSize);
+
+    bar->SetPort(globalSize[Direction::VERTICAL]);
+    bar->SetSum(box->GetTotalSize());
+    box->SetDelta(-bar->GetRate());
 }

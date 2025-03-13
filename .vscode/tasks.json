@@ -6,8 +6,11 @@
             "command": "C:\\Programme\\MinGW\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
+
                 "${workspaceFolder}\\modules\\*.cpp",
                 "${file}",
+
+                "-g",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
 
@@ -23,7 +26,6 @@
                 "-l", "sfml-window",
                 "-I", "${workspaceFolder}\\modules",
 
-                "-lcomdlg32",
                 "-std=gnu++20"
             ],
             "options": {

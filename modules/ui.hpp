@@ -77,15 +77,33 @@ class Control;
             /**
              * @class 水平布局类
              * @brief 按行排列子组件。
-             * @note minSize 属性由组件决定。
+             * @note minSize 属性由组件决定；但非占比模式下水平方向由用户决定。
              */
             class HorizontalBox;
             /**
              * @class 垂直布局类
              * @brief 按列排列子组件。
-             * @note minSize 属性由组件决定。
+             * @note minSize 属性由组件决定；但非占比模式下垂直方向由用户决定。
              */
             class VerticalBox;
+        /**
+         * @class 滚动线性布局类
+         * @brief 能够滚动的线性布局。
+         * @note 抽象类
+         */
+        class ScrollingBox;
+            /**
+             * @class 水平滚动线性布局类
+             * @brief 按行排列子组件，并能滚动。
+             * @note minSize 属性，垂直方向由组件决定，水平方向由用户决定。
+             */
+            class HorizontalScrollingBox;
+            /**
+             * @class 垂直滚动线性布局类
+             * @brief 按列排列子组件，并能滚动。
+             * @note minSize 属性，水平方向由组件决定，垂直方向由用户决定。
+             */
+            class VerticalScrollingBox;
         /**
          * @class 边距容器类
          * @brief 给组件添加边距。
@@ -122,6 +140,7 @@ class Control;
      * @class 滚动条类
      * @brief 水平滚动条类和垂直滚动条的基类。
      * @note 抽象类
+     * @note 请注意处理非用户造成的 rate 属性的变化。
      */
     class ScrollBar;
         /**
@@ -277,21 +296,21 @@ public:
      * @note 调用时机：组件最终尺寸和位置变化时，调用 Update(false)；组件内容尺寸和位置变化时，调用 Update(true)。
      * @note 实现功能：确定内容的最终尺寸和位置。
      */
-    virtual void Update  (bool resetMinSize = true) noexcept = 0;
+    virtual void Update  (bool resetMinSize = true)                                 noexcept = 0;
     /**
      * @fn 处理事件
      * @param event 事件
      * @note 调用时机：父容器转送事件时。
      * @note 实现功能：处理事件。
      */
-    virtual void Process (const sf::Event &event)   noexcept = 0;
+    virtual void Process (const sf::Event &event, const sf::RenderWindow &screen)   noexcept = 0;
     /**
      * @fn 绘制组件
      * @param screen 待绘制的窗口
      * @note 调用时机：父容器需要组件被绘制时。
      * @note 实现功能：绘制组件。
      */
-    virtual void Draw    (sf::RenderWindow &screen) noexcept = 0;
+    virtual void Draw    (sf::RenderWindow &screen)                                 noexcept = 0;
 
     /*****************************************
      * @brief 父容器更新内容的尺寸和位置的接口。*
@@ -338,7 +357,7 @@ protected:
     static Direction GetAnotherDirection(Direction direction) noexcept;
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
     template<typename DataType>
@@ -392,6 +411,7 @@ public:
      * @brief 约定的常量和数据类型。*
      * ****************************
      */
+    using Children = std::list<Control *>;
 
     /***************************
      * @brief 内容属性控制接口。*
@@ -401,17 +421,23 @@ public:
      * @fn 向容器中添加子组件
      * @param control 子组件
      */
-    void Add     (Control *control) noexcept;
+    void Add         (Control *control)   noexcept;
     /**
      * @fn 从容器中移除子组件
      * @param control 子组件
      */
-    void Remove  (Control *control) noexcept;
+    void Remove      (Control *control)   noexcept;
     /**
      * @fn 释放所有子组件
      * @note 所有组组件地址都将被释放，请注意空指针。
      */
-    void FreeAll ()                 noexcept;
+    void FreeAll     ()                   noexcept;
+    /**
+     * @fn 同步子组件
+     * @param pointer 新的子组件指针
+     * @note 不同步子组件的父容器，因此 Update 不会被子组件调用，改为手动。
+     */
+    void SyncChildren(Children *pointer)  noexcept;
     
     /***************************
      * @brief 样式属性控制接口。*
@@ -422,9 +448,9 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true) noexcept = 0;
-    void Process(const sf::Event &event)   noexcept;
-    void Draw   (sf::RenderWindow &screen) noexcept;
+    void Update (bool resetMinSize = true)                                 noexcept = 0;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
+    void Draw   (sf::RenderWindow &screen)                                 noexcept;
 
     ~Container() noexcept;
 protected:
@@ -441,7 +467,7 @@ protected:
     static int          ObtainDefaultGlobalPosition(int       center,        int  anchor, int          position, unsigned int thisSize, unsigned int parentSize, int parentPosition) noexcept;
     
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
     
@@ -449,7 +475,7 @@ protected:
      * @brief 内容属性。*
      * ******************
      */
-    std::list<Control *> children = {};
+    Children *children = new Children{};
     
     /********************
      * @brief 样式属性。*
@@ -486,7 +512,7 @@ protected:
      */
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
     
@@ -517,6 +543,11 @@ public:
         SetGlobalSize(Direction::HORIZONTAL, width);
         SetGlobalSize(Direction::VERTICAL, height);
     }
+    /**
+     * @fn 获取只读窗口实例
+     * @return 只读窗口实例
+     */
+    const sf::RenderWindow &Get() const noexcept { return screen; }
     /**
      * @fn 设置窗口大小
      * @param width 宽度
@@ -576,7 +607,7 @@ protected:
      */
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
     
@@ -602,7 +633,11 @@ public:
      * @brief 内容属性控制接口。*
      * *************************
      */
-    void SetGap(int absolute) noexcept;
+    void SetGap(int absolute)         noexcept;
+
+    void SetProportionMode(bool flag) noexcept;
+    void SetDelta(int absolute)       noexcept;
+    unsigned int GetTotalSize() const noexcept { return totalSize; }
 
     /***************************
      * @brief 样式属性控制接口。*
@@ -622,7 +657,7 @@ protected:
     void UpdateLinear(Direction direction, bool resetMinSize) noexcept;
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
 
@@ -631,6 +666,10 @@ protected:
      * ******************
      */
     int gap = 25;
+
+    bool proportionMode = true;
+    int delta = 0;
+    unsigned int totalSize = 0;
 
     /********************
      * @brief 样式属性。*
@@ -672,7 +711,7 @@ protected:
      */
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
     
@@ -721,7 +760,7 @@ protected:
      */
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
     
@@ -775,7 +814,7 @@ private:
      */
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
 
@@ -831,11 +870,11 @@ public:
      * **********************************
      */
     void Update (bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event)   noexcept {}
+    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept {}
     void Draw   (sf::RenderWindow &screen) noexcept;
 protected:
-    static const unsigned int REVISION_X = 15;
-    static const unsigned int REVISION_Y = 20;
+    static const unsigned int REVISION_X;
+    static const unsigned int REVISION_Y;
 
     /*************************
      * @brief 封装的工具方法。*
@@ -843,7 +882,7 @@ protected:
      */
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
 
@@ -897,7 +936,7 @@ public:
      * **********************************
      */
     void Update (bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event)   noexcept {}
+    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept {}
     void Draw   (sf::RenderWindow &screen) noexcept;
 protected:
     /*************************
@@ -906,7 +945,7 @@ protected:
      */
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
 
@@ -968,7 +1007,7 @@ public:
      * **********************************
      */
     void Update (bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event)   noexcept;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
     void Draw   (sf::RenderWindow &screen) noexcept;
 protected:
     /*************************
@@ -979,7 +1018,7 @@ protected:
     void SetPressed(bool flag) noexcept;
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
 
@@ -1056,9 +1095,9 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event)   noexcept;
-    void Draw   (sf::RenderWindow &screen) noexcept;
+    void Update (bool resetMinSize = true)                                 noexcept;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
+    void Draw   (sf::RenderWindow &screen)                                 noexcept;
 protected:
     /*************************
      * @brief 封装的工具方法。*
@@ -1067,7 +1106,7 @@ protected:
     void SetInputting(bool flag) noexcept;
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
 
@@ -1133,7 +1172,7 @@ public:
     void SetPort(unsigned int absolute) noexcept;
     void SetSum (unsigned int absolute) noexcept;
     void SetRate(unsigned int absolute) noexcept;
-    void AddRate(int delta)             noexcept;
+    void AddRate(int absolute)          noexcept;
 
     /***************************
      * @brief 样式属性控制接口。*
@@ -1148,10 +1187,9 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true) noexcept = 0;
-    void Process(const sf::Event &event)   noexcept;
-    void Draw   (sf::RenderWindow &screen) noexcept;
-    virtual void DragTo (int x, int y)     noexcept = 0;
+    void Update (bool resetMinSize = true)                                 noexcept = 0;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
+    void Draw   (sf::RenderWindow &screen)                                 noexcept;
 protected:
     Callback enteredCallback = DO_NOTHING;
     Callback leaveCallback = DO_NOTHING;
@@ -1162,10 +1200,11 @@ protected:
      * @brief 封装的工具方法。*
      * ***********************
      */
+    virtual void DragTo (int x, int y) noexcept = 0;
     void UpdateTo(Direction direction) noexcept;
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
 
@@ -1219,16 +1258,15 @@ public:
      * **********************************
      */
     void Update(bool resetMinSize = true) noexcept;
-    void DragTo(int x, int y)             noexcept;
 protected:
-    
     /*************************
      * @brief 封装的工具方法。*
      * ***********************
      */
+    void DragTo(int x, int y)             noexcept;
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
     
@@ -1270,15 +1308,15 @@ public:
      * **********************************
      */
     void Update(bool resetMinSize = true) noexcept;
-    void DragTo(int x, int y)             noexcept;
 protected:
     /*************************
      * @brief 封装的工具方法。*
      * ***********************
      */
+    void DragTo(int x, int y)             noexcept;
 
     /*************************
-     * @brief 封装的数据类型。*
+     * @brief 封装的数据类型和常量。*
      * ***********************
      */
 
@@ -1287,6 +1325,207 @@ protected:
      * ******************
      */
 
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+};
+
+class ScrollingBox : public Container{
+public:
+    ScrollingBox() noexcept
+    {
+        rect->SetPreset(Preset::FILL_FROM_CENTER);
+        rect->SetOutlineThickness(5);
+        rect->SetOutlineColor(sf::Color::White);
+
+        layer.Add(rect);
+    }
+
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+    void SetBarSize(unsigned int size) noexcept;
+    void SetBarAtFront(bool flag) noexcept;
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    virtual void SetRate       (unsigned int   absolute)  noexcept;
+    virtual void SetSensitivity(float          real)      noexcept;
+    virtual void SetReserve    (bool           flag)      noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update(bool resetMinSize = true)                                 noexcept = 0;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen)  noexcept;
+    void Draw(sf::RenderWindow &screen)                                   noexcept;
+protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+    void SharedUpdate() noexcept;
+
+    /*************************
+     * @brief 封装的数据类型和常量。*
+     * ***********************
+     */
+    static const float DEFAULT_SENSITIVITY;
+    
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+    unsigned int barSize = 50;
+    bool barAtFront = false;
+    Spacer *rect = new Spacer;
+    Flat layer;
+    
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+};
+
+class HorizontalScrollingBox : public ScrollingBox{
+public:
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    HorizontalScrollingBox() noexcept
+    {
+        box->SetProportionMode(false);
+        box->SyncChildren(children);
+        
+        bar->SetScrollCallback([this](const sf::String &name, const sf::Event &event){
+            box->SetDelta(-bar->GetRate());
+        });
+        SetSensitivity(DEFAULT_SENSITIVITY);
+
+        box->SetHPreset(Preset::FILL_FROM_FRONT);
+        bar->SetHPreset(Preset::FILL_FROM_FRONT);
+
+        layer.Add(box);
+        layer.Add(bar);
+
+        Update(true);
+    }
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    void SetRate       (unsigned int   absolute)  noexcept;
+    void SetSensitivity(float          real)      noexcept;
+    void SetReserve    (bool           flag)      noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update(bool resetMinSize = true)                                 noexcept;
+protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型和常量。*
+     * ***********************
+     */
+    
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+    HorizontalBox *box = new HorizontalBox;
+    HorizontalScrollBar *bar = new HorizontalScrollBar;
+    
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+};
+
+class VerticalScrollingBox : public ScrollingBox{
+public:
+    VerticalScrollingBox() noexcept
+    {
+        box->SetProportionMode(false);
+        box->SyncChildren(children);
+
+        bar->SetScrollCallback([this](const sf::String &name, const sf::Event &event){
+            box->SetDelta(-bar->GetRate());
+        });
+        bar->SetSensitivity(DEFAULT_SENSITIVITY);
+
+        box->SetVPreset(Preset::FILL_FROM_FRONT);
+        bar->SetVPreset(Preset::FILL_FROM_FRONT);
+
+        layer.Add(box);
+        layer.Add(bar);
+
+        Update(true);
+    }
+
+    /******************************
+     * @brief 约定的常量和数据类型。*
+     * ****************************
+     */
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    void SetRate       (unsigned int   absolute)  noexcept;
+    void SetSensitivity(float          real)      noexcept;
+    void SetReserve    (bool           flag)      noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update(bool resetMinSize = true) noexcept;
+protected:
+    /*************************
+     * @brief 封装的工具方法。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型和常量。*
+     * ***********************
+     */
+    
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+    VerticalBox *box = new VerticalBox;
+    VerticalScrollBar *bar = new VerticalScrollBar;
+    
     /********************
      * @brief 样式属性。*
      * ******************
