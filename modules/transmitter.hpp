@@ -8,7 +8,7 @@
  * @par REQUIRES
  * NONE
  * 
- * @par PROVIDES @todo
+ * @par PROVIDES
  * 主要功能：
  * - @fn Send 发送消息
  * - @fn Poll 获取消息队列
@@ -31,8 +31,13 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <fstream>
+#include <filesystem>
+#include <ctime>
 
 namespace trm{
+
+namespace fs = std::filesystem;
 
 namespace rqs{
     /**
@@ -40,11 +45,11 @@ namespace rqs{
      * @param NONE
      * @return YES or NO
      */
-    const std::wstring CHECK_ONLINE = L"Are you on?";
+    const std::string CHECK_ONLINE = "Are you on?";
 }
 namespace rpl{
-    const std::wstring YES = L"Yes.";
-    const std::wstring NO = L"NO.";
+    const std::string YES = "Yes.";
+    const std::string NO = "No.";
 }
 
 /**
@@ -53,25 +58,27 @@ namespace rpl{
  * @param meassage 消息
  * @return 发送成功与否
  */
-bool Send(const std::wstring &link, const std::wstring &message) noexcept;
+bool Send(const std::string &link, const std::string &message) noexcept;
 /**
  * @brief 获取消息队列
  * @param link 自身链接（文件夹）
- * @return 获取成功与否以及按时间顺序排列的消息内容，获取不成功时第二项为空
+ * @return 获取成功与否以及~~按时间顺序排列~~的消息内容，获取不成功时第二项为空
+ * @warning 按时间顺序排列的功能未实现
+ * @todo 按时间顺序排列
  */
-std::pair<bool, std::vector<std::wstring>> Poll(const std::wstring &link) noexcept;
+std::pair<bool, std::vector<std::string>> Poll(const std::string &link) noexcept;
 /**
  * @brief 组编消息
  * @param argv 待组编的内容
  * @return 组编完成的消息
  */
-std::wstring Encode(std::vector<std::wstring> argv) noexcept;
+std::string Encode(const std::vector<std::string> &argv) noexcept;
 /**
  * @brief 解析消息
  * @param tied 待解析的消息
  * @return 解析的消息
  */
-std::vector<std::wstring> Decode(std::wstring tied) noexcept;
+std::vector<std::string> Decode(const std::string &tied) noexcept;
 
 /**
  * @brief 判断文件是否存在
@@ -79,36 +86,34 @@ std::vector<std::wstring> Decode(std::wstring tied) noexcept;
  * @return 文件存在与否
  * @note 返回值为假时表示文件不存在或权限不足
  */
-bool CheckFileExist(const std::wstring &filePath) noexcept;
+bool CheckFileExists(const std::string &filePath) noexcept;
 /**
  * @brief 读文件
  * @param filePath 文件路径
  * @return 读取成功与否以及文件全部内容，读取不成功时第二项为空
  */
-std::pair<bool, std::wstring> ReadFile(const std::wstring &filePath) noexcept;
+std::pair<bool, std::string> ReadFile(const std::string &filePath) noexcept;
 /**
  * @brief 覆盖写文件
  * @param filePath 文件路径
  * @param content 写入内容
  * @return 写入成功与否
  */
-bool WriteFile(const std::wstring &filePath, const std::wstring &content) noexcept;
+bool WriteFile(const std::string &filePath, const std::string &content) noexcept;
 /**
  * @brief 追加写文件
  * @param filePath 文件路径
  * @param content 写入内容
  * @return 写入成功与否
  */
-bool AppendFile(const std::wstring &filePath, const std::wstring &content) noexcept;
+bool AppendFile(const std::string &filePath, const std::string &content) noexcept;
 /**
  * @brief 删除文件
  * @param filePath 文件路径
  * @return 删除成功与否
  */
-bool DeleteFile(const std::wstring &filePath) noexcept;
+bool DeleteFile(const std::string &filePath) noexcept;
 
 }
 
-
 #endif
-

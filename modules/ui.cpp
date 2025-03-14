@@ -2,7 +2,7 @@
 
 const ui::Button::Callback ui::Control::DO_NOTHING = [](const sf::String &name, const sf::Event &event){};
 
-const float ui::ScrollingBox::DEFAULT_SENSITIVITY = 10;
+const float ui::ScrollingBox::DEFAULT_SENSITIVITY = 15;
 
 const unsigned int ui::Label::REVISION_X = 15;
 
@@ -81,6 +81,7 @@ void ui::Control::SetPreset(Direction direction, Preset preset) noexcept
 
 void ui::Control::SetMinSize(Direction directrion, unsigned int absolute) noexcept
 {
+    if (minSize[directrion] == absolute) return;
     minSize[directrion] = absolute;
     if (parent) parent->Update();
 }
@@ -154,10 +155,20 @@ void ui::Container::SyncChildren(Children *pointer) noexcept
     Update();
 }
 
+void ui::Container::SetIgnoreOutside(bool flag) noexcept
+{
+    ignoreOutside = flag;
+}
+
 void ui::Container::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
 {
     for (auto child : *children) {
         if (!child->GetVisible()) continue;
+
+        if (ignoreOutside) {
+            if (!IsThisInside(child)) continue;
+        }
+
         child->Process(event, screen);
     }
 }
@@ -166,6 +177,11 @@ void ui::Container::Draw(sf::RenderWindow &screen) noexcept
 {
     for (auto child : *children) {
         if (!child->GetVisible()) continue;
+
+        if (ignoreOutside) {
+            if (!IsThisInside(child)) continue;
+        }
+
         child->Draw(screen);
     }
 
@@ -272,6 +288,23 @@ int ui::Container::ObtainDefaultGlobalPosition(int center, int anchor, int posit
     thisPosition += anchor * parentSize / 100;
     thisPosition += position;
     return thisPosition;
+}
+
+bool ui::Container::IsThisInside(const Control *child) noexcept
+{
+    auto bx0 = globalPosition[Direction::HORIZONTAL];
+    auto bxx = bx0 + (int)globalSize[Direction::HORIZONTAL];
+    auto x0 = child->GetGlobalPosition(Direction::HORIZONTAL);
+    auto xx = x0 + (int)child->GetGlobalSize(Direction::HORIZONTAL);
+    if (xx < bx0 || x0 > bxx) return false;
+    
+    auto by0 = globalPosition[Direction::VERTICAL];
+    auto byy = by0 + (int)globalSize[Direction::VERTICAL];
+    auto y0 = child->GetGlobalPosition(Direction::VERTICAL);
+    auto yy = y0 + (int)child->GetGlobalSize(Direction::VERTICAL);
+    if (yy < by0 || y0 > byy) return false;
+    
+    return true;
 }
 
 void ui::Center::Update(bool resetMinSize) noexcept
@@ -787,6 +820,11 @@ void ui::ScrollBar::AddRate(int absolute) noexcept
     SetRate(std::max(0, (int)rate + absolute));
 }
 
+void ui::ScrollBar::Scroll(float delta) noexcept
+{
+    AddRate((reserve ? -1 : 1) * -sensitivity * delta);
+}
+
 void ui::ScrollBar::SetSensitivity(float real) noexcept
 {
     sensitivity = real;
@@ -835,7 +873,7 @@ void ui::ScrollBar::Process(const sf::Event &event, const sf::RenderWindow &scre
         }
     } else if (event.type == sf::Event::MouseWheelScrolled) {
         if (entered) {
-            AddRate((reserve ? -1 : 1) * -sensitivity * event.mouseWheelScroll.delta);
+            Scroll(event.mouseWheelScroll.delta);
             scrollCallback(name, event);
         }
     } else if (event.type == sf::Event::MouseButtonPressed) {
@@ -907,113 +945,100 @@ void ui::ScrollingBox::SetBarAtFront(bool flag) noexcept
     Update();
 }
 
-void ui::HorizontalScrollingBox::SetRate(unsigned int absolute) noexcept
+void ui::ScrollingBox::SetRate(unsigned int absolute) noexcept
 {
-    bar->SetRate(absolute);
-    box->SetDelta(-bar->GetRate());
+    GetBar()->SetRate(absolute);
+    GetBox()->SetDelta(-GetBar()->GetRate());
 }
 
-void ui::HorizontalScrollingBox::SetSensitivity(float real) noexcept
+void ui::ScrollingBox::SetSensitivity(float real) noexcept
 {
-    bar->SetSensitivity(real);
+    GetBar()->SetSensitivity(real);
 }
 
-void ui::HorizontalScrollingBox::SetReserve(bool flag) noexcept
+void ui::ScrollingBox::SetReserve(bool flag) noexcept
 {
-    bar->SetReserve(flag);
+    GetBar()->SetReserve(flag);
+}
+
+void ui::ScrollingBox::SetInsideBoxScrollable(bool flag) noexcept
+{
+    insideScrollable = flag;
 }
 
 void ui::HorizontalScrollingBox::Update(bool resetMinSize) noexcept
 {
-    SharedUpdate();
-
-    if (resetMinSize) {
-        SetMinSize(Direction::VERTICAL, box->GetMinSize(Direction::VERTICAL) + barSize);
-    }
-
-    if (barAtFront) {
-        bar->SetPreset(Direction::VERTICAL, Preset::PLACR_AT_FRONT);
-        box->SetPreset(Direction::VERTICAL, Preset::PLACR_AT_END);
-    } else {
-        bar->SetPreset(Direction::VERTICAL, Preset::PLACR_AT_END);
-        box->SetPreset(Direction::VERTICAL, Preset::PLACR_AT_FRONT);
-    }
-
-    box->SetSize(Direction::VERTICAL, globalSize[Direction::VERTICAL] - barSize);
-    bar->SetSize(Direction::VERTICAL, barSize);
-
-    bar->SetPort(globalSize[Direction::HORIZONTAL]);
-    bar->SetSum(box->GetTotalSize());
-    box->SetDelta(-bar->GetRate());
+    SharedUpdate(resetMinSize, Direction::HORIZONTAL);
 }
 
 void ui::ScrollingBox::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
 {
-    auto mousePosition = sf::Mouse::getPosition(screen);
-    switch (event.type) {
-        case sf::Event::MouseWheelMoved:
-        case sf::Event::MouseWheelScrolled:
-        case sf::Event::MouseButtonPressed:
-        case sf::Event::MouseButtonReleased:
-        case sf::Event::MouseMoved:
-        case sf::Event::MouseEntered:
-        case sf::Event::MouseLeft:
-            if (!IsInside(mousePosition.x, mousePosition.y)) return;
-            break;
+    if (insideScrollable) {
+        if (event.type == sf::Event::MouseMoved) {
+            if (GetBox()->IsInside(event.mouseMove.x, event.mouseMove.y)) {
+                rect->SetOutlineColor(sf::Color::Blue);
+                enteredBox = true;
+            } else {
+                rect->SetOutlineColor(sf::Color::White);
+                enteredBox = false;
+            }
+        } else if (event.type == sf::Event::MouseWheelScrolled) {
+            if (enteredBox) {
+                GetBar()->Scroll(event.mouseWheelScroll.delta);
+                GetBox()->SetDelta(-GetBar()->GetRate());
+            }
+        }
     }
+    GetBar()->Process(event, screen);
 
-    layer.Process(event, screen);
+    Container::Process(event, screen);
 }
 
 void ui::ScrollingBox::Draw(sf::RenderWindow &screen) noexcept
 {
+    rect->Draw(screen);
+
+    Container::Draw(screen);
+
+    GetBar()->Draw(screen);
+
     DRAW_DEBUG_RECT;
 }
 
-void ui::ScrollingBox::SharedUpdate() noexcept
+void ui::ScrollingBox::SharedUpdate(bool resetMinSize, Direction direction) noexcept
 {
     layer.SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL]);
     layer.SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL]);
     layer.SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL]);
     layer.SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL]);
-}
 
-void ui::VerticalScrollingBox::SetRate(unsigned int absolute) noexcept
-{
-    bar->SetRate(absolute);
-    box->SetDelta(-bar->GetRate());
-}
+    auto another = GetAnotherDirection(direction);
 
-void ui::VerticalScrollingBox::SetSensitivity(float real) noexcept
-{
-    bar->SetSensitivity(real);
-}
+    if (resetMinSize) {
+        SetMinSize(another, GetBox()->GetMinSize(another) + barSize);
+    }
 
-void ui::VerticalScrollingBox::SetReserve(bool flag) noexcept
-{
-    bar->SetReserve(flag);
+    rect->SetPreset(direction, Preset::FILL_FROM_CENTER);
+    if (barAtFront) {
+        GetBar()->SetPreset(another, Preset::PLACR_AT_FRONT);
+        GetBox()->SetPreset(another, Preset::PLACR_AT_END);
+        rect->SetPreset(another, Preset::PLACR_AT_END);
+    } else {
+        GetBar()->SetPreset(another, Preset::PLACR_AT_END);
+        GetBox()->SetPreset(another, Preset::PLACR_AT_FRONT);
+        rect->SetPreset(another, Preset::PLACR_AT_FRONT);
+    }
+
+    GetBox()->SetSize(another, globalSize[another] - barSize);
+    rect->SetSize(another, globalSize[another] - barSize);
+    GetBar()->SetSize(another, barSize);
+
+    GetBar()->SetPort(globalSize[direction]);
+    GetBar()->SetSum(GetBox()->GetTotalSize());
+    GetBox()->SetDelta(-GetBar()->GetRate());
 }
 
 void ui::VerticalScrollingBox::Update(bool resetMinSize) noexcept
 {
-    SharedUpdate();
-
-    if (resetMinSize) {
-        SetMinSize(Direction::HORIZONTAL, box->GetMinSize(Direction::HORIZONTAL) + barSize);
-    }
-
-    if (barAtFront) {
-        bar->SetPreset(Direction::HORIZONTAL, Preset::PLACR_AT_FRONT);
-        box->SetPreset(Direction::HORIZONTAL, Preset::PLACR_AT_END);
-    } else {
-        bar->SetPreset(Direction::HORIZONTAL, Preset::PLACR_AT_END);
-        box->SetPreset(Direction::HORIZONTAL, Preset::PLACR_AT_FRONT);
-    }
-
-    box->SetSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL] - barSize);
-    bar->SetSize(Direction::HORIZONTAL, barSize);
-
-    bar->SetPort(globalSize[Direction::VERTICAL]);
-    bar->SetSum(box->GetTotalSize());
-    box->SetDelta(-bar->GetRate());
+    SharedUpdate(resetMinSize, Direction::VERTICAL);
 }
