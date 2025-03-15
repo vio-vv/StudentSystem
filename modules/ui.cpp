@@ -10,6 +10,8 @@ const unsigned int ui::Label::REVISION_Y = 20;
 
 const sf::String ui::Label::FONT_FILE_PATH = "../assets/simfang.ttf";
 
+const float ui::LoadingRing::PI = 3.14159265358979323846;
+
 void ui::Control::SetCenter(Direction directrion, int percentage) noexcept
 {
     center[directrion] = percentage;
@@ -121,11 +123,6 @@ void ui::Control::SetGlobalSize(Direction directrion, unsigned int absolute) noe
     Update(false);
 }
 
-ui::Control::~Control() noexcept
-{
-    if (parent) parent->Remove(this);
-}
-
 void ui::Container::Add(Control *control) noexcept
 {
     children->push_back(control);
@@ -144,8 +141,11 @@ void ui::Container::FreeAll() noexcept
 {
     auto tmp = *children;
     for (auto each : tmp) {
+        children->remove(each);
+        each->SetParent(nullptr);
         delete each;
     }
+    Update();
 }
 
 void ui::Container::SyncChildren(Children *pointer) noexcept
@@ -153,6 +153,11 @@ void ui::Container::SyncChildren(Children *pointer) noexcept
     delete children;
     children = pointer;
     Update();
+}
+
+void ui::Container::UnsyncChildren() noexcept
+{
+    children = new Children{};
 }
 
 void ui::Container::SetIgnoreOutside(bool flag) noexcept
@@ -190,7 +195,11 @@ void ui::Container::Draw(sf::RenderWindow &screen) noexcept
 
 ui::Container::~Container() noexcept
 {
-    FreeAll();
+    for (auto each : *children) {
+        each->SetParent(nullptr);
+        delete each;
+    }
+    delete children;
 }
 
 void ui::Screen::SetRange(unsigned int width, unsigned int height) noexcept
@@ -328,6 +337,14 @@ void ui::Center::Update(bool resetMinSize) noexcept
     }
 }
 
+void ui::LinearBox::SetAllChildrenWrap(Direction direction, bool flag) noexcept
+{
+    for (auto child : *children) {
+        child->SetSizeValueType(direction, ValueType::ABSOLUTE);
+        child->SetSizeWrap(direction, flag);
+    }
+}
+
 void ui::LinearBox::SetGap(int absolute) noexcept
 {
     gap = absolute;
@@ -385,21 +402,19 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
             ++childCount;
         }
         if (resetMinSize) SetMinSize(direction, directionMinSize + std::max(0, childCount - 1) * gap);
-        else {
-            unsigned int sizeLeft    = globalSize[direction] - std::max(0, childCount - 1) * gap - sizeOccupied;
-            unsigned int tmpPosition = 0;
-            for (auto child : *children) {
-                if (!child->GetVisible()) continue;
-                sizeLeft -= child->GetMinSize(direction);
+        unsigned int sizeLeft    = globalSize[direction] - std::max(0, childCount - 1) * gap - sizeOccupied;
+        unsigned int tmpPosition = 0;
+        for (auto child : *children) {
+            if (!child->GetVisible()) continue;
+            sizeLeft -= child->GetMinSize(direction);
+        }
+        for (auto child : *children) {
+            if (!child->GetVisible()) continue;
+            if (child->GetSizeValueType(direction) == ValueType::PERCENTAGE) {
+                    child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / ratioSum + child->GetMinSize(direction));
             }
-            for (auto child : *children) {
-                if (!child->GetVisible()) continue;
-                if (child->GetSizeValueType(direction) == ValueType::PERCENTAGE) {
-                        child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / ratioSum + child->GetMinSize(direction));
-                }
-                child->SetGlobalPosition(direction, globalPosition[direction] + tmpPosition);
-                tmpPosition += child->GetGlobalSize(direction) + gap;
-            }
+            child->SetGlobalPosition(direction, globalPosition[direction] + tmpPosition);
+            tmpPosition += child->GetGlobalSize(direction) + gap;
         }
     } else {
         unsigned int tmpPosition = 0;
@@ -522,6 +537,11 @@ bool ui::Control::IsInside(int x, int y) const noexcept
     return false;
 }
 
+ui::Control::~Control() noexcept
+{
+    if (parent) parent->Remove(this);
+}
+
 ui::Control::Direction ui::Control::GetAnotherDirection(Direction direction) noexcept
 {
     switch (direction) {
@@ -598,37 +618,37 @@ void ui::Button::SetPressed(bool flag) noexcept
     pressed = flag;
 }
 
-void ui::Margen::SetMargin(unsigned int top, unsigned int bottom, unsigned int left, unsigned int right) noexcept
+void ui::Margin::SetMargin(unsigned int top, unsigned int bottom, unsigned int left, unsigned int right) noexcept
 {
     margin = {top, bottom, left, right};
     Update();
 }
 
-void ui::Margen::SetMarginTop(unsigned int top) noexcept
+void ui::Margin::SetMarginTop(unsigned int top) noexcept
 {
     margin.top = top;
     Update();
 }
 
-void ui::Margen::SetMarginBottom(unsigned int bottom) noexcept
+void ui::Margin::SetMarginBottom(unsigned int bottom) noexcept
 {
     margin.bottom = bottom;
     Update();
 }
 
-void ui::Margen::SetMarginLeft(unsigned int left) noexcept
+void ui::Margin::SetMarginLeft(unsigned int left) noexcept
 {
     margin.left = left;
     Update();
 }
 
-void ui::Margen::SetMarginRight(unsigned int right) noexcept
+void ui::Margin::SetMarginRight(unsigned int right) noexcept
 {
     margin.right = right;
     Update();
 }
 
-void ui::Margen::Update(bool resetMinSize) noexcept
+void ui::Margin::Update(bool resetMinSize) noexcept
 {
     unsigned int minSizeH = 0;
     unsigned int minSizeV = 0;
@@ -971,6 +991,11 @@ void ui::HorizontalScrollingBox::Update(bool resetMinSize) noexcept
     SharedUpdate(resetMinSize, Direction::HORIZONTAL);
 }
 
+ui::HorizontalScrollingBox::~HorizontalScrollingBox() noexcept
+{
+    box->UnsyncChildren();
+}
+
 void ui::ScrollingBox::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
 {
     if (insideScrollable) {
@@ -1041,4 +1066,45 @@ void ui::ScrollingBox::SharedUpdate(bool resetMinSize, Direction direction) noex
 void ui::VerticalScrollingBox::Update(bool resetMinSize) noexcept
 {
     SharedUpdate(resetMinSize, Direction::VERTICAL);
+}
+
+ui::VerticalScrollingBox::~VerticalScrollingBox() noexcept
+{
+    box->UnsyncChildren();
+}
+
+void ui::LoadingRing::SetColor(const sf::Color &color) noexcept
+{
+    circle.setOutlineColor(color);
+}
+
+void ui::LoadingRing::SetThickness(float thickness) noexcept
+{
+    circle.setOutlineThickness(thickness);
+}
+
+void ui::LoadingRing::SetSpeed(float speed) noexcept
+{
+    speed = speed;
+}
+
+void ui::LoadingRing::Draw(sf::RenderWindow &screen) noexcept
+{
+    callback(name, {});
+
+    if (globalSize[Direction::HORIZONTAL] > globalSize[Direction::VERTICAL]) {
+        circle.setRadius(globalSize[Direction::VERTICAL] / 2 * (sin(rate) + 1) / 2);
+        circle.setPosition(globalPosition[Direction::HORIZONTAL] + globalSize[Direction::HORIZONTAL] / 2 - circle.getRadius(), 
+            globalPosition[Direction::VERTICAL] + globalSize[Direction::VERTICAL] / 2 - circle.getRadius());
+    } else {
+        circle.setRadius(globalSize[Direction::HORIZONTAL] / 2 * (sin(rate) + 1) / 2);
+        circle.setPosition(globalPosition[Direction::HORIZONTAL] + globalSize[Direction::HORIZONTAL] / 2 - circle.getRadius(), 
+            globalPosition[Direction::VERTICAL] + globalSize[Direction::VERTICAL] / 2 - circle.getRadius());
+    }
+    rate += speed;
+    if (rate > 2 * PI) rate = 0;
+
+    screen.draw(circle);
+
+    DRAW_DEBUG_RECT;
 }

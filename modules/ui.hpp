@@ -30,6 +30,7 @@
 
 #include <string>
 #include <list>
+#include <cmath>
 #include <functional>
 #include "SFML/Graphics.hpp"
 
@@ -112,7 +113,7 @@ class Control;
          * @note 无视子组件的期望尺寸和位置。
          * @note minSize 属性由组件决定。
          */
-        class Margen;
+        class Margin;
     /**
      * @class 间隔类
      * @brief 用于调整组件之间的距离或绘制一个矩形。
@@ -156,6 +157,13 @@ class Control;
          * @note minSize 属性由用户决定。
          */
         class VerticalScrollBar;
+    /**
+     * @class 加载指示器类
+     * @brief 显示加载交互的组件。
+     * @note minSize 属性由用户决定。
+     * @note 回调函数 event 参数失效。
+     */
+    class LoadingRing;
 
 /******************************
  * @brief 所有组件类的接口声明。*
@@ -441,10 +449,17 @@ public:
     void FreeAll     ()                   noexcept;
     /**
      * @fn 同步子组件
-     * @param pointer 新的子组件指针
-     * @note 不同步子组件的父容器，因此 Update 不会被子组件调用，改为手动。
+     * @param pointer 外部子组件
+     * @warning 会抛弃原子组件，请注意检查内存泄漏。
+     * @warning 务必监控该容器对外部子组件的行为。
+     * @note 不同步外部子组件的父容器。
      */
     void SyncChildren(Children *pointer)  noexcept;
+    /**
+     * @fn 取消同步子组件
+     * @warning 请注意检查内存泄漏。
+     */
+    void UnsyncChildren()                 noexcept;
     
     /***************************
      * @brief 样式属性控制接口。*
@@ -638,6 +653,13 @@ public:
      * @brief 约定的常量和数据类型以及外工具方法。*
      * ****************************
      */
+    /**
+     * @fn 设置子组件 wrap 属性
+     * @param direction 方向
+     * @param flag 是否 wrap
+     * @note 无后效方法。
+     */
+    void SetAllChildrenWrap(Direction direction, bool flag) noexcept;
 
     /***************************
      * @brief 内容属性控制接口。*
@@ -785,9 +807,9 @@ protected:
      */
 };
 
-class Margen : public Container{
+class Margin : public Container{
 public:
-    Margen() noexcept
+    Margin() noexcept
     {
         Update(true);
     }
@@ -1454,6 +1476,8 @@ public:
      * **********************************
      */
     void Update(bool resetMinSize = true)                                 noexcept;
+
+    ~HorizontalScrollingBox() noexcept;
 protected:
     /*************************
      * @brief 封装的工具方法和属性。*
@@ -1521,6 +1545,8 @@ public:
      * **********************************
      */
     void Update(bool resetMinSize = true) noexcept;
+
+    ~VerticalScrollingBox() noexcept;
 protected:
     /*************************
      * @brief 封装的工具方法和属性。*
@@ -1545,6 +1571,70 @@ protected:
      * @brief 样式属性。*
      * ******************
      */
+};
+
+class LoadingRing : public Control{
+public:
+    LoadingRing() noexcept
+    {
+        circle.setFillColor(sf::Color::Transparent);
+        circle.setOutlineColor(sf::Color::White);
+        circle.setOutlineThickness(10);
+        Update();
+    }
+    void SetCallback(Callback function) noexcept { callback = function; }
+
+    /******************************
+     * @brief 约定的常量和数据类型以及外工具方法。*
+     * ****************************
+     */
+    static const float PI;
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    void SetColor(const sf::Color &color) noexcept;
+    void SetThickness(float thickness) noexcept;
+    void SetSpeed(float speed) noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update(bool resetMinSize = true) noexcept {}
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept {}
+    void Draw(sf::RenderWindow &screen) noexcept;
+protected:
+    Callback callback = DO_NOTHING;
+
+    /*************************
+     * @brief 封装的工具方法和属性。*
+     * ***********************
+     */
+    float rate = 0;
+
+    /*************************
+     * @brief 封装的数据类型和常量。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+    sf::CircleShape circle;
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+    float speed = 0.05;
 };
 
 }

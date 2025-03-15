@@ -1,12 +1,5 @@
 #include "transmitter.hpp"
 
-std::string ToStr(auto t)
-{
-    std::stringstream ss;
-    ss << t;
-    return ss.str();
-}
-
 bool trm::Send(const std::string &link, const std::string &message) noexcept
 {
     if (!fs::exists(link) || !fs::is_directory(link)) {

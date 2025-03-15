@@ -23,6 +23,8 @@
  * - @fn WriteFile 覆盖写文件
  * - @fn AppendFile 追加写文件
  * - @fn DeleteFile 删除文件
+ * 工具方法：
+ * - @fn ToStr 将任意类型转换为字符串
  * @note 不适合大文件的读写
  * 
  * @author 梁祖章
@@ -113,6 +115,13 @@ bool AppendFile(const std::string &filePath, const std::string &content) noexcep
  * @return 删除成功与否
  */
 bool DeleteFile(const std::string &filePath) noexcept;
+
+std::string ToStr(auto t)
+{
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+}
 
 }
 
