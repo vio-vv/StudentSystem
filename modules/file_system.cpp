@@ -52,7 +52,15 @@ std::pair<bool, std::vector<std::string>> file::ListDirectory(const std::string 
     }
     std::vector<std::string> files;
     for (const auto &entry : fs::directory_iterator(directoryPath)) {
-        files.push_back(entry.path().string());
+        files.push_back(entry.path().filename().string());
     }
     return {true, files};
+}
+
+std::string file::GetFilePath(const std::string &directionPath, const std::string &fileName) noexcept
+{
+    if (directionPath.back() == '\\' || directionPath.back() == '/') {
+        return directionPath + fileName;
+    }
+    return directionPath + '\\' + fileName;
 }

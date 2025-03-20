@@ -404,18 +404,27 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
         }
         if (resetMinSize) SetMinSize(direction, directionMinSize + std::max(0, childCount - 1) * gap);
         unsigned int sizeLeft    = globalSize[direction] - std::max(0, childCount - 1) * gap - sizeOccupied;
-        unsigned int tmpPosition = 0;
-        for (auto child : *children) {
-            if (!child->GetVisible()) continue;
-            sizeLeft -= child->GetMinSize(direction);
-        }
-        for (auto child : *children) {
-            if (!child->GetVisible()) continue;
-            if (child->GetSizeValueType(direction) == ValueType::PERCENTAGE) {
-                    child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / ratioSum + child->GetMinSize(direction));
+        bool fixing = true;
+        std::unordered_map<Control *, bool> mark;
+        while (fixing) {
+            fixing = false;
+            unsigned int tmpPosition = 0;
+            for (auto child : *children) {
+                if (!child->GetVisible()) continue;
+                if (child->GetSizeValueType(direction) == ValueType::PERCENTAGE && !mark[child]) {
+                    if (child->GetSize(direction) * sizeLeft / ratioSum < child->GetMinSize(direction)) {
+                        child->SetGlobalSize(direction, child->GetMinSize(direction));
+                        ratioSum -= child->GetSize(direction);
+                        sizeLeft -= child->GetMinSize(direction);
+                        fixing = true;
+                        mark[child] = true;
+                        break;
+                    }
+                    child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / ratioSum);
+                }
+                child->SetGlobalPosition(direction, globalPosition[direction] + tmpPosition);
+                tmpPosition += child->GetGlobalSize(direction) + gap;
             }
-            child->SetGlobalPosition(direction, globalPosition[direction] + tmpPosition);
-            tmpPosition += child->GetGlobalSize(direction) + gap;
         }
     } else {
         unsigned int tmpPosition = 0;

@@ -73,6 +73,14 @@ bool CheckDirectoryExists(const std::string &directoryPath) noexcept;
  */
 std::pair<bool, std::vector<std::string>> ListDirectory(const std::string &directoryPath) noexcept;
 
+/**
+ * @brief 获取文件路径。
+ * @param directionPath 目录路径
+ * @param fileName 文件名
+ * @return 文件路径
+ */
+std::string GetFilePath(const std::string &directionPath, const std::string &fileName) noexcept;
+
 }
 
 #endif

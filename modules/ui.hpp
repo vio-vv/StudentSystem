@@ -1,7 +1,7 @@
 #ifndef __UI_HPP__
 #define __UI_HPP__
 
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
 #define DRAW_DEBUG_RECT \
@@ -33,6 +33,7 @@
 #include <cmath>
 #include <functional>
 #include "SFML/Graphics.hpp"
+#include <unordered_map>
 
 namespace ui{
 
