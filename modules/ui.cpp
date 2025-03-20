@@ -150,6 +150,7 @@ void ui::Container::FreeAll() noexcept
 
 void ui::Container::SyncChildren(Children *pointer) noexcept
 {
+    FreeAll();
     delete children;
     children = pointer;
     Update();

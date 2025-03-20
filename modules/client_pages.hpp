@@ -7,6 +7,7 @@
  * 
  * @par REQUIRES
  * - @ref ui.hpp
+ * - @ref transmitter.hpp
  * 
  * @par PROVIDES
  * 各种客户端页面的实现。

@@ -450,9 +450,9 @@ public:
     /**
      * @fn 同步子组件
      * @param pointer 外部子组件
-     * @warning 会抛弃原子组件，请注意检查内存泄漏。
      * @warning 务必监控该容器对外部子组件的行为。
      * @note 不同步外部子组件的父容器。
+     * @note 会先释放所有原子组件。
      */
     void SyncChildren(Children *pointer)  noexcept;
     /**

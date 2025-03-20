@@ -2,8 +2,6 @@
  * @brief 客户端主程序。
  * 
  * @par REQUIRES
- * - @ref transmitter.hpp
- * - @ref ui.hpp
  * - @ref client_pages.hpp
  * 
  * @par PROVIDES
@@ -21,10 +19,10 @@ int main()
 
     clpg::Handler handler = clpg::EnterSystemPage;
 
-    while (handler && screen.IsOpen()) {
-        handler = clpg::GetPage(handler(screen));
-        screen.FreeAll();
-    }
+    // while (handler && screen.IsOpen()) {
+    //     handler = clpg::GetPage(handler(screen));
+    //     screen.FreeAll();
+    // }
 
     return 0;
 }

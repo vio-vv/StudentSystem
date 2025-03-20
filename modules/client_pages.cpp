@@ -19,6 +19,21 @@ std::function<clpg::PageID (ui::Screen &screen)> clpg::GetPage(PageID id)
 
 clpg::PageID clpg::EnterSystemPage(ui::Screen &screen)
 {
+    auto btn = new ui::Button;
+    screen.Add(btn);
+    btn->SetPreset(ui::Control::Preset::PLACR_AT_CENTER);
+    btn->SetCaption(L"进入系统");
+    
+    bool clicked = false;
+    btn->SetClickCallback([&clicked](const sf::String &name, const sf::Event &event){
+        clicked = true;
+    });
+
+    while (screen.IsOpen() && !clicked) {
+        screen.Tick();
+    }
+    screen.FreeAll();
+
     auto centerVertical = new ui::VerticalBox;
     screen.Add(centerVertical);
     centerVertical->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
