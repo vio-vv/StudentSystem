@@ -3,20 +3,10 @@
 
 int main()
 {
-    ui::Screen screen(800, 600, "Test");
-    
-    auto ver = new ui::VerticalScrollingBox;
-    screen.Add(ver);
+    std::vector v{1, 2, 3};
 
-    ver->Add(new ui::Button);
-    ver->Add(new ui::Label);
-    ver->Add(new ui::Label);
-    ver->Add(new ui::Button);
-    ver->Add(new ui::Label);
-
-    while (screen.IsOpen()) {
-        screen.Tick();
-    }
+    v.erase(v.begin() + 1);
+    std::cout << v.size() << std::endl;
 
     return 0;
 }
