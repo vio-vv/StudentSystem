@@ -25,6 +25,13 @@ namespace rqs{
      * @return YES
      */
     const std::string CHECK_ONLINE = "Are you on?";
+    /**
+     * @brief 检查帐号是否有效。
+     * @param username 帐号
+     * @param password 密码
+     * @return YES or NO
+     */
+    const std::string CHECK_ACCOUNT = "CK ACC";
 }
 namespace rpl{
     const std::string YES = "Yes.";

@@ -12,6 +12,27 @@ const sf::String ui::Label::FONT_FILE_PATH = "../assets/simfang.ttf";
 
 const float ui::LoadingRing::PI = 3.14159265358979323846;
 
+const sf::String ui::InputBox::NUMBER = "0123456789";
+const sf::String ui::InputBox::LOWER_LETTER = "abcdefghijklmnopqrstuvwxyz";
+const sf::String ui::InputBox::UPPER_LETTER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const sf::String ui::InputBox::ASCII = (sf::String)
+        "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F" + 
+    "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F" + 
+    "\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F" + 
+    "\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x3A\x3B\x3C\x3D\x3E\x3F" + 
+    "\x40\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4A\x4B\x4C\x4D\x4E\x4F" + 
+    "\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5A\x5B\x5C\x5D\x5E\x5F" + 
+    "\x60\x61\x62\x63\x64\x65\x66\x67\x68\x69\x6A\x6B\x6C\x6D\x6E\x6F" + 
+    "\x70\x71\x72\x73\x74\x75\x76\x77\x78\x79\x7A\x7B\x7C\x7D\x7E\x7F" + 
+    "\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8A\x8B\x8C\x8D\x8E\x8F" + 
+    "\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9A\x9B\x9C\x9D\x9E\x9F" + 
+    "\xA0\xA1\xA2\xA3\xA4\xA5\xA6\xA7\xA8\xA9\xAA\xAB\xAC\xAD\xAE\xAF" + 
+    "\xB0\xB1\xB2\xB3\xB4\xB5\xB6\xB7\xB8\xB9\xBA\xBB\xBC\xBD\xBE\xBF" + 
+    "\xC0\xC1\xC2\xC3\xC4\xC5\xC6\xC7\xC8\xC9\xCA\xCB\xCC\xCD\xCE\xCF" + 
+    "\xD0\xD1\xD2\xD3\xD4\xD5\xD6\xD7\xD8\xD9\xDA\xDB\xDC\xDD\xDE\xDF" + 
+    "\xE0\xE1\xE2\xE3\xE4\xE5\xE6\xE7\xE8\xE9\xEA\xEB\xEC\xED\xEE\xEF" + 
+    "\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF";
+
 void ui::Control::SetCenter(Direction directrion, int percentage) noexcept
 {
     center[directrion] = percentage;
@@ -56,6 +77,13 @@ void ui::Control::SetPreset(Direction direction, Preset preset) noexcept
             SetSizeValueType(direction, ValueType::PERCENTAGE);
             SetSize(direction, 100);
             break;
+        case Preset::PLACR_AT_FRONT:
+        case Preset::PLACR_AT_END:
+        case Preset::PLACR_AT_CENTER:
+            break;
+        default:
+            assert(false); // Invalid preset.
+            break;
     }
 
     switch (preset) {
@@ -76,6 +104,9 @@ void ui::Control::SetPreset(Direction direction, Preset preset) noexcept
         case Preset::FILL_FROM_CENTER:
             SetCenter(direction, 50);
             SetAnchor(direction, 50);
+            break;
+        default:
+            assert(false); // Invalid preset.
             break;
     }
     SetPosition(direction, 0);
@@ -132,7 +163,14 @@ void ui::Container::Add(Control *control) noexcept
 
 void ui::Container::Remove(Control *control) noexcept
 {
-    children->remove(control);
+    auto toDelete = children->end();
+    for (auto it = children->begin(); it < children->end(); ++it) {
+        if (*it == control) {
+            toDelete = it;
+            break;
+        }
+    }
+    if (toDelete != children->end()) children->erase(toDelete);
     control->SetParent(nullptr);
     Update();
 }
@@ -141,7 +179,14 @@ void ui::Container::FreeAll() noexcept
 {
     auto tmp = *children;
     for (auto each : tmp) {
-        children->remove(each);
+        auto toDelete = children->end();
+        for (auto it = children->begin(); it < children->end(); ++it) {
+            if (*it == each) {
+                toDelete = it;
+                break;
+            }
+        }
+        if (toDelete != children->end()) children->erase(toDelete);
         each->SetParent(nullptr);
         delete each;
     }
@@ -287,6 +332,9 @@ unsigned int ui::Container::ObtainDefaultGlobalSize(ValueType sizeValueType, boo
         case ValueType::PERCENTAGE:
             tmpSize = size * parentSize / 100;
             break;
+        default:
+            assert(false); // Invalid value type.
+            break;
     }
     return std::max(minSize, tmpSize);
 }
@@ -331,6 +379,9 @@ void ui::Center::Update(bool resetMinSize) noexcept
                     break;
                 case ValueType::PERCENTAGE:
                     myMinSize = std::max(myMinSize, child->GetMinSize(direction));
+                    break;
+                default:
+                    assert(false); // Invalid value type.
                     break;
             }
         }
@@ -378,6 +429,9 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
             case ValueType::PERCENTAGE:
                 anotherMinSize = std::max(anotherMinSize, child->GetMinSize(another));
                 break;
+            default:
+                assert(false); // Invalid value type.
+                break;
         }
     }
     if (resetMinSize) SetMinSize(another, anotherMinSize);
@@ -398,6 +452,9 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
                 case ValueType::PERCENTAGE:
                     directionMinSize += child->GetMinSize(direction);
                     ratioSum         += child->GetSize(direction);
+                    break;
+                default:
+                    assert(false); //"Invalid value type.
                     break;
             }
             ++childCount;
@@ -470,7 +527,7 @@ void ui::Label::Update(bool resetMinSize) noexcept
     text.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
     if (resetMinSize) {
         SetMinSize(Direction::HORIZONTAL, text.getGlobalBounds().getSize().x + REVISION_X);
-        SetMinSize(Direction::VERTICAL, text.getGlobalBounds().getSize().y + REVISION_Y);
+        SetMinSize(Direction::VERTICAL, std::max((unsigned int)text.getGlobalBounds().getSize().y, fontSize) + REVISION_Y);
     }
 }
 
@@ -561,8 +618,11 @@ ui::Control::Direction ui::Control::GetAnotherDirection(Direction direction) noe
         case Direction::VERTICAL:
             return Direction::HORIZONTAL;
             break;
+        default:
+            assert(false); // Invalid direction.
+            return Direction::VERTICAL;
+            break;
     }
-    return Direction::VERTICAL;
 }
 
 void ui::Button::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
@@ -679,7 +739,8 @@ void ui::Margin::Update(bool resetMinSize) noexcept
 
 void ui::InputBox::SetText(const sf::String &text) noexcept
 {
-    label->SetContent(text);
+    sf::String textSatisfiysLimits = GetTextSatisfysLimits(text);
+    textCopy = textSatisfiysLimits;
     Update();
 }
 
@@ -710,14 +771,50 @@ void ui::InputBox::SetInputtingBackColor(const sf::Color &color) noexcept
     inputtingBackColor = color;
 }
 
+void ui::InputBox::SetFlickerInterval(unsigned int interval) noexcept
+{
+    flickerInterval = interval;
+}
+
+void ui::InputBox::SetCursorThickness(float thickness) noexcept
+{
+    cursorThickness = thickness;
+}
+
+void ui::InputBox::SetLengthLimit(unsigned int maxLength) noexcept
+{
+    lengthLimited = maxLength;
+}
+
+void ui::InputBox::SetContentLimit(ContentLimit limit) noexcept
+{
+    contentLimit = limit;
+}
+
+void ui::InputBox::SetSpecialCharacters(const sf::String &list) noexcept
+{
+    specialCharacters = list;
+}
+
 void ui::InputBox::SetFont(const sf::String &fontFile) noexcept
 {
     label->SetFont(fontFile);
     Update();
 }
 
+void ui::InputBox::SetProtectText(bool flag) noexcept
+{
+    protectText = flag;
+    Update();
+}
+
 void ui::InputBox::Update(bool resetMinSize) noexcept
 {
+    if (protectText) {
+        label->SetContent(std::string(textCopy.getSize(), '*'));
+    } else {
+        label->SetContent(textCopy);
+    }
     layer.SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL]);
     layer.SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL]);
     layer.SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL]);
@@ -733,14 +830,12 @@ void ui::InputBox::Process(const sf::Event &event, const sf::RenderWindow &scree
     button->Process(event, screen);
 
     auto input = [this](sf::Uint32 c){
-        auto content = label->GetContent();
-        switch (c)
-        {
+        switch (c) {
             case '\b':
-                SetText(content.substring(0, content.getSize() - 1));
+                SetText(textCopy.substring(0, textCopy.getSize() - 1));
                 break;
             default:
-                SetText(content + c);
+                SetText(textCopy + c);
                 break;
         }
     };
@@ -748,6 +843,8 @@ void ui::InputBox::Process(const sf::Event &event, const sf::RenderWindow &scree
         if (inputting) {
             input(event.text.unicode);
             inputCallback(name, event);
+            cursorVisible = true;
+            flickerTimer.restart();
         }
     } else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Left) {
@@ -772,12 +869,62 @@ void ui::InputBox::Draw(sf::RenderWindow &screen) noexcept
     }
     layer.Draw(screen);
 
+    if (inputting) {
+        if (flickerTimer.getElapsedTime().asMilliseconds() > flickerInterval) {
+            flickerTimer.restart();
+            cursorVisible = !cursorVisible;
+        }
+        if (cursorVisible) {
+            auto x = label->GetMinSize(Direction::HORIZONTAL);
+            auto h = label->GetMinSize(Direction::VERTICAL);
+            sf::RectangleShape line(sf::Vector2f(cursorThickness, h));
+            line.setPosition(globalPosition[Direction::HORIZONTAL] + x, globalPosition[Direction::VERTICAL]);
+            line.setFillColor(inputtingFontColor);
+            screen.draw(line);
+        }
+    }
+
     DRAW_DEBUG_RECT;
 }
 
 void ui::InputBox::SetInputting(bool flag) noexcept
 {
     inputting = flag;
+}
+
+bool ui::InputBox::IsSpecialCharacter(wchar_t c) noexcept
+{
+    return specialCharacters.find(c) != sf::String::InvalidPos;
+}
+
+sf::String ui::InputBox::GetTextSatisfysLimits(const sf::String &s) noexcept
+{
+    sf::String textSatisfiysLimits = "";
+    switch (contentLimit) {
+        case ContentLimit::BAN_SPECIAL_CHARACTERS:
+            for (auto c : s) {
+                if (!IsSpecialCharacter(c)) {
+                    textSatisfiysLimits += c;
+                }
+            }
+            break;
+        case ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY:
+            for (auto c : s) {
+                if (IsSpecialCharacter(c)) {
+                    textSatisfiysLimits += c;
+                }
+            }
+            break;
+        default:
+            textSatisfiysLimits = s;
+            break;
+    }
+    if (lengthLimited) {
+        if (s.getSize() > lengthLimited) {
+            textSatisfiysLimits = textSatisfiysLimits.substring(0, lengthLimited);
+        }
+    }
+    return textSatisfiysLimits;
 }
 
 void ui::Spacer::SetOutlineThickness(float thickness) noexcept
@@ -1098,9 +1245,29 @@ void ui::LoadingRing::SetSpeed(float speed) noexcept
     speed = speed;
 }
 
+void ui::LoadingRing::SetInterval(unsigned int newInterval) noexcept
+{
+    interval = newInterval;
+    clock.restart();
+}
+
+void ui::LoadingRing::Start() noexcept
+{
+    started = true;
+    clock.restart();
+}
+
+void ui::LoadingRing::Stop() noexcept
+{
+    started = false;
+}
+
 void ui::LoadingRing::Draw(sf::RenderWindow &screen) noexcept
 {
-    callback(name, {});
+    if (started && clock.getElapsedTime().asMilliseconds() > interval) { 
+        callback(name, {});
+        clock.restart();
+    }
 
     if (globalSize[Direction::HORIZONTAL] > globalSize[Direction::VERTICAL]) {
         circle.setRadius(globalSize[Direction::VERTICAL] / 2 * (sin(rate) + 1) / 2);
@@ -1111,10 +1278,99 @@ void ui::LoadingRing::Draw(sf::RenderWindow &screen) noexcept
         circle.setPosition(globalPosition[Direction::HORIZONTAL] + globalSize[Direction::HORIZONTAL] / 2 - circle.getRadius(), 
             globalPosition[Direction::VERTICAL] + globalSize[Direction::VERTICAL] / 2 - circle.getRadius());
     }
-    rate += speed;
+    if (started) {
+        rate += speed;
+    }
     if (rate > 2 * PI) rate = 0;
 
     screen.draw(circle);
 
     DRAW_DEBUG_RECT;
+}
+
+void ui::LoadingRingWithText::SetFontSize(unsigned int size) noexcept
+{
+    label->SetFontSize(size);
+    Update();
+}
+
+void ui::LoadingRingWithText::SetFont(const sf::String &fontFile) noexcept
+{
+    label->SetFont(fontFile);
+    Update();
+}
+
+void ui::LoadingRingWithText::SetTextHeight(unsigned int height) noexcept
+{
+    textHeight = height;
+    Update();
+}
+
+void ui::LoadingRingWithText::SetRingHeight(unsigned int height) noexcept
+{
+    ringHeight = height;
+    Update();
+}
+
+void ui::LoadingRingWithText::SetText(const sf::String &newText) noexcept
+{
+    text = newText;
+    Update();
+}
+
+void ui::LoadingRingWithText::SetFontColor(const sf::Color &color) noexcept
+{
+    label->SetFontColor(color);
+}
+
+void ui::LoadingRingWithText::SetInterval(unsigned int interval) noexcept
+{
+    ring->SetInterval(interval);
+}
+
+void ui::LoadingRingWithText::Start() noexcept
+{
+    ring->Start();
+}
+
+void ui::LoadingRingWithText::Stop() noexcept
+{
+    ring->Stop();
+}
+
+void ui::LoadingRingWithText::Update(bool resetMinSize) noexcept
+{
+    label->SetSize(Direction::VERTICAL, textHeight);
+    label->SetContent(text + "..." + ToStr(count));
+    ring->SetSize(Direction::VERTICAL, ringHeight);
+    layer.SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL]);
+    layer.SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL]);
+    layer.SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL]);
+    layer.SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL]);
+    if (resetMinSize) {
+        SetMinSize(Direction::HORIZONTAL, layer.GetMinSize(Direction::HORIZONTAL));
+        SetMinSize(Direction::VERTICAL, layer.GetMinSize(Direction::VERTICAL));
+    }
+}
+
+void ui::LoadingRingWithText::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
+{
+    layer.Process(event, screen);
+}
+
+void ui::LoadingRingWithText::Draw(sf::RenderWindow &screen) noexcept
+{
+    layer.Draw(screen);
+
+    DRAW_DEBUG_RECT;
+}
+
+void ui::LoadingRingWithText::Count() noexcept
+{
+    --count;
+    Update();
+    countCallback(name, {});
+    if (count == 0) {
+        finishedCallback(name, {});
+    }
 }

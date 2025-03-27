@@ -14,8 +14,6 @@
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
 
-                "-std=gnu++20",
-
                 "-I", "C:\\Programme\\SFML\\SFML-2.6.1\\include",
                 "-L", "C:\\Programme\\SFML\\SFML-2.6.1\\lib",
                 "-l", "openal32",

@@ -15,6 +15,7 @@
 #include "transmitter.hpp"
 #include <iostream>
 #include "SFML/System.hpp"
+#include "student_system.hpp"
 
 int main() noexcept
 {
@@ -36,9 +37,13 @@ int main() noexcept
             }
 
             for (const auto &request : ok_requests.second) {
+                assert(request.content.size() > 0); // Abnormal request infomation size.
                 if (request.content[0] == trm::rqs::CHECK_ONLINE) {
                     trm::SendReply(request.sender, request.id, {trm::rpl::YES});
+                } else if (request.content[0] == trm::rqs::CHECK_ACCOUNT) {
+                    trm::SendReply(request.sender, request.id, ssys::CheckValid(request.content));
                 } else {
+                    assert(false); // Unknown request.
                     std::cout << "Unknown request: " << request.content[0] << std::endl;
                 }
             }

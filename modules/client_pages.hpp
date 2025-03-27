@@ -1,5 +1,5 @@
-#ifndef __CLIENT_PAGES_HPP__
-#define __CLIENT_PAGES_HPP__
+#ifndef __CLIENTS_HPP__
+#define __CLIENTS_HPP__
 
 #include <iostream>
 #define LINK "..\\server\\space"
@@ -7,7 +7,7 @@
 #define SELF_AS_SENDER "..\\client\\space"
 
 /**
- * @brief 客户端主程序。
+ * @brief 客户端页面。
  * @namespace clpg
  * 
  * @par REQUIRES
@@ -20,24 +20,41 @@
  * @author 梁祖章
  */
 
- #include "ui.hpp"
- #include "transmitter.hpp"
+#include <cassert>
+#include "ui.hpp"
+#include "transmitter.hpp"
 
 namespace clpg{
 
-enum class PageID{
-    ENTER_SYSTEM_PAGE, 
-    CHECK_SERVER_ONLINE_PAGE, 
-    LOGIN_PAGE, 
+enum class ID{
+    ENTER_SYSTEM, 
+    CHECK_SERVER_ONLINE, 
+    RETRY, 
+    LOGIN, // sharedInfomation required: tips
+    FORGET,
+    CHECK_ACCOUNT,
 
     BREAK
 };
-using Handler = std::function<PageID (ui::Screen &screen)>;
-Handler GetPage(PageID id) noexcept;
+using Handler = std::function<ID (ui::Screen &screen)>;
+Handler GetHandler(ID id) noexcept;
 
-PageID EnterSystemPage(ui::Screen &screen) noexcept;
-PageID CheckServerOnlinePage(ui::Screen &screen) noexcept;
-PageID LoginPage(ui::Screen &screen) noexcept;
+ID EnterSystem(ui::Screen &screen) noexcept;
+ID CheckServerOnline(ui::Screen &screen) noexcept;
+ID Retry(ui::Screen &screen) noexcept;
+ID Login(ui::Screen &screen) noexcept;
+ID Forget(ui::Screen &screen) noexcept;
+ID CheckAccount(ui::Screen &screen) noexcept;
+
+struct{
+    sf::String username = "";
+    sf::String password = "";
+    
+    sf::String tips;
+    union{
+        ;
+    };
+}sharedInfomation;
 
 }
 

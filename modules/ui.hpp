@@ -1,7 +1,7 @@
 #ifndef __UI_HPP__
 #define __UI_HPP__
 
-// #define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 #define DRAW_DEBUG_RECT \
@@ -28,12 +28,14 @@
  * @author 梁祖章
  */
 
+#include <sstream>
 #include <string>
 #include <list>
 #include <cmath>
 #include <functional>
 #include "SFML/Graphics.hpp"
 #include <unordered_map>
+#include <cassert>
 
 namespace ui{
 
@@ -162,9 +164,16 @@ class Control;
      * @class 加载指示器类
      * @brief 显示加载交互的组件。
      * @note minSize 属性由用户决定。
-     * @note 回调函数 event 参数失效。
+     * @note callBack 回调函数 event 参数失效。
      */
     class LoadingRing;
+    /**
+     * @class 带文本加载指示器类
+     * @brief 显示加载交互的组件，并显示文本。
+     * @note minSize 属性由组件决定。
+     * @note countCallback、finishCallback 回调函数 event 参数失效。
+     */
+    class LoadingRingWithText;
 
 /******************************
  * @brief 所有组件类的接口声明。*
@@ -427,7 +436,7 @@ public:
      * @brief 约定的常量和数据类型以及外工具方法。*
      * ****************************
      */
-    using Children = std::list<Control *>;
+    using Children = std::vector<Control *>;
 
     /***************************
      * @brief 内容属性控制接口。*
@@ -1070,11 +1079,11 @@ protected:
     bool entered = false;
     bool pressed = false;
 
-    Callback   enterCallback = DO_NOTHING;
-    Callback   leaveCallback = DO_NOTHING;
-    Callback   pressDownCallback = DO_NOTHING;
-    Callback   pressUpCallback = DO_NOTHING;
-    Callback   clickCallback = DO_NOTHING;
+    Callback enterCallback = DO_NOTHING;
+    Callback leaveCallback = DO_NOTHING;
+    Callback pressDownCallback = DO_NOTHING;
+    Callback pressUpCallback = DO_NOTHING;
+    Callback clickCallback = DO_NOTHING;
 };
 
 class InputBox : public Control{
@@ -1098,7 +1107,7 @@ public:
     void SetBeginCallback(Callback function)  noexcept { beginCallback = function; }
     void SetInputCallback(Callback function)  noexcept { inputCallback = function; }
     void SetEndCallback(Callback function)    noexcept { endCallback = function; }
-    const sf::String &GetText() const noexcept { return label->GetContent(); }
+    const sf::String &GetText() const noexcept { return textCopy; }
     bool GetInputting()         const noexcept { return inputting; }
     bool GetError()             const noexcept { return button->GetError() || label->GetError(); }
 
@@ -1106,6 +1115,15 @@ public:
      * @brief 约定的常量和数据类型以及外工具方法。*
      * ****************************
      */
+    enum class ContentLimit{
+        NONE, 
+        BAN_SPECIAL_CHARACTERS,
+        ALLOW_SPECIAL_CHARACTERS_ONLY,
+    };
+    static const sf::String NUMBER;
+    static const sf::String LOWER_LETTER;
+    static const sf::String UPPER_LETTER;
+    static const sf::String ASCII;
 
     /***************************
      * @brief 内容属性控制接口。*
@@ -1114,6 +1132,7 @@ public:
     void SetText(const sf::String &text)           noexcept;
     void SetFontSize(unsigned int size)            noexcept;
     void SetFont(const sf::String &fontFile)       noexcept;
+    void SetProtectText(bool flag)               noexcept;
 
     /***************************
      * @brief 样式属性控制接口。*
@@ -1123,6 +1142,11 @@ public:
     void SetInputtingFontColor(const sf::Color &color) noexcept;
     void SetBackColor(const sf::Color &color)          noexcept;
     void SetInputtingBackColor(const sf::Color &color) noexcept;
+    void SetFlickerInterval(unsigned int interval)     noexcept;
+    void SetCursorThickness(float thickness)           noexcept;
+    void SetLengthLimit(unsigned int maxLength)              noexcept;
+    void SetContentLimit(ContentLimit limit)                 noexcept;
+    void SetSpecialCharacters(const sf::String &list) noexcept;
 
     /************************************
      * @brief 实现了的和待实现的抽象方法。*
@@ -1137,6 +1161,10 @@ protected:
      * ***********************
      */
     void SetInputting(bool flag) noexcept;
+    bool IsSpecialCharacter(wchar_t c) noexcept;
+    sf::String GetTextSatisfysLimits(const sf::String &s) noexcept;
+    bool cursorVisible = true;
+    sf::Clock flickerTimer;
 
     /*************************
      * @brief 封装的数据类型和常量。*
@@ -1151,6 +1179,8 @@ protected:
     Spacer *rect   = new Spacer;
     Label  *label  = new Label;
     Flat layer;
+    sf::String textCopy = "";
+    bool protectText    = false;
 
     /********************
      * @brief 样式属性。*
@@ -1161,10 +1191,15 @@ protected:
     sf::Color backColor          = sf::Color::Transparent;
     sf::Color inputtingFontColor = sf::Color::Black;
     sf::Color inputtingBackColor = sf::Color::White;
+    unsigned int flickerInterval = 500;
+    float        cursorThickness = 2;
+    unsigned int lengthLimited = 0;
+    ContentLimit contentLimit  = ContentLimit::NONE;
+    sf::String specialCharacters = "";
 
-    Callback   beginCallback = DO_NOTHING;
-    Callback   inputCallback = DO_NOTHING;
-    Callback   endCallback = DO_NOTHING;
+    Callback beginCallback = DO_NOTHING;
+    Callback inputCallback = DO_NOTHING;
+    Callback endCallback = DO_NOTHING;
 };
 
 class ScrollBar : public Control{
@@ -1186,7 +1221,7 @@ public:
     void SetEnteredCallback(Callback function) noexcept { enteredCallback = function; }
     void SetLeaveCallback  (Callback function) noexcept { leaveCallback = function; }
     void SetScrollCallback (Callback function) noexcept { scrollCallback = function; }
-    void SetDragCallback   (Callback function) noexcept { dragCallback = function; }
+    void SetDragCallback (Callback function) noexcept { dragCallback = function; }
     unsigned int GetPort() const noexcept { return port; }
     unsigned int GetSum()  const noexcept { return sum; }
     unsigned int GetRate() const noexcept { return rate; }
@@ -1603,6 +1638,9 @@ public:
     void SetColor(const sf::Color &color) noexcept;
     void SetThickness(float thickness) noexcept;
     void SetSpeed(float speed) noexcept;
+    void SetInterval(unsigned int interval) noexcept;
+    void Start() noexcept;
+    void Stop()  noexcept;
 
     /************************************
      * @brief 实现了的和待实现的抽象方法。*
@@ -1636,6 +1674,151 @@ protected:
      * ******************
      */
     float speed = 0.05;
+    unsigned int interval = 200;
+    sf::Clock clock;
+    bool started = false;
+};
+
+class LoadingRingWithText : public Control {
+public:
+    LoadingRingWithText() noexcept
+    {
+        layer.Add(label);
+        label->SetPreset(Direction::HORIZONTAL, Preset::FILL_FROM_CENTER);
+        label->SetSize(Direction::VERTICAL, textHeight);
+        layer.Add(ring);
+        ring->SetPreset(Direction::HORIZONTAL, Preset::FILL_FROM_CENTER);
+        ring->SetSize(Direction::VERTICAL, ringHeight);
+        ring->SetInterval(1000);
+        ring->SetCallback([this](const sf::String &name, const sf::Event &event){
+            this->Count();
+        });
+        Update(true);
+    }
+    void SetCountCallback(Callback function) noexcept { countCallback = function; }
+    void SetFinishedCallback(Callback function) noexcept { finishedCallback = function; }
+    int  GetCount()   const noexcept { return count; }
+    bool GetError()   const noexcept { return label->GetError(); }
+
+    /******************************
+     * @brief 约定的常量和数据类型以及外工具方法。*
+     * ****************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+    void SetFontSize(unsigned int size)           noexcept;
+    void SetFont(const sf::String &fontFile)      noexcept;
+    void SetTextHeight(unsigned int height)       noexcept;
+    void SetRingHeight(unsigned int height)       noexcept;
+    void SetText(const sf::String &newText)       noexcept;
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    void SetFontColor(const sf::Color &color)       noexcept;
+    void SetInterval(unsigned int interval)         noexcept;
+    void Start() noexcept;
+    void Stop()  noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update(bool resetMinSize = true) noexcept;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
+    void Draw(sf::RenderWindow &screen) noexcept;
+protected:
+    Callback countCallback = DO_NOTHING;
+    Callback finishedCallback = DO_NOTHING;
+
+    /*************************
+     * @brief 封装的工具方法和属性。*
+     * ***********************
+     */
+    void Count() noexcept;
+    std::string ToStr(auto t) noexcept
+    {
+        std::stringstream ss;
+        ss << t;
+        return ss.str();
+    }
+
+    /*************************
+     * @brief 封装的数据类型和常量。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+    VerticalBox layer;
+    Label *label = new Label;
+    LoadingRing *ring = new LoadingRing;
+    unsigned int textHeight = 140;
+    unsigned int ringHeight = 60;
+    sf::String text = "";
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+    int count = 5;
+};
+
+class Example : public Control {
+public:
+    Example() noexcept
+    {
+        ;
+    }
+
+    /******************************
+     * @brief 约定的常量和数据类型以及外工具方法。*
+     * ****************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update(bool resetMinSize = true) noexcept = 0;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept = 0;
+    void Draw(sf::RenderWindow &screen) noexcept = 0;
+protected:
+    /*************************
+     * @brief 封装的工具方法和属性。*
+     * ***********************
+     */
+
+    /*************************
+     * @brief 封装的数据类型和常量。*
+     * ***********************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
 };
 
 }
