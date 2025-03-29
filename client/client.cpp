@@ -6,8 +6,6 @@
  * 
  * @par PROVIDES
  * - @fn main 主程序入口
- * 
- * @author 梁祖章
  */
 
 #include "client_pages.hpp"

@@ -10,8 +10,6 @@
  * 
  * @par PROVIDES
  * TO_COMPLETE
- * 
- * @author 梁祖章
  */
 
 #include "file_system.hpp"
@@ -32,6 +30,13 @@ namespace rqs{
      * @return YES or NO
      */
     const std::string CHECK_ACCOUNT = "CK ACC";
+    /**
+     * @brief 修改成绩。
+     * @param studentCode 学生编号
+     * @param score 新成绩
+     * @return YES or NO
+     */
+    const std::string MODIFY_SCORE = "MOD SCORE";
 }
 namespace rpl{
     const std::string YES = "Yes.";

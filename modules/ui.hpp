@@ -24,8 +24,6 @@
  * 
  * @par PROVIDES
  * 各种组件类。
- * 
- * @author 梁祖章
  */
 
 #include <sstream>

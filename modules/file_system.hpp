@@ -10,8 +10,6 @@
  * 
  * @par PROVIDES
  * TO_COMPLETE
- * 
- * @author 梁祖章
  */
 
 #include <string>

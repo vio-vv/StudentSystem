@@ -8,8 +8,6 @@
  * 
  * @par PROVIDES
  * - @fn main 主程序入口
- * 
- * @author 梁祖章
  */
 
 #include "transmitter.hpp"
@@ -42,6 +40,8 @@ int main() noexcept
                     trm::SendReply(request.sender, request.id, {trm::rpl::YES});
                 } else if (request.content[0] == trm::rqs::CHECK_ACCOUNT) {
                     trm::SendReply(request.sender, request.id, ssys::CheckValid(request.content));
+                } else if (request.content[0] == trm::rqs::MODIFY_SCORE) {
+                    trm::SendReply(request.sender, request.id, ssys::ModifyScore(request.content));
                 } else {
                     assert(false); // Unknown request.
                     std::cout << "Unknown request: " << request.content[0] << std::endl;

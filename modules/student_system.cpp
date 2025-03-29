@@ -12,3 +12,12 @@ trm::Infomation ssys::CheckValid(const trm::Infomation &infomation)
 
     return {trm::rpl::NO};
 }
+
+trm::Infomation ssys::ModifyScore(const trm::Infomation &infomation)
+{
+    assert(infomation[0] == trm::rqs::MODIFY_SCORE); // Procession not matched.
+
+    // TODO: modify database
+
+    return {trm::rpl::YES};
+}

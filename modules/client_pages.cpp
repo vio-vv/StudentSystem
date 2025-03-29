@@ -25,6 +25,12 @@ clpg::Handler clpg::GetHandler(ID id) noexcept
         case ID::BREAK:
             return nullptr;
             break;
+        case ID::MAIN_PAGE:
+            return MainPage;
+            break;
+        case ID::MODIFY_SCORE:
+            return ModifyScore;
+            break;
         default:
             assert(false); // Unknown Page ID.
             return nullptr;
@@ -257,12 +263,88 @@ clpg::ID clpg::CheckAccount(ui::Screen &screen) noexcept
     while (screen.IsOpen()) {
         screen.Tick();
         if (pass == 1) {
-            return ID::BREAK;
+            return ID::MAIN_PAGE;
         } else if (pass == -1) {
             sharedInfomation.tips = L"帐号或密码错误。";
             return ID::LOGIN;
         } else if (finished) {
             return ID::RETRY;
+        }
+    }
+    return ID::BREAK;
+}
+
+clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
+{
+    bool modify = false;
+    bool query = false;
+
+    auto ver = new ui::VerticalBox;
+    ver->SetHSize(500);
+    ver->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+    screen.Add(ver);
+    {
+        auto modifyScore = new ui::Button;
+        modifyScore->SetCaption(L"修改成绩");
+        modifyScore->SetClickCallback([&modify](const sf::String &name, const sf::Event &event){
+            modify = true;
+        });
+        modifyScore->AddTo(ver);
+
+        auto queryScore = new ui::Button;
+        queryScore->SetCaption(L"查询成绩");
+        queryScore->SetClickCallback([&query](const sf::String &name, const sf::Event &event){
+            query = true;
+        });
+        queryScore->AddTo(ver);
+    }
+
+    while (screen.IsOpen()) {
+        screen.Tick();
+        if (modify) {
+            return ID::MODIFY_SCORE;
+        }
+        if (query) {
+            return ID::BREAK;
+        }
+    }
+    return ID::BREAK;
+}
+
+clpg::ID clpg::ModifyScore(ui::Screen &screen) noexcept
+{
+    auto id = trm::GenerateID();
+    int pass = 0;
+    bool finished = false;
+    trm::MakeRequest(LINK, {id, SELF_AS_SENDER, {trm::rqs::MODIFY_SCORE, "202430451010", "100"}});
+
+    auto load = new ui::LoadingRingWithText;
+    load->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+    load->SetText(L"修改中");
+    load->SetCountCallback([&id, &pass](const sf::String &name, const sf::Event &event){
+        auto reply = trm::PollReply(SELF, id);
+        if (reply.first) {
+            if (reply.second[0] == trm::rpl::YES) {
+                std::cout << "Modify score successfully." << std::endl;
+                pass = 1;
+            } else if (reply.second[0] == trm::rpl::NO) {
+                std::cout << "Modify score failed." << std::endl;
+                pass = -1;
+            } else {
+                assert(false); // Invalid reply.
+            }
+        }
+    });
+    load->SetFinishedCallback([&finished](const sf::String &name, const sf::Event &event){
+        finished = true;
+    });
+    load->Start();
+    screen.Add(load);
+
+    while (screen.IsOpen()) {
+        screen.Tick();
+        if (pass == 1) {
+            return ID::MAIN_PAGE;
         }
     }
     return ID::BREAK;

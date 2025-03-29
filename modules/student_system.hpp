@@ -12,8 +12,6 @@
  * 
  * @par PROVIDES
  * TO_COMPLETE
- * 
- * @author 梁祖章
  */
 
 #include <cassert>
@@ -22,6 +20,7 @@
 namespace ssys{
 
 trm::Infomation CheckValid(const trm::Infomation &infomation);
+trm::Infomation ModifyScore(const trm::Infomation &infomation);
 
 }
 

@@ -16,8 +16,6 @@
  * 
  * @par PROVIDES
  * 各种客户端页面的实现。
- * 
- * @author 梁祖章
  */
 
 #include <cassert>
@@ -33,6 +31,8 @@ enum class ID{
     LOGIN, // sharedInfomation required: tips
     FORGET,
     CHECK_ACCOUNT,
+    MAIN_PAGE,
+    MODIFY_SCORE,
 
     BREAK
 };
@@ -45,6 +45,8 @@ ID Retry(ui::Screen &screen) noexcept;
 ID Login(ui::Screen &screen) noexcept;
 ID Forget(ui::Screen &screen) noexcept;
 ID CheckAccount(ui::Screen &screen) noexcept;
+ID MainPage(ui::Screen &screen) noexcept;
+ID ModifyScore(ui::Screen &screen) noexcept;
 
 struct{
     sf::String username = "";
