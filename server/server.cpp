@@ -19,6 +19,7 @@ int main() noexcept
 {
     std::cout << "Server started." << std::endl;
     sf::Clock interval;
+    auto &ssys = SSys::Get();
     while (true) {
         if (interval.getElapsedTime().asMilliseconds() > 1000) {
             interval.restart();
@@ -39,9 +40,7 @@ int main() noexcept
                 if (request.content[0] == trm::rqs::CHECK_ONLINE) {
                     trm::SendReply(request.sender, request.id, {trm::rpl::YES});
                 } else if (request.content[0] == trm::rqs::CHECK_ACCOUNT) {
-                    trm::SendReply(request.sender, request.id, ssys::CheckValid(request.content));
-                } else if (request.content[0] == trm::rqs::MODIFY_SCORE) {
-                    trm::SendReply(request.sender, request.id, ssys::ModifyScore(request.content));
+                    trm::SendReply(request.sender, request.id, ssys.CheckAccount(request.content));
                 } else {
                     assert(false); // Unknown request.
                     std::cout << "Unknown request: " << request.content[0] << std::endl;

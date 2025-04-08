@@ -1,23 +1,41 @@
 #include "student_system.hpp"
 
-trm::Infomation ssys::CheckValid(const trm::Infomation &infomation)
+trm::Infomation SSys::CheckAccount(const trm::Infomation &infomation) noexcept
 {
     assert(infomation[0] == trm::rqs::CHECK_ACCOUNT); // Procession not matched.
 
-    if (infomation[1] == "adm" && infomation[2] == "123") {
-        return {trm::rpl::YES};
+    for (auto acc : accounts) {
+        if (acc.code == infomation[1] && acc.passwordHash == trm::Hash(infomation[2])) {
+            return {trm::rpl::YES};
+        }
     }
-    
-    // TODO: check database
 
     return {trm::rpl::NO};
 }
 
-trm::Infomation ssys::ModifyScore(const trm::Infomation &infomation)
+SSys::~SSys()
 {
-    assert(infomation[0] == trm::rqs::MODIFY_SCORE); // Procession not matched.
+}
 
-    // TODO: modify database
+SSys::SSys()
+{
+    auto filePath = file::GetFilePath(DATA_PATH, "accounts.txt");
+    if (!file::CheckFileExists(filePath)) {
+        if (!file::WriteFile(filePath, trm::Combine({trm::Combine({"adm", trm::Hash("123")})}, '\n'))) {
+            assert(false); // Failed to create file.
+            std::cout << __FILE__ << ":" << __LINE__ << ":Failed to create file: " << filePath << std::endl;
+            exit(2);
+        }
+    }
+    auto ok_content = file::ReadFile(filePath);
+    if (!ok_content.first) {
+        assert(false); // Failed to read file.
+        std::cout << __FILE__ << ":" << __LINE__ << ":Failed to read file: " << filePath << std::endl;
+        exit(3);
+    }
 
-    return {trm::rpl::YES};
+    for (const auto &accountContent : trm::Split(ok_content.second, '\n')) {
+        auto accountList = trm::Split(accountContent);
+        accounts.push_back({accountList[0], accountList[1]});
+    }
 }

@@ -391,16 +391,22 @@ protected:
         DataType       &operator[](Direction direction)       noexcept 
         {
             switch (direction) {
-                case Direction::HORIZONTAL: return horizontal;
-                case Direction::VERTICAL:   return vertical;
+                case Direction::HORIZONTAL: return horizontal; break;
+                case Direction::VERTICAL:   return vertical;   break;
+                default:
+                    assert(false); // Unknown direction.
+                    break; 
             }
             return horizontal;
         }
         const DataType &operator[](Direction direction) const noexcept 
         {
             switch (direction) {
-                case Direction::HORIZONTAL: return horizontal;
-                case Direction::VERTICAL:   return vertical;
+                case Direction::HORIZONTAL: return horizontal; break;
+                case Direction::VERTICAL:   return vertical;   break;
+                default:
+                    assert(false); // Unknown direction.
+                    break; 
             }
             return horizontal;
         }
@@ -444,17 +450,37 @@ public:
      * @fn 向容器中添加子组件
      * @param control 子组件
      */
-    void Add         (Control *control)   noexcept;
+    void Add           (Control *control)   noexcept;
     /**
      * @fn 从容器中移除子组件
      * @param control 子组件
      */
-    void Remove      (Control *control)   noexcept;
+    void Remove        (Control *control)   noexcept;
     /**
      * @fn 释放所有子组件
      * @note 所有组组件地址都将被释放，请注意空指针。
      */
-    void FreeAll     ()                   noexcept;
+    void FreeAll       ()                   noexcept;
+    /**
+     * @fn 隐藏所有子组件
+     * @note 无后效方法。
+     */
+    void HideAll       ()                   noexcept;
+    /**
+     * @fn 显示所有子组件
+     * @note 无后效方法。
+     */
+    void ShowAll       ()                   noexcept;
+    /**
+     * @fn 切换所有子组件的可见性
+     * @note 无后效方法。
+     */
+    void ToggleVisible ()                   noexcept;
+    /**
+     * @fn 释放所有没隐藏着的子组件
+     * @note 无后效方法。
+     */
+    void FreeAllVisible()                   noexcept;
     /**
      * @fn 同步子组件
      * @param pointer 外部子组件
@@ -474,6 +500,11 @@ public:
      * *************************
      */
     void SetIgnoreOutside(bool flag) noexcept;
+    /**
+     * @fn 释放所有隐藏着的子组件
+     * @note 无后效方法。
+     */
+    void FreeAllHiden    ()          noexcept;
 
     /************************************
      * @brief 实现了的和待实现的抽象方法。*

@@ -193,6 +193,50 @@ void ui::Container::FreeAll() noexcept
     Update();
 }
 
+void ui::Container::HideAll() noexcept
+{
+    for (auto child : *children) {
+        child->SetVisible(false);
+    }
+    Update();
+}
+
+void ui::Container::ShowAll() noexcept
+{
+    for (auto child : *children) {
+        child->SetVisible(true);
+    }
+    Update();
+}
+
+void ui::Container::ToggleVisible() noexcept
+{
+    for (auto child : *children) {
+        child->SetVisible(!child->GetVisible());
+    }
+    Update();
+}
+
+void ui::Container::FreeAllVisible() noexcept
+{
+    auto tmp = *children;
+    for (auto each : tmp) {
+        if (each->GetVisible()) {
+            auto toDelete = children->end();
+            for (auto it = children->begin(); it < children->end(); ++it) {
+                if (*it == each) {
+                    toDelete = it;
+                    break;
+                }
+            }
+            if (toDelete != children->end()) children->erase(toDelete);
+            each->SetParent(nullptr);
+            delete each;
+        }
+    }
+    Update();
+}
+
 void ui::Container::SyncChildren(Children *pointer) noexcept
 {
     FreeAll();
@@ -209,6 +253,25 @@ void ui::Container::UnsyncChildren() noexcept
 void ui::Container::SetIgnoreOutside(bool flag) noexcept
 {
     ignoreOutside = flag;
+}
+
+void ui::Container::FreeAllHiden() noexcept
+{
+    auto tmp = *children;
+    for (auto each : tmp) {
+        if (!each->GetVisible()) {
+            auto toDelete = children->end();
+            for (auto it = children->begin(); it < children->end(); ++it) {
+                if (*it == each) {
+                    toDelete = it;
+                    break;
+                }
+            }
+            if (toDelete != children->end()) children->erase(toDelete);
+            each->SetParent(nullptr);
+            delete each;
+        }
+    }
 }
 
 void ui::Container::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept

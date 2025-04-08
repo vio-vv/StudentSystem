@@ -13,6 +13,7 @@
  */
 
 #include "file_system.hpp"
+#include <random>
 
 namespace trm{
 
@@ -31,12 +32,11 @@ namespace rqs{
      */
     const std::string CHECK_ACCOUNT = "CK ACC";
     /**
-     * @brief 修改成绩。
-     * @param studentCode 学生编号
-     * @param score 新成绩
-     * @return YES or NO
+     * @brief 获取所有权限。
+     * @param username 帐号
+     * @return 权限列表
      */
-    const std::string MODIFY_SCORE = "MOD SCORE";
+    const std::string LIST_ACCESS = "WCID";
 }
 namespace rpl{
     const std::string YES = "Yes.";
@@ -121,6 +121,26 @@ std::string ToStr(auto t) noexcept
  * @return 转换后的无符号超长整数
  */
 unsigned long long ToUll(const std::string &s) noexcept;
+
+/**
+ * TO_COMPLETE
+ */
+std::string Combine(const std::vector<std::string> &series, char delimiter = '\x1d') noexcept;
+
+/**
+ * TO_COMPLETE
+ */
+std::vector<std::string> Split(const std::string &str, char delimiter = '\x1d') noexcept;
+
+/**
+ * TO_COMPLETE
+ */
+unsigned long long GenerateRandomCode() noexcept;
+
+/**
+ * TO_COMPLETE
+ */
+std::string Hash(const std::string &str) noexcept;
 
 }
 

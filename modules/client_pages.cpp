@@ -7,9 +7,6 @@ clpg::Handler clpg::GetHandler(ID id) noexcept
         case ID::ENTER_SYSTEM:
             return EnterSystem;
             break;
-        case ID::CHECK_SERVER_ONLINE:
-            return CheckServerOnline;
-            break;
         case ID::RETRY:
             return Retry;
             break;
@@ -19,17 +16,11 @@ clpg::Handler clpg::GetHandler(ID id) noexcept
         case ID::FORGET:
             return Forget;
             break;
-        case ID::CHECK_ACCOUNT:
-            return CheckAccount;
-            break;
-        case ID::BREAK:
-            return nullptr;
-            break;
         case ID::MAIN_PAGE:
             return MainPage;
             break;
-        case ID::MODIFY_SCORE:
-            return ModifyScore;
+        case ID::BREAK:
+            return nullptr;
             break;
         default:
             assert(false); // Unknown Page ID.
@@ -53,45 +44,17 @@ clpg::ID clpg::EnterSystem(ui::Screen &screen) noexcept
     while (screen.IsOpen()) {
         screen.Tick();
         if (clicked) {
-            return ID::CHECK_SERVER_ONLINE;
-        } 
-    }
-    return ID::BREAK;
-}
-
-clpg::ID clpg::CheckServerOnline(ui::Screen &screen) noexcept
-{
-    auto id = trm::GenerateID();
-    bool pass = false;
-    bool finished = false;
-    trm::MakeRequest(LINK, {id, SELF_AS_SENDER, {trm::rqs::CHECK_ONLINE}});
-
-    auto load = new ui::LoadingRingWithText;
-    load->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-    load->SetText(L"正在检查服务端在线状态");
-    load->SetCountCallback([&id, &pass](const sf::String &name, const sf::Event &event){
-        auto reply = trm::PollReply(SELF, id);
-        if (reply.first) {
-            if (reply.second[0] == trm::rpl::YES) {
-                pass = true;
-            } else {
-                assert(false); // Invalid reply.
+            screen.FreeAll();
+            auto ok_reply = WaitServer(screen, {trm::rqs::CHECK_ONLINE}, L"正在检查服务端在线状态");
+            if (ok_reply.first == 1) {
+                if (ok_reply.second[0] == trm::rpl::YES) {
+                    return ID::LOGIN;
+                } else {
+                    assert(false); // Invalid reply.
+                }
+            } else if (ok_reply.first == 0) {
+                return ID::RETRY;
             }
-        }
-    });
-    load->SetFinishedCallback([&finished](const sf::String &name, const sf::Event &event){
-        finished = true;
-    });
-    load->Start();
-    screen.Add(load);
-
-    while (screen.IsOpen()) {
-        screen.Tick();
-        if (pass) {
-            sharedInfomation.tips = L"";
-            return ID::LOGIN;
-        } else if (finished) {
-            return ID::RETRY;
         }
     }
     return ID::BREAK;
@@ -114,6 +77,8 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
 {
     bool login = false;
     bool forget = false;
+
+    ui::Label *tips = nullptr;
 
     auto centerBox = new ui::VerticalBox;
     centerBox->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
@@ -147,7 +112,7 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                     input->SetHSize(3);
                     input->SetLengthLimit(64);
                     input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
-                    input->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_@.");
+                    input->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
                     input->SetInputCallback([&input](const sf::String &name, const sf::Event &event){
                         sharedInfomation.username = input->GetText();
                     });
@@ -203,19 +168,34 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                 forgetBtn->AddTo(btnBox);
             }
         }
-        auto tips = new ui::Label;
+        tips = new ui::Label;
         tips->SetPreset(ui::Control::Preset::WRAP_AT_FRONT);
-        tips->SetContent(sharedInfomation.tips);
         tips->SetFontColor(sf::Color::Red);
         tips->SetFontSize(30);
-        tips->SetVisible(!sharedInfomation.tips.isEmpty());
+        tips->SetVisible(false);
         tips->AddTo(centerBox);
     }
 
     while (screen.IsOpen()) {
         screen.Tick();
         if (login) {
-            return ID::CHECK_ACCOUNT;
+            screen.HideAll();
+            auto ok_reply = WaitServer(screen, {trm::rqs::CHECK_ACCOUNT, sharedInfomation.username, sharedInfomation.password}, L"登录中");
+            if (ok_reply.first == 1) {
+                if (ok_reply.second[0] == trm::rpl::YES) {
+                    return ID::MAIN_PAGE;
+                } else if (ok_reply.second[0] == trm::rpl::NO) {
+                    login = false;
+                    tips->SetContent(L"帐号或密码错误。");
+                    tips->SetVisible(true);
+                    screen.FreeAllVisible();
+                    screen.ShowAll();
+                } else {
+                    assert(false); // Invalid reply.
+                }    
+            } else if (ok_reply.first == 0) {
+                return ID::RETRY;
+            }
         }
         if (forget) {
             return ID::FORGET;
@@ -232,26 +212,26 @@ clpg::ID clpg::Forget(ui::Screen &screen) noexcept
     return ID::BREAK;
 }
 
-clpg::ID clpg::CheckAccount(ui::Screen &screen) noexcept
+std::pair<int, trm::Infomation> clpg::WaitServer(ui::Screen &screen, const trm::Infomation &infomation, const sf::String &tips) noexcept
 {
     auto id = trm::GenerateID();
-    int pass = 0;
+    bool pass = false;
+    trm::Infomation result;
     bool finished = false;
-    trm::MakeRequest(LINK, {id, SELF_AS_SENDER, {trm::rqs::CHECK_ACCOUNT, sharedInfomation.username, sharedInfomation.password}});
+    if (!trm::MakeRequest(LINK, {id, SELF_AS_SENDER, infomation})) {
+        assert(false); // Failed to make request.
+        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to make request." << std::endl;
+        exit(1);
+    }
 
     auto load = new ui::LoadingRingWithText;
     load->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-    load->SetText(L"登录中");
-    load->SetCountCallback([&id, &pass](const sf::String &name, const sf::Event &event){
+    load->SetText(tips);
+    load->SetCountCallback([&id, &pass, &result](const sf::String &name, const sf::Event &event){
         auto reply = trm::PollReply(SELF, id);
         if (reply.first) {
-            if (reply.second[0] == trm::rpl::YES) {
-                pass = 1;
-            } else if (reply.second[0] == trm::rpl::NO) {
-                pass = -1;
-            } else {
-                assert(false); // Invalid reply.
-            }
+            pass = true;
+            result = reply.second;
         }
     });
     load->SetFinishedCallback([&finished](const sf::String &name, const sf::Event &event){
@@ -262,90 +242,21 @@ clpg::ID clpg::CheckAccount(ui::Screen &screen) noexcept
 
     while (screen.IsOpen()) {
         screen.Tick();
-        if (pass == 1) {
-            return ID::MAIN_PAGE;
-        } else if (pass == -1) {
-            sharedInfomation.tips = L"帐号或密码错误。";
-            return ID::LOGIN;
+        if (pass) {
+            return {1, result};
         } else if (finished) {
-            return ID::RETRY;
+            return {0, {}};
         }
     }
-    return ID::BREAK;
+    return {-1, {}};
 }
 
 clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
 {
-    bool modify = false;
-    bool query = false;
 
-    auto ver = new ui::VerticalBox;
-    ver->SetHSize(500);
-    ver->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
-    screen.Add(ver);
-    {
-        auto modifyScore = new ui::Button;
-        modifyScore->SetCaption(L"修改成绩");
-        modifyScore->SetClickCallback([&modify](const sf::String &name, const sf::Event &event){
-            modify = true;
-        });
-        modifyScore->AddTo(ver);
-
-        auto queryScore = new ui::Button;
-        queryScore->SetCaption(L"查询成绩");
-        queryScore->SetClickCallback([&query](const sf::String &name, const sf::Event &event){
-            query = true;
-        });
-        queryScore->AddTo(ver);
-    }
 
     while (screen.IsOpen()) {
         screen.Tick();
-        if (modify) {
-            return ID::MODIFY_SCORE;
-        }
-        if (query) {
-            return ID::BREAK;
-        }
-    }
-    return ID::BREAK;
-}
-
-clpg::ID clpg::ModifyScore(ui::Screen &screen) noexcept
-{
-    auto id = trm::GenerateID();
-    int pass = 0;
-    bool finished = false;
-    trm::MakeRequest(LINK, {id, SELF_AS_SENDER, {trm::rqs::MODIFY_SCORE, "202430451010", "100"}});
-
-    auto load = new ui::LoadingRingWithText;
-    load->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-    load->SetText(L"修改中");
-    load->SetCountCallback([&id, &pass](const sf::String &name, const sf::Event &event){
-        auto reply = trm::PollReply(SELF, id);
-        if (reply.first) {
-            if (reply.second[0] == trm::rpl::YES) {
-                std::cout << "Modify score successfully." << std::endl;
-                pass = 1;
-            } else if (reply.second[0] == trm::rpl::NO) {
-                std::cout << "Modify score failed." << std::endl;
-                pass = -1;
-            } else {
-                assert(false); // Invalid reply.
-            }
-        }
-    });
-    load->SetFinishedCallback([&finished](const sf::String &name, const sf::Event &event){
-        finished = true;
-    });
-    load->Start();
-    screen.Add(load);
-
-    while (screen.IsOpen()) {
-        screen.Tick();
-        if (pass == 1) {
-            return ID::MAIN_PAGE;
-        }
     }
     return ID::BREAK;
 }

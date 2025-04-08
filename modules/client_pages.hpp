@@ -1,7 +1,6 @@
 #ifndef __CLIENTS_HPP__
 #define __CLIENTS_HPP__
 
-#include <iostream>
 #define LINK "..\\server\\space"
 #define SELF ".\\space"
 #define SELF_AS_SENDER "..\\client\\space"
@@ -18,6 +17,7 @@
  * 各种客户端页面的实现。
  */
 
+#include <iostream>
 #include <cassert>
 #include "ui.hpp"
 #include "transmitter.hpp"
@@ -26,13 +26,10 @@ namespace clpg{
 
 enum class ID{
     ENTER_SYSTEM, 
-    CHECK_SERVER_ONLINE, 
     RETRY, 
-    LOGIN, // sharedInfomation required: tips
+    LOGIN,
     FORGET,
-    CHECK_ACCOUNT,
     MAIN_PAGE,
-    MODIFY_SCORE,
 
     BREAK
 };
@@ -40,19 +37,17 @@ using Handler = std::function<ID (ui::Screen &screen)>;
 Handler GetHandler(ID id) noexcept;
 
 ID EnterSystem(ui::Screen &screen) noexcept;
-ID CheckServerOnline(ui::Screen &screen) noexcept;
 ID Retry(ui::Screen &screen) noexcept;
 ID Login(ui::Screen &screen) noexcept;
 ID Forget(ui::Screen &screen) noexcept;
-ID CheckAccount(ui::Screen &screen) noexcept;
 ID MainPage(ui::Screen &screen) noexcept;
-ID ModifyScore(ui::Screen &screen) noexcept;
+
+std::pair<int, trm::Infomation> WaitServer(ui::Screen &screen, const trm::Infomation &infomation, const sf::String &tips) noexcept;
 
 struct{
     sf::String username = "";
     sf::String password = "";
     
-    sf::String tips;
     union{
         ;
     };

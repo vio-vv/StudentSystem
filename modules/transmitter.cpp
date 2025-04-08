@@ -12,7 +12,7 @@ bool trm::MakeRequest(const std::string &link, const Request &request) noexcept
     if (!file::CheckDirectoryExists(link)) {
         return false;
     }
-    std::string filePath = file::GetFilePath(link, ToStr(request.id));
+    std::string filePath = file::GetFilePath(link, Combine({ToStr(request.id), ToStr(GenerateRandomCode())}, '.'));
     auto info = request.content;
     info.push_back(request.sender);
     return file::WriteFile(filePath, Encode(info));
@@ -30,7 +30,8 @@ std::pair<bool, std::vector<trm::Request>> trm::GetRequests(const std::string &s
     }
     for (const auto &fileName : ok_files.second) {
         Request request;
-        request.id = ToUll(fileName);
+        auto id_code = Split(fileName, '.');
+        request.id = ToUll(id_code[0]);
         auto ok_read = file::ReadFile(file::GetFilePath(self, fileName));
         if (!ok_read.first) {
             return {false, {}};
@@ -72,26 +73,12 @@ std::pair<bool, trm::Infomation> trm::PollReply(const std::string &self, unsigne
 
 trm::Message trm::Encode(const Infomation &infomation) noexcept
 {
-    Message result;
-    for (const auto &each : infomation) {
-        result += each + "\x1d";
-    }
-    return result;
+    return Combine(infomation);
 }
 
 trm::Infomation trm::Decode(const Message &message) noexcept
 {
-    Infomation result;
-    std::string current;
-    for (auto c : message) {
-        if (c == '\x1d') {
-            result.push_back(current);
-            current = "";
-        } else {
-            current += c;
-        }
-    }
-    return result;
+    return Split(message);
 }
 
 unsigned long long trm::ToUll(const std::string &s) noexcept
@@ -101,4 +88,40 @@ unsigned long long trm::ToUll(const std::string &s) noexcept
         result = result * 10 + (c - '0');
     }
     return result;
+}
+
+std::string trm::Combine(const std::vector<std::string> &series, char delimiter) noexcept
+{
+    std::string result = "";
+    for (const auto &each : series) {
+        result += each + delimiter;
+    }
+    return result;
+}
+
+std::vector<std::string> trm::Split(const std::string &str, char delimiter) noexcept
+{
+    std::vector<std::string> result;
+    std::string current = "";
+    for (auto c : str) {
+        if (c == delimiter) {
+            result.push_back(current);
+            current = "";
+        } else {
+            current += c;
+        }
+    }
+    return result;
+}
+
+unsigned long long trm::GenerateRandomCode() noexcept
+{
+    static std::mt19937 generator(time(nullptr));
+    static std::uniform_int_distribution<unsigned long long> distribution(0, 1e18);
+    return distribution(generator);
+}
+
+std::string trm::Hash(const std::string &str) noexcept
+{
+    return str; // TODO: implement hash function
 }
