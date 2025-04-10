@@ -23,30 +23,67 @@ namespace rqs{
      * @param NONE
      * @return YES
      */
-    const std::string CHECK_ONLINE = "Are you on?";
+    const std::string CHECK_ONLINE = "CK ONL";
+    
+    /**********************************
+     * 帐户与权限系统                  *
+     * ********************************
+     */
     /**
-     * @brief 检查帐号是否有效。
+     * @brief 检查帐号密码是否有效。
      * @param username 帐号
      * @param password 密码
-     * @return YES or NO
+     * @return 第一项为 YES or NO，第一项为 YES 时第二项为学工号
      */
     const std::string CHECK_ACCOUNT = "CK ACC";
     /**
-     * @brief 获取所有权限。
-     * @param username 帐号
-     * @return 权限列表
+     * @brief 创建新帐号。
+     * @param code 学工号
+     * @param password 密码
+     * @param access Combined 权限列表 @see @namespace Access
+     * @param tag Combined 标签，每个被 Combine 的元素是 Combined with 权限列表的字符串形式
+     * @return YES or NO
+     */
+    const std::string CREATE_ACCOUNT = "CR ACC";
+    /**
+     * @brief 获取帐户所有权限。
+     * @param code 学工号
+     * @param password 密码
+     * @return Combined 权限列表 @see @namespace Access
      */
     const std::string LIST_ACCESS = "WCID";
+
+    /*********************************
+     * 预约系统                      *
+     * *******************************
+     */
+    /**
+     * @brief 预约入校请求。
+     * @param name 姓名
+     * @param reason 申请理由
+     * @param date 预约日期，今日算起第几天（int），取值范围 0-6
+     * @param time 预约时间段 @see @namespace TimeRange
+     * @return 预约成功与否以及预约编号（int）
+     */
+    const std::string MAKE_RESERVATION = "MK RSV";
+    // const std::
 }
 namespace rpl{
-    const std::string YES = "Yes.";
-    const std::string NO = "No.";
+    const std::string YES = "Y";
+    const std::string NO = "N";
+
+    namespace Access{
+        ;
+    }
+    namespace TimeRange{
+        ;
+    }
 }
 
 using Infomation = std::vector<std::string>;
 using Message = std::string;
 struct Request{
-    unsigned long long id; // 请求编号
+    int id; // 请求编号
     std::string sender;    // 请求发送者链接（相对于服务端）
     Infomation content;    // 请求内容
 };
@@ -55,7 +92,7 @@ struct Request{
  * @brief 客户端用以生成请求编号。
  * @return 请求编号
  */
-unsigned long long GenerateID() noexcept;
+int GenerateID() noexcept;
 
 /**
  * @brief 客户端用以发送请求。
@@ -79,7 +116,7 @@ std::pair<bool, std::vector<Request>> GetRequests(const std::string &self) noexc
  * @param reply 回复内容
  * @return 发送成功与否
  */
-bool SendReply(const std::string &link, unsigned long long id, const Infomation &reply) noexcept;
+bool SendReply(const std::string &link, int id, const Infomation &reply) noexcept;
 
 /**
  * @brief 客户端用以接收回复。
@@ -88,7 +125,7 @@ bool SendReply(const std::string &link, unsigned long long id, const Infomation 
  * @return 是否获得回复以及回复内容
  * @note 未获取时第二项为空。
  */
-std::pair<bool, Infomation> PollReply(const std::string &self, unsigned long long id) noexcept;
+std::pair<bool, Infomation> PollReply(const std::string &self, int id) noexcept;
 
 /**
  * @brief 将信息转化为消息。
@@ -120,17 +157,39 @@ std::string ToStr(auto t) noexcept
  * @param s 待转换的字符串
  * @return 转换后的无符号超长整数
  */
-unsigned long long ToUll(const std::string &s) noexcept;
+template<typename ReturnType = int>
+ReturnType ToNum(const std::string &s) noexcept
+{
+    ReturnType result = 0;
+    for (auto c : s) {
+        if (c == '-') {
+            result = -result;
+            continue;
+        }
+        result = result * 10 + (c - '0');
+    }
+    return result;
+}
 
 /**
  * TO_COMPLETE
  */
-std::string Combine(const std::vector<std::string> &series, char delimiter = '\x1d') noexcept;
+std::string Combine(const std::vector<std::string> &series) noexcept;
 
 /**
  * TO_COMPLETE
  */
-std::vector<std::string> Split(const std::string &str, char delimiter = '\x1d') noexcept;
+std::vector<std::string> Split(const std::string &str) noexcept;
+
+/**
+ * TO_COMPLETE
+ */
+std::string Combine(const std::vector<std::string> &series, char delimiter) noexcept;
+
+/**
+ * TO_COMPLETE
+ */
+std::vector<std::string> Split(const std::string &str, char delimiter) noexcept;
 
 /**
  * TO_COMPLETE

@@ -1,8 +1,6 @@
 #ifndef __ACCESS_HPP__
 #define __ACCESS_HPP__
 
-#define DATA_PATH ".\\data"
-
 /**
  * @brief 学生管理系统。
  * @class SSys
@@ -14,32 +12,33 @@
  * TO_COMPLETE
  */
 
-#include <iostream>
-#include <cassert>
-#include "transmitter.hpp"
+#include "subsystems/account_and_access.hpp"
+#include "subsystems/course.hpp"
+#include "subsystems/library.hpp"
+#include "subsystems/canteen.hpp"
+#include "subsystems/reserve.hpp"
+#include "subsystems/nolify.hpp"
+#include "subsystems/mail.hpp"
 
-struct Account{
-    std::string code;
-    std::string passwordHash;
-};
-
-class SSys{
+class SSys : 
+    public ssys::AccountAndAccess, 
+    public ssys::Course, 
+    public ssys::Library, 
+    public ssys::Canteen, 
+    public ssys::ReserveSystem, 
+    public ssys::Nolify, 
+    public ssys::MailSystem{
 public:
     static SSys& Get() noexcept
     {
         static SSys instance;
         return instance;
     }
-
-    trm::Infomation CheckAccount(const trm::Infomation &infomation) noexcept;
-    trm::Infomation ListAccess(const trm::Infomation &infomation) noexcept;
 protected:
-    SSys();
-    ~SSys();
+    SSys() = default;
+    ~SSys() = default;
     SSys(const SSys&) = delete;
     SSys& operator=(const SSys&) = delete;
-
-    std::vector<Account> accounts;
 };
 
 #endif

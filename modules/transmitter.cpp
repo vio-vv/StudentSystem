@@ -1,8 +1,8 @@
 #include "transmitter.hpp"
 
-unsigned long long trm::GenerateID() noexcept
+int trm::GenerateID() noexcept
 {
-    static unsigned long long count = 0;
+    static int count = 0;
     ++count;
     return count;
 }
@@ -31,7 +31,7 @@ std::pair<bool, std::vector<trm::Request>> trm::GetRequests(const std::string &s
     for (const auto &fileName : ok_files.second) {
         Request request;
         auto id_code = Split(fileName, '.');
-        request.id = ToUll(id_code[0]);
+        request.id = ToNum(id_code[0]);
         auto ok_read = file::ReadFile(file::GetFilePath(self, fileName));
         if (!ok_read.first) {
             return {false, {}};
@@ -48,7 +48,7 @@ std::pair<bool, std::vector<trm::Request>> trm::GetRequests(const std::string &s
     return {true, result};
 }
 
-bool trm::SendReply(const std::string &link, unsigned long long id, const Infomation &reply) noexcept
+bool trm::SendReply(const std::string &link, int id, const Infomation &reply) noexcept
 {
     if (!file::CheckDirectoryExists(link)) {
         return false;
@@ -57,7 +57,7 @@ bool trm::SendReply(const std::string &link, unsigned long long id, const Infoma
     return file::WriteFile(filePath, Encode(reply));
 }
 
-std::pair<bool, trm::Infomation> trm::PollReply(const std::string &self, unsigned long long id) noexcept
+std::pair<bool, trm::Infomation> trm::PollReply(const std::string &self, int id) noexcept
 {
     auto filePath = file::GetFilePath(self, ToStr(id));
     if (!file::CheckFileExists(filePath)) {
@@ -81,11 +81,35 @@ trm::Infomation trm::Decode(const Message &message) noexcept
     return Split(message);
 }
 
-unsigned long long trm::ToUll(const std::string &s) noexcept
+std::string trm::Combine(const std::vector<std::string> &series) noexcept
 {
-    unsigned long long result = 0;
-    for (auto c : s) {
-        result = result * 10 + (c - '0');
+    std::string result = "";
+    for (const auto &each : series) {
+        result += '\x1d' + each + '\x1f';
+    }
+    return result;
+}
+
+std::vector<std::string> trm::Split(const std::string &str) noexcept
+{
+    std::vector<std::string> result;
+    std::string current = "";
+    int openerCount = 0;
+    for (auto c : str) {
+        if (openerCount > 0) {
+            if (c == '\x1f') {
+                --openerCount;
+                if (openerCount == 0) {
+                    result.push_back(current);
+                    current = "";
+                    continue;
+                }
+            }
+            current += c;
+        }
+        if (c == '\x1d') {
+            ++openerCount;
+        }
     }
     return result;
 }
