@@ -1,44 +1,19 @@
 #include <iostream>
 #include "ui.hpp"
 #include <string>
+#include "student_system.hpp"
+#include "transmitter.hpp"
 
 int main()
 {
-    ui::Screen screen(1200, 800, L"Tese");
+    auto &ssys = SSys::Get();
 
+    auto reply = ssys.CheckAccount(trm::Infomation{trm::rqs::CHECK_ACCOUNT, "adm", "123"});
 
-
-
-
-
-    auto ver = new ui::VerticalBox;
-    screen.Add(ver);
-    ver->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
-
-    auto func = [](const sf::String &name, const sf::Event &event){
-        std::cout << (std::string)name << std::endl;
-    };
-    auto lbl = new ui::Button;
-    auto lbl2 = new ui::Button;
-    lbl->SetName("123");
-    lbl->SetEnterCallback(func);
-    lbl->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-    lbl->SetVSize(1);
-    lbl2->SetEnterCallback(func);
-    lbl2->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-    lbl2->SetVSize(2);
-
-    lbl->AddTo(ver);
-    lbl2->AddTo(ver);
-
-
-
-
-
-    while (screen.IsOpen()) {
-        screen.Tick();
+    for (const auto &each : reply) {
+        std::cout << each << std::endl;
     }
-
+ 
     return 0;
 }
 

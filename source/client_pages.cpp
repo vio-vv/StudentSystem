@@ -253,7 +253,7 @@ std::pair<int, trm::Infomation> clpg::WaitServer(ui::Screen &screen, const trm::
 
 clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
 {
-
+    ;
 
     while (screen.IsOpen()) {
         screen.Tick();

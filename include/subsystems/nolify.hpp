@@ -14,13 +14,16 @@
 
 #include "system_header.hpp"
 
-namespace ssys {
+namespace ssys{
 
 class Nolify{
 public:
     ;
 protected:
-    ;
+    Nolify();
+    ~Nolify();
+    Nolify(const Nolify&) = delete;
+    Nolify& operator=(const Nolify&) = delete;
 };
 
 }

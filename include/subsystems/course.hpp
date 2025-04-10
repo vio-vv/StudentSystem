@@ -14,13 +14,16 @@
 
 #include "system_header.hpp"
 
-namespace ssys {
+namespace ssys{
 
 class Course{
 public:
     ;
 protected:
-    ;
+    Course();
+    ~Course();
+    Course(const Course&) = delete;
+    Course& operator=(const Course&) = delete;
 };
 
 }

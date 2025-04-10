@@ -14,13 +14,16 @@
 
 #include "system_header.hpp"
 
-namespace ssys {
+namespace ssys{
 
 class Canteen{
 public:
     ;
 protected:
-    ;
+    Canteen();
+    ~Canteen();
+    Canteen(const Canteen&) = delete;
+    Canteen& operator=(const Canteen&) = delete;
 };
 
 }

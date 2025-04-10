@@ -14,13 +14,16 @@
 
 #include "system_header.hpp"
 
-namespace ssys {
+namespace ssys{
 
 class ReserveSystem{
 public:
     ;
 protected:
-    ;
+    ReserveSystem();
+    ~ReserveSystem();
+    ReserveSystem(const ReserveSystem&) = delete;
+    ReserveSystem& operator=(const ReserveSystem&) = delete;
 };
 
 }

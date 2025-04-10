@@ -6,7 +6,7 @@
  * @namespace trm
  * 
  * @par REQUIRES
- * NONE
+ * TO_COMPLETE
  * 
  * @par PROVIDES
  * TO_COMPLETE
@@ -24,11 +24,8 @@ namespace rqs{
      * @return YES
      */
     const std::string CHECK_ONLINE = "CK ONL";
-    
-    /**********************************
-     * 帐户与权限系统                  *
-     * ********************************
-     */
+
+#pragma region 帐户与权限系统
     /**
      * @brief 检查帐号密码是否有效。
      * @param username 帐号
@@ -37,12 +34,12 @@ namespace rqs{
      */
     const std::string CHECK_ACCOUNT = "CK ACC";
     /**
-     * @brief 创建新帐号。
+     * @brief 创建新帐户。
      * @param code 学工号
      * @param password 密码
-     * @param access Combined 权限列表 @see @namespace Access
-     * @param tag Combined 标签，每个被 Combine 的元素是 Combined with 权限列表的字符串形式
-     * @return YES or NO
+     * @param access Combined 权限列表，每个元素 @see @namespace Access
+     * @param tag Combined 标签，每个元素是 Combined 对，标签名和值
+     * @return SUCC or FAIL
      */
     const std::string CREATE_ACCOUNT = "CR ACC";
     /**
@@ -52,25 +49,45 @@ namespace rqs{
      * @return Combined 权限列表 @see @namespace Access
      */
     const std::string LIST_ACCESS = "WCID";
+#pragma endregion
 
-    /*********************************
-     * 预约系统                      *
-     * *******************************
-     */
+#pragma region 课程系统
+    ;
+#pragma endregion
+
+#pragma region 图书馆系统
+    ;
+#pragma endregion
+
+#pragma region 在线饭堂系统
+    ;
+#pragma endregion
+
+#pragma region 预约入校系统
     /**
      * @brief 预约入校请求。
      * @param name 姓名
      * @param reason 申请理由
-     * @param date 预约日期，今日算起第几天（int），取值范围 0-6
+     * @param date int 预约日期，今日算起第几天，取值范围 0-6
      * @param time 预约时间段 @see @namespace TimeRange
-     * @return 预约成功与否以及预约编号（int）
+     * @return 第一项为 SUCC or FAIL，第一项为 SUCC 时第二项为 int 预约编号
      */
     const std::string MAKE_RESERVATION = "MK RSV";
-    // const std::
+#pragma endregion
+
+#pragma region 通知与公示系统
+    ;
+#pragma endregion
+
+#pragma region 消息与站内信系统
+    ;
+#pragma endregion
 }
 namespace rpl{
     const std::string YES = "Y";
     const std::string NO = "N";
+    const std::string SUCC = "SUCC";
+    const std::string FAIL = "FAIL";
 
     namespace Access{
         ;

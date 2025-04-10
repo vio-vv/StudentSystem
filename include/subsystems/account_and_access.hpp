@@ -14,13 +14,16 @@
 
 #include "system_header.hpp"
 
-namespace ssys {
+namespace ssys{
 
 class AccountAndAccess{
 public:
-    ;
+    trm::Infomation CheckAccount(const trm::Infomation& infomation) noexcept;
 protected:
-    ;
+    AccountAndAccess();
+    ~AccountAndAccess();
+    AccountAndAccess(const AccountAndAccess&) = delete;
+    AccountAndAccess& operator=(const AccountAndAccess&) = delete;
 };
 
 }

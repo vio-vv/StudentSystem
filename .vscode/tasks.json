@@ -7,7 +7,7 @@
             "args": [
                 "-fdiagnostics-color=always",
 
-                "${workspaceFolder}\\modules\\*.cpp",
+                "${workspaceFolder}\\source\\*.cpp",
                 "${file}",
 
                 "-g",
@@ -22,7 +22,7 @@
                 "-l", "sfml-network",
                 "-l", "sfml-system",
                 "-l", "sfml-window",
-                "-I", "${workspaceFolder}\\modules",
+                "-I", "${workspaceFolder}\\include",
 
                 "-std=gnu++20"
             ],

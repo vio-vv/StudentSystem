@@ -34,7 +34,6 @@ int main() noexcept
                 }
                 continue;
             }
-
             for (const auto &request : ok_requests.second) {
                 assert(request.content.size() > 0); // Abnormal request infomation size.
                 if (request.content[0] == trm::rqs::CHECK_ONLINE) {

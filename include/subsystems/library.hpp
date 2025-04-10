@@ -14,13 +14,16 @@
 
 #include "system_header.hpp"
 
-namespace ssys {
+namespace ssys{
 
 class Library{
 public:
     ;
 protected:
-    ;
+    Library();
+    ~Library();
+    Library(const Library&) = delete;
+    Library& operator=(const Library&) = delete;
 };
 
 }

@@ -14,13 +14,16 @@
 
 #include "system_header.hpp"
 
-namespace ssys {
+namespace ssys{
 
 class MailSystem{
 public:
     ;
 protected:
-    ;
+    MailSystem();
+    ~MailSystem();
+    MailSystem(const MailSystem&) = delete;
+    MailSystem& operator=(const MailSystem&) = delete;
 };
 
 }
