@@ -1,9 +1,9 @@
 #include "subsystems/library.hpp"
 
-ssys::Library::Library()
+ssys::Library::Library() noexcept
 {
 }
 
-ssys::Library::~Library()
+ssys::Library::~Library() noexcept
 {
 }

@@ -20,8 +20,8 @@ class Course{
 public:
     ;
 protected:
-    Course();
-    ~Course();
+    Course() noexcept;
+    ~Course() noexcept;
     Course(const Course&) = delete;
     Course& operator=(const Course&) = delete;
 };

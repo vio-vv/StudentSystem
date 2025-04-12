@@ -149,3 +149,29 @@ std::string trm::Hash(const std::string &str) noexcept
 {
     return str; // TODO: implement hash function
 }
+
+trm::Account::operator std::string() const noexcept
+{
+    return Combine({
+        code, 
+        hashedPassword, 
+        Combine(access), 
+        Combine(Foreach<std::string, Tag>(tags, [](const Tag &each){
+            return Combine({each.first, each.second});
+        }))
+    });
+}
+
+trm::Account::Account(const std::string &content) noexcept
+{
+    auto account = Split(content);
+    *this = {
+        account[0], 
+        account[1], 
+        trm::Split(account[2]), 
+        trm::Foreach<std::pair<std::string, std::string>, std::string>(trm::Split(account[3]), [](const std::string &each){
+            auto pair = trm::Split(each);
+            return std::make_pair(pair[0], pair[1]);
+        })
+    };
+}

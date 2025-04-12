@@ -20,8 +20,8 @@ class Library{
 public:
     ;
 protected:
-    Library();
-    ~Library();
+    Library() noexcept;
+    ~Library() noexcept;
     Library(const Library&) = delete;
     Library& operator=(const Library&) = delete;
 };

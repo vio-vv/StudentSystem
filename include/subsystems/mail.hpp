@@ -20,8 +20,8 @@ class MailSystem{
 public:
     ;
 protected:
-    MailSystem();
-    ~MailSystem();
+    MailSystem() noexcept;
+    ~MailSystem() noexcept;
     MailSystem(const MailSystem&) = delete;
     MailSystem& operator=(const MailSystem&) = delete;
 };

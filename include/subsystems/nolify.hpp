@@ -20,8 +20,8 @@ class Nolify{
 public:
     ;
 protected:
-    Nolify();
-    ~Nolify();
+    Nolify() noexcept;
+    ~Nolify() noexcept;
     Nolify(const Nolify&) = delete;
     Nolify& operator=(const Nolify&) = delete;
 };

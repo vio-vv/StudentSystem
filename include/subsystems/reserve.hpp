@@ -20,8 +20,8 @@ class ReserveSystem{
 public:
     ;
 protected:
-    ReserveSystem();
-    ~ReserveSystem();
+    ReserveSystem() noexcept;
+    ~ReserveSystem() noexcept;
     ReserveSystem(const ReserveSystem&) = delete;
     ReserveSystem& operator=(const ReserveSystem&) = delete;
 };

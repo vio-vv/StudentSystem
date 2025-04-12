@@ -13,6 +13,7 @@
  */
 
 #include "file_system.hpp"
+#include <functional>
 #include <random>
 
 namespace trm{
@@ -30,25 +31,15 @@ namespace rqs{
      * @brief 检查帐号密码是否有效。
      * @param username 帐号
      * @param password 密码
-     * @return 第一项为 YES or NO，第一项为 YES 时第二项为学工号
+     * @return 第一项为 YES or NO，第一项为 YES 时第二项为 Account 帐户对象，第一项为 NO 时第二项为 NO_ACCOUNT or WRONG_PASSWORD @see @namespace Account
      */
     const std::string CHECK_ACCOUNT = "CK ACC";
     /**
      * @brief 创建新帐户。
-     * @param code 学工号
-     * @param password 密码
-     * @param access Combined 权限列表，每个元素 @see @namespace Access
-     * @param tag Combined 标签，每个元素是 Combined 对，标签名和值
+     * @param account Account 帐户对象 @see @namespace Account
      * @return SUCC or FAIL
      */
     const std::string CREATE_ACCOUNT = "CR ACC";
-    /**
-     * @brief 获取帐户所有权限。
-     * @param code 学工号
-     * @param password 密码
-     * @return Combined 权限列表 @see @namespace Access
-     */
-    const std::string LIST_ACCESS = "WCID";
 #pragma endregion
 
 #pragma region 课程系统
@@ -64,15 +55,7 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 预约入校系统
-    /**
-     * @brief 预约入校请求。
-     * @param name 姓名
-     * @param reason 申请理由
-     * @param date int 预约日期，今日算起第几天，取值范围 0-6
-     * @param time 预约时间段 @see @namespace TimeRange
-     * @return 第一项为 SUCC or FAIL，第一项为 SUCC 时第二项为 int 预约编号
-     */
-    const std::string MAKE_RESERVATION = "MK RSV";
+    ;
 #pragma endregion
 
 #pragma region 通知与公示系统
@@ -83,19 +66,31 @@ namespace rqs{
     ;
 #pragma endregion
 }
+#pragma region <<<--- 常量列表 --->>>
 namespace rpl{
     const std::string YES = "Y";
     const std::string NO = "N";
     const std::string SUCC = "SUCC";
     const std::string FAIL = "FAIL";
-
-    namespace Access{
-        ;
-    }
-    namespace TimeRange{
-        ;
-    }
+    const std::string NO_ACCOUNT = "NACC";
+    const std::string WRONG_PASSWORD = "WPSW";
 }
+namespace Access{
+    const std::string ALL = "ALL";
+}
+struct Account{
+    using Tag = std::pair<std::string, std::string>;
+    std::string code;                  // 学工号
+    std::string hashedPassword;        // 密码哈希值
+    std::vector<std::string> access;   // 权限列表
+    std::vector<Tag> tags;             // 标签列表
+    Account(const std::string &_code, const std::string &_hashedPassword, const std::vector<std::string> &_access = {}, const std::vector<Tag> &_tags = {}) noexcept : 
+        code(_code), hashedPassword(_hashedPassword), access(_access), tags(_tags) {}
+    operator std::string() const noexcept;
+    Account(const std::string &content) noexcept;
+};
+
+#pragma endregion
 
 using Infomation = std::vector<std::string>;
 using Message = std::string;
@@ -170,9 +165,9 @@ std::string ToStr(auto t) noexcept
 }
 
 /**
- * @brief 将字符串转为无符号超长整数。
+ * @brief 将字符串转为整数。
  * @param s 待转换的字符串
- * @return 转换后的无符号超长整数
+ * @return 转换后的整数
  */
 template<typename ReturnType = int>
 ReturnType ToNum(const std::string &s) noexcept
@@ -211,12 +206,25 @@ std::vector<std::string> Split(const std::string &str, char delimiter) noexcept;
 /**
  * TO_COMPLETE
  */
+std::string Hash(const std::string &str) noexcept;
+
+/**
+ * TO_COMPLETE
+ */
 unsigned long long GenerateRandomCode() noexcept;
 
 /**
  * TO_COMPLETE
  */
-std::string Hash(const std::string &str) noexcept;
+template<typename ReturnType, typename InputType>
+std::vector<ReturnType> Foreach(const auto &series, const std::function<ReturnType (const InputType &)> &func) noexcept
+{
+    std::vector<ReturnType> result;
+    for (const auto &each : series) {
+        result.push_back(func(each));
+    }
+    return result;
+}
 
 }
 

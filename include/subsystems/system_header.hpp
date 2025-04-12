@@ -15,6 +15,7 @@
  */
 
 #include <iostream>
+#include <map>
 #include <cassert>
 #include "transmitter.hpp"
 

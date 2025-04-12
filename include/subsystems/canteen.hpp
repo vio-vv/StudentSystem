@@ -20,8 +20,8 @@ class Canteen{
 public:
     ;
 protected:
-    Canteen();
-    ~Canteen();
+    Canteen() noexcept;
+    ~Canteen() noexcept;
     Canteen(const Canteen&) = delete;
     Canteen& operator=(const Canteen&) = delete;
 };

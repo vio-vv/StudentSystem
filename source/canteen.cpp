@@ -1,9 +1,9 @@
 #include "subsystems/canteen.hpp"
 
-ssys::Canteen::Canteen()
+ssys::Canteen::Canteen() noexcept
 {
 }
 
-ssys::Canteen::~Canteen()
+ssys::Canteen::~Canteen() noexcept
 {
 }
