@@ -29,11 +29,12 @@ class SSys :
     public ssys::Nolify, 
     public ssys::MailSystem{
 public:
-    static SSys& Get() noexcept
+    static SSys &Get() noexcept
     {
         static SSys instance;
         return instance;
     }
+    trm::Infomation CheckAccount(const trm::Infomation &infomation) noexcept;
 protected:
     SSys() = default;
     ~SSys() = default;

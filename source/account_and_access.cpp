@@ -1,6 +1,7 @@
 #include "subsystems/account_and_access.hpp"
+#include "student_system.hpp"
 
-trm::Infomation ssys::AccountAndAccess::CheckAccount(const trm::Infomation &infomation) noexcept
+trm::Infomation SSys::CheckAccount(const trm::Infomation &infomation) noexcept
 {
     assert(infomation[0] == trm::rqs::CHECK_ACCOUNT); // Procession not matched.
 

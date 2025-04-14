@@ -18,7 +18,7 @@ namespace ssys{
 
 class AccountAndAccess{
 public:
-    trm::Infomation CheckAccount(const trm::Infomation &infomation) noexcept;
+    virtual trm::Infomation CheckAccount(const trm::Infomation &infomation) noexcept = 0;
     trm::Infomation CreateAccount(const trm::Infomation &infomation) noexcept;
 protected:
     void Save() const noexcept;

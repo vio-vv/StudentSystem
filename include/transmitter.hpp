@@ -26,17 +26,18 @@ namespace rqs{
      */
     const std::string CHECK_ONLINE = "CK ONL";
 
+#pragma region <<<--- 接口列表 --->>>
 #pragma region 帐户与权限系统
     /**
      * @brief 检查帐号密码是否有效。
      * @param username 帐号
      * @param password 密码
-     * @return 第一项为 YES or NO，第一项为 YES 时第二项为 Account 帐户对象，第一项为 NO 时第二项为 NO_ACCOUNT or WRONG_PASSWORD @see @namespace Account
+     * @return 第一项为 YES or NO，第一项为 YES 时第二项为 Account 帐户对象，第一项为 NO 时第二项为 NO_ACCOUNT or WRONG_PASSWORD @see @class Account
      */
     const std::string CHECK_ACCOUNT = "CK ACC";
     /**
      * @brief 创建新帐户。
-     * @param account Account 帐户对象 @see @namespace Account
+     * @param account Account 帐户对象 @see @class Account
      * @return SUCC or FAIL
      */
     const std::string CREATE_ACCOUNT = "CR ACC";
@@ -65,6 +66,7 @@ namespace rqs{
 #pragma region 消息与站内信系统
     ;
 #pragma endregion
+#pragma endregion
 }
 #pragma region <<<--- 常量列表 --->>>
 namespace rpl{
@@ -89,7 +91,6 @@ struct Account{
     operator std::string() const noexcept;
     Account(const std::string &content) noexcept;
 };
-
 #pragma endregion
 
 using Infomation = std::vector<std::string>;
