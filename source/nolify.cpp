@@ -1,4 +1,5 @@
 #include "subsystems/nolify.hpp"
+#include "student_system.hpp"
 
 ssys::Nolify::Nolify() noexcept
 {
