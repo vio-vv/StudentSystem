@@ -20,10 +20,10 @@ int main()
 
     f(ssys.CheckAccount({trm::rqs::CHECK_ACCOUNT, "admin", "123456"}));
     f(ssys.CheckAccount({trm::rqs::CHECK_ACCOUNT, "adm", "123"}));
-    f(ssys.CreateAccount({trm::rqs::CREATE_ACCOUNT, Account{"66", "6", {"admin", "teacher"}, {{"name", "张三"}, {"age", "20"}}}}));
+    f(ssys.CreateAccount({trm::rqs::CREATE_ACCOUNT, "adm", "2", Account{"66", "6", {"admin", "teacher"}, {{"name", "张三"}, {"age", "20"}}}}));
     f(ssys.CheckAccount({trm::rqs::CHECK_ACCOUNT, "66", "6"}));
     f(ssys.CheckAccount({trm::rqs::CHECK_ACCOUNT, "66", "66"}));
-    f(ssys.DeleteAccount({trm::rqs::DELETE_ACCOUNT, "66"}));
+    f(ssys.DeleteAccount({trm::rqs::DELETE_ACCOUNT, "adm", "123", "66"}));
 
     while (1) ;
 

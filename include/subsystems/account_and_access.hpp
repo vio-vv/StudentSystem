@@ -18,14 +18,17 @@ namespace ssys{
 
 class AccountAndAccess{
 public:
-    virtual trm::Infomation CheckAccount(const trm::Infomation &infomation) noexcept = 0;
+    trm::Infomation CheckAccount(const trm::Infomation &infomation) noexcept;
+    trm::Infomation CheckAccess(const trm::Infomation &infomation) noexcept;
     trm::Infomation CreateAccount(const trm::Infomation &infomation) noexcept;
     trm::Infomation DeleteAccount(const trm::Infomation &infomation) noexcept;
 protected:
     AccountAndAccess() noexcept;
     ~AccountAndAccess() noexcept;
-    AccountAndAccess(const AccountAndAccess&) = delete;
-    AccountAndAccess& operator=(const AccountAndAccess&) = delete;
+    AccountAndAccess(const AccountAndAccess &) = delete;
+    AccountAndAccess &operator=(const AccountAndAccess &) = delete;
+private:
+    static std::vector<std::string> AccessCross(const std::vector<std::string> &access, const std::vector<std::string> &creator) noexcept;
 
     std::map<std::string, trm::Account> accounts;
     static const std::string dataPath;

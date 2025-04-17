@@ -36,15 +36,33 @@ namespace rqs{
      */
     const std::string CHECK_ACCOUNT = "CK ACC";
     /**
+     * @brief 检查是否拥有指定权限。
+     * @param code 学工号
+     * @param password 密码
+     * @param access 权限 @see @namespace Access
+     * @return YES or NO
+     * @retval NO 没有权限，抑或帐号不存在或密码错误
+     */
+    const std::string CHECK_ACCESS = "CK ACCESS";
+    /**
      * @brief 创建新帐户。
+     * @param code 学工号
+     * @param password 密码
      * @param account Account 帐户对象 @see @class Account
-     * @return SUCC or FAIL
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 帐号已存在
+     * @note ACCESS REQUIRED CREATE_ACCOUNT
+     * @note 创建的帐户想要拥有某权限，创建者必须现拥有该权限，否则创建的帐户将没有该权限。
      */
     const std::string CREATE_ACCOUNT = "CR ACC";
     /**
      * @brief 删除帐户。
-     * @param code 待删除帐户的学工号
-     * @return SUCC or FAIL
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToDelete 待删除帐户的学工号
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 帐号不存在
+     * @note ACCESS REQUIRED DELETE_ACCOUNT
      */
     const std::string DELETE_ACCOUNT = "DL ACC";
 #pragma endregion
@@ -82,9 +100,13 @@ namespace rpl{
     const std::string FAIL = "FAIL";
     const std::string NO_ACCOUNT = "NACC";
     const std::string WRONG_PASSWORD = "WPSW";
+    const std::string ACCESS_DENIED = "ACCESS DENIED";
 }
 namespace Access{
-    const std::string ALL = "ALL";
+    const std::string ADM = "ADM";
+
+    const std::string CREATE_ACCOUNT = "CR";
+    const std::string DELETE_ACCOUNT = "DL";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;

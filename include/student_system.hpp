@@ -34,7 +34,6 @@ public:
         static SSys instance;
         return instance;
     }
-    trm::Infomation CheckAccount(const trm::Infomation &infomation) noexcept;
 protected:
     SSys() = default;
     ~SSys() = default;
