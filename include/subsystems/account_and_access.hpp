@@ -20,15 +20,15 @@ class AccountAndAccess{
 public:
     virtual trm::Infomation CheckAccount(const trm::Infomation &infomation) noexcept = 0;
     trm::Infomation CreateAccount(const trm::Infomation &infomation) noexcept;
+    trm::Infomation DeleteAccount(const trm::Infomation &infomation) noexcept;
 protected:
-    void Save() const noexcept;
-
     AccountAndAccess() noexcept;
     ~AccountAndAccess() noexcept;
     AccountAndAccess(const AccountAndAccess&) = delete;
     AccountAndAccess& operator=(const AccountAndAccess&) = delete;
 
     std::map<std::string, trm::Account> accounts;
+    static const std::string dataPath;
 };
 
 }

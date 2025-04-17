@@ -1,6 +1,8 @@
 #include "subsystems/account_and_access.hpp"
 #include "student_system.hpp"
 
+const std::string ssys::AccountAndAccess::dataPath = file::GetFilePath(DATA_PATH, "acc_acc");
+
 trm::Infomation SSys::CheckAccount(const trm::Infomation &infomation) noexcept
 {
     assert(infomation[0] == trm::rqs::CHECK_ACCOUNT); // Procession not matched.
@@ -26,50 +28,69 @@ trm::Infomation ssys::AccountAndAccess::CreateAccount(const trm::Infomation &inf
     }
 
     accounts.insert({account.code, account});
-    Save();
+    if (!file::WriteFile(file::GetFilePath(dataPath, account.code + ".acc"), account)) {
+        assert(false); // Failed to write accounts file.
+        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write accounts file." << std::endl;
+        exit(1);
+    }
     return {trm::rpl::SUCC};
 }
 
-void ssys::AccountAndAccess::Save() const noexcept
+trm::Infomation ssys::AccountAndAccess::DeleteAccount(const trm::Infomation &infomation) noexcept
 {
-    if (!file::WriteFile(file::GetFilePath(DATA_PATH, "accounts.acc"), trm::Combine(
-        trm::Foreach<std::string, std::pair<const std::string, trm::Account>>(accounts, [](const std::pair<const std::string, trm::Account> &each) {
-            return (std::string)each.second;
-        })
-    ))) {
-        assert(false); // Failed to create accounts file.
-        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create accounts file." << std::endl;
+    assert(infomation[0] == trm::rqs::DELETE_ACCOUNT); // Procession not matched.
+
+    auto it = accounts.find(infomation[1]);
+    if (it == accounts.end()) {
+        return {trm::rpl::FAIL};
+    }
+
+    accounts.erase(it);
+    if (!file::DeleteFile(file::GetFilePath(dataPath, infomation[1] + ".acc"))) {
+        assert(false); // Failed to delete accounts file.
+        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete accounts file." << std::endl;
         exit(1);
     }
-}
+    return {trm::rpl::SUCC};
 
+}
 ssys::AccountAndAccess::AccountAndAccess() noexcept
 {
-    if (!file::CheckFileExists(file::GetFilePath(DATA_PATH, "accounts.acc"))) {
-        if (!file::WriteFile(file::GetFilePath(DATA_PATH, "accounts.acc"), trm::Combine({
+    if (!file::CheckDirectoryExists(dataPath)) {
+        if (!file::CreateDirectory(dataPath)) {
+            assert(false); // Failed to create accounts directory.
+            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create accounts directory." << std::endl;
+            exit(1);
+        }
+    }
+    if (!file::CheckFileExists(file::GetFilePath(dataPath, "adm.acc"))) {
+        if (!file::WriteFile(file::GetFilePath(dataPath, "adm.acc"), 
             trm::Account{"adm", "123", {trm::Access::ALL}}
-        }))) {
+        )) {
             assert(false); // Failed to create accounts file.
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create accounts file." << std::endl;
             exit(1);
         }
     }
 
-    auto ok_content = file::ReadFile(file::GetFilePath(DATA_PATH, "accounts.acc"));
+    auto ok_content = file::ListDirectory(dataPath);
     if (!ok_content.first) {
         assert(false); // Failed to read accounts file.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read accounts file." << std::endl;
         exit(1);
     }
-    auto content = trm::Split(ok_content.second);
-
-    for (const auto &each : content) {
-        auto account = trm::Account(each);
+    for (const auto &each : ok_content.second) {
+        auto ok_account = file::ReadFile(file::GetFilePath(dataPath, each));
+        if (!ok_account.first) {
+            assert(false); // Failed to read accounts file.
+            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read accounts file." << std::endl;
+        }
+        auto account = trm::Account(ok_account.second);
         accounts.insert({account.code, account});
     }
 }
 
 ssys::AccountAndAccess::~AccountAndAccess() noexcept
 {
-    Save();
+    ;
 }

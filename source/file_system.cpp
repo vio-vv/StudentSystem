@@ -57,6 +57,16 @@ std::pair<bool, std::vector<std::string>> file::ListDirectory(const std::string 
     return {true, files};
 }
 
+bool file::CreateDirectory(const std::string &directoryPath) noexcept
+{
+    return fs::create_directory(directoryPath);
+}
+
+bool file::DeleteDirectory(const std::string &directoryPath) noexcept
+{
+    return fs::remove_all(directoryPath);
+}
+
 std::string file::GetFilePath(const std::string &directionPath, const std::string &fileName) noexcept
 {
     if (directionPath.back() == '\\' || directionPath.back() == '/') {

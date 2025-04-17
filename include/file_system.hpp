@@ -22,6 +22,46 @@ namespace file{
 namespace fs = std::filesystem;
 
 /**
+ * @brief 读结构体。
+ * @param filePath 文件路径
+ * @param structure 结构体
+ * @return 读成功与否
+ */
+bool ReadStructure(const std::string &filePath, auto &structure) noexcept
+{
+    std::ifstream file(filePath, std::ios::in | std::ios::binary);
+    if (!file.good()) return false;
+    file.read((char *)&structure, sizeof(structure));
+    return true;
+}
+/**
+ * @brief 写结构体。
+ * @param filePath 文件路径
+ * @param structure 结构体
+ * @return 写成功与否
+ */
+bool WriteStructure(const std::string &filePath, auto &structure) noexcept
+{
+    std::ofstream file(filePath, std::ios::out | std::ios::binary);
+    if (!file.good()) return false;
+    file.write((char *)&structure, sizeof(structure));
+    return true;
+}
+/**
+ * @brief 追加结构体。
+ * @param filePath 文件路径
+ * @param structure 结构体
+ * @return 追加成功与否
+ */
+bool AppendStructure(const std::string &filePath, auto &structure) noexcept
+{
+    std::ofstream file(filePath, std::ios::app | std::ios::binary);
+    if (!file.good()) return false;
+    file.write((char *)&structure, sizeof(structure));
+    return true;
+}
+
+/**
  * @brief 判断文件是否存在。
  * @param filePath 文件路径
  * @return 文件存在与否
@@ -70,6 +110,20 @@ bool CheckDirectoryExists(const std::string &directoryPath) noexcept;
  * @note 获取不成功时第二项为空。
  */
 std::pair<bool, std::vector<std::string>> ListDirectory(const std::string &directoryPath) noexcept;
+
+/**
+ * @brief 创建目录。
+ * @param directoryPath 目录路径
+ * @return 创建成功与否
+ */
+bool CreateDirectory(const std::string &directoryPath) noexcept;
+
+/**
+ * @brief 删除目录。
+ * @param directoryPath 目录路径
+ * @return 删除成功与否
+ */
+bool DeleteDirectory(const std::string &directoryPath) noexcept;
 
 /**
  * @brief 获取文件路径。

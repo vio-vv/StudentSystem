@@ -41,6 +41,12 @@ namespace rqs{
      * @return SUCC or FAIL
      */
     const std::string CREATE_ACCOUNT = "CR ACC";
+    /**
+     * @brief 删除帐户。
+     * @param code 待删除帐户的学工号
+     * @return SUCC or FAIL
+     */
+    const std::string DELETE_ACCOUNT = "DL ACC";
 #pragma endregion
 
 #pragma region 课程系统
