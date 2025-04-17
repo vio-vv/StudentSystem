@@ -18,12 +18,11 @@ int main()
         cout << endl;
     };
 
-    f(ssys.CheckAccount({trm::rqs::CHECK_ACCOUNT, "admin", "123456"}));
-    f(ssys.CheckAccount({trm::rqs::CHECK_ACCOUNT, "adm", "123"}));
-    f(ssys.CreateAccount({trm::rqs::CREATE_ACCOUNT, "adm", "2", Account{"66", "6", {"admin", "teacher"}, {{"name", "张三"}, {"age", "20"}}}}));
-    f(ssys.CheckAccount({trm::rqs::CHECK_ACCOUNT, "66", "6"}));
-    f(ssys.CheckAccount({trm::rqs::CHECK_ACCOUNT, "66", "66"}));
-    f(ssys.DeleteAccount({trm::rqs::DELETE_ACCOUNT, "adm", "123", "66"}));
+    f(ssys.CreateAccount({trm::rqs::CREATE_ACCOUNT, "adm", "123", Account{"1", "1", {trm::Access::ADM}, {{"name", "张三"}, {"age", "20"}}}}));
+    f(ssys.GetMessageNumber({trm::rqs::GET_MESSAGE_NUMBER, "1"}));
+    f(ssys.SendMessage({trm::rqs::SEND_MESSAGE, "adm", "123", "1", "hello"}));
+    f(ssys.GetMessageNumber({trm::rqs::GET_MESSAGE_NUMBER, "1"}));
+    f(ssys.SendMessage({trm::rqs::SEND_MESSAGE, "1", "1", "adm", "world"}));
 
     while (1) ;
 

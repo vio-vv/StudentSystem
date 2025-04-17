@@ -61,7 +61,7 @@ trm::Infomation ssys::AccountAndAccess::CreateAccount(const trm::Infomation &inf
     if (!file::WriteFile(file::GetFilePath(dataPath, account.code + ".acc"), account)) {
         assert(false); // Failed to write accounts file.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write accounts file." << std::endl;
-        exit(1);
+        return {trm::rpl::FAIL};
     }
     return {trm::rpl::SUCC};
 }
@@ -84,7 +84,7 @@ trm::Infomation ssys::AccountAndAccess::DeleteAccount(const trm::Infomation &inf
     if (!file::DeleteFile(file::GetFilePath(dataPath, infomation[3] + ".acc"))) {
         assert(false); // Failed to delete accounts file.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete accounts file." << std::endl;
-        exit(1);
+        return {trm::rpl::FAIL};
     }
     return {trm::rpl::SUCC};
 

@@ -15,6 +15,7 @@
 #include "file_system.hpp"
 #include <functional>
 #include <random>
+#include <ctime>
 
 namespace trm{
 
@@ -88,7 +89,22 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 消息与站内信系统
-    ;
+    /**
+     * @brief 发送消息。
+     * @param code 学工号
+     * @param password 密码
+     * @param receiver 接收者学工号
+     * @param message 消息内容
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @note ACCESS REQUIRED SEND_MESSAGE
+     */
+    const std::string SEND_MESSAGE = "SEND MSG";
+    /**
+     * @brief 获取消息数量。
+     * @param code 学工号
+     * @return ull 消息数量
+     */
+    const std::string GET_MESSAGE_NUMBER = "GET MSG NUM";
 #pragma endregion
 #pragma endregion
 }
@@ -107,6 +123,8 @@ namespace Access{
 
     const std::string CREATE_ACCOUNT = "CR";
     const std::string DELETE_ACCOUNT = "DL";
+
+    const std::string SEND_MESSAGE = "SM";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;
@@ -241,6 +259,11 @@ std::string Hash(const std::string &str) noexcept;
  * TO_COMPLETE
  */
 unsigned long long GenerateRandomCode() noexcept;
+
+/**
+ * @brief 获取时间戳。
+ */
+unsigned long long GetTimeStamp() noexcept;
 
 /**
  * TO_COMPLETE

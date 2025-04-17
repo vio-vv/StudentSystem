@@ -18,12 +18,15 @@ namespace ssys{
 
 class MailSystem{
 public:
-    ;
+    trm::Infomation SendMessage(const trm::Infomation &infomation) noexcept;
+    trm::Infomation GetMessageNumber(const trm::Infomation &infomation) noexcept;
 protected:
     MailSystem() noexcept;
     ~MailSystem() noexcept;
     MailSystem(const MailSystem&) = delete;
     MailSystem& operator=(const MailSystem&) = delete;
+private:
+    static const std::string dataPath;
 };
 
 }

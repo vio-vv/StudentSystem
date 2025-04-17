@@ -12,7 +12,7 @@ bool trm::MakeRequest(const std::string &link, const Request &request) noexcept
     if (!file::CheckDirectoryExists(link)) {
         return false;
     }
-    std::string filePath = file::GetFilePath(link, Combine({ToStr(request.id), ToStr(GenerateRandomCode())}, '.'));
+    std::string filePath = file::GetFilePath(link, Combine({ToStr(request.id), ToStr(GetTimeStamp()), ToStr(GenerateRandomCode())}, '.'));
     auto info = request.content;
     info.push_back(request.sender);
     return file::WriteFile(filePath, Encode(info));
@@ -30,8 +30,8 @@ std::pair<bool, std::vector<trm::Request>> trm::GetRequests(const std::string &s
     }
     for (const auto &fileName : ok_files.second) {
         Request request;
-        auto id_code = Split(fileName, '.');
-        request.id = ToNum(id_code[0]);
+        auto id_time_code = Split(fileName, '.');
+        request.id = ToNum(id_time_code[0]);
         auto ok_read = file::ReadFile(file::GetFilePath(self, fileName));
         if (!ok_read.first) {
             return {false, {}};
@@ -143,6 +143,11 @@ unsigned long long trm::GenerateRandomCode() noexcept
     static std::mt19937 generator(time(nullptr));
     static std::uniform_int_distribution<unsigned long long> distribution(0, 1e18);
     return distribution(generator);
+}
+
+unsigned long long trm::GetTimeStamp() noexcept
+{
+    return time(nullptr);
 }
 
 std::string trm::Hash(const std::string &str) noexcept
