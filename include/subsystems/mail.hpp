@@ -26,6 +26,7 @@ protected:
     MailSystem(const MailSystem&) = delete;
     MailSystem& operator=(const MailSystem&) = delete;
 private:
+    std::map<std::string, std::vector<trm::MailContent>> mailBoxes;
     static const std::string dataPath;
 };
 

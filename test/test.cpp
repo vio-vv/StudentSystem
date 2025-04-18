@@ -17,7 +17,7 @@ int main()
         }
         cout << endl;
     };
-
+    
     f(ssys.CreateAccount({trm::rqs::CREATE_ACCOUNT, "adm", "123", Account{"1", "1", {trm::Access::ADM}, {{"name", "张三"}, {"age", "20"}}}}));
     f(ssys.GetMessageNumber({trm::rqs::GET_MESSAGE_NUMBER, "1"}));
     f(ssys.SendMessage({trm::rqs::SEND_MESSAGE, "adm", "123", "1", "hello"}));

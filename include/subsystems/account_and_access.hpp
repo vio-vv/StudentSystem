@@ -18,6 +18,8 @@ namespace ssys{
 
 class AccountAndAccess{
 public:
+    trm::Infomation CheckAccountExist(const trm::Infomation &infomation) noexcept;
+
     trm::Infomation CheckAccount(const trm::Infomation &infomation) noexcept;
     trm::Infomation CheckAccess(const trm::Infomation &infomation) noexcept;
     trm::Infomation CreateAccount(const trm::Infomation &infomation) noexcept;

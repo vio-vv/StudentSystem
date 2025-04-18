@@ -71,12 +71,12 @@ std::pair<bool, trm::Infomation> trm::PollReply(const std::string &self, int id)
     return {true, Decode(ok_read.second)};
 }
 
-trm::Message trm::Encode(const Infomation &infomation) noexcept
+std::string trm::Encode(const Infomation &infomation) noexcept
 {
     return Combine(infomation);
 }
 
-trm::Infomation trm::Decode(const Message &message) noexcept
+trm::Infomation trm::Decode(const std::string &message) noexcept
 {
     return Split(message);
 }
@@ -165,6 +165,27 @@ trm::Account::operator std::string() const noexcept
             return Combine({each.first, each.second});
         }))
     });
+}
+
+trm::MailContent::operator std::string() const noexcept
+{
+    return Combine({
+        ToStr(timeStamp), 
+        sender, 
+        receiver, 
+        content
+    });
+}
+
+trm::MailContent::MailContent(const std::string &content) noexcept
+{
+    auto mailContent = Split(content);
+    *this = {
+        ToNum<unsigned long long>(mailContent[0]), 
+        mailContent[1], 
+        mailContent[2], 
+        Combine(trm::Split(mailContent[3]))
+    };
 }
 
 trm::Account::Account(const std::string &content) noexcept

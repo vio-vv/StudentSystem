@@ -1,5 +1,5 @@
-#ifndef __ACCESS_HPP__
-#define __ACCESS_HPP__
+#ifndef __STUDENT_SYSTEM_HPP__
+#define __STUDENT_SYSTEM_HPP__
 
 /**
  * @brief 学生管理系统。

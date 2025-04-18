@@ -3,6 +3,11 @@
 
 const std::string ssys::AccountAndAccess::dataPath = file::GetFilePath(DATA_PATH, "acc_acc");
 
+trm::Infomation ssys::AccountAndAccess::CheckAccountExist(const trm::Infomation &infomation) noexcept
+{
+    return {};
+}
+
 trm::Infomation ssys::AccountAndAccess::CheckAccount(const trm::Infomation &infomation) noexcept
 {
     assert(infomation[0] == trm::rqs::CHECK_ACCOUNT); // Procession not matched.

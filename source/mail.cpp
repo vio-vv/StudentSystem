@@ -63,6 +63,35 @@ ssys::MailSystem::MailSystem() noexcept
             exit(1);
         }
     }
+
+    auto ok_content = file::ListDirectory(dataPath);
+    if (!ok_content.first) {
+        assert(false); // Failed to list directory.
+        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory." << std::endl;
+        exit(1);
+    }
+
+    for (const auto &each : ok_content.second) {
+        mailBoxes.insert({each, {}});
+
+        auto receiver = file::GetFilePath(dataPath, each);
+
+        auto ok_messages = file::ListDirectory(receiver);
+        if (!ok_messages.first) {
+            assert(false); // Failed to list directory.
+            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory." << std::endl;
+            exit(1);
+        }
+        
+        for (const auto &message : ok_messages.second) {
+            auto ok_mailContent = file::ReadFile(file::GetFilePath(receiver, message));
+            mailBoxes[each].push_back(trm::MailContent(ok_mailContent.second));
+        }
+
+        // std::sort(mailBoxes[each].begin(), mailBoxes[each].end(), [](const trm::MailContent &a, const trm::MailContent &b) {
+        //     return a.timeStamp < b.timeStamp;
+        // });
+    }
 }
 
 ssys::MailSystem::~MailSystem() noexcept
