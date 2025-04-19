@@ -24,25 +24,25 @@ std::pair<bool, std::vector<trm::Request>> trm::GetRequests(const std::string &s
         return {false, {}};
     }
     std::vector<Request> result;
-    auto ok_files = file::ListDirectory(self);
-    if (!ok_files.first) {
+    auto [success, files] = file::ListDirectory(self);
+    if (!success) {
         return {false, {}};
     }
-    for (const auto &fileName : ok_files.second) {
+    for (const auto &fileName : files) {
         Request request;
         auto id_time_code = Split(fileName, '.');
         request.id = ToNum(id_time_code[0]);
-        auto ok_read = file::ReadFile(file::GetFilePath(self, fileName));
-        if (!ok_read.first) {
+        auto [success, read] = file::ReadFile(file::GetFilePath(self, fileName));
+        if (!success) {
             return {false, {}};
         }
-        auto tmp = Decode(ok_read.second);
+        auto tmp = Decode(read);
         request.sender = tmp.back();
         tmp.pop_back();
         request.content = tmp;
         result.push_back(request);
     }
-    for (const auto &fileName : ok_files.second) {
+    for (const auto &fileName : files) {
         file::DeleteFile(file::GetFilePath(self, fileName));
     }
     return {true, result};
@@ -63,20 +63,20 @@ std::pair<bool, trm::Infomation> trm::PollReply(const std::string &self, int id)
     if (!file::CheckFileExists(filePath)) {
         return {false, {}};
     }
-    auto ok_read = file::ReadFile(filePath);
-    if (!ok_read.first) {
+    auto [success, read] = file::ReadFile(filePath);
+    if (!success) {
         return {false, {}};
     }
     file::DeleteFile(filePath);
-    return {true, Decode(ok_read.second)};
+    return {true, Decode(read)};
 }
 
-std::string trm::Encode(const Infomation &infomation) noexcept
+trm::Message trm::Encode(const Infomation &infomation) noexcept
 {
     return Combine(infomation);
 }
 
-trm::Infomation trm::Decode(const std::string &message) noexcept
+trm::Infomation trm::Decode(const Message &message) noexcept
 {
     return Split(message);
 }

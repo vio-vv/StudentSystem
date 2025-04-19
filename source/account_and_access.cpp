@@ -5,7 +5,13 @@ const std::string ssys::AccountAndAccess::dataPath = file::GetFilePath(DATA_PATH
 
 trm::Infomation ssys::AccountAndAccess::CheckAccountExist(const trm::Infomation &infomation) noexcept
 {
-    return {};
+    assert(infomation[0] == trm::rqs::CHECK_ACCOUNT_EXISTS); // Procession not matched.
+
+    if (accounts.find(infomation[1]) == accounts.end()) {
+        return {trm::rpl::NO};
+    } else {
+        return {trm::rpl::YES};
+    }
 }
 
 trm::Infomation ssys::AccountAndAccess::CheckAccount(const trm::Infomation &infomation) noexcept
@@ -113,20 +119,20 @@ ssys::AccountAndAccess::AccountAndAccess() noexcept
         }
     }
 
-    auto ok_content = file::ListDirectory(dataPath);
-    if (!ok_content.first) {
+    auto [success, content] = file::ListDirectory(dataPath);
+    if (!success) {
         assert(false); // Failed to read accounts file.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read accounts file." << std::endl;
         exit(1);
     }
-    for (const auto &each : ok_content.second) {
-        auto ok_account = file::ReadFile(file::GetFilePath(dataPath, each));
-        if (!ok_account.first) {
+    for (const auto &each : content) {
+        auto [success, account] = file::ReadFile(file::GetFilePath(dataPath, each));
+        if (!success) {
             assert(false); // Failed to read accounts file.
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read accounts file." << std::endl;
         }
-        auto account = trm::Account(ok_account.second);
-        accounts.insert({account.code, account});
+        auto accountObj = trm::Account(account);
+        accounts.insert({accountObj.code, accountObj});
     }
 }
 

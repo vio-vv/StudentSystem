@@ -9,6 +9,13 @@ using namespace trm;
 
 int main()
 {
+    file::DataBase base(".\\data");
+    base.Cut();
+
+    base.Count();
+
+    return 0;
+
     auto &ssys = SSys::Get();
 
     auto f = [](const Infomation &info) {

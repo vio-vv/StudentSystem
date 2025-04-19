@@ -12,14 +12,21 @@
  * TO_COMPLETE
  */
 
+#include <cassert>
 #include <string>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 namespace file{
 
 namespace fs = std::filesystem;
+
+/**
+ * @brief 由文件系统抽象出来的数据库类。
+ */
+class DataBase;
 
 /**
  * @brief 读结构体。
@@ -132,6 +139,53 @@ bool DeleteDirectory(const std::string &directoryPath) noexcept;
  * @return 文件路径
  */
 std::string GetFilePath(const std::string &directionPath, const std::string &fileName) noexcept;
+
+class DataBase {
+public:
+    /**
+     * @brief 构造函数，设置工作目录。
+     * @param workSpace 工作目录
+     */
+    DataBase(const std::string &workSpace) noexcept : space(workSpace)
+    {
+        if (!CheckDirectoryExists(workSpace)) {
+            space = ".\\";
+        }
+    }
+    /**
+     * @brief 当成目录进行索引。
+     * @param keyName 键名
+     * @return 下一层目录的对象
+     */
+    DataBase operator[](const std::string &keyName) noexcept;
+    /**
+     * @brief 当成目录进行计数。
+     */
+    unsigned long long Count() const noexcept;
+    /**
+     * @brief 当成文件进行增改。
+     * @param value 值
+     * @return 原值
+     */
+    const std::string &operator=(const std::string &value) const noexcept;
+    /**
+     * @brief 当成文件进行读取。
+     * @return 值
+     */
+    operator std::string() const noexcept;
+    /**
+     * @brief 当成文件进行删除。
+     * @note 将析构。
+     */
+    void Remove() noexcept;
+    /**
+     * @brief 当成目录进行删除。
+     * @note 将析构。
+     */
+    void Cut() noexcept;
+private:
+    std::string space;
+};
 
 }
 

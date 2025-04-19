@@ -1,8 +1,90 @@
 #include "file_system.hpp"
 
+file::DataBase file::DataBase::operator[](const std::string &keyName) noexcept
+{
+    if (!CheckDirectoryExists(space)) {
+        if (!CreateDirectory(space)) {
+            assert(false);
+            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory" << std::endl;
+            exit(1);
+        }
+    }
+    return DataBase(GetFilePath(space, keyName));
+}
+
+unsigned long long file::DataBase::Count() const noexcept
+{
+    if (!CheckDirectoryExists(space)) {
+        if (!CreateDirectory(space)) {
+            assert(false);
+            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory" << std::endl;
+            exit(1);
+        }
+    }
+    auto [success, files] = ListDirectory(space);
+    if (!success) {
+        assert(false);
+        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory" << std::endl;
+        exit(1);
+    }
+    return files.size();
+}
+
+const std::string &file::DataBase::operator=(const std::string &value) const noexcept
+{
+    if (!WriteFile(space, value)) {
+        assert(false);
+        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file" << std::endl;
+        exit(1);
+    }
+    return value;
+}
+
 bool file::CheckFileExists(const std::string &filePath) noexcept
 {
     return fs::exists(filePath);
+}
+
+file::DataBase::operator std::string() const noexcept
+{
+    if (!CheckFileExists(space)) {
+        if (!WriteFile(space, "")) {
+            assert(false);
+            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file" << std::endl;
+            exit(1);
+        }
+    }
+    auto [success, content] = ReadFile(space);
+    if (!success) {
+        assert(false);
+        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read file" << std::endl;
+        exit(1);
+    }
+    return content;
+}
+
+void file::DataBase::Remove() noexcept
+{
+    if (CheckFileExists(space)) {
+        if (!DeleteFile(space)) {
+            assert(false);
+            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete file" << std::endl;
+            exit(1);
+        }
+    }
+    DataBase::~DataBase();
+}
+
+void file::DataBase::Cut() noexcept
+{
+    if (CheckDirectoryExists(space)) {
+        if (!DeleteDirectory(space)) {
+            assert(false);
+            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete file" << std::endl;
+            exit(1);
+        }
+    }
+    DataBase::~DataBase();
 }
 
 std::pair<bool, std::string> file::ReadFile(const std::string &filePath) noexcept

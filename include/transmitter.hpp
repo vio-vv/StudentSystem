@@ -20,78 +20,81 @@
 namespace trm{
 
 namespace rqs{
-enum{
     /**
      * @brief 检查服务端在线状态。
      * @param NONE
      * @return YES
      */
-    CHECK_ONLINE,
+    const std::string CHECK_ONLINE = "CHECK_ONLINE";
 
-// #pragma region <<<--- 接口列表 --->>>
-// #pragma region 帐户与权限系统
-    CHECK_ACCOUNT_EXISTS,
+#pragma region <<<--- 接口列表 --->>>
+#pragma region 帐户与权限系统
+    /**
+     * @brief 检查帐户是否存在。
+     * @param code 学工号
+     * @return YES or NO
+     */
+    const std::string CHECK_ACCOUNT_EXISTS = "CHECK_ACCOUNT_EXISTS";
     /**
      * @brief 检查帐号密码是否有效。
      * @param username 帐号
      * @param password 密码
-     * @return 第一项为 YES or NO，第一项为 YES 时第二项为 Account 帐户对象，第一项为 NO 时第二项为 NO_ACCOUNT or WRONG_PASSWORD @see @class Account
+     * @return 第一项为 YES or NO，第一项为 YES 时第二项为 Account 帐户对象，第一项为 NO 时第二项为 NO_ACCOUNT or WRONG_PASSWORD @see @struct Account
      */
-    CHECK_ACCOUNT,
+    const std::string CHECK_ACCOUNT = "CHECK_ACCOUNT";
     /**
      * @brief 检查是否拥有指定权限。
      * @param code 学工号
      * @param password 密码
      * @param access 权限 @see @namespace Access
      * @return YES or NO
-     * @retval NO 没有权限，抑或帐号不存在或密码错误等
+     * @retval NO 没有权限，抑或帐户不存在或密码错误等
      */
-    CHECK_ACCESS,
+    const std::string CHECK_ACCESS = "CHECK_ACCESS";
     /**
      * @brief 创建新帐户。
      * @param code 学工号
      * @param password 密码
-     * @param account Account 帐户对象 @see @class Account
+     * @param account Account 帐户对象 @see @struct Account
      * @return SUCC or FAIL，或者 ACCESS_DENIED
-     * @retval FAIL 帐号已存在等原因
+     * @retval FAIL 帐号已存在等
      * @note ACCESS REQUIRED CREATE_ACCOUNT
      * @note 创建的帐户想要拥有某权限，创建者必须现拥有该权限，否则创建的帐户将没有该权限。
      */
-    CREATE_ACCOUNT,
+    const std::string CREATE_ACCOUNT = "CREATE_ACCOUNT";
     /**
      * @brief 删除帐户。
      * @param code 学工号
      * @param password 密码
      * @param codeToDelete 待删除帐户的学工号
      * @return SUCC or FAIL，或者 ACCESS_DENIED
-     * @retval FAIL 帐号不存在等原因
+     * @retval FAIL 待删除的帐户不存在等
      * @note ACCESS REQUIRED DELETE_ACCOUNT
      */
-    DELETE_ACCOUNT,
+    const std::string DELETE_ACCOUNT = "DELETE_ACCOUNT";
+#pragma endregion
 
-// #pragma endregion
+#pragma region 课程系统
+    ;
+#pragma endregion
 
-// #pragma region 课程系统
-    _,
-// #pragma endregion
+#pragma region 图书馆系统
+    ;
+#pragma endregion
 
-// #pragma region 图书馆系统
-    __,
-// #pragma endregion
+#pragma region 在线饭堂系统
+    ;
+#pragma endregion
 
-// #pragma region 在线饭堂系统
-    ___,
-// #pragma endregion
+#pragma region 预约入校系统
+    ;
+#pragma endregion
 
-// #pragma region 预约入校系统
-    ____,
-// #pragma endregion
+#pragma region 通知与公示系统
+    ;
+#pragma endregion
 
-// #pragma region 通知与公示系统
-    _____,
-// #pragma endregion
-
-// #pragma region 消息与站内信系统
+#pragma region 消息与站内信系统
     /**
      * @brief 发送消息。
      * @param code 学工号
@@ -101,38 +104,33 @@ enum{
      * @return SUCC or FAIL，或者 ACCESS_DENIED
      * @note ACCESS REQUIRED SEND_MESSAGE
      */
-    SEND_MESSAGE,
+    const std::string SEND_MESSAGE = "SEND_MESSAGE";
     /**
      * @brief 获取消息数量。
      * @param code 学工号
-     * @return ull 消息数量
+     * @return ull 消息数量 or NO_ACCOUNT
      */
-    GET_MESSAGE_NUMBER,
-// #pragma endregion
-// #pragma endregion
-};
+    const std::string GET_MESSAGE_NUMBER = "GET_MESSAGE_NUMBER";
+#pragma endregion
+#pragma endregion
 }
-// #pragma region <<<--- 常量列表 --->>>
+#pragma region <<<--- 常量列表 --->>>
 namespace rpl{
-enum{
-    YES,
-    NO,
-    SUCC,
-    FAIL,
-    NO_ACCOUNT,
-    WRONG_PASSWORD,
-    ACCESS_DENIED,
-};
+    const std::string ACCESS_DENIED = "ACCESS_DENIED";
+    const std::string YES = "YES";
+    const std::string NO = "NO";
+    const std::string SUCC = "SUCC";
+    const std::string FAIL = "FAIL";
+    const std::string NO_ACCOUNT = "NO_ACCOUNT";
+    const std::string WRONG_PASSWORD = "WRONG_PASSWORD";
 }
 namespace Access{
-enum{
-    ADM,
+    const std::string ADM = "ADM";
 
-    CREATE_ACCOUNT,
-    DELETE_ACCOUNT,
+    const std::string CREATE_ACCOUNT = "CREATE_ACCOUNT";
+    const std::string DELETE_ACCOUNT = "DELETE_ACCOUNT";
 
-    SEND_MESSAGE,
-};
+    const std::string SEND_MESSAGE = "SEND_MESSAGE";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;
@@ -155,70 +153,10 @@ struct MailContent {
     operator std::string() const noexcept;
     MailContent(const std::string &content) noexcept;
 };
-// #pragma endregion
+#pragma endregion
 
-/**
- * @brief 将任意类型转为字符串。
- * @param t 待转换的类型
- * @return 转换后的字符串
- */
-std::string ToStr(auto t) noexcept
-{
-    std::stringstream ss;
-    ss << t;
-    return ss.str();
-}
-
-/**
- * @brief 将字符串转为整数。
- * @param s 待转换的字符串
- * @return 转换后的整数
- */
-template<typename ReturnType = int>
-ReturnType ToNum(const std::string &s) noexcept
-{
-    ReturnType result = 0;
-    for (auto c : s) {
-        if (c == '-') {
-            result = -result;
-            continue;
-        }
-        result = result * 10 + (c - '0');
-    }
-    return result;
-}
-
-class Infomation : public std::vector<std::string> {
-public:
-    Infomation(const std::vector<std::string> &vector) noexcept : std::vector<std::string>(vector) {}
-    Infomation() noexcept : std::vector<std::string>() {}
-    template<typename ...Pack>
-    Infomation(const Pack &...pack) noexcept
-    {
-        TempPush(pack...);
-    }
-private:
-    template<typename ...Pack>
-    void TempPush(int item, const Pack &...rest) noexcept
-    {
-        push_back(ToStr(item));
-        TempPush(rest...);
-    }
-    void TempPush(int item) noexcept
-    {
-        push_back(ToStr(item));
-    }
-    template<typename ...Pack>
-    void TempPush(const std::string &item, const Pack &...rest) noexcept
-    {
-        push_back(item);
-        TempPush(rest...);
-    }
-    void TempPush(const std::string &item) noexcept
-    {
-        push_back(item);
-    }
-};
+using Infomation = std::vector<std::string>;
+using Message = std::string;
 struct Request{
     int id; // 请求编号
     std::string sender;    // 请求发送者链接（相对于服务端）
@@ -269,13 +207,52 @@ std::pair<bool, Infomation> PollReply(const std::string &self, int id) noexcept;
  * @param infomation 待转换的信息
  * @return 转换后的消息
  */
-std::string Encode(const Infomation &infomation) noexcept;
+Message Encode(const Infomation &infomation) noexcept;
 /**
  * @brief 将消息转化为信息。
  * @param message 待转换的消息
  * @return 转换后的信息
  */
-Infomation Decode(const std::string &message) noexcept;
+Infomation Decode(const Message &message) noexcept;
+
+template <typename T> concept ConvertToString = requires (T t) { (std::string)t; };
+/**
+ * @brief 将任意类型转为字符串。
+ * @param t 待转换的类型
+ * @return 转换后的字符串
+ */
+template <typename InputType> requires ConvertToString<InputType>
+std::string ToStr(InputType t) noexcept
+{
+    return t;
+}
+template <typename T> concept StreamToString = requires (T t, std::stringstream ss) { ss << t; };
+template <typename InputType> requires (!ConvertToString<InputType>) && StreamToString<InputType>
+std::string ToStr(InputType t) noexcept
+{
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+}
+
+/**
+ * @brief 将字符串转为整数。
+ * @param s 待转换的字符串
+ * @return 转换后的整数
+ */
+template<typename ReturnType = int> requires std::is_integral_v<ReturnType>
+ReturnType ToNum(const std::string &s) noexcept
+{
+    ReturnType result = 0;
+    for (auto c : s) {
+        if (c == '-') {
+            result = -result;
+            continue;
+        }
+        result = result * 10 + (c - '0');
+    }
+    return result;
+}
 
 /**
  * TO_COMPLETE
@@ -312,11 +289,13 @@ unsigned long long GenerateRandomCode() noexcept;
  */
 unsigned long long GetTimeStamp() noexcept;
 
+template <typename List> concept Iterable = requires (List list) { list.begin(); list.end(); ++list.begin(); };
+template <typename List, typename InputType> concept TypeCorrespond = requires (List list, InputType input) { input = *list.begin(); };
 /**
  * TO_COMPLETE
  */
-template<typename ReturnType, typename InputType>
-std::vector<ReturnType> Foreach(const auto &series, const std::function<ReturnType (const InputType &)> &func) noexcept
+template <typename ReturnType, typename InputType, typename List> requires Iterable<List> && TypeCorrespond<List, InputType>
+std::vector<ReturnType> Foreach(const List &series, const std::function<ReturnType (const InputType &)> &func) noexcept
 {
     std::vector<ReturnType> result;
     for (const auto &each : series) {

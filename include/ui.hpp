@@ -383,7 +383,7 @@ protected:
      * @brief 封装的数据类型和常量。*
      * ***********************
      */
-    template<typename DataType>
+    template <typename DataType>
     class Around{
     public: 
         DataType horizontal; 

@@ -45,14 +45,14 @@ clpg::ID clpg::EnterSystem(ui::Screen &screen) noexcept
         screen.Tick();
         if (clicked) {
             screen.FreeAll();
-            auto ok_reply = WaitServer(screen, {trm::rqs::CHECK_ONLINE}, L"正在检查服务端在线状态");
-            if (ok_reply.first == 1) {
-                if (ok_reply.second[0] == trm::rpl::YES) {
+            auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ONLINE}, L"正在检查服务端在线状态");
+            if (success == 1) {
+                if (reply[0] == trm::rpl::YES) {
                     return ID::LOGIN;
                 } else {
                     assert(false); // Invalid reply.
                 }
-            } else if (ok_reply.first == 0) {
+            } else if (success == 0) {
                 return ID::RETRY;
             }
         }
@@ -180,11 +180,11 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
         screen.Tick();
         if (login) {
             screen.HideAll();
-            auto ok_reply = WaitServer(screen, {trm::rqs::CHECK_ACCOUNT, sharedInfomation.username, sharedInfomation.password}, L"登录中");
-            if (ok_reply.first == 1) {
-                if (ok_reply.second[0] == trm::rpl::YES) {
+            auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ACCOUNT, sharedInfomation.username, sharedInfomation.password}, L"登录中");
+            if (success == 1) {
+                if (reply[0] == trm::rpl::YES) {
                     return ID::MAIN_PAGE;
-                } else if (ok_reply.second[0] == trm::rpl::NO) {
+                } else if (reply[0] == trm::rpl::NO) {
                     login = false;
                     tips->SetContent(L"帐号或密码错误。");
                     tips->SetVisible(true);
@@ -193,7 +193,7 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                 } else {
                     assert(false); // Invalid reply.
                 }    
-            } else if (ok_reply.first == 0) {
+            } else if (success == 0) {
                 return ID::RETRY;
             }
         }

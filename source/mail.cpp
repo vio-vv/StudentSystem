@@ -35,23 +35,12 @@ trm::Infomation ssys::MailSystem::GetMessageNumber(const trm::Infomation &infoma
 {
     assert(infomation[0] == trm::rqs::GET_MESSAGE_NUMBER); // Procession not matched.
 
-    auto receiver = file::GetFilePath(dataPath, infomation[1]);
-    if (!file::CheckDirectoryExists(receiver)) {
-        if (!file::CreateDirectory(receiver)) {
-            assert(false); // Failed to create directory.
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory." << std::endl;
-            exit(1);
-        }
+    auto it = mailBoxes.find(infomation[1]);
+    if (it == mailBoxes.end()) {
+        return {trm::rpl::NO_ACCOUNT};
     }
 
-    auto ok_content = file::ListDirectory(receiver);
-    if (!ok_content.first) {
-        assert(false); // Failed to list directory.
-        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory." << std::endl;
-        exit(1);
-    }
-
-    return {trm::ToStr(ok_content.second.size())};
+    return {trm::ToStr(it->second.size())};
 }
 
 ssys::MailSystem::MailSystem() noexcept
@@ -64,33 +53,38 @@ ssys::MailSystem::MailSystem() noexcept
         }
     }
 
-    auto ok_content = file::ListDirectory(dataPath);
-    if (!ok_content.first) {
+    auto [success, content] = file::ListDirectory(dataPath);
+    if (!success) {
         assert(false); // Failed to list directory.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory." << std::endl;
         exit(1);
     }
 
-    for (const auto &each : ok_content.second) {
+    for (const auto &each : content) {
         mailBoxes.insert({each, {}});
 
         auto receiver = file::GetFilePath(dataPath, each);
 
-        auto ok_messages = file::ListDirectory(receiver);
-        if (!ok_messages.first) {
+        auto [success, messages] = file::ListDirectory(receiver);
+        if (!success) {
             assert(false); // Failed to list directory.
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory." << std::endl;
             exit(1);
         }
         
-        for (const auto &message : ok_messages.second) {
-            auto ok_mailContent = file::ReadFile(file::GetFilePath(receiver, message));
-            mailBoxes[each].push_back(trm::MailContent(ok_mailContent.second));
+        for (const auto &message : messages) {
+            auto [success, mailContent] = file::ReadFile(file::GetFilePath(receiver, message));
+            if (!success) {
+                assert(false); // Failed to read file.
+                std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read file." << std::endl;
+                exit(1);
+            }
+            mailBoxes[each].push_back(trm::MailContent(mailContent));
         }
 
-        // std::sort(mailBoxes[each].begin(), mailBoxes[each].end(), [](const trm::MailContent &a, const trm::MailContent &b) {
-        //     return a.timeStamp < b.timeStamp;
-        // });
+        std::sort(mailBoxes[each].begin(), mailBoxes[each].end(), [](const trm::MailContent &a, const trm::MailContent &b) {
+            return a.timeStamp < b.timeStamp;
+        });
     }
 }
 
