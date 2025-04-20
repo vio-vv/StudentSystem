@@ -15,15 +15,13 @@ trm::Infomation ssys::MailSystem::SendMessage(const trm::Infomation &infomation)
     auto receiver = file::GetFilePath(dataPath, infomation[3]);
     if (!file::CheckDirectoryExists(receiver)) {
         if (!file::CreateDirectory(receiver)) {
-            assert(false); // Failed to create directory.
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory." << std::endl;
             return {trm::rpl::FAIL};
         }
     }
 
-    auto filePath = file::GetFilePath(receiver, trm::Combine({infomation[1], trm::ToStr(trm::GetTimeStamp()), trm::ToStr(trm::GenerateRandomCode())}, '.'));
+    auto filePath = file::GetFilePath(receiver, trm::Combine({infomation[1], ToStr(trm::GetTimeStamp()), ToStr(trm::GenerateRandomCode())}, '.'));
     if (!file::WriteFile(filePath, infomation[4])) {
-        assert(false); // Failed to write file.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file." << std::endl;
         return {trm::rpl::FAIL};
     }
@@ -40,14 +38,13 @@ trm::Infomation ssys::MailSystem::GetMessageNumber(const trm::Infomation &infoma
         return {trm::rpl::NO_ACCOUNT};
     }
 
-    return {trm::ToStr(it->second.size())};
+    return {ToStr(it->second.size())};
 }
 
 ssys::MailSystem::MailSystem() noexcept
 {
     if (!file::CheckDirectoryExists(dataPath)) {
         if (!file::CreateDirectory(dataPath)) {
-            assert(false); // Failed to create directory.
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory." << std::endl;
             exit(1);
         }
@@ -55,7 +52,6 @@ ssys::MailSystem::MailSystem() noexcept
 
     auto [success, content] = file::ListDirectory(dataPath);
     if (!success) {
-        assert(false); // Failed to list directory.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory." << std::endl;
         exit(1);
     }
@@ -67,7 +63,6 @@ ssys::MailSystem::MailSystem() noexcept
 
         auto [success, messages] = file::ListDirectory(receiver);
         if (!success) {
-            assert(false); // Failed to list directory.
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory." << std::endl;
             exit(1);
         }
@@ -75,7 +70,6 @@ ssys::MailSystem::MailSystem() noexcept
         for (const auto &message : messages) {
             auto [success, mailContent] = file::ReadFile(file::GetFilePath(receiver, message));
             if (!success) {
-                assert(false); // Failed to read file.
                 std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read file." << std::endl;
                 exit(1);
             }

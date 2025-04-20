@@ -1,90 +1,8 @@
 #include "file_system.hpp"
 
-file::DataBase file::DataBase::operator[](const std::string &keyName) noexcept
-{
-    if (!CheckDirectoryExists(space)) {
-        if (!CreateDirectory(space)) {
-            assert(false);
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory" << std::endl;
-            exit(1);
-        }
-    }
-    return DataBase(GetFilePath(space, keyName));
-}
-
-unsigned long long file::DataBase::Count() const noexcept
-{
-    if (!CheckDirectoryExists(space)) {
-        if (!CreateDirectory(space)) {
-            assert(false);
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory" << std::endl;
-            exit(1);
-        }
-    }
-    auto [success, files] = ListDirectory(space);
-    if (!success) {
-        assert(false);
-        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory" << std::endl;
-        exit(1);
-    }
-    return files.size();
-}
-
-const std::string &file::DataBase::operator=(const std::string &value) const noexcept
-{
-    if (!WriteFile(space, value)) {
-        assert(false);
-        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file" << std::endl;
-        exit(1);
-    }
-    return value;
-}
-
 bool file::CheckFileExists(const std::string &filePath) noexcept
 {
-    return fs::exists(filePath);
-}
-
-file::DataBase::operator std::string() const noexcept
-{
-    if (!CheckFileExists(space)) {
-        if (!WriteFile(space, "")) {
-            assert(false);
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file" << std::endl;
-            exit(1);
-        }
-    }
-    auto [success, content] = ReadFile(space);
-    if (!success) {
-        assert(false);
-        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read file" << std::endl;
-        exit(1);
-    }
-    return content;
-}
-
-void file::DataBase::Remove() noexcept
-{
-    if (CheckFileExists(space)) {
-        if (!DeleteFile(space)) {
-            assert(false);
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete file" << std::endl;
-            exit(1);
-        }
-    }
-    DataBase::~DataBase();
-}
-
-void file::DataBase::Cut() noexcept
-{
-    if (CheckDirectoryExists(space)) {
-        if (!DeleteDirectory(space)) {
-            assert(false);
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete file" << std::endl;
-            exit(1);
-        }
-    }
-    DataBase::~DataBase();
+    return fs::exists(filePath) && !fs::is_directory(filePath);
 }
 
 std::pair<bool, std::string> file::ReadFile(const std::string &filePath) noexcept
@@ -119,12 +37,17 @@ bool file::AppendFile(const std::string &filePath, const std::string &content) n
 
 bool file::DeleteFile(const std::string &filePath) noexcept
 {
-    return fs::remove(filePath);
+    try {
+        fs::remove(filePath);
+        return true;
+    } catch (const std::exception &e) {
+        return false;
+    }
 }
 
 bool file::CheckDirectoryExists(const std::string &directoryPath) noexcept
 {
-    return fs::is_directory(directoryPath) && fs::exists(directoryPath);
+    return fs::exists(directoryPath) && fs::is_directory(directoryPath);
 }
 
 std::pair<bool, std::vector<std::string>> file::ListDirectory(const std::string &directoryPath) noexcept
@@ -133,20 +56,30 @@ std::pair<bool, std::vector<std::string>> file::ListDirectory(const std::string 
         return {false, {}};
     }
     std::vector<std::string> files;
-    for (const auto &entry : fs::directory_iterator(directoryPath)) {
-        files.push_back(entry.path().filename().string());
+    try {
+        auto it = fs::directory_iterator(directoryPath);
+        for (const auto &entry : it) {
+            files.push_back(entry.path().filename().string());
+        }
+    } catch (const std::exception &e) {
+        return {false, {}};
     }
     return {true, files};
 }
 
 bool file::CreateDirectory(const std::string &directoryPath) noexcept
 {
-    return fs::create_directory(directoryPath);
+    try {
+        fs::create_directory(directoryPath);
+        return true;
+    } catch (const std::exception &e) {
+        return false;
+    }
 }
 
 bool file::DeleteDirectory(const std::string &directoryPath) noexcept
 {
-    return fs::remove_all(directoryPath);
+    return system(("rd /s /q " + directoryPath).c_str()) == 0;
 }
 
 std::string file::GetFilePath(const std::string &directionPath, const std::string &fileName) noexcept

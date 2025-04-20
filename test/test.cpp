@@ -3,16 +3,22 @@
 #include <string>
 #include "student_system.hpp"
 #include "transmitter.hpp"
+#include "data_base.hpp"
 
 using namespace std;
 using namespace trm;
 
 int main()
 {
-    file::DataBase base(".\\data");
-    base.Cut();
+    auto base = dat::DataBase(DATA_PATH);
 
-    base.Count();
+    for (auto [i, c] : base["5"]) {
+        cout << i << " : " << (std::string)c << endl;
+    }
+    auto niil = base["5"];
+    for (auto it = niil.begin(); it != niil.end(); ++it) {
+        cout << (*it).first << " : " << (std::string)((*it).second) << endl;
+    }
 
     return 0;
 

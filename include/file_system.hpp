@@ -24,11 +24,6 @@ namespace file{
 namespace fs = std::filesystem;
 
 /**
- * @brief 由文件系统抽象出来的数据库类。
- */
-class DataBase;
-
-/**
  * @brief 读结构体。
  * @param filePath 文件路径
  * @param structure 结构体
@@ -72,7 +67,7 @@ bool AppendStructure(const std::string &filePath, auto &structure) noexcept
  * @brief 判断文件是否存在。
  * @param filePath 文件路径
  * @return 文件存在与否
- * @note 返回值为假时表示文件不存在或权限不足。
+ * @retval false 文件不存在或权限不足等。
  */
 bool CheckFileExists(const std::string &filePath) noexcept;
 /**
@@ -107,7 +102,7 @@ bool DeleteFile(const std::string &filePath) noexcept;
  * @brief 判断目录是否存在。
  * @param directoryPath 目录路径
  * @return 目录存在与否
- * @note 返回值为假时表示目录不存在或权限不足。
+ * @retval false 目录不存在或权限不足等。
  */
 bool CheckDirectoryExists(const std::string &directoryPath) noexcept;
 /**
@@ -139,53 +134,6 @@ bool DeleteDirectory(const std::string &directoryPath) noexcept;
  * @return 文件路径
  */
 std::string GetFilePath(const std::string &directionPath, const std::string &fileName) noexcept;
-
-class DataBase {
-public:
-    /**
-     * @brief 构造函数，设置工作目录。
-     * @param workSpace 工作目录
-     */
-    DataBase(const std::string &workSpace) noexcept : space(workSpace)
-    {
-        if (!CheckDirectoryExists(workSpace)) {
-            space = ".\\";
-        }
-    }
-    /**
-     * @brief 当成目录进行索引。
-     * @param keyName 键名
-     * @return 下一层目录的对象
-     */
-    DataBase operator[](const std::string &keyName) noexcept;
-    /**
-     * @brief 当成目录进行计数。
-     */
-    unsigned long long Count() const noexcept;
-    /**
-     * @brief 当成文件进行增改。
-     * @param value 值
-     * @return 原值
-     */
-    const std::string &operator=(const std::string &value) const noexcept;
-    /**
-     * @brief 当成文件进行读取。
-     * @return 值
-     */
-    operator std::string() const noexcept;
-    /**
-     * @brief 当成文件进行删除。
-     * @note 将析构。
-     */
-    void Remove() noexcept;
-    /**
-     * @brief 当成目录进行删除。
-     * @note 将析构。
-     */
-    void Cut() noexcept;
-private:
-    std::string space;
-};
 
 }
 

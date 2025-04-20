@@ -219,7 +219,6 @@ std::pair<int, trm::Infomation> clpg::WaitServer(ui::Screen &screen, const trm::
     trm::Infomation result;
     bool finished = false;
     if (!trm::MakeRequest(LINK, {id, SELF_AS_SENDER, infomation})) {
-        assert(false); // Failed to make request.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to make request." << std::endl;
         exit(1);
     }

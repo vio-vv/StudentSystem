@@ -70,7 +70,6 @@ trm::Infomation ssys::AccountAndAccess::CreateAccount(const trm::Infomation &inf
 
     accounts.insert({account.code, account});
     if (!file::WriteFile(file::GetFilePath(dataPath, account.code + ".acc"), account)) {
-        assert(false); // Failed to write accounts file.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write accounts file." << std::endl;
         return {trm::rpl::FAIL};
     }
@@ -93,7 +92,6 @@ trm::Infomation ssys::AccountAndAccess::DeleteAccount(const trm::Infomation &inf
 
     accounts.erase(it);
     if (!file::DeleteFile(file::GetFilePath(dataPath, infomation[3] + ".acc"))) {
-        assert(false); // Failed to delete accounts file.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete accounts file." << std::endl;
         return {trm::rpl::FAIL};
     }
@@ -104,7 +102,6 @@ ssys::AccountAndAccess::AccountAndAccess() noexcept
 {
     if (!file::CheckDirectoryExists(dataPath)) {
         if (!file::CreateDirectory(dataPath)) {
-            assert(false); // Failed to create accounts directory.
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create accounts directory." << std::endl;
             exit(1);
         }
@@ -113,7 +110,6 @@ ssys::AccountAndAccess::AccountAndAccess() noexcept
         if (!file::WriteFile(file::GetFilePath(dataPath, "adm.acc"), 
             trm::Account{"adm", "123", {trm::Access::ADM}}
         )) {
-            assert(false); // Failed to create accounts file.
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create accounts file." << std::endl;
             exit(1);
         }
@@ -121,14 +117,12 @@ ssys::AccountAndAccess::AccountAndAccess() noexcept
 
     auto [success, content] = file::ListDirectory(dataPath);
     if (!success) {
-        assert(false); // Failed to read accounts file.
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read accounts file." << std::endl;
         exit(1);
     }
     for (const auto &each : content) {
         auto [success, account] = file::ReadFile(file::GetFilePath(dataPath, each));
         if (!success) {
-            assert(false); // Failed to read accounts file.
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read accounts file." << std::endl;
         }
         auto accountObj = trm::Account(account);
