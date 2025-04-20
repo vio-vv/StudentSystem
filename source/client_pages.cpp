@@ -242,7 +242,7 @@ std::pair<int, trm::Infomation> clpg::WaitServer(ui::Screen &screen, const trm::
     while (screen.IsOpen()) {
         screen.Tick();
         if (pass) {
-            return {1, result};
+            return {1, std::move(result)};
         } else if (finished) {
             return {0, {}};
         }

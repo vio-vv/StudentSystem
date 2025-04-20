@@ -146,5 +146,5 @@ std::vector<std::string> ssys::AccountAndAccess::AccessCross(const std::vector<s
             result.push_back(each);
         }
     }
-    return result;
+    return std::move(result);
 }

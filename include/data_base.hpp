@@ -27,6 +27,8 @@ public:
         iterator operator++(int) noexcept { iterator tmp = *this; it++; return tmp; }
         iterator &operator--() noexcept { --it; return *this; }
         iterator operator--(int) noexcept { iterator tmp = *this; it--; return tmp; }
+        iterator operator+(int n) const noexcept { return {space, it + n}; }
+        iterator operator-(int n) const noexcept { return {space, it - n}; }
         bool operator==(const iterator &other) const noexcept { return it == other.it; }
         bool operator!=(const iterator &other) const noexcept { return it != other.it; }
         std::pair<std::string, DataBase> operator*() const noexcept { return {*it, DataBase(*space)[*it]}; }

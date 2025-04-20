@@ -12,12 +12,14 @@ int main()
 {
     auto base = dat::DataBase(DATA_PATH);
 
-    for (auto [i, c] : base["5"]) {
-        cout << i << " : " << (std::string)c << endl;
-    }
-    auto niil = base["5"];
-    for (auto it = niil.begin(); it != niil.end(); ++it) {
-        cout << (*it).first << " : " << (std::string)((*it).second) << endl;
+    auto lis = base["list"];
+
+    lis.Push("456");
+    lis.Push("454654");
+    lis.Push(Account{"1", "1", {trm::Access::ADM}, {{"name", "张三"}, {"age", "20"}}});
+
+    for (auto [i, con] : lis) {
+        cout << i << " " << (string) con << endl;
     }
 
     return 0;

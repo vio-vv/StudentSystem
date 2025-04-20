@@ -45,7 +45,7 @@ std::pair<bool, std::vector<trm::Request>> trm::GetRequests(const std::string &s
     for (const auto &fileName : files) {
         file::DeleteFile(file::GetFilePath(self, fileName));
     }
-    return {true, result};
+    return {true, std::move(result)};
 }
 
 bool trm::SendReply(const std::string &link, int id, const Infomation &reply) noexcept
@@ -87,7 +87,7 @@ std::string trm::Combine(const std::vector<std::string> &series) noexcept
     for (const auto &each : series) {
         result += '\x1d' + each + '\x1f';
     }
-    return result;
+    return std::move(result);
 }
 
 std::vector<std::string> trm::Split(const std::string &str) noexcept
@@ -111,7 +111,7 @@ std::vector<std::string> trm::Split(const std::string &str) noexcept
             ++openerCount;
         }
     }
-    return result;
+    return std::move(result);
 }
 
 std::string trm::Combine(const std::vector<std::string> &series, char delimiter) noexcept
@@ -120,7 +120,7 @@ std::string trm::Combine(const std::vector<std::string> &series, char delimiter)
     for (const auto &each : series) {
         result += each + delimiter;
     }
-    return result;
+    return std::move(result);
 }
 
 std::vector<std::string> trm::Split(const std::string &str, char delimiter) noexcept
@@ -135,7 +135,7 @@ std::vector<std::string> trm::Split(const std::string &str, char delimiter) noex
             current += c;
         }
     }
-    return result;
+    return std::move(result);
 }
 
 unsigned long long trm::GenerateRandomCode() noexcept

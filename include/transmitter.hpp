@@ -263,7 +263,7 @@ std::vector<ReturnType> Foreach(const List &series, const std::function<ReturnTy
     for (const auto &each : series) {
         result.push_back(func(each));
     }
-    return result;
+    return std::move(result);
 }
 
 }
