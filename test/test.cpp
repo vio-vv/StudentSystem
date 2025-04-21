@@ -5,6 +5,8 @@
 #include "transmitter.hpp"
 #include "data_base.hpp"
 
+#define MAIL
+
 using namespace std;
 using namespace trm;
 
@@ -19,6 +21,8 @@ int main()
         cout << endl;
     };
     
+#ifdef ACC_ACC
+
     f(ssys.CheckAccountExist({rqs::CHECK_ACCOUNT_EXISTS, "admin"}));
     f(ssys.CheckAccountExist({rqs::CHECK_ACCOUNT_EXISTS, "adm"}));
 
@@ -41,6 +45,19 @@ int main()
     f(ssys.DeleteAccount({rqs::DELETE_ACCOUNT, "adm", "123", "3"}));
     f(ssys.DeleteAccount({rqs::DELETE_ACCOUNT, "adm", "123", "2"}));
     f(ssys.DeleteAccount({rqs::DELETE_ACCOUNT, "adm", "123", "2"}));
+
+#else
+#ifdef MAIL
+
+    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "12", "1", "hello"}));
+    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "123", "1", "hello"}));
+    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "123", "2", "hello"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "adm"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "admin"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1"}));
+
+#endif
+#endif
 
     while (1) ;
 

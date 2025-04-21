@@ -26,7 +26,7 @@ namespace rqs{
      * @param NONE
      * @return YES
      */
-    const std::string CHECK_ONLINE = "CHECK_ONLINE";
+    const std::string CHECK_ONLINE = /*ToStr(__LINE__) +*/ "CHECK_ONLINE";
 
 #pragma region <<<--- 接口列表 --->>>
 #pragma region 帐户与权限系统
@@ -35,14 +35,14 @@ namespace rqs{
      * @param code 学工号
      * @return YES or NO
      */
-    const std::string CHECK_ACCOUNT_EXISTS = "CHECK_ACCOUNT_EXISTS";
+    const std::string CHECK_ACCOUNT_EXISTS = /*ToStr(__LINE__) +*/ "CHECK_ACCOUNT_EXISTS";
     /**
      * @brief 检查帐号密码是否有效。
      * @param username 帐号
      * @param password 密码
      * @return 第一项为 YES or NO，第一项为 YES 时第二项为 Account 帐户对象，第一项为 NO 时第二项为 NO_ACCOUNT or WRONG_PASSWORD @see @struct Account
      */
-    const std::string CHECK_ACCOUNT = "CHECK_ACCOUNT";
+    const std::string CHECK_ACCOUNT = /*ToStr(__LINE__) +*/ "CHECK_ACCOUNT";
     /**
      * @brief 检查是否拥有指定权限。
      * @param code 学工号
@@ -51,7 +51,7 @@ namespace rqs{
      * @return YES or NO
      * @retval NO 没有权限，抑或帐户不存在或密码错误等
      */
-    const std::string CHECK_ACCESS = "CHECK_ACCESS";
+    const std::string CHECK_ACCESS = /*ToStr(__LINE__) +*/ "CHECK_ACCESS";
     /**
      * @brief 创建新帐户。
      * @param code 学工号
@@ -62,7 +62,7 @@ namespace rqs{
      * @note ACCESS REQUIRED CREATE_ACCOUNT
      * @note 创建的帐户想要拥有某权限，创建者必须现拥有该权限，否则创建的帐户将没有该权限。
      */
-    const std::string CREATE_ACCOUNT = "CREATE_ACCOUNT";
+    const std::string CREATE_ACCOUNT = /*ToStr(__LINE__) +*/ "CREATE_ACCOUNT";
     /**
      * @brief 删除帐户。
      * @param code 学工号
@@ -72,7 +72,7 @@ namespace rqs{
      * @retval FAIL 待删除的帐户不存在等
      * @note ACCESS REQUIRED DELETE_ACCOUNT
      */
-    const std::string DELETE_ACCOUNT = "DELETE_ACCOUNT";
+    const std::string DELETE_ACCOUNT = /*ToStr(__LINE__) +*/ "DELETE_ACCOUNT";
 #pragma endregion
 
 #pragma region 课程系统
@@ -103,35 +103,36 @@ namespace rqs{
      * @param receiver 接收者学工号
      * @param message 消息内容
      * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 发送目标帐户不存在等
      * @note ACCESS REQUIRED SEND_MESSAGE
      */
-    const std::string SEND_MESSAGE = "SEND_MESSAGE";
+    const std::string SEND_MESSAGE = /*ToStr(__LINE__) +*/ "SEND_MESSAGE";
     /**
      * @brief 获取消息数量。
      * @param code 学工号
      * @return ull 消息数量 or NO_ACCOUNT
      */
-    const std::string GET_MESSAGE_NUMBER = "GET_MESSAGE_NUMBER";
+    const std::string GET_MESSAGE_NUMBER = /*ToStr(__LINE__) +*/ "GET_MESSAGE_NUMBER";
 #pragma endregion
 #pragma endregion
 }
 #pragma region <<<--- 常量列表 --->>>
 namespace rpl{
-    const std::string ACCESS_DENIED = "ACCESS_DENIED";
-    const std::string YES = "YES";
-    const std::string NO = "NO";
-    const std::string SUCC = "SUCC";
-    const std::string FAIL = "FAIL";
-    const std::string NO_ACCOUNT = "NO_ACCOUNT";
-    const std::string WRONG_PASSWORD = "WRONG_PASSWORD";
+    const std::string ACCESS_DENIED = /*ToStr(__LINE__) +*/ "ACCESS_DENIED";
+    const std::string NO_ACCOUNT = /*ToStr(__LINE__) +*/ "NO_ACCOUNT";
+    const std::string WRONG_PASSWORD = /*ToStr(__LINE__) +*/ "WRONG_PASSWORD";
+    const std::string YES = /*ToStr(__LINE__) +*/ "YES";
+    const std::string NO = /*ToStr(__LINE__) +*/ "NO";
+    const std::string SUCC = /*ToStr(__LINE__) +*/ "SUCC";
+    const std::string FAIL = /*ToStr(__LINE__) +*/ "FAIL";
 }
 namespace Access{
-    const std::string ADM = "ADM";
+    const std::string ADM = /*ToStr(__LINE__) +*/ "ADM";
 
-    const std::string CREATE_ACCOUNT = "CREATE_ACCOUNT";
-    const std::string DELETE_ACCOUNT = "DELETE_ACCOUNT";
+    const std::string CREATE_ACCOUNT = /*ToStr(__LINE__) +*/ "CREATE_ACCOUNT";
+    const std::string DELETE_ACCOUNT = /*ToStr(__LINE__) +*/ "DELETE_ACCOUNT";
 
-    const std::string SEND_MESSAGE = "SEND_MESSAGE";
+    const std::string SEND_MESSAGE = /*ToStr(__LINE__) +*/ "SEND_MESSAGE";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;

@@ -33,7 +33,7 @@ private:
     static std::vector<std::string> AccessCross(const std::vector<std::string> &access, const std::vector<std::string> &creator) noexcept;
     static const std::string ACCOUNTS;
 
-    dat::DataBase base = dataBase["acc_acc"];
+    dat::DataBase base = DATA_BASE["acc_acc"];
 };
 
 }

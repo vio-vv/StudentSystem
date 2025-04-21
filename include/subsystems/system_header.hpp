@@ -22,7 +22,7 @@
 
 namespace ssys {
 
-const dat::DataBase dataBase = dat::DataBase(DATA_PATH);
+const dat::DataBase DATA_BASE = dat::DataBase(DATA_PATH);
 
 }
 
