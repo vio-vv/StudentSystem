@@ -14,10 +14,12 @@
 
 #include "file_system.hpp"
 #include "string_integral.hpp"
+#include<algorithm>
 
 namespace dat {
 
 class DataBase {
+    friend std::ostream &operator<<(std::ostream &os, const DataBase &db);
 public:
     class iterator {
     public:
@@ -136,6 +138,8 @@ private:
     std::vector<std::string> list;
     bool consideredAsFileOnly = false;
 };
+
+std::ostream &operator<<(std::ostream &os, const DataBase &db);
 
 }
 

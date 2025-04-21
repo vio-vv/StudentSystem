@@ -14,13 +14,11 @@ int main()
 
     auto lis = base["list"];
 
-    lis.Push("456");
-    lis.Push("454654");
-    lis.Push(Account{"1", "1", {trm::Access::ADM}, {{"name", "张三"}, {"age", "20"}}});
-
-    for (auto [i, con] : lis) {
-        cout << i << " " << (string) con << endl;
+    lis.Push("6666666666666");
+    for (auto [_, p] : lis) {
+        cout << p << endl;
     }
+    
 
     return 0;
 

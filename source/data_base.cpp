@@ -78,7 +78,13 @@ void dat::DataBase::Push(const std::pair<std::string, std::string> &key_value) c
 void dat::DataBase::Push(const std::string &value) noexcept
 {
     List();
-    const auto &next = (*this)[ToStr(ToNum<unsigned long long>(list[list.size() - 1]) + 1)];
+    unsigned long long index = 0;
+    if (list.size() > 0) {
+        index = ToNum<unsigned long long>(list[list.size() - 1]) + 1;
+    } else {
+        index = 0;
+    }
+    const auto &next = (*this)[ToStr(index)];
     next = value;
 }
 
@@ -139,4 +145,10 @@ void dat::DataBase::operator+=(const std::string &delta) const noexcept
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to append file:" << space << std::endl;
         exit(1);
     }
+}
+
+std::ostream &dat::operator<<(std::ostream &os, const DataBase &db)
+{
+    os << (std::string)db;
+    return os;
 }
