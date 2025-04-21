@@ -31,9 +31,9 @@ protected:
     AccountAndAccess &operator=(const AccountAndAccess &) = delete;
 private:
     static std::vector<std::string> AccessCross(const std::vector<std::string> &access, const std::vector<std::string> &creator) noexcept;
+    static const std::string ACCOUNTS;
 
-    std::map<std::string, trm::Account> accounts;
-    static const std::string dataPath;
+    dat::DataBase base = dataBase["acc_acc"];
 };
 
 }

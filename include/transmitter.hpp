@@ -248,6 +248,7 @@ unsigned long long GenerateRandomCode() noexcept;
 
 /**
  * @brief 获取时间戳。
+ * @return 时间戳
  */
 unsigned long long GetTimeStamp() noexcept;
 

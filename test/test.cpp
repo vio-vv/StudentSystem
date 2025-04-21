@@ -10,18 +10,6 @@ using namespace trm;
 
 int main()
 {
-    auto base = dat::DataBase(DATA_PATH);
-
-    auto lis = base["list"];
-
-    lis.Push("6666666666666");
-    for (auto [_, p] : lis) {
-        cout << p << endl;
-    }
-    
-
-    return 0;
-
     auto &ssys = SSys::Get();
 
     auto f = [](const Infomation &info) {
@@ -31,11 +19,28 @@ int main()
         cout << endl;
     };
     
-    f(ssys.CreateAccount({trm::rqs::CREATE_ACCOUNT, "adm", "123", Account{"1", "1", {trm::Access::ADM}, {{"name", "张三"}, {"age", "20"}}}}));
-    f(ssys.GetMessageNumber({trm::rqs::GET_MESSAGE_NUMBER, "1"}));
-    f(ssys.SendMessage({trm::rqs::SEND_MESSAGE, "adm", "123", "1", "hello"}));
-    f(ssys.GetMessageNumber({trm::rqs::GET_MESSAGE_NUMBER, "1"}));
-    f(ssys.SendMessage({trm::rqs::SEND_MESSAGE, "1", "1", "adm", "world"}));
+    f(ssys.CheckAccountExist({rqs::CHECK_ACCOUNT_EXISTS, "admin"}));
+    f(ssys.CheckAccountExist({rqs::CHECK_ACCOUNT_EXISTS, "adm"}));
+
+    f(ssys.CheckAccount({rqs::CHECK_ACCOUNT, "adm", "123456"}));
+    f(ssys.CheckAccount({rqs::CHECK_ACCOUNT, "adm", "123"}));
+    f(ssys.CheckAccount({rqs::CHECK_ACCOUNT, "1", "1"}));
+    f(ssys.CheckAccount({rqs::CHECK_ACCOUNT, "2", "1"}));
+
+    f(ssys.CheckAccess({rqs::CHECK_ACCESS, "adm", "123456", Access::CREATE_ACCOUNT}));
+    f(ssys.CheckAccess({rqs::CHECK_ACCESS, "1", "123", Access::CREATE_ACCOUNT}));
+    f(ssys.CheckAccess({rqs::CHECK_ACCESS, "1", "1", Access::CREATE_ACCOUNT}));
+
+    f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "adm", "123", Account{"2", "2", {Access::SEND_MESSAGE, Access::CREATE_ACCOUNT}}}));
+    f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "adm", "123", Account{"2", "2", {Access::SEND_MESSAGE, Access::CREATE_ACCOUNT}}}));
+    f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "1", "1", Account{"3", "3"}}));
+    f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "2", "2", Account{"3", "3", {Access::SEND_MESSAGE, Access::DELETE_ACCOUNT}}}));
+    f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "2", "2", Account{"3", "3", {Access::SEND_MESSAGE}}}));
+    
+    f(ssys.DeleteAccount({rqs::DELETE_ACCOUNT, "2", "2", "3"}));
+    f(ssys.DeleteAccount({rqs::DELETE_ACCOUNT, "adm", "123", "3"}));
+    f(ssys.DeleteAccount({rqs::DELETE_ACCOUNT, "adm", "123", "2"}));
+    f(ssys.DeleteAccount({rqs::DELETE_ACCOUNT, "adm", "123", "2"}));
 
     while (1) ;
 

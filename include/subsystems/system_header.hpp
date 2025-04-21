@@ -18,7 +18,12 @@
 #include <map>
 #include <cassert>
 #include "transmitter.hpp"
+#include "data_base.hpp" 
 
-namespace ssys {}
+namespace ssys {
+
+const dat::DataBase dataBase = dat::DataBase(DATA_PATH);
+
+}
 
 #endif

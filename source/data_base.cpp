@@ -130,6 +130,11 @@ unsigned long long dat::DataBase::Size() noexcept
     return List().size();
 }
 
+bool dat::DataBase::Exists() const noexcept
+{
+    return file::CheckFileExists(space);
+}
+
 const std::string &dat::DataBase::operator=(const std::string &value) const noexcept
 {
     if (!file::WriteFile(space, value)) {
