@@ -60,10 +60,10 @@ public:
     DataBase operator[](const std::string &keyName) const noexcept;
     /**
      * @brief 当成目录进行索引。
-     * @param index 索引
+     * @param index 索引，是对文件名列表的索引，与文件名无任何关系。
      * @return 仅当成文件的对象
      */
-    DataBase operator[](const unsigned long long index) const noexcept;
+    DataBase operator[](const unsigned long long index) noexcept;
     /**
      * @brief 当成目录增加元素。
      * @param value 值
@@ -73,12 +73,13 @@ public:
     /**
      * @brief 当成目录增加元素。
      * @param value 值
-     * @note 重载之二，文件以元素数编号。
+     * @note 重载之二，文件根据最大元素数编号。
      */
     void Push(const std::string &value) noexcept;
     /**
      * @brief 当成目录进行列举。
-     * @return 目录内容
+     * @return 目录内容，按照文件名排序，不是字典序
+     * @note 排序关键字：1）文件名长度，2）字符串顺序。
      */
     std::vector<std::string> List() noexcept;
     /**
@@ -124,6 +125,11 @@ public:
      * @return 工作目录
      */
     const std::string &GetSpace() const noexcept { return space; }
+    /**
+     * @brief 获取文件名列表。
+     * @return 文件名列表
+     */
+    const std::vector<std::string> &GetList() const noexcept { return list; }
 private:
     DataBase(const std::string &workSpace, bool considerAsFileOnly) : space(workSpace), consideredAsFileOnly(considerAsFileOnly) {}
     std::string space;
