@@ -5,7 +5,7 @@
 #include "transmitter.hpp"
 #include "data_base.hpp"
 
-#define MAIL
+#define LIBRARY
 
 using namespace std;
 using namespace trm;
@@ -85,6 +85,10 @@ int main()
     f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
 
 #endif
+#endif
+
+#ifdef LIBRARY
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "999-9-99-999999-1", "5", Book{"999-9-99-999999-1", "++--", "2025-04", "科学技术", "图书馆208", {"张某某"}}}));
 #endif
 
     while (1) ;

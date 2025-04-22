@@ -19,6 +19,7 @@
  */
 
 #include "file_system.hpp"
+#include "data_base.hpp"
 #include <functional>
 #include <random>
 #include <ctime>
@@ -86,7 +87,28 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 图书馆系统
-    ;
+    /**
+     * 
+     * 
+     */
+    const std::string SORT_BOOK = "SORT_BOOK";
+    const std::string MOVE_BOOK = "MOVE_BOOK";
+    const std::string BORROW_BOOK = "BORROW_BOOK";
+    const std::string RETURN_BOOK = "RETURN_BOOK";
+    const std::string SEARCH_BOOK = "SEARCH_BOOK";
+    /**
+     * @brief 存储书籍
+     * @param code 学工号
+     * @param password 密码
+     * @param isbn 作为索引 书籍 ISBN 号
+     * @param amount 存放数量
+     * @param bookInfo 书籍信息
+     * @return SUCC or ACCESS_DENIED or FAIL
+     * @note ACCESS REQUIRED RESTORE_BOOK
+     */
+    const std::string RESTORE_BOOK = "RESTORE_BOOK";
+    const std::string SHOW_BOOK_LIST = "SHOW_BOOK_LIST";
+    const std::string MODIFY_BOOK_INFO = "MODIFY_BOOK_INFO";
 #pragma endregion
 
 #pragma region 在线饭堂系统
@@ -198,6 +220,8 @@ namespace Access{
 
     const std::string SEND_MESSAGE = _AS_"SEND_MESSAGE";
     const std::string DELETE_MESSAGE = _AS_"DELETE_MESSAGE";
+
+    const std::string RESTORE_BOOK = _AS_"RESTORE_BOOK";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;
@@ -222,6 +246,32 @@ struct MailContent {
     operator std::string() const noexcept;
     MailContent(const std::string &content) noexcept;
 };
+
+class Book{
+public:
+    unsigned int book_tot;                    //  藏书总数
+    unsigned int book_borrowed;               //  借阅总数
+    std::string book_isbn;                    //  图书版号
+    std::string book_name;                    //  书名
+    std::string book_publication_date;        //  出版日期                   
+    std::string book_catagory;                //  分类
+    std::string store_position;               //  藏书位置
+    std::vector<std::string> book_author;     //  作者
+    std::vector<std::string> borrow_log;      //  借阅日志
+
+    Book(const std::string &isbn, const std::string &book_n, const std::string &book_pd, const std::string &book_ct,
+        const std::string &book_rp, const std::vector<std::string> &book_ath, 
+        const unsigned int tot = 1, const unsigned int borrow = 0, const std::vector<std::string> b_log = {}) noexcept 
+    :   book_tot(tot), book_borrowed(borrow), 
+        book_isbn(isbn), book_name(book_n), book_publication_date(book_pd), book_catagory(book_ct), store_position(book_rp),
+        book_author(book_ath), borrow_log(b_log) {};
+    
+    Book(const std::string&) noexcept;
+    ~Book() noexcept;
+
+    operator std::string() noexcept;
+};
+
 #pragma endregion
 
 using Information = std::vector<std::string>;

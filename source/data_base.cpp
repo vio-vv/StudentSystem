@@ -50,7 +50,7 @@ dat::DataBase dat::DataBase::operator[](const std::string &keyName) const noexce
         if (!file::CreateDirectory(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory:" << space << std::endl;
             exit(1);
-        }
+        } 
     }
     return DataBase(file::GetFilePath(space, keyName), false);
 }
