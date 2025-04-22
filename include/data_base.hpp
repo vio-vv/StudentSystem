@@ -14,10 +14,12 @@
 
 #include "file_system.hpp"
 #include "string_integral.hpp"
+#include<algorithm>
 
 namespace dat {
 
 class DataBase {
+    friend std::ostream &operator<<(std::ostream &os, const DataBase &db);
 public:
     class iterator {
     public:
@@ -44,7 +46,7 @@ public:
      * @brief 构造函数，设置工作目录。
      * @param workSpace 工作目录
      */
-    DataBase(const std::string &workSpace) noexcept : space(workSpace)
+    explicit DataBase(const std::string &workSpace) noexcept : space(workSpace)
     {
         if (!file::CheckDirectoryExists(workSpace)) {
             assert(false); // Directory not found
@@ -60,10 +62,11 @@ public:
     DataBase operator[](const std::string &keyName) const noexcept;
     /**
      * @brief 当成目录进行索引。
-     * @param index 索引
-     * @return 仅当成文件的对象
+     * @param index 索引，是对文件名列表的索引，与文件名无任何关系。
+     * @return 仅能当成文件的对象
+     * @see List()
      */
-    DataBase operator[](const unsigned long long index) const noexcept;
+    DataBase operator[](const unsigned long long index) noexcept;
     /**
      * @brief 当成目录增加元素。
      * @param value 值
@@ -73,12 +76,13 @@ public:
     /**
      * @brief 当成目录增加元素。
      * @param value 值
-     * @note 重载之二，文件以元素数编号。
+     * @note 重载之二，文件根据最大元素数编号。
      */
     void Push(const std::string &value) noexcept;
     /**
      * @brief 当成目录进行列举。
-     * @return 目录内容
+     * @return 目录内容，按照文件名排序，不是字典序
+     * @note 排序关键字：1）文件名长度，2）字符串顺序。
      */
     std::vector<std::string> List() noexcept;
     /**
@@ -95,6 +99,11 @@ public:
      * @brief 当成目录进行计数。
      */
     unsigned long long Size() noexcept;
+    /**
+     * @brief 当成文件进行判断是否存在。
+     * @return 是否存在
+     */
+    bool Exists() const noexcept;
     /**
      * @brief 当成文件进行增改。
      * @param value 值
@@ -130,6 +139,8 @@ private:
     std::vector<std::string> list;
     bool consideredAsFileOnly = false;
 };
+
+std::ostream &operator<<(std::ostream &os, const DataBase &db);
 
 }
 

@@ -18,16 +18,22 @@ namespace ssys{
 
 class MailSystem{
 public:
-    trm::Infomation SendMessage(const trm::Infomation &infomation) noexcept;
-    trm::Infomation GetMessageNumber(const trm::Infomation &infomation) noexcept;
+    trm::Information SendMessage(const trm::Information &information) noexcept;
+    trm::Information GetMessageNumber(const trm::Information &information) noexcept;
+    trm::Information GetMessageProfile(const trm::Information &information) noexcept;
+    trm::Information GetMessage(const trm::Information &information) noexcept;
+    trm::Information MarkAsRead(const trm::Information &information) noexcept;
+    trm::Information MarkAsUnread(const trm::Information &information) noexcept;
+    trm::Information GetUnreadMessageNumber(const trm::Information &information) noexcept;
 protected:
     MailSystem() noexcept;
     ~MailSystem() noexcept;
     MailSystem(const MailSystem&) = delete;
     MailSystem& operator=(const MailSystem&) = delete;
 private:
-    std::map<std::string, std::vector<trm::MailContent>> mailBoxes;
-    static const std::string dataPath;
+    static const std::string BOX;
+    static const std::string UNREAD_NUM;
+    dat::DataBase base = DATA_BASE["mail"];
 };
 
 }

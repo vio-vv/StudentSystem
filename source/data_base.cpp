@@ -54,19 +54,9 @@ dat::DataBase dat::DataBase::operator[](const std::string &keyName) const noexce
     }
     return DataBase(file::GetFilePath(space, keyName), false);
 }
-dat::DataBase dat::DataBase::operator[](const unsigned long long index) const noexcept
+dat::DataBase dat::DataBase::operator[](const unsigned long long index) noexcept
 {
-    if (consideredAsFileOnly) {
-        assert(false); // Deny
-        return DataBase(".\\data", false);
-    }
-    if (!file::CheckDirectoryExists(space)) {
-        if (!file::CreateDirectory(space)) {
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory:" << space << std::endl;
-            exit(1);
-        }
-    }
-    return DataBase(file::GetFilePath(space, ToStr(index)), true);
+    return DataBase(file::GetFilePath(space, List()[index]), true);
 }
 
 void dat::DataBase::Push(const std::pair<std::string, std::string> &key_value) const noexcept
@@ -87,7 +77,14 @@ void dat::DataBase::Push(const std::pair<std::string, std::string> &key_value) c
 
 void dat::DataBase::Push(const std::string &value) noexcept
 {
-    const auto &next = (*this)[Size()];
+    List();
+    unsigned long long index = 0;
+    if (list.size() > 0) {
+        index = ToNum<unsigned long long>(list[list.size() - 1]) + 1;
+    } else {
+        index = 0;
+    }
+    const auto &next = (*this)[ToStr(index)];
     next = value;
 }
 
@@ -108,6 +105,12 @@ std::vector<std::string> dat::DataBase::List() noexcept
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory:" << space << std::endl;
         exit(1);
     }
+    std::sort(files.begin(), files.end(), [](const std::string &a, const std::string &b){
+        auto la = a.size();
+        auto lb = b.size();
+        if (la != lb) return la < lb;
+        return a < b;
+    });
     return list = std::move(files);
 }
 
@@ -127,6 +130,11 @@ unsigned long long dat::DataBase::Size() noexcept
     return List().size();
 }
 
+bool dat::DataBase::Exists() const noexcept
+{
+    return file::CheckFileExists(space);
+}
+
 const std::string &dat::DataBase::operator=(const std::string &value) const noexcept
 {
     if (!file::WriteFile(space, value)) {
@@ -142,4 +150,10 @@ void dat::DataBase::operator+=(const std::string &delta) const noexcept
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to append file:" << space << std::endl;
         exit(1);
     }
+}
+
+std::ostream &dat::operator<<(std::ostream &os, const DataBase &db)
+{
+    os << (std::string)db;
+    return os;
 }
