@@ -38,6 +38,7 @@ int main()
     f(ssys.SendMessage({trm::rqs::SEND_MESSAGE, "adm", "123", "1", "hello"}));
     f(ssys.GetMessageNumber({trm::rqs::GET_MESSAGE_NUMBER, "1"}));
     f(ssys.SendMessage({trm::rqs::SEND_MESSAGE, "1", "1", "adm", "world"}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "999-9-99-999999-9", "5", Book{"999-9-99-999999-9", "++--", "2025-03", "科学技术", "图书馆204", {"张某某"}}}));
 
     while (1) ;
 

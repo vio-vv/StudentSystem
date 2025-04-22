@@ -66,6 +66,11 @@
         "xloctime": "cpp",
         "xmemory": "cpp",
         "xtr1common": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "array": "cpp",
+        "cwctype": "cpp",
+        "numbers": "cpp",
+        "string_view": "cpp",
+        "codecvt": "cpp"
     }
 }
