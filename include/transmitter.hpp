@@ -220,6 +220,8 @@ namespace Access{
 
     const std::string SEND_MESSAGE = _AS_"SEND_MESSAGE";
     const std::string DELETE_MESSAGE = _AS_"DELETE_MESSAGE";
+
+    const std::string RESTORE_BOOK = _AS_"RESTORE_BOOK";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;

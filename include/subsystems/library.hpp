@@ -21,17 +21,17 @@ class Library{
     std::vector<trm::Book> activebookseries;
     std::pair<bool, std::vector<std::string>> CrossBorrowInfo() noexcept;  
 public:
-    trm::Infomation RestoreNewBook(const trm::Infomation&) noexcept;
-    trm::Infomation BorrowBook(const trm::Infomation&) noexcept;
-    trm::Infomation ReturnBook(const trm::Infomation&) noexcept;
-    trm::Infomation RemoveBook(const trm::Infomation&) noexcept;
-    trm::Infomation SearchBook(const trm::Infomation&) noexcept;
-    trm::Infomation ModifyBookInfo(const trm::Infomation&) noexcept;
-    trm::Infomation ShowBookList(const trm::Infomation&) noexcept;
-    trm::Infomation ShowBookList(const trm::Infomation&, const unsigned int&) noexcept;
-    trm::Infomation SendReturnReminder(const trm::Infomation&) noexcept;
+    trm::Information RestoreNewBook(const trm::Information&) noexcept;
+    trm::Information BorrowBook(const trm::Information&) noexcept;
+    trm::Information ReturnBook(const trm::Information&) noexcept;
+    trm::Information RemoveBook(const trm::Information&) noexcept;
+    trm::Information SearchBook(const trm::Information&) noexcept;
+    trm::Information ModifyBookInfo(const trm::Information&) noexcept;
+    trm::Information ShowBookList(const trm::Information&) noexcept;
+    trm::Information ShowBookList(const trm::Information&, const unsigned int&) noexcept;
+    trm::Information SendReturnReminder(const trm::Information&) noexcept;
     template<typename SortType>
-    trm::Infomation SortMatchBook(const trm::Infomation &content, std::function<bool(const SortType &a, const SortType &b)> &f) noexcept;
+    trm::Information SortMatchBook(const trm::Information &content, std::function<bool(const SortType &a, const SortType &b)> &f) noexcept;
 
 protected:
     Library() noexcept;
@@ -41,7 +41,7 @@ protected:
 };
 
 template<typename SortType>
-trm::Infomation Library::SortMatchBook(const trm::Infomation &content, std::function<bool(const SortType &a, const SortType &b)> &f) noexcept {
+trm::Information Library::SortMatchBook(const trm::Information &content, std::function<bool(const SortType &a, const SortType &b)> &f) noexcept {
     assert(content[0] == trm::rqs::SORT_BOOK);
     std::sort(activebookseries.begin(), activebookseries.end(), f);
     return{trm::rpl::SUCC};

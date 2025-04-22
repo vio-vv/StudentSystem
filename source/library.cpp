@@ -14,48 +14,48 @@ ssys::Library::~Library() noexcept
 {
 }
 
-trm::Infomation ssys::Library::RestoreNewBook(const trm::Infomation &content) noexcept
+trm::Information ssys::Library::RestoreNewBook(const trm::Information &content) noexcept
 {
     assert(content[0] == trm::rqs::RESTORE_BOOK);
 
-    // auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::RESTORE_BOOK});
-    // if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::RESTORE_BOOK});
+    if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
 
     auto books = dat::DataBase(DATA_PATH)["library"]["books"];
-    if (!file::CheckFileExists(books.GetSpace() + content[3])) {
+    if (!file::CheckFileExists(books.GetSpace() + "\\" + content[3])) {
         auto bk = trm::Book(content[5]);
         bk.book_tot = ToNum(content[4]);
         books.Push({content[3], bk});
     }
     else {
-        trm::Book bk = std::string(books[content[1]]);
+        trm::Book bk = std::string(books[content[3]]);
         bk.book_tot += ToNum(content[4]);
-        books[content[1]] = bk;
+        books[content[3]] = bk;
     }
     return {trm::rpl::SUCC};
 }
 
-trm::Infomation ssys::Library::BorrowBook(const trm::Infomation &content) noexcept
+trm::Information ssys::Library::BorrowBook(const trm::Information &content) noexcept
 {
     return{};
 }
 
-trm::Infomation ssys::Library::ReturnBook(const trm::Infomation &content) noexcept
+trm::Information ssys::Library::ReturnBook(const trm::Information &content) noexcept
 {
     return{};
 }
 
-trm::Infomation ssys::Library::RemoveBook(const trm::Infomation &content) noexcept
+trm::Information ssys::Library::RemoveBook(const trm::Information &content) noexcept
 {
     return{};
 }
 
-trm::Infomation ssys::Library::ModifyBookInfo(const trm::Infomation &content) noexcept
+trm::Information ssys::Library::ModifyBookInfo(const trm::Information &content) noexcept
 {
     return{};
 }
 
-trm::Infomation ssys::Library::ShowBookList(const trm::Infomation &content) noexcept
+trm::Information ssys::Library::ShowBookList(const trm::Information &content) noexcept
 {
     return{};
 }
