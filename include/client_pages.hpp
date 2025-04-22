@@ -42,7 +42,7 @@ ID Login(ui::Screen &screen) noexcept;
 ID Forget(ui::Screen &screen) noexcept;
 ID MainPage(ui::Screen &screen) noexcept;
 
-std::pair<int, trm::Infomation> WaitServer(ui::Screen &screen, const trm::Infomation &infomation, const sf::String &tips) noexcept;
+std::pair<int, trm::Information> WaitServer(ui::Screen &screen, const trm::Information &information, const sf::String &tips) noexcept;
 
 struct{
     sf::String username = "";
@@ -51,7 +51,7 @@ struct{
     union{
         ;
     };
-}sharedInfomation;
+}sharedInformation;
 
 }
 

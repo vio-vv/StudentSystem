@@ -1,6 +1,12 @@
 #ifndef __TRANSMITTER_HPP__
 #define __TRANSMITTER_HPP__
 
+#ifdef NDEBUG
+    #define _AS_ ToStr(__LINE__) + 
+#else
+    #define _AS_
+#endif
+
 /**
  * @brief 通过文件系统进行进程间通信，类比起网络的作用。
  * @namespace trm
@@ -26,7 +32,7 @@ namespace rqs{
      * @param NONE
      * @return YES
      */
-    const std::string CHECK_ONLINE = /*ToStr(__LINE__) +*/ "CHECK_ONLINE";
+    const std::string CHECK_ONLINE = _AS_"CHECK_ONLINE";
 
 #pragma region <<<--- 接口列表 --->>>
 #pragma region 帐户与权限系统
@@ -35,23 +41,23 @@ namespace rqs{
      * @param code 学工号
      * @return YES or NO
      */
-    const std::string CHECK_ACCOUNT_EXISTS = /*ToStr(__LINE__) +*/ "CHECK_ACCOUNT_EXISTS";
+    const std::string CHECK_ACCOUNT_EXISTS = _AS_"CHECK_ACCOUNT_EXISTS";
     /**
      * @brief 检查帐号密码是否有效。
      * @param username 帐号
      * @param password 密码
      * @return 第一项为 YES or NO，第一项为 YES 时第二项为 Account 帐户对象，第一项为 NO 时第二项为 NO_ACCOUNT or WRONG_PASSWORD @see @struct Account
      */
-    const std::string CHECK_ACCOUNT = /*ToStr(__LINE__) +*/ "CHECK_ACCOUNT";
+    const std::string CHECK_ACCOUNT = _AS_"CHECK_ACCOUNT";
     /**
      * @brief 检查是否拥有指定权限。
      * @param code 学工号
      * @param password 密码
      * @param access 权限 @see @namespace Access
      * @return YES or NO
-     * @retval NO 没有权限，抑或帐户不存在或密码错误等
+     * @retval NO 没有权限，或者帐户不存在或密码错误等
      */
-    const std::string CHECK_ACCESS = /*ToStr(__LINE__) +*/ "CHECK_ACCESS";
+    const std::string CHECK_ACCESS = _AS_"CHECK_ACCESS";
     /**
      * @brief 创建新帐户。
      * @param code 学工号
@@ -62,7 +68,7 @@ namespace rqs{
      * @note ACCESS REQUIRED CREATE_ACCOUNT
      * @note 创建的帐户想要拥有某权限，创建者必须现拥有该权限，否则创建的帐户将没有该权限。
      */
-    const std::string CREATE_ACCOUNT = /*ToStr(__LINE__) +*/ "CREATE_ACCOUNT";
+    const std::string CREATE_ACCOUNT = _AS_"CREATE_ACCOUNT";
     /**
      * @brief 删除帐户。
      * @param code 学工号
@@ -72,7 +78,7 @@ namespace rqs{
      * @retval FAIL 待删除的帐户不存在等
      * @note ACCESS REQUIRED DELETE_ACCOUNT
      */
-    const std::string DELETE_ACCOUNT = /*ToStr(__LINE__) +*/ "DELETE_ACCOUNT";
+    const std::string DELETE_ACCOUNT = _AS_"DELETE_ACCOUNT";
 #pragma endregion
 
 #pragma region 课程系统
@@ -101,38 +107,97 @@ namespace rqs{
      * @param code 学工号
      * @param password 密码
      * @param receiver 接收者学工号
+     * @param subject 主题
      * @param message 消息内容
      * @return SUCC or FAIL，或者 ACCESS_DENIED
      * @retval FAIL 发送目标帐户不存在等
      * @note ACCESS REQUIRED SEND_MESSAGE
      */
-    const std::string SEND_MESSAGE = /*ToStr(__LINE__) +*/ "SEND_MESSAGE";
+    const std::string SEND_MESSAGE = _AS_"SEND_MESSAGE";
     /**
-     * @brief 获取消息数量。
+     * @brief 获取总的消息数量。
      * @param code 学工号
-     * @return ull 消息数量 or NO_ACCOUNT
+     * @param password 密码
+     * @return ull 消息数量，或者 ACCESS_DENIED
      */
-    const std::string GET_MESSAGE_NUMBER = /*ToStr(__LINE__) +*/ "GET_MESSAGE_NUMBER";
+    const std::string GET_MESSAGE_NUMBER = _AS_"GET_MESSAGE_NUMBER";
+    /**
+     * @brief 获取按时间排序特定范围的总的消息的摘要。
+     * @param code 学工号
+     * @param password 密码
+     * @param start ull 起始位置
+     * @param count ull 数量
+     * @return 消息摘要列表，一般共 count 项，每项都是一个消息的摘要，或者 ACCESS_DENIED
+     * @note 消息摘要就是 content 属性为空的 MailContent 对象。 @see @struct MailContent
+     * @note 超出索引范围，返回的相应项为空，特别地，完全超出索引范围，返回空列表，有 0 项。
+     */ 
+    const std::string GET_MESSAGE_PROFILE = _AS_"GET_MESSAGE";
+    /**
+     * @brief 获取按时间排序的特定消息，如果该消息未读，则标记为已读。
+     * @param code 学工号
+     * @param password 密码
+     * @param index ull 消息索引
+     * @return 消息对象 or FAIL，或者 ACCESS_DENIED @see @struct MailContent
+     * @retval FAIL 索引超出范围等
+     */
+    const std::string GET_MESSAGE = _AS_"GET_MESSAGE";
+    /**
+     * @brief 标记消息为已读。
+     * @param code 学工号
+     * @param password 密码
+     * @param index ull 消息索引
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 索引超出范围等
+     */
+    const std::string MARK_AS_READ = _AS_"MARK_AS_READ";
+    /**
+     * @brief 标记消息为未读。
+     * @param code 学工号
+     * @param password 密码
+     * @param index ull 消息索引
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 索引超出范围等
+     */
+    const std::string MARK_AS_UNREAD = _AS_"MARK_AS_UNREAD";
+    /**
+     * @brief 获取未读消息数量。
+     * @param code 学工号
+     * @param password 密码
+     * @return ull 未读消息数量，或者 ACCESS_DENIED
+     */
+    const std::string GET_UNREAD_MESSAGE_NUMBER = _AS_"GET_UNREAD_MESSAGE_NUMBER";
+    /**
+     * @brief 删除消息。
+     * @param code 学工号
+     * @param password 密码
+     * @param index ull 消息索引
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 索引超出范围等
+     * @note ACCESS REQUIRED DELETE_MESSAGE
+     */
+    const std::string DELETE_MESSAGE = _AS_"DELETE_MESSAGE";
 #pragma endregion
 #pragma endregion
 }
 #pragma region <<<--- 常量列表 --->>>
 namespace rpl{
-    const std::string ACCESS_DENIED = /*ToStr(__LINE__) +*/ "ACCESS_DENIED";
-    const std::string NO_ACCOUNT = /*ToStr(__LINE__) +*/ "NO_ACCOUNT";
-    const std::string WRONG_PASSWORD = /*ToStr(__LINE__) +*/ "WRONG_PASSWORD";
-    const std::string YES = /*ToStr(__LINE__) +*/ "YES";
-    const std::string NO = /*ToStr(__LINE__) +*/ "NO";
-    const std::string SUCC = /*ToStr(__LINE__) +*/ "SUCC";
-    const std::string FAIL = /*ToStr(__LINE__) +*/ "FAIL";
+    const std::string ACCESS_DENIED = _AS_"ACCESS_DENIED";
+    const std::string YES = _AS_"YES";
+    const std::string NO = _AS_"NO";
+    const std::string SUCC = _AS_"SUCC";
+    const std::string FAIL = _AS_"FAIL";
+    const std::string NO_ACCOUNT = _AS_"NO_ACCOUNT";
+    const std::string WRONG_PASSWORD = _AS_"WRONG_PASSWORD";
 }
 namespace Access{
-    const std::string ADM = /*ToStr(__LINE__) +*/ "ADM";
+    const std::string ADM = _AS_"ADM";                   // 拥有这个权限表示拥有所有权限
+    const std::string EVERYONE_OWN = _AS_"EVERYONE_OWN"; // 这个权限被所有人拥有
 
-    const std::string CREATE_ACCOUNT = /*ToStr(__LINE__) +*/ "CREATE_ACCOUNT";
-    const std::string DELETE_ACCOUNT = /*ToStr(__LINE__) +*/ "DELETE_ACCOUNT";
+    const std::string CREATE_ACCOUNT = _AS_"CREATE_ACCOUNT";
+    const std::string DELETE_ACCOUNT = _AS_"DELETE_ACCOUNT";
 
-    const std::string SEND_MESSAGE = /*ToStr(__LINE__) +*/ "SEND_MESSAGE";
+    const std::string SEND_MESSAGE = _AS_"SEND_MESSAGE";
+    const std::string DELETE_MESSAGE = _AS_"DELETE_MESSAGE";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;
@@ -149,20 +214,22 @@ struct MailContent {
     unsigned long long timeStamp;
     std::string sender;
     std::string receiver;
+    std::string subject;
     std::string content;
-    MailContent(unsigned long long _timeStamp, const std::string &_sender, const std::string &_receiver, const std::string &_content) noexcept :
-        timeStamp(_timeStamp), sender(_sender), receiver(_receiver), content(_content) {}
+    bool read;
+    MailContent(unsigned long long _timeStamp, const std::string &_sender, const std::string &_receiver, const std::string &_subject, const std::string &_content, bool _read) noexcept :
+        timeStamp(_timeStamp), sender(_sender), receiver(_receiver), subject(_subject), content(_content), read(_read) {}
     operator std::string() const noexcept;
     MailContent(const std::string &content) noexcept;
 };
 #pragma endregion
 
-using Infomation = std::vector<std::string>;
+using Information = std::vector<std::string>;
 using Message = std::string;
 struct Request{
     int id; // 请求编号
     std::string sender;    // 请求发送者链接（相对于服务端）
-    Infomation content;    // 请求内容
+    Information content;    // 请求内容
 };
 
 /**
@@ -193,7 +260,7 @@ std::pair<bool, std::vector<Request>> GetRequests(const std::string &self) noexc
  * @param reply 回复内容
  * @return 发送成功与否
  */
-bool SendReply(const std::string &link, int id, const Infomation &reply) noexcept;
+bool SendReply(const std::string &link, int id, const Information &reply) noexcept;
 
 /**
  * @brief 客户端用以接收回复。
@@ -202,20 +269,20 @@ bool SendReply(const std::string &link, int id, const Infomation &reply) noexcep
  * @return 是否获得回复以及回复内容
  * @note 未获取时第二项为空。
  */
-std::pair<bool, Infomation> PollReply(const std::string &self, int id) noexcept;
+std::pair<bool, Information> PollReply(const std::string &self, int id) noexcept;
 
 /**
  * @brief 将信息转化为消息。
- * @param infomation 待转换的信息
+ * @param information 待转换的信息
  * @return 转换后的消息
  */
-Message Encode(const Infomation &infomation) noexcept;
+Message Encode(const Information &information) noexcept;
 /**
  * @brief 将消息转化为信息。
  * @param message 待转换的消息
  * @return 转换后的信息
  */
-Infomation Decode(const Message &message) noexcept;
+Information Decode(const Message &message) noexcept;
 
 /**
  * TO_COMPLETE

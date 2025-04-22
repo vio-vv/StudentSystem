@@ -14,7 +14,7 @@ int main()
 {
     auto &ssys = SSys::Get();
 
-    auto f = [](const Infomation &info) {
+    auto f = [](const Information &info) {
         for (const auto &each : info) {
             cout << each << endl;
         }
@@ -49,12 +49,40 @@ int main()
 #else
 #ifdef MAIL
 
-    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "12", "1", "hello"}));
-    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "123", "1", "hello"}));
-    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "123", "2", "hello"}));
-    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "adm"}));
-    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "admin"}));
-    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1"}));
+    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "12", "1", "Title", "hello"}));
+    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "123", "1", "Title", "hello"}));
+    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "123", "2", "Title", "hello"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "adm", "123"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "admin", "123"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "2"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
+
+    f(ssys.GetMessageProfile({rqs::GET_MESSAGE_PROFILE, "1", "1", "0", "5"}));
+    f(ssys.GetMessageProfile({rqs::GET_MESSAGE_PROFILE, "1", "1", "1", "5"}));
+    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "123", "1", "Title111", "hello111"}));
+    f(ssys.SendMessage({rqs::SEND_MESSAGE, "adm", "123", "1", "Title222", "hello222"}));
+    f(ssys.GetMessageProfile({rqs::GET_MESSAGE_PROFILE, "1", "1", "1", "5"}));
+
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.GetMessage({rqs::GET_MESSAGE, "1", "1", "0"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.MarkAsRead({rqs::MARK_AS_READ, "1", "1", "1"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.MarkAsUnread({rqs::MARK_AS_UNREAD, "1", "1", "0"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.MarkAsUnread({rqs::MARK_AS_UNREAD, "1", "1", "0"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.MarkAsRead({rqs::MARK_AS_READ, "1", "1", "1"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.GetMessage({rqs::GET_MESSAGE, "1", "1", "1"}));
+    f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
+    f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
 
 #endif
 #endif

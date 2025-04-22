@@ -35,7 +35,7 @@ int main() noexcept
                 continue;
             }
             for (const auto &request : ok_requests.second) {
-                assert(request.content.size() > 0); // Abnormal request infomation size.
+                assert(request.content.size() > 0); // Abnormal request information size.
                 if (request.content[0] == trm::rqs::CHECK_ONLINE) {
                     trm::SendReply(request.sender, request.id, {trm::rpl::YES});
                 } else if (request.content[0] == trm::rqs::CHECK_ACCOUNT) {
