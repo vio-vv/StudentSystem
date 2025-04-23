@@ -18,12 +18,15 @@ namespace ssys{
 
 class AccountAndAccess{
 public:
-    trm::Information CheckAccountExist(const trm::Information &information) noexcept;
-
     trm::Information CheckAccount(const trm::Information &information) noexcept;
     trm::Information CheckAccess(const trm::Information &information) noexcept;
     trm::Information CreateAccount(const trm::Information &information) noexcept;
     trm::Information DeleteAccount(const trm::Information &information) noexcept;
+    trm::Information GrantAccess(const trm::Information &information) noexcept;
+    trm::Information RevokeAccess(const trm::Information &information) noexcept;
+    trm::Information ResetAccountAndAccess(const trm::Information &information) noexcept;
+
+    trm::Information CheckAccountExist(const trm::Information &information) noexcept;
 protected:
     AccountAndAccess() noexcept;
     ~AccountAndAccess() noexcept;
