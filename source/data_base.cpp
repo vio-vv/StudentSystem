@@ -135,6 +135,15 @@ bool dat::DataBase::Exists() const noexcept
     return file::CheckFileExists(space);
 }
 
+bool dat::DataBase::Exists(const std::string &keyName) const noexcept
+{
+    if (consideredAsFileOnly) {
+        assert(false); // Deny
+        return false;
+    }
+    return file::CheckFileExists(file::GetFilePath(space, keyName));
+}
+
 const std::string &dat::DataBase::operator=(const std::string &value) const noexcept
 {
     if (!file::WriteFile(space, value)) {

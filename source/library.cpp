@@ -18,19 +18,18 @@ trm::Information ssys::Library::RestoreNewBook(const trm::Information &content) 
 {
     assert(content[0] == trm::rqs::RESTORE_BOOK);
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::RESTORE_BOOK});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BOOK_MANAGE});
     if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
 
-    auto books = dat::DataBase(DATA_PATH)["library"]["books"];
-    if (!file::CheckFileExists(books.GetSpace() + "\\" + content[3])) {
-        auto bk = trm::Book(content[5]);
-        bk.book_tot = ToNum(content[4]);
-        books.Push({content[3], bk});
+    if (books.Exists(content[3])) {
+        auto book = trm::Book(content[5]);
+        book.bookTot = ToNum(content[4]);
+        books.Push({content[3], book});
     }
     else {
-        trm::Book bk = std::string(books[content[3]]);
-        bk.book_tot += ToNum(content[4]);
-        books[content[3]] = bk;
+        trm::Book book = trm::Book(books[content[3]]);
+        book.bookTot += ToNum(content[4]);
+        books[content[3]] = book;
     }
     return {trm::rpl::SUCC};
 }
@@ -46,50 +45,51 @@ trm::Information ssys::Library::ReturnBook(const trm::Information &content) noex
 }
 
 trm::Information ssys::Library::RemoveBook(const trm::Information &content) noexcept
-{
-    return{};
+{   
+    assert(content[0] == trm::rqs::REMOVE_BOOK);
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BOOK_MANAGE});
+    if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
+
+    if (books.Exists(content[3])) return {trm::rpl::FAIL};
+    else {
+        trm::Book book = trm::Book(books[content[3]]);
+        if (content[4] == "all") {
+            books[content[3]].Clear();
+        }
+        else {
+            if (book.bookTot - book.bookBorrowed <= ToNum(content[4])) {
+                book.bookTot -= ToNum(content[4]);
+                books[content[3]] = book;
+            }
+            else {
+                return {trm::rpl::FAIL};
+            }
+            if (book.bookTot == 0) books[content[3]].Clear();
+        }
+    }
+
+    return{trm::rpl::SUCC};
 }
 
 trm::Information ssys::Library::ModifyBookInfo(const trm::Information &content) noexcept
-{
+{   
+    assert(content[0] == trm::rqs::MODIFY_BOOK_INFO);
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BOOK_MANAGE});
+
+    if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
+
+    if (books.Exists(content[3])) return {trm::rpl::FAIL};
+    else {
+        trm::Book book = trm::Book(books[content[3]]);
+        book = content[4];
+    }
+
     return{};
 }
 
 trm::Information ssys::Library::ShowBookList(const trm::Information &content) noexcept
 {
     return{};
-}
-
-trm::Book::Book(const std::string &content) noexcept
-{
-    auto data = trm::Split(content);
-    *this = {
-        data[0],
-        data[1],
-        data[2],
-        data[3],
-        data[4],
-        trm::Split(data[5]),
-        ToNum<unsigned int>(data[6]),
-        ToNum<unsigned int>(data[7]),
-        trm::Split(data[8])
-    };
-}
-
-trm::Book::~Book() noexcept
-{
-}
-
-trm::Book::operator std::string() noexcept
-{
-    return trm::Combine({
-        book_isbn, book_name,
-        book_publication_date,
-        book_catagory,
-        store_position,
-        trm::Combine(book_author),
-        ToStr(book_tot),
-        ToStr(book_borrowed),
-        trm::Combine(borrow_log)
-    });
 }

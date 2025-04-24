@@ -205,3 +205,32 @@ trm::Account::Account(const std::string &content) noexcept
         })
     };
 }
+trm::Book::Book(const std::string &content) noexcept
+{
+    auto data = trm::Split(content);
+    *this = {
+        data[0],
+        data[1],
+        data[2],
+        data[3],
+        data[4],
+        trm::Split(data[5]),
+        ToNum<unsigned int>(data[6]),
+        ToNum<unsigned int>(data[7]),
+        trm::Split(data[8])
+    };
+}
+
+trm::Book::operator std::string() const noexcept
+{
+    return trm::Combine({
+        bookIsbn, bookName,
+        bookPublicationDate,
+        bookCatagory,
+        storePosition,
+        trm::Combine(bookAuthor),
+        ToStr(bookTot),
+        ToStr(bookBorrowed),
+        trm::Combine(borrowLog)
+    });
+}

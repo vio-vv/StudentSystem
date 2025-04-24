@@ -17,9 +17,6 @@
 namespace ssys{
 
 class Library{
-    //std::vector<bk::Book> basebookseries;    
-    std::vector<trm::Book> activebookseries;
-    std::pair<bool, std::vector<std::string>> CrossBorrowInfo() noexcept;  
 public:
     trm::Information RestoreNewBook(const trm::Information&) noexcept;
     trm::Information BorrowBook(const trm::Information&) noexcept;
@@ -33,11 +30,25 @@ public:
     template<typename SortType>
     trm::Information SortMatchBook(const trm::Information &content, std::function<bool(const SortType &a, const SortType &b)> &f) noexcept;
 
+    //extra 
+
+    trm::Information AddFavourate(const trm::Information&) noexcept;
+    trm::Information RemoveFavourate(const trm::Information&) noexcept;
+    trm::Information ShowFavourateList(const trm::Information&) noexcept;
+    trm::Information ShowFavourateList(const trm::Information&, const unsigned int&) noexcept;
+    trm::Information SearchFavourate(const trm::Information&) noexcept;
+
 protected:
     Library() noexcept;
     ~Library() noexcept;
     Library(const Library&) = delete;
     Library& operator=(const Library&) = delete;
+private:
+    const std::string LIBRARY = "library";
+    dat::DataBase books = DATA_BASE[LIBRARY]["books"];
+    dat::DataBase borrowLogList = DATA_BASE[LIBRARY]["borrowLogList"];
+    std::vector<trm::Book> activebookseries;
+    std::pair<bool, std::vector<std::string>> CrossBorrowInfo() noexcept;
 };
 
 template<typename SortType>

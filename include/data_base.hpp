@@ -105,6 +105,11 @@ public:
      */
     bool Exists() const noexcept;
     /**
+     * @brief 当成文件夹判断是否存在指定子文件
+     * @return 是否存在
+     */
+    bool Exists(const std::string &keyName) const noexcept;
+    /**
      * @brief 当成文件进行增改。
      * @param value 值
      * @return 原值
