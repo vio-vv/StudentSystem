@@ -9,12 +9,12 @@ trm::Information ssys::MailSystem::SendMessage(const trm::Information &informati
     assert(information[0] == trm::rqs::SEND_MESSAGE); // Procession not matched.
 
     auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::SEND_MESSAGE});
-    if (reply[0] == trm::rpl::NO) {
+    if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
 
     reply = SSys::Get().CheckAccountExist({trm::rqs::CHECK_ACCOUNT_EXISTS, information[3]});
-    if (reply[0] == trm::rpl::NO) {
+    if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::FAIL};
     }
 
@@ -29,7 +29,7 @@ trm::Information ssys::MailSystem::GetMessageNumber(const trm::Information &info
     assert(information[0] == trm::rqs::GET_MESSAGE_NUMBER); // Procession not matched.
 
     auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
-    if (reply[0] == trm::rpl::NO) {
+    if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
 
@@ -41,7 +41,7 @@ trm::Information ssys::MailSystem::GetMessageProfile(const trm::Information &inf
     assert(information[0] == trm::rqs::GET_MESSAGE_PROFILE); // Procession not matched.
 
     auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
-    if (reply[0] == trm::rpl::NO) {
+    if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
 
@@ -63,18 +63,14 @@ trm::Information ssys::MailSystem::GetMessage(const trm::Information &informatio
 {
     assert(information[0] == trm::rqs::GET_MESSAGE); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
-    if (reply[0] == trm::rpl::NO) {
-        return {trm::rpl::ACCESS_DENIED};
+    auto reply = SSys::Get().MarkAsRead({trm::rqs::MARK_AS_READ, information[1], information[2], information[3]});
+    if (reply[0] != trm::rpl::SUCC) {
+        return {reply[0]};
     }
 
     auto box = base[BOX][information[1]];
     unsigned long long index = ToNum<unsigned long long>(information[3]);
-    if (index >= box.Size()) {
-        return {trm::rpl::FAIL};
-    }
 
-    SSys::Get().MarkAsRead({trm::rqs::MARK_AS_READ, information[1], information[2], information[3]});
     return {trm::MailContent(box[index])};
 }
 
@@ -83,7 +79,7 @@ trm::Information ssys::MailSystem::MarkAsRead(const trm::Information &informatio
     assert(information[0] == trm::rqs::MARK_AS_READ); // Procession not matched.
 
     auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
-    if (reply[0] == trm::rpl::NO) {
+    if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
 
@@ -108,7 +104,7 @@ trm::Information ssys::MailSystem::MarkAsUnread(const trm::Information &informat
     assert(information[0] == trm::rqs::MARK_AS_UNREAD); // Procession not matched.
     
     auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
-    if (reply[0] == trm::rpl::NO) {
+    if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
 
@@ -133,11 +129,115 @@ trm::Information ssys::MailSystem::GetUnreadMessageNumber(const trm::Information
     assert(information[0] == trm::rqs::GET_UNREAD_MESSAGE_NUMBER); // Procession not matched.
 
     auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
-    if (reply[0] == trm::rpl::NO) {
+    if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
 
     return {ToStr(ToNum<unsigned long long>(base[UNREAD_NUM][information[1]]))};
+}
+
+trm::Information ssys::MailSystem::DeleteMessage(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::DELETE_MESSAGE); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_MESSAGE});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    reply = SSys::Get().MarkAsRead({trm::rqs::MARK_AS_READ, information[1], information[2], information[3]});
+    if (reply[0] != trm::rpl::SUCC) {
+        return {reply[0]};
+    }
+
+    auto box = base[BOX][information[1]];
+    unsigned long long index = ToNum<unsigned long long>(information[3]);
+
+    box[index].Clear();
+    return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::MailSystem::ClearMessage(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::CLEAR_MESSAGE); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_MESSAGE});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    auto box = base[BOX][information[1]];
+    for (auto [file, mail] : box) {
+        mail.Clear();
+    }
+    base[UNREAD_NUM][information[1]] = "0";
+
+    return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::MailSystem::DeleteMessageOfOthers(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::DELETE_MESSAGE_OF_OTHERS); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_MESSAGE_OF_OTHERS});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+    
+    reply = SSys::Get().CheckAccountExist({trm::rqs::CHECK_ACCOUNT_EXISTS, information[3]});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::FAIL};
+    }
+
+    auto box = base[BOX][information[3]];
+    unsigned long long index = ToNum<unsigned long long>(information[4]);
+
+    if (index >= box.Size()) {
+        return {trm::rpl::FAIL};
+    }
+
+    if (!trm::MailContent(box[index]).read) {
+        base[UNREAD_NUM][information[3]] = ToStr(ToNum<unsigned long long>(base[UNREAD_NUM][information[3]]) - 1);
+    }
+
+    box[index].Clear();
+    return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::MailSystem::ClearMessageOfOthers(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::CLEAR_MESSAGE_OF_OTHERS); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_MESSAGE_OF_OTHERS});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    reply = SSys::Get().CheckAccountExist({trm::rqs::CHECK_ACCOUNT_EXISTS, information[3]});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::FAIL};
+    }
+
+    auto box = base[BOX][information[3]];
+    for (auto [file, mail] : box) {
+        mail.Clear();
+    }
+    base[UNREAD_NUM][information[3]] = "0";
+
+    return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::MailSystem::ResetMailSystem(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::RESET_MAIL_SYSTEM); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::RESET_MAIL_SYSTEM});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    base.Remove();
+    return {trm::rpl::SUCC};
 }
 
 ssys::MailSystem::MailSystem() noexcept

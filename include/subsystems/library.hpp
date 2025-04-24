@@ -17,6 +17,9 @@
 namespace ssys{
 
 class Library{
+    //std::vector<bk::Book> basebookseries;    
+    std::vector<trm::Book> activebookseries;
+    std::pair<bool, std::vector<std::string>> CrossBorrowInfo() noexcept;  
 public:
     trm::Information RestoreNewBook(const trm::Information&) noexcept;
     trm::Information BorrowBook(const trm::Information&) noexcept;

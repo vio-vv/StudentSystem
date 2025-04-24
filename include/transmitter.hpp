@@ -44,6 +44,13 @@ namespace rqs{
      */
     const std::string CHECK_ACCOUNT_EXISTS = _AS_"CHECK_ACCOUNT_EXISTS";
     /**
+     * @brief 查询标签是否存在及其值。
+     * @param code 学工号
+     * @param key 标签键
+     * @return YES or NO，第一项为 YES 时第二项为标签值，第一项为 NO 时第二项为 NO_TAG or NO_ACCOUNT
+     */
+    const std::string QUERY_TAG = _AS_"QUERY_TAG";
+    /**
      * @brief 检查帐号密码是否有效。
      * @param username 帐号
      * @param password 密码
@@ -67,7 +74,7 @@ namespace rqs{
      * @return SUCC or FAIL，或者 ACCESS_DENIED
      * @retval FAIL 帐号已存在等
      * @note ACCESS REQUIRED CREATE_ACCOUNT
-     * @note 创建的帐户想要拥有某权限，创建者必须现拥有该权限，否则创建的帐户将没有该权限。
+     * @note 创建的帐户想要拥有某权限，创建者必须先拥有该权限，否则创建的帐户将没有该权限。
      */
     const std::string CREATE_ACCOUNT = _AS_"CREATE_ACCOUNT";
     /**
@@ -80,6 +87,84 @@ namespace rqs{
      * @note ACCESS REQUIRED DELETE_ACCOUNT
      */
     const std::string DELETE_ACCOUNT = _AS_"DELETE_ACCOUNT";
+    /**
+     * @brief 授予指定权限。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToGrant 被授予权限的帐户学工号
+     * @param access 权限 @see @namespace Access
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 被授予权限的帐户不存在等
+     * @note ACCESS REQUIRED GRANT_ACCESS
+     * @note 想要授予某权限，授予者必须先拥有该权限，否则返回 ACCESS_DENIED。
+     */
+    const std::string GRANT_ACCESS = _AS_"GRANT_ACCESS";
+    /**
+     * @brief 撤销指定权限。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToRevoke 被撤销权限的帐户学工号
+     * @param access 权限 @see @namespace Access
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 被撤销权限的帐户不存在等
+     * @note ACCESS REQUIRED REVOKE_ACCESS
+     * @note 想要撤销某权限，撤销者必须先拥有该权限，否则返回 ACCESS_DENIED。
+     */
+    const std::string REVOKE_ACCESS = _AS_"REVOKE_ACCESS";
+    /**
+     * @brief 撤销所有权限。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToRevoke 被撤销所有权限的帐户学工号
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 被撤销权限的帐户不存在等
+     * @note ACCESS REQUIRED REVOKE_ACCESS
+     * @note 想要撤销所有权限，撤销者必须先拥有该权限，否则该权限不会被撤销成功。
+     */
+    const std::string REVOKE_ALL_ACCESS = _AS_"REVOKE_ALL_ACCESS";
+    /**
+     * @brief 增加或修改标签。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToAddTag 待增加或修改标签的帐户学工号
+     * @param key 标签键
+     * @param value 标签值
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 待增加或修改标签的帐户不存在等
+     * @note ACCESS REQUIRED ADD_TAG
+     * @note 标签已经存在，覆盖标签的值。
+     */
+    const std::string ADD_TAG = _AS_"ADD_TAG";
+    /**
+     * @brief 删除标签。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToRemoveTag 待删除标签的帐户学工号
+     * @param key 标签键
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 待增加或修改标签的帐户不存在，标签不存在等
+     * @note ACCESS REQUIRED REMOVE_TAG
+     */
+    const std::string REMOVE_TAG = _AS_"REMOVE_TAG";
+    /**
+     * @brief 清空标签。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToClearTag 待清空标签的帐户学工号
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 待清空标签的帐户不存在等
+     * @note ACCESS REQUIRED REMOVE_TAG
+     */
+    const std::string CLEAR_TAG = _AS_"CLEAR_TAG";
+    /**
+     * @brief 重置帐户与权限系统。
+     * @param code 学工号
+     * @param password 密码
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @note ACCESS REQUIRED RESET_ACCOUNT_AND_ACCESS
+     * @note 重置后，所有数据都会被删除。
+     */
+    const std::string RESET_ACCOUNT_AND_ACCESS = _AS_"RESET_ACCOUNT_AND_ACCESS";
 #pragma endregion
 
 #pragma region 课程系统
@@ -140,7 +225,13 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 在线饭堂系统
-    ;
+    /**
+     * @brief 开设店铺。
+     * @param code 学工号
+     * @param password 密码
+     *  // TODO
+     */
+    const std::string SET_A_RESTAURANT = _AS_"SET_A_RESTAURANT";
 #pragma endregion
 
 #pragma region 预约入校系统
@@ -226,6 +317,44 @@ namespace rqs{
      * @note ACCESS REQUIRED DELETE_MESSAGE
      */
     const std::string DELETE_MESSAGE = _AS_"DELETE_MESSAGE";
+    /**
+     * @brief 清空消息。
+     * @param code 学工号
+     * @param password 密码
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @note ACCESS REQUIRED DELETE_MESSAGE
+     */
+    const std::string CLEAR_MESSAGE = _AS_"CLEAR_MESSAGE";
+    /**
+     * @brief 删除别人的消息。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToDeleteMessage 待删除消息的学工号
+     * @param index ull 消息索引
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 待删除消息的帐户不存在，索引超出范围等
+     * @note ACCESS REQUIRED DELETE_MESSAGE_OF_OTHERS
+     */
+    const std::string DELETE_MESSAGE_OF_OTHERS = _AS_"DELETE_MESSAGE_OF_OTHERS";
+    /**
+     * @brief 清空别人的消息。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToClearMessage 待清空消息的学工号
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 待清空消息的帐户不存在等
+     * @note ACCESS REQUIRED DELETE_MESSAGE_OF_OTHERS
+     */
+    const std::string CLEAR_MESSAGE_OF_OTHERS = _AS_"CLEAR_MESSAGE_OF_OTHERS";
+    /**
+     * @brief 重置邮件系统。
+     * @param code 学工号
+     * @param password 密码
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @note ACCESS REQUIRED RESET_MAIL_SYSTEM
+     * @note 重置后，所有数据都会被删除。
+     */
+    const std::string RESET_MAIL_SYSTEM = _AS_"RESET_MAIL_SYSTEM";
 #pragma endregion
 #pragma endregion
 }
@@ -238,6 +367,7 @@ namespace rpl{
     const std::string FAIL = _AS_"FAIL";
     const std::string NO_ACCOUNT = _AS_"NO_ACCOUNT";
     const std::string WRONG_PASSWORD = _AS_"WRONG_PASSWORD";
+    const std::string NO_TAG = _AS_"NO_TAG";
 }
 namespace Access{
     const std::string ADM = _AS_"ADM";                   // 拥有这个权限表示拥有所有权限
@@ -245,10 +375,17 @@ namespace Access{
 
     const std::string CREATE_ACCOUNT = _AS_"CREATE_ACCOUNT";
     const std::string DELETE_ACCOUNT = _AS_"DELETE_ACCOUNT";
+    const std::string GRANT_ACCESS = _AS_"GRANT_ACCESS";
+    const std::string REVOKE_ACCESS = _AS_"REVOKE_ACCESS"; // 有这个权限才能撤销或清空别人的权限
+    const std::string ADD_TAG = _AS_"ADD_TAG";
+    const std::string REMOVE_TAG = _AS_"REMOVE_TAG"; // 有这个权限才能删除或清空别人的标签
+    const std::string RESET_ACCOUNT_AND_ACCESS = _AS_"RESET_ACCOUNT_AND_ACCESS";
 
     const std::string SEND_MESSAGE = _AS_"SEND_MESSAGE";
-    const std::string DELETE_MESSAGE = _AS_"DELETE_MESSAGE";
-
+    const std::string DELETE_MESSAGE = _AS_"DELETE_MESSAGE"; // 有这个权限才能删除或清空自己的消息
+    const std::string DELETE_MESSAGE_OF_OTHERS = _AS_"DELETE_MESSAGE_OF_OTHERS"; // 有这个权限才能删除或清空别人的消息
+    const std::string RESET_MAIL_SYSTEM = _AS_"RESET_MAIL_SYSTEM";
+    
     const std::string BOOK_MANAGE = _AS_"BOOK_MANAGE";
 }
 struct Account{
