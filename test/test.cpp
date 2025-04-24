@@ -10,17 +10,18 @@
 using namespace std;
 using namespace trm;
 
+void f(const Information &info)
+{
+    for (const auto &each : info) {
+        cout << each << " :: ";
+    }
+    cout << endl;
+}
+
 int main()
 {
     auto &ssys = SSys::Get();
 
-    auto f = [](const Information &info) {
-        for (const auto &each : info) {
-            cout << each << endl;
-        }
-        cout << endl;
-    };
-    
 #ifdef EEA
 
     f(ssys.CheckAccountExist({rqs::CHECK_ACCOUNT_EXISTS, "admin"}));
@@ -129,6 +130,34 @@ int main()
     f(ssys.ResetMailSystem({rqs::RESET_MAIL_SYSTEM, "1", "1"}));
     f(ssys.ResetMailSystem({rqs::RESET_MAIL_SYSTEM, "adm", "1"}));
     f(ssys.ResetMailSystem({rqs::RESET_MAIL_SYSTEM, "adm", "123"}));
+
+    f(ssys.AddTag({rqs::ADD_TAG, "adm", "1233", "2", "t", "v"}));
+    f(ssys.AddTag({rqs::ADD_TAG, "adm", "123", "2", "t", "v"}));
+    f(ssys.AddTag({rqs::ADD_TAG, "adm", "123", "1", "t", "v"}));
+    f(ssys.AddTag({rqs::ADD_TAG, "adm", "123", "1", "name", "李四"}));
+
+    f(ssys.QueryTag({rqs::QUERY_TAG, "adm", "123"}));
+    f(ssys.QueryTag({rqs::QUERY_TAG, "1", "t"}));
+    f(ssys.QueryTag({rqs::QUERY_TAG, "1", "name"}));
+    f(ssys.QueryTag({rqs::QUERY_TAG, "1", "1"}));
+    f(ssys.QueryTag({rqs::QUERY_TAG, "2", "2"}));
+
+    f(ssys.RemoveTag({rqs::REMOVE_TAG, "adm", "123", "2", "t"}));
+    f(ssys.RemoveTag({rqs::REMOVE_TAG, "adm", "123", "1", "t"}));
+    f(ssys.RemoveTag({rqs::REMOVE_TAG, "1", "1", "1", "name"}));
+    f(ssys.ClearTag({rqs::CLEAR_TAG, "1", "1", "1"}));
+    f(ssys.ClearTag({rqs::CLEAR_TAG, "adm", "1", "1"}));
+    f(ssys.ClearTag({rqs::CLEAR_TAG, "adm", "123", "1"}));
+
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::SEND_MESSAGE}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::CREATE_ACCOUNT}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::REVOKE_ACCESS}));
+    f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "1", "1", Account{"2", "2", {Access::SEND_MESSAGE, Access::CREATE_ACCOUNT, trm::Access::DELETE_ACCOUNT}}}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "2", Access::DELETE_ACCOUNT}));
+    f(ssys.RevokeAllAccess({rqs::REVOKE_ALL_ACCESS, "1", "2", "2"}));
+    f(ssys.RevokeAllAccess({rqs::REVOKE_ALL_ACCESS, "1", "1", "2"}));
+    f(ssys.RevokeAllAccess({rqs::REVOKE_ALL_ACCESS, "adm", "123", "2"}));
+    f(ssys.RevokeAllAccess({rqs::REVOKE_ALL_ACCESS, "adm", "123", "1"}));
 
     f(ssys.ResetAccountAndAccess({rqs::RESET_ACCOUNT_AND_ACCESS, "adm", "123"}));
 

@@ -43,6 +43,13 @@ namespace rqs{
      */
     const std::string CHECK_ACCOUNT_EXISTS = _AS_"CHECK_ACCOUNT_EXISTS";
     /**
+     * @brief 查询标签是否存在及其值。
+     * @param code 学工号
+     * @param key 标签键
+     * @return YES or NO，第一项为 YES 时第二项为标签值，第一项为 NO 时第二项为 NO_TAG or NO_ACCOUNT
+     */
+    const std::string QUERY_TAG = _AS_"QUERY_TAG";
+    /**
      * @brief 检查帐号密码是否有效。
      * @param username 帐号
      * @param password 密码
@@ -104,6 +111,51 @@ namespace rqs{
      */
     const std::string REVOKE_ACCESS = _AS_"REVOKE_ACCESS";
     /**
+     * @brief 撤销所有权限。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToRevoke 被撤销所有权限的帐户学工号
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 被撤销权限的帐户不存在等
+     * @note ACCESS REQUIRED REVOKE_ACCESS
+     * @note 想要撤销所有权限，撤销者必须先拥有该权限，否则该权限不会被撤销成功。
+     */
+    const std::string REVOKE_ALL_ACCESS = _AS_"REVOKE_ALL_ACCESS";
+    /**
+     * @brief 增加或修改标签。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToAddTag 待增加或修改标签的帐户学工号
+     * @param key 标签键
+     * @param value 标签值
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 待增加或修改标签的帐户不存在等
+     * @note ACCESS REQUIRED ADD_TAG
+     * @note 标签已经存在，覆盖标签的值。
+     */
+    const std::string ADD_TAG = _AS_"ADD_TAG";
+    /**
+     * @brief 删除标签。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToRemoveTag 待删除标签的帐户学工号
+     * @param key 标签键
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 待增加或修改标签的帐户不存在，标签不存在等
+     * @note ACCESS REQUIRED REMOVE_TAG
+     */
+    const std::string REMOVE_TAG = _AS_"REMOVE_TAG";
+    /**
+     * @brief 清空标签。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToClearTag 待清空标签的帐户学工号
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL 待清空标签的帐户不存在等
+     * @note ACCESS REQUIRED REMOVE_TAG
+     */
+    const std::string CLEAR_TAG = _AS_"CLEAR_TAG";
+    /**
      * @brief 重置帐户与权限系统。
      * @param code 学工号
      * @param password 密码
@@ -144,7 +196,13 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 在线饭堂系统
-    ;
+    /**
+     * @brief 开设店铺。
+     * @param code 学工号
+     * @param password 密码
+     *  // TODO
+     */
+    const std::string SET_A_RESTAURANT = _AS_"SET_A_RESTAURANT";
 #pragma endregion
 
 #pragma region 预约入校系统
@@ -280,6 +338,7 @@ namespace rpl{
     const std::string FAIL = _AS_"FAIL";
     const std::string NO_ACCOUNT = _AS_"NO_ACCOUNT";
     const std::string WRONG_PASSWORD = _AS_"WRONG_PASSWORD";
+    const std::string NO_TAG = _AS_"NO_TAG";
 }
 namespace Access{
     const std::string ADM = _AS_"ADM";                   // 拥有这个权限表示拥有所有权限
@@ -288,7 +347,9 @@ namespace Access{
     const std::string CREATE_ACCOUNT = _AS_"CREATE_ACCOUNT";
     const std::string DELETE_ACCOUNT = _AS_"DELETE_ACCOUNT";
     const std::string GRANT_ACCESS = _AS_"GRANT_ACCESS";
-    const std::string REVOKE_ACCESS = _AS_"REVOKE_ACCESS";
+    const std::string REVOKE_ACCESS = _AS_"REVOKE_ACCESS"; // 有这个权限才能撤销或清空别人的权限
+    const std::string ADD_TAG = _AS_"ADD_TAG";
+    const std::string REMOVE_TAG = _AS_"REMOVE_TAG"; // 有这个权限才能删除或清空别人的标签
     const std::string RESET_ACCOUNT_AND_ACCESS = _AS_"RESET_ACCOUNT_AND_ACCESS";
 
     const std::string SEND_MESSAGE = _AS_"SEND_MESSAGE";

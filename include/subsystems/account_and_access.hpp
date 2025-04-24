@@ -24,9 +24,14 @@ public:
     trm::Information DeleteAccount(const trm::Information &information) noexcept;
     trm::Information GrantAccess(const trm::Information &information) noexcept;
     trm::Information RevokeAccess(const trm::Information &information) noexcept;
+    trm::Information RevokeAllAccess(const trm::Information &information) noexcept;
+    trm::Information AddTag(const trm::Information &information) noexcept;
+    trm::Information RemoveTag(const trm::Information &information) noexcept;
+    trm::Information ClearTag(const trm::Information &information) noexcept;
     trm::Information ResetAccountAndAccess(const trm::Information &information) noexcept;
 
     trm::Information CheckAccountExist(const trm::Information &information) noexcept;
+    trm::Information QueryTag(const trm::Information &information) noexcept;
 protected:
     AccountAndAccess() noexcept;
     ~AccountAndAccess() noexcept;
