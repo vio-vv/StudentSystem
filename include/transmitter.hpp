@@ -172,6 +172,14 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 图书馆系统
+    enum bk {
+        BOOK_ISBN,
+        BOOK_NAME,
+        BOOK_AUTHOR,
+        BOOK_CATAGORY,
+        BOOK_PUBLISHDATE,
+        BOOK_STROEPOSTION,
+    };
     /**
      * @brief 对匹配的图书按指定内容排序
      * @param sort_function 排序函数，排序变量需为图书成员数据
@@ -192,6 +200,12 @@ namespace rqs{
     const std::string REMOVE_BOOK = _AS_"REMOVE_BOOK";
     const std::string BORROW_BOOK = _AS_"BORROW_BOOK";
     const std::string RETURN_BOOK = _AS_"RETURN_BOOK";
+    /**
+     * @brief 搜索图书。
+     * @param search_key 查找关键字
+     * @param search_type 查找图书属性 默认为书名
+     * @return FAIL or SUCC
+     */
     const std::string SEARCH_BOOK = _AS_"SEARCH_BOOK";
     /**
      * @brief 存储书籍
@@ -200,7 +214,7 @@ namespace rqs{
      * @param isbn 作为索引 书籍 ISBN 号
      * @param amount 存放数量
      * @param bookInfo 书籍信息
-     * @return SUCC or ACCESS_DENIED or FAIL
+     * @return SUCC or FAIL or ACCESS_DENIED
      * @note ACCESS REQUIRED RESTORE_BOOK
      */
     const std::string RESTORE_BOOK = _AS_"RESTORE_BOOK";
@@ -211,7 +225,7 @@ namespace rqs{
      * @param password 密码
      * @param isbn 作为索引 书籍 ISBN 号
      * @param bookInfo 书籍信息
-     * @return SUCC or ACCESS_DENIED or FAIL    
+     * @return SUCC or FAIL or ACCESS_DENIED   
      * @note ACCESS REQUIRED MODIFY_BOOK_INFO
      */
     const std::string MODIFY_BOOK_INFO = _AS_"MODIFY_BOOK_INFO";
@@ -434,6 +448,34 @@ struct Book{
     operator std::string() const noexcept;
 };
 
+// TODO
+struct BorrowLog {
+    int borrowLast;
+    Date start;
+    Date end;
+    std::string borrower;
+    std::string bookIsbn;
+    BorrowLog(int _borrowLast, const Date &_start, const std::string &_borrower, const std::string &_bookIsbn) noexcept
+    : borrowLast(_borrowLast), start(_start), end(_borrower + _borrower), borrower(_borrower), bookIsbn(_bookIsbn) {}
+    operator std::string() const noexcept;
+};
+
+// TODO
+struct Date {
+    unsigned int year;
+    unsigned int month;
+    unsigned int day;
+
+    Date(const int _year, const int _month, const int _day) noexcept
+    : year(_year), month(_month), day(_day) {};
+    Date(const std::string&) noexcept;
+    operator std::string() noexcept;
+    void init();
+    int operator-(const Date &other) noexcept;
+    Date operator+(const int &day) noexcept;
+};
+
+
 #pragma endregion
 
 using Information = std::vector<std::string>;
@@ -442,18 +484,6 @@ struct Request{
     int id; // 请求编号
     std::string sender;    // 请求发送者链接（相对于服务端）
     Information content;    // 请求内容
-};
-
-struct Date {
-    int year;
-    int month;
-    int day;
-
-    Date(const int _year, const int _month, const int _day) noexcept
-    : year(_year), month(_month), day(_day) {};
-    operator std::string() noexcept;
-    int operator-(const Date &other) noexcept;
-    int operator+(const Date &other) noexcept;
 };
 
 /**
@@ -557,6 +587,25 @@ std::vector<ReturnType> Foreach(const List &series, const std::function<ReturnTy
         result.push_back(func(each));
     }
     return std::move(result);
+}
+/**
+ * @brief 模糊匹配
+ * @return 最长公共子序列与较短字符串比值
+ */
+double FuzzyMatch(const std::string &str1, const std::string &str2) noexcept
+{
+    const int len1 = str1.length();
+    const int len2 = str2.length();
+
+    std::vector<std::vector<int>> LCS(len1 + 1, std::vector<int>(len2 + 1));
+    for (int i = 1; i <= len1; i++) {
+        for (int j = 1; j <= len2; j++) {
+            if (str1[i - 1] == str2[j - 1]) LCS[i][j] = LCS[i - 1][j - 1] + 1;
+            else LCS[i][j] = std::max(LCS[i - 1][j], LCS[i][j - 1]);
+        }
+    }
+
+    return LCS[len1][len2] / (double) std::min(len1, len2);
 }
 
 }

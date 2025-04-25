@@ -234,3 +234,30 @@ trm::Book::operator std::string() const noexcept
         trm::Combine(borrowLog)
     });
 }
+
+trm::Date::operator std::string() noexcept
+{
+    return trm::Combine({
+        ToStr(year),
+        ToStr(month),
+        ToStr(day)
+    });
+}
+
+trm::Date::Date(const std::string &content) noexcept
+{
+    auto data = trm::Split(content);
+    *this = {
+        ToNum<unsigned int>(data[0]),
+        ToNum<unsigned int>(data[1]),
+        ToNum<unsigned int>(data[2])
+    };
+}
+
+int trm::Date::operator-(const Date &other) noexcept {
+    bool isLearYear = year % 4 == 0 || (year % 100 != 0 && year % 400 == 0); 
+    int exceed = 0;
+    for (int i = 1; i < month; i++) {
+
+    }
+}
