@@ -19,6 +19,7 @@
  */
 
 #include "file_system.hpp"
+#include "data_base.hpp"
 #include <functional>
 #include <random>
 #include <ctime>
@@ -171,15 +172,41 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 图书馆系统
+    enum bk {
+        BOOK_ISBN,
+        BOOK_NAME,
+        BOOK_AUTHOR,
+        BOOK_CATAGORY,
+        BOOK_PUBLISHDATE,
+        BOOK_STROEPOSTION,
+    };
     /**
-     * 
-     * 
+     * @brief 对匹配的图书按指定内容排序
+     * @param sort_function 排序函数，排序变量需为图书成员数据
+     * @return SUCC or FAIL
+     * @note 需先使用SEARCH_BOOK进行检索，然后使用SHOW_BOOK_LIST获取排序后图书
      */
-    const std::string SORT_BOOK = "SORT_BOOK";
-    const std::string MOVE_BOOK = "MOVE_BOOK";
-    const std::string BORROW_BOOK = "BORROW_BOOK";
-    const std::string RETURN_BOOK = "RETURN_BOOK";
-    const std::string SEARCH_BOOK = "SEARCH_BOOK";
+    const std::string SORT_BOOK = _AS_"SORT_BOOK";
+    /**
+     * @brief 下架图书
+     * @param code 学工号
+     * @param password 密码
+     * @param isbn 作为索引 书籍 ISBN 号
+     * @param amount 下架数量 若为all，则下架该书所有存量
+     * @return SUCC or FAIL or ACCESS_DENIED
+     * @note ACCESS REQUIRED REMOVE_BOOK
+     * @note amount 超出存量 或 图书不存在 则返回FAIL
+     */
+    const std::string REMOVE_BOOK = _AS_"REMOVE_BOOK";
+    const std::string BORROW_BOOK = _AS_"BORROW_BOOK";
+    const std::string RETURN_BOOK = _AS_"RETURN_BOOK";
+    /**
+     * @brief 搜索图书。
+     * @param search_key 查找关键字
+     * @param search_type 查找图书属性 默认为书名
+     * @return FAIL or SUCC
+     */
+    const std::string SEARCH_BOOK = _AS_"SEARCH_BOOK";
     /**
      * @brief 存储书籍
      * @param code 学工号
@@ -187,12 +214,28 @@ namespace rqs{
      * @param isbn 作为索引 书籍 ISBN 号
      * @param amount 存放数量
      * @param bookInfo 书籍信息
-     * @return SUCC or ACCESS_DENIED or FAIL
+     * @return SUCC or FAIL or ACCESS_DENIED
      * @note ACCESS REQUIRED RESTORE_BOOK
      */
-    const std::string RESTORE_BOOK = "RESTORE_BOOK";
-    const std::string SHOW_BOOK_LIST = "SHOW_BOOK_LIST";
-    const std::string MODIFY_BOOK_INFO = "MODIFY_BOOK_INFO";
+    const std::string RESTORE_BOOK = _AS_"RESTORE_BOOK";
+    const std::string SHOW_BOOK_LIST = _AS_"SHOW_BOOK_LIST";
+    /**
+     * @brief 修改书籍信息
+     * @param code 学工号
+     * @param password 密码
+     * @param isbn 作为索引 书籍 ISBN 号
+     * @param bookInfo 书籍信息
+     * @return SUCC or FAIL or ACCESS_DENIED   
+     * @note ACCESS REQUIRED MODIFY_BOOK_INFO
+     */
+    const std::string MODIFY_BOOK_INFO = _AS_"MODIFY_BOOK_INFO";
+
+    //extra
+
+    const std::string ADD_FAVOURATE = _AS_"ADD_FAVOURATE";
+    const std::string REMOVE_FAVOURATE = _AS_"REMOVE_FAVOURATE";
+    const std::string SHOW_FAVOURATE_LIST = _AS_"SHOW_FAVOURATE_LIST";
+    const std::string SEARCH_FAVOURATE = _AS_"SEARCH_FAVOURATE";
 #pragma endregion
 
 #pragma region 在线饭堂系统
@@ -357,7 +400,7 @@ namespace Access{
     const std::string DELETE_MESSAGE_OF_OTHERS = _AS_"DELETE_MESSAGE_OF_OTHERS"; // 有这个权限才能删除或清空别人的消息
     const std::string RESET_MAIL_SYSTEM = _AS_"RESET_MAIL_SYSTEM";
     
-    const std::string RESTORE_BOOK = _AS_"RESTORE_BOOK";
+    const std::string BOOK_MANAGE = _AS_"BOOK_MANAGE";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;
@@ -383,30 +426,55 @@ struct MailContent {
     MailContent(const std::string &content) noexcept;
 };
 
-class Book{
-public:
-    unsigned int book_tot;                    //  藏书总数
-    unsigned int book_borrowed;               //  借阅总数
-    std::string book_isbn;                    //  图书版号
-    std::string book_name;                    //  书名
-    std::string book_publication_date;        //  出版日期                   
-    std::string book_catagory;                //  分类
-    std::string store_position;               //  藏书位置
-    std::vector<std::string> book_author;     //  作者
-    std::vector<std::string> borrow_log;      //  借阅日志
+struct Book{
+    unsigned int bookTot;                    //  藏书总数
+    unsigned int bookBorrowed;               //  借阅总数
+    std::string bookIsbn;                    //  图书版号
+    std::string bookName;                    //  书名
+    std::string bookPublicationDate;        //  出版日期                   
+    std::string bookCatagory;                //  分类
+    std::string storePosition;               //  藏书位置
+    std::vector<std::string> bookAuthor;     //  作者
+    std::vector<std::string> borrowLog;      //  借阅日志
 
-    Book(const std::string &isbn, const std::string &book_n, const std::string &book_pd, const std::string &book_ct,
-        const std::string &book_rp, const std::vector<std::string> &book_ath, 
-        const unsigned int tot = 1, const unsigned int borrow = 0, const std::vector<std::string> b_log = {}) noexcept 
-    :   book_tot(tot), book_borrowed(borrow), 
-        book_isbn(isbn), book_name(book_n), book_publication_date(book_pd), book_catagory(book_ct), store_position(book_rp),
-        book_author(book_ath), borrow_log(b_log) {};
+    Book(const std::string &_bookIsbn, const std::string &_bookName, const std::string &_bookPublicationDate, const std::string &_bookCatagory,
+        const std::string &_storePosition, const std::vector<std::string> &_bookAuthor, 
+        const unsigned int tot = 1, const unsigned int borrow = 0, const std::vector<std::string> _borrowLog = {}) noexcept 
+    :   bookTot(tot), bookBorrowed(borrow), 
+        bookIsbn(_bookIsbn), bookName(_bookName), bookPublicationDate(_bookPublicationDate), bookCatagory(_bookCatagory), storePosition(_storePosition),
+        bookAuthor(_bookAuthor), borrowLog(_borrowLog) {};
     
-    Book(const std::string&) noexcept;
-    ~Book() noexcept;
-
-    operator std::string() noexcept;
+    Book(const std::string &constent) noexcept;
+    operator std::string() const noexcept;
 };
+
+// TODO
+struct BorrowLog {
+    int borrowLast;
+    Date start;
+    Date end;
+    std::string borrower;
+    std::string bookIsbn;
+    BorrowLog(int _borrowLast, const Date &_start, const std::string &_borrower, const std::string &_bookIsbn) noexcept
+    : borrowLast(_borrowLast), start(_start), end(_borrower + _borrower), borrower(_borrower), bookIsbn(_bookIsbn) {}
+    operator std::string() const noexcept;
+};
+
+// TODO
+struct Date {
+    unsigned int year;
+    unsigned int month;
+    unsigned int day;
+
+    Date(const int _year, const int _month, const int _day) noexcept
+    : year(_year), month(_month), day(_day) {};
+    Date(const std::string&) noexcept;
+    operator std::string() noexcept;
+    void init();
+    int operator-(const Date &other) noexcept;
+    Date operator+(const int &day) noexcept;
+};
+
 
 #pragma endregion
 
@@ -519,6 +587,25 @@ std::vector<ReturnType> Foreach(const List &series, const std::function<ReturnTy
         result.push_back(func(each));
     }
     return std::move(result);
+}
+/**
+ * @brief 模糊匹配
+ * @return 最长公共子序列与较短字符串比值
+ */
+double FuzzyMatch(const std::string &str1, const std::string &str2) noexcept
+{
+    const int len1 = str1.length();
+    const int len2 = str2.length();
+
+    std::vector<std::vector<int>> LCS(len1 + 1, std::vector<int>(len2 + 1));
+    for (int i = 1; i <= len1; i++) {
+        for (int j = 1; j <= len2; j++) {
+            if (str1[i - 1] == str2[j - 1]) LCS[i][j] = LCS[i - 1][j - 1] + 1;
+            else LCS[i][j] = std::max(LCS[i - 1][j], LCS[i][j - 1]);
+        }
+    }
+
+    return LCS[len1][len2] / (double) std::min(len1, len2);
 }
 
 }

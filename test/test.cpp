@@ -163,6 +163,10 @@ int main()
 
 #endif
 
+#ifdef LIBRARY
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "999-9-99-999999-1", "5", Book{"999-9-99-999999-1", "++--", "2025-04", "科学技术", "图书馆208", {"张某某"}}}));
+#endif
+
     while (1) ;
 
     return 0;
