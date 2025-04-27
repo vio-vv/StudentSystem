@@ -16,14 +16,19 @@
 
 namespace ssys{
 
-class Course{
+class CourseSystem{
 public:
-    ;
+    trm::Infomation SearchCourse(const trm::Infomation& information) noexcept;
+    trm::Infomation AddCourse(const trm::Infomation& information) noexcept;
+    trm::Infomation DeleteCourse(const trm::Infomation& information) noexcept;
 protected:
-    Course() noexcept;
-    ~Course() noexcept;
-    Course(const Course&) = delete;
-    Course& operator=(const Course&) = delete;
+    CourseSystem() noexcept;
+    ~CourseSystem() noexcept;
+    CourseSystem(const CourseSystem&) = delete;
+    CourseSystem& operator=(const CourseSystem&) = delete;  
+private:
+    static const std::string dataPath;
+    std::map<std::string,std::vector<trm::CourseInformation>> courseList; // 课程列表
 };
 
 }

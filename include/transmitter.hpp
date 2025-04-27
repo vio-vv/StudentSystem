@@ -76,7 +76,30 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 课程系统
-    ;
+    /**
+     * @brief 查询课程信息
+     * @param courseName 课程名
+     * @param pageNumber 页面数
+     * @return 第一项为YES/NO，第一项为YES时第二项为CourseInformation,第一项为NO时第二项为NO_MATCH_COURSE @see @struct CourseInformation
+     * @retval NO_MATCH_COURSE 没有匹配的课程 
+     * @retval CourseInformation 上课周数，上课地点，上课老师
+    */
+    const std::string SEARCH_COURSE="SEARCH_COURSE";
+    /**
+     * @brief 增加课程
+     * @param courseName 课程名
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL COURSE_EXITS课程已存在等
+     */
+    const std::string ADD_COURSE = "ADD_COURSE";
+    /**
+     * @brief 删除课程
+     * @param courseName 课程名
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL NO_MATCH_COURSE待删课程不存在等
+     */
+    const std::string DELETE_COURSE = "DELETE_COURSE";
+;
 #pragma endregion
 
 #pragma region 图书馆系统
@@ -88,7 +111,36 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 预约入校系统
-    ;
+    /**
+     * @brief 查询可预约时间
+     * @param date 预约日期
+     * @return 第一项为YES/NO，第一项为YES时第二项为可预约时间列表
+     * @retval 可预约时间列表 @see @struct ReserveInformation::Server leftTime
+     * @retval 第一项为NO NO_MATCH_TIME 预约时间不合法
+     * @retval 第一项为NO NO_LEFT_RESERVE 该时间预约名额已满
+    */
+    const std::string CHECK_RESERVE_TIME = "CHECK_RESERVE_TIME";
+    /** 
+     * @brief 预约入校
+     * @param time 预约时间
+     * @param id 身份证号
+     * @param phone 手机号
+     * @return SUCC or FAIL
+     * @retval FAIL NO_MATCH_RESERVE 预约时间不合法或者预约名额已满
+     * @retval FAIL RESERVE_EXISTS 预约已存在
+     */
+    const std::string REQUEST_RESERVE = "REQUEST_RESERVE";
+    /**
+     * @brief 取消预约
+     * @param time 预约时间
+     * @param id 身份证号
+     * @param phone 手机号
+     * @return SUCC or FAIL
+     * @retval FAIL ACCESS_DENIED 没有权限
+     * @retval FAIL NO_MATCH_RESERVE 待取消的预约不存在
+     * @note ACCESS REQUIRED CANCEL_RESERVE
+    */
+    const std::string CANCEL_RESERVE = "CANCEL_RESERVE";
 #pragma endregion
 
 #pragma region 通知与公示系统
@@ -124,6 +176,12 @@ namespace rpl{
     const std::string FAIL = "FAIL";
     const std::string NO_ACCOUNT = "NO_ACCOUNT";
     const std::string WRONG_PASSWORD = "WRONG_PASSWORD";
+    const std::string NO_MATCH_COURSE = "NO_MATCH_COURSE";
+    const std::string COURSE_EXISTS = "COURSE_EXISTS";
+    const std::string NO_MATCH_RESERVE = "NO_MATCH_RESERVE";
+    const std::string NO_LEFT_RESERVE = "NO_LEFT_RESERVE";
+    const std::string NO_MATCH_TIME = "NO_MATCH_TIME";
+    const std::string RESERVE_EXISTS = "RESERVE_EXISTS";
 }
 namespace Access{
     const std::string ADM = "ADM";
@@ -132,6 +190,11 @@ namespace Access{
     const std::string DELETE_ACCOUNT = "DELETE_ACCOUNT";
 
     const std::string SEND_MESSAGE = "SEND_MESSAGE";
+
+    const std::string ADD_COURSE = "ADD_COURSE";
+    const std::string DELETE_COURSE = "DELETE_COURSE";
+
+    const std::string CANCEL_RESERVE="CANCEL_RESERVE";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;
@@ -153,6 +216,43 @@ struct MailContent {
         timeStamp(_timeStamp), sender(_sender), receiver(_receiver), content(_content) {}
     operator std::string() const noexcept;
     MailContent(const std::string &content) noexcept;
+};
+struct CourseInformation {
+    std::string courseName; // 课程名
+    std::string teacher;    // 上课老师
+    std::string location;   // 上课地点
+    std::vector<std::string> weeks; // 上课周数
+    CourseInformation(const std::string &_courseName, const std::string &_teacher, const std::string &_location, const std::vector<std::string> &_weeks) noexcept :
+        courseName(_courseName), teacher(_teacher), location(_location), weeks(_weeks) {}
+    operator std::string() const noexcept;
+    CourseInformation(const std::string &content) noexcept;
+};
+struct ReserveInformation {
+    struct Client {
+        std::string id; // 身份证号
+        std::string phone; // 手机号
+        std::string expectedTime; // 预约时间
+        Client(const std::string &_id, const std::string &_phone,const std::string &_expectedTime) noexcept :
+            id(_id), phone(_phone), expectedTime(_expectedTime){}
+        Client(const Client& clients) noexcept;
+        Client()=default;
+    };
+    struct Server {
+        std::string leftNumber; // 剩余名额
+        std::string status; // 预约状态
+        std::vector<std::string> leftTime; // 剩余时间
+        Server(const std::string &_leftNumber, const std::string &_status,const std::vector<std::string> &_leftTime) noexcept :
+            leftNumber(_leftNumber), status(_status),leftTime(_leftTime) {}
+        Server(const std::string &content) noexcept;
+        Server(const Server& servers) noexcept;
+        Server()=default;
+        operator std::string() const noexcept;
+};
+    ReserveInformation(const Client &_client, const Server &_server) noexcept
+     {      Client(_client);
+                Server(_server);}
+    operator std::string() const noexcept;
+    ReserveInformation(const std::string &content) noexcept;
 };
 #pragma endregion
 
@@ -217,12 +317,12 @@ Message Encode(const Infomation &infomation) noexcept;
 Infomation Decode(const Message &message) noexcept;
 
 /**
- * TO_COMPLETE
+ * @brief 将字符串数组信息转化为字符串。
  */
 std::string Combine(const std::vector<std::string> &series) noexcept;
 
 /**
- * TO_COMPLETE
+ * @brief 将字符串转化为字符串数组。
  */
 std::vector<std::string> Split(const std::string &str) noexcept;
 

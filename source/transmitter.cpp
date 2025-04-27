@@ -80,7 +80,7 @@ trm::Infomation trm::Decode(const Message &message) noexcept
 {
     return Split(message);
 }
-
+//建议使用
 std::string trm::Combine(const std::vector<std::string> &series) noexcept
 {
     std::string result = "";
@@ -89,7 +89,7 @@ std::string trm::Combine(const std::vector<std::string> &series) noexcept
     }
     return std::move(result);
 }
-
+//建议使用
 std::vector<std::string> trm::Split(const std::string &str) noexcept
 {
     std::vector<std::string> result;
@@ -201,3 +201,54 @@ trm::Account::Account(const std::string &content) noexcept
         })
     };
 }
+
+trm::CourseInformation::operator std::string() const noexcept
+{
+    return Combine({
+        courseName, 
+        teacher, 
+        location, 
+        Combine(weeks)
+    });
+}
+
+trm::CourseInformation::CourseInformation(const std::string &content) noexcept
+{
+    auto course = Split(content);
+    *this = {
+        course[0], 
+        course[1], 
+        course[2], 
+        trm::Split(course[3])
+    };
+}
+
+trm::ReserveInformation::Server::operator std::string() const noexcept
+{
+    return Combine({
+        leftNumber, 
+        status, 
+        Combine(leftTime)
+    });
+}
+
+trm::ReserveInformation::Server::Server(const std::string &content) noexcept
+{
+    auto server = Split(content);
+    *this = {
+        server[0], 
+        server[1], 
+        trm::Split(server[2])
+    };
+}
+
+trm::ReserveInformation::Server::Server(const Server& servers) noexcept
+{
+    *this = servers;
+}
+
+trm::ReserveInformation::Client::Client(const Client& clients) noexcept
+{
+    *this = clients;
+}
+
