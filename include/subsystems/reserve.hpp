@@ -18,9 +18,9 @@ namespace ssys{
 
 class ReserveSystem{
 public:
-    trm::Infomation RequestReserve(const trm::Infomation& infomation) noexcept;
-    trm::Infomation CancelReserve(const trm::Infomation& infomation) noexcept;
-    trm::Infomation CheckReserveTime(const trm::Infomation& infomation) noexcept;
+    trm::Information RequestReserve(const trm::Information& infomation) noexcept;
+    trm::Information CancelReserve(const trm::Information& infomation) noexcept;
+    trm::Information CheckReserveTime(const trm::Information& infomation) noexcept;
 protected:
     ReserveSystem() noexcept;
     ~ReserveSystem() noexcept;

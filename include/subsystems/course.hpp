@@ -18,9 +18,9 @@ namespace ssys{
 
 class CourseSystem{
 public:
-    trm::Infomation SearchCourse(const trm::Infomation& information) noexcept;
-    trm::Infomation AddCourse(const trm::Infomation& information) noexcept;
-    trm::Infomation DeleteCourse(const trm::Infomation& information) noexcept;
+    trm::Information SearchCourse(const trm::Information& information) noexcept;
+    trm::Information AddCourse(const trm::Information& information) noexcept;
+    trm::Information DeleteCourse(const trm::Information& information) noexcept;
 protected:
     CourseSystem() noexcept;
     ~CourseSystem() noexcept;

@@ -38,12 +38,12 @@ ssys::ReserveSystem::~ReserveSystem() noexcept
 {
 }
 
-trm::Infomation ssys::ReserveSystem::CheckReserveTime(const trm::Infomation& information) noexcept
+trm::Information ssys::ReserveSystem::CheckReserveTime(const trm::Information& information) noexcept
 {
     assert(information[0]==trm::rqs::CHECK_RESERVE_TIME);
     auto targetReserve = reserveReplyList.find(information[1]);
     auto time = targetReserve->second[0].leftTime;//不对劲
-    trm::Infomation timeReply;
+    trm::Information timeReply;
     for(const auto& each : time) {
         auto splitResult = trm::Split(each);
         timeReply.insert(timeReply.end(), splitResult.begin(), splitResult.end());
@@ -58,7 +58,7 @@ trm::Infomation ssys::ReserveSystem::CheckReserveTime(const trm::Infomation& inf
     } 
 }
 
-trm::Infomation ssys::ReserveSystem::RequestReserve(const trm::Infomation& information) noexcept
+trm::Information ssys::ReserveSystem::RequestReserve(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::REQUEST_RESERVE); // Procession not matched.
     auto it = reserveRequestList.find(information[1]);
@@ -73,7 +73,7 @@ trm::Infomation ssys::ReserveSystem::RequestReserve(const trm::Infomation& infor
     return {trm::rpl::SUCC};
 }
 
-trm::Infomation ssys::ReserveSystem::CancelReserve(const trm::Infomation& information) noexcept
+trm::Information ssys::ReserveSystem::CancelReserve(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::CANCEL_RESERVE); // Procession not matched.
     auto it = reserveRequestList.find(information[1]);

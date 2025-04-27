@@ -38,7 +38,7 @@ ssys::CourseSystem::~CourseSystem() noexcept
 {
 }
 
-trm::Infomation ssys::CourseSystem::SearchCourse(const trm::Infomation& information) noexcept
+trm::Information ssys::CourseSystem::SearchCourse(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::SEARCH_COURSE); // Procession not matched.
     auto it = courseList.find(information[1]);
@@ -48,7 +48,7 @@ trm::Infomation ssys::CourseSystem::SearchCourse(const trm::Infomation& informat
     return {ToStr(it->second.size())};
 }
 
-trm::Infomation ssys::CourseSystem::AddCourse(const trm::Infomation& information) noexcept
+trm::Information ssys::CourseSystem::AddCourse(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::ADD_COURSE); // Procession not matched.
     auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADD_COURSE});//待修改，参数不太对
@@ -63,7 +63,7 @@ trm::Infomation ssys::CourseSystem::AddCourse(const trm::Infomation& information
     return {trm::rpl::SUCC};
 }
 
-trm::Infomation ssys::CourseSystem::DeleteCourse(const trm::Infomation& information) noexcept
+trm::Information ssys::CourseSystem::DeleteCourse(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::DELETE_COURSE); // Procession not matched.
     auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_COURSE});//待修改，参数不太对

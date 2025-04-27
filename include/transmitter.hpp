@@ -178,6 +178,8 @@ namespace rqs{
     const std::string SEARCH_COURSE=_AS_"SEARCH_COURSE";
     /**
      * @brief 增加课程
+     * @param code 学工号
+     * @param password 密码
      * @param courseName 课程名
      * @return SUCC or FAIL，或者 ACCESS_DENIED
      * @retval FAIL COURSE_EXITS课程已存在等
@@ -185,6 +187,8 @@ namespace rqs{
     const std::string ADD_COURSE = _AS_"ADD_COURSE";
     /**
      * @brief 删除课程
+     * @param code 学工号
+     * @param password 密码
      * @param courseName 课程名
      * @return SUCC or FAIL，或者 ACCESS_DENIED
      * @retval FAIL NO_MATCH_COURSE待删课程不存在等
@@ -504,7 +508,7 @@ struct ReserveInformation {
     };
     struct Server {
         std::string leftNumber; // 剩余名额
-        std::string status; // 预约状态
+        std::string status; // 预约状态,怎么忘用了
         std::vector<std::string> leftTime; // 剩余时间
         Server(const std::string &_leftNumber, const std::string &_status,const std::vector<std::string> &_leftTime) noexcept :
             leftNumber(_leftNumber), status(_status),leftTime(_leftTime) {}
