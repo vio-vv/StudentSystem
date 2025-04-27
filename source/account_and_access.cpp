@@ -1,45 +1,69 @@
 #include "subsystems/account_and_access.hpp"
 #include "student_system.hpp"
 
-const std::string ssys::AccountAndAccess::dataPath = file::GetFilePath(DATA_PATH, "acc_acc");
+const std::string ssys::AccountAndAccess::ACCOUNTS = "accounts";
 
-trm::Infomation ssys::AccountAndAccess::CheckAccountExist(const trm::Infomation &infomation) noexcept
+trm::Information ssys::AccountAndAccess::CheckAccountExist(const trm::Information &information) noexcept
 {
-    assert(infomation[0] == trm::rqs::CHECK_ACCOUNT_EXISTS); // Procession not matched.
+    assert(information[0] == trm::rqs::CHECK_ACCOUNT_EXISTS); // Procession not matched.
 
-    if (accounts.find(infomation[1]) == accounts.end()) {
-        return {trm::rpl::NO};
-    } else {
+    if (base[ACCOUNTS][information[1]].Exists()) {
         return {trm::rpl::YES};
+    } else {
+        return {trm::rpl::NO};
     }
 }
 
-trm::Infomation ssys::AccountAndAccess::CheckAccount(const trm::Infomation &infomation) noexcept
+trm::Information ssys::AccountAndAccess::QueryTag(const trm::Information &information) noexcept
 {
-    assert(infomation[0] == trm::rqs::CHECK_ACCOUNT); // Procession not matched.
+    assert(information[0] == trm::rqs::QUERY_TAG); // Procession not matched.
 
-    auto it = accounts.find(infomation[1]);
-    if (it == accounts.end()) {
+    auto accountBase = base[ACCOUNTS][information[1]];
+    if (!accountBase.Exists()) {
         return {trm::rpl::NO, trm::rpl::NO_ACCOUNT};
     }
-    if (trm::Hash(infomation[2]) == it->second.hashedPassword) {
-        return {trm::rpl::YES, it->second};
+    auto account = trm::Account(accountBase);
+
+    for (const auto &tag : account.tags) {
+        if (tag.first == information[2]) {
+            return {trm::rpl::YES, tag.second};
+        }
+    }
+    return {trm::rpl::NO, trm::rpl::NO_TAG};
+}
+
+trm::Information ssys::AccountAndAccess::CheckAccount(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::CHECK_ACCOUNT); // Procession not matched.
+
+    auto accountBase = base[ACCOUNTS][information[1]];
+    if (!accountBase.Exists()) {
+        return {trm::rpl::NO, trm::rpl::NO_ACCOUNT};
+    }
+
+    auto account = trm::Account(accountBase);
+    if (trm::Hash(information[2]) == account.hashedPassword) {
+        return {trm::rpl::YES, account};
     } else {
         return {trm::rpl::NO, trm::rpl::WRONG_PASSWORD};
     }
 }
 
-trm::Infomation ssys::AccountAndAccess::CheckAccess(const trm::Infomation &infomation) noexcept
+trm::Information ssys::AccountAndAccess::CheckAccess(const trm::Information &information) noexcept
 {
-    assert(infomation[0] == trm::rqs::CHECK_ACCESS); // Procession not matched.
+    assert(information[0] == trm::rqs::CHECK_ACCESS); // Procession not matched.
     
-    auto reply = SSys::Get().CheckAccount({trm::rqs::CHECK_ACCOUNT, infomation[1], infomation[2]});
+    auto reply = SSys::Get().CheckAccount({trm::rqs::CHECK_ACCOUNT, information[1], information[2]});
 
     if (reply[0] == trm::rpl::YES) {
+        if (information[3] == trm::Access::EVERYONE_OWN) {
+            return {trm::rpl::YES};
+        }
+
         auto account = trm::Account(reply[1]);
 
         for (const auto &each : account.access) {
-            if (each == trm::Access::ADM || each == infomation[3]) {
+            if (each == trm::Access::ADM || each == information[3]) {
                 return {trm::rpl::YES};
             }
         }
@@ -48,85 +72,230 @@ trm::Infomation ssys::AccountAndAccess::CheckAccess(const trm::Infomation &infom
     return {trm::rpl::NO};
 }
 
-trm::Infomation ssys::AccountAndAccess::CreateAccount(const trm::Infomation &infomation) noexcept
+trm::Information ssys::AccountAndAccess::CreateAccount(const trm::Information &information) noexcept
 {
-    assert(infomation[0] == trm::rqs::CREATE_ACCOUNT); // Procession not matched.
+    assert(information[0] == trm::rqs::CREATE_ACCOUNT); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, infomation[1], infomation[2], trm::Access::CREATE_ACCOUNT});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::CREATE_ACCOUNT});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
 
-    auto account = trm::Account(infomation[3]);
-    if (accounts.find(account.code) != accounts.end()) {
+    auto account = trm::Account(information[3]);
+    auto accountBase = base[ACCOUNTS][account.code];
+    if (accountBase.Exists()) {
         return {trm::rpl::FAIL};
     }
-    reply = SSys::Get().CheckAccount({trm::rqs::CHECK_ACCOUNT, infomation[1], infomation[2]});
+
+    reply = SSys::Get().CheckAccount({trm::rqs::CHECK_ACCOUNT, information[1], information[2]});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
     auto creatorAccess = trm::Account(reply[1]).access;
     account.access = AccessCross(account.access, creatorAccess);
 
-    accounts.insert({account.code, account});
-    if (!file::WriteFile(file::GetFilePath(dataPath, account.code + ".acc"), account)) {
-        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write accounts file." << std::endl;
-        return {trm::rpl::FAIL};
-    }
+    accountBase = account;
     return {trm::rpl::SUCC};
 }
 
-trm::Infomation ssys::AccountAndAccess::DeleteAccount(const trm::Infomation &infomation) noexcept
+trm::Information ssys::AccountAndAccess::DeleteAccount(const trm::Information &information) noexcept
 {
-    assert(infomation[0] == trm::rqs::DELETE_ACCOUNT); // Procession not matched.
+    assert(information[0] == trm::rqs::DELETE_ACCOUNT); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, infomation[1], infomation[2], trm::Access::DELETE_ACCOUNT});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_ACCOUNT});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
 
-    auto it = accounts.find(infomation[3]);
-    if (it == accounts.end()) {
+    auto accountBase = base[ACCOUNTS][information[3]];
+    if (!accountBase.Exists()) {
         return {trm::rpl::FAIL};
     }
 
-    accounts.erase(it);
-    if (!file::DeleteFile(file::GetFilePath(dataPath, infomation[3] + ".acc"))) {
-        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete accounts file." << std::endl;
-        return {trm::rpl::FAIL};
-    }
+    accountBase.Clear();
     return {trm::rpl::SUCC};
 
 }
-ssys::AccountAndAccess::AccountAndAccess() noexcept
+
+trm::Information ssys::AccountAndAccess::GrantAccess(const trm::Information &information) noexcept
 {
-    if (!file::CheckDirectoryExists(dataPath)) {
-        if (!file::CreateDirectory(dataPath)) {
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create accounts directory." << std::endl;
-            exit(1);
+    assert(information[0] == trm::rqs::GRANT_ACCESS); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::GRANT_ACCESS});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], information[4]});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    auto accountBase = base[ACCOUNTS][information[3]];
+    if (!accountBase.Exists()) {
+        return {trm::rpl::FAIL};
+    }
+
+    auto account = trm::Account(accountBase);
+    auto iter = std::find(account.access.begin(), account.access.end(), information[4]);
+    if (iter == account.access.end()) {
+        account.access.push_back(information[4]);
+    }
+    accountBase = account;
+    return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::AccountAndAccess::RevokeAccess(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::REVOKE_ACCESS); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::REVOKE_ACCESS});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], information[4]});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    auto accountBase = base[ACCOUNTS][information[3]];
+    if (!accountBase.Exists()) {
+        return {trm::rpl::FAIL};
+    }
+
+    auto account = trm::Account(accountBase);
+    auto iter = std::find(account.access.begin(), account.access.end(), information[4]);
+    if (iter != account.access.end()) {
+        account.access.erase(iter);
+    }
+    accountBase = account;
+    return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::AccountAndAccess::RevokeAllAccess(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::REVOKE_ALL_ACCESS); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::REVOKE_ACCESS});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    auto accountBase = base[ACCOUNTS][information[3]];
+    if (!accountBase.Exists()) {
+        return {trm::rpl::FAIL};
+    }
+    auto account = trm::Account(accountBase);
+
+    reply = SSys::Get().CheckAccount({trm::rqs::CHECK_ACCOUNT, information[1], information[2]});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+    auto creatorAccess = trm::Account(reply[1]).access;
+
+    for (const auto &each : AccessCross(account.access, creatorAccess)) {
+        auto iter = std::find(account.access.begin(), account.access.end(), each);
+        if (iter != account.access.end()) {
+            account.access.erase(iter);
         }
     }
-    if (!file::CheckFileExists(file::GetFilePath(dataPath, "adm.acc"))) {
-        if (!file::WriteFile(file::GetFilePath(dataPath, "adm.acc"), 
-            trm::Account{"adm", "123", {trm::Access::ADM}}
-        )) {
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create accounts file." << std::endl;
-            exit(1);
+    
+    accountBase = account;
+    return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::AccountAndAccess::AddTag(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::ADD_TAG); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADD_TAG});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    auto accountBase = base[ACCOUNTS][information[3]];
+    if (!accountBase.Exists()) {
+        return {trm::rpl::FAIL};
+    }
+
+    auto account = trm::Account(accountBase);
+    for (auto &tag : account.tags) {
+        if (tag.first == information[4]) {
+            tag.second = information[5];
+            accountBase = account;
+            return {trm::rpl::SUCC};
         }
     }
 
-    auto [success, content] = file::ListDirectory(dataPath);
-    if (!success) {
-        std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read accounts file." << std::endl;
-        exit(1);
+    account.tags.push_back({information[4], information[5]});
+    accountBase = account;
+    return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::AccountAndAccess::RemoveTag(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::REMOVE_TAG); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::REMOVE_TAG});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
     }
-    for (const auto &each : content) {
-        auto [success, account] = file::ReadFile(file::GetFilePath(dataPath, each));
-        if (!success) {
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read accounts file." << std::endl;
+
+    auto accountBase = base[ACCOUNTS][information[3]];
+    if (!accountBase.Exists()) {
+        return {trm::rpl::FAIL};
+    }
+
+    auto account = trm::Account(accountBase);
+    for (auto iter = account.tags.begin(); iter != account.tags.end(); ++iter) {
+        if (iter->first == information[4]) {
+            account.tags.erase(iter);
+            accountBase = account;
+            return {trm::rpl::SUCC};
         }
-        auto accountObj = trm::Account(account);
-        accounts.insert({accountObj.code, accountObj});
+    }
+    return {trm::rpl::FAIL};
+}
+
+trm::Information ssys::AccountAndAccess::ClearTag(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::CLEAR_TAG); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::REMOVE_TAG});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    auto accountBase = base[ACCOUNTS][information[3]];
+    if (!accountBase.Exists()) {
+        return {trm::rpl::FAIL};
+    }
+
+    auto account = trm::Account(accountBase);
+    account.tags.clear();
+    accountBase = account;
+    return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::AccountAndAccess::ResetAccountAndAccess(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::RESET_ACCOUNT_AND_ACCESS); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::RESET_ACCOUNT_AND_ACCESS});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    base.Remove();
+    return {trm::rpl::SUCC};
+}
+
+ssys::AccountAndAccess::AccountAndAccess() noexcept
+{
+    auto admBase = base[ACCOUNTS]["adm"];
+    if (!admBase.Exists()) {
+        admBase = trm::Account{"adm", "123", {trm::Access::ADM}};
     }
 }
 

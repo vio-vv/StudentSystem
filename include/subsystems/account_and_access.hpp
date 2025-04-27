@@ -18,12 +18,20 @@ namespace ssys{
 
 class AccountAndAccess{
 public:
-    trm::Infomation CheckAccountExist(const trm::Infomation &infomation) noexcept;
+    trm::Information CheckAccount(const trm::Information &information) noexcept;
+    trm::Information CheckAccess(const trm::Information &information) noexcept;
+    trm::Information CreateAccount(const trm::Information &information) noexcept;
+    trm::Information DeleteAccount(const trm::Information &information) noexcept;
+    trm::Information GrantAccess(const trm::Information &information) noexcept;
+    trm::Information RevokeAccess(const trm::Information &information) noexcept;
+    trm::Information RevokeAllAccess(const trm::Information &information) noexcept;
+    trm::Information AddTag(const trm::Information &information) noexcept;
+    trm::Information RemoveTag(const trm::Information &information) noexcept;
+    trm::Information ClearTag(const trm::Information &information) noexcept;
+    trm::Information ResetAccountAndAccess(const trm::Information &information) noexcept;
 
-    trm::Infomation CheckAccount(const trm::Infomation &infomation) noexcept;
-    trm::Infomation CheckAccess(const trm::Infomation &infomation) noexcept;
-    trm::Infomation CreateAccount(const trm::Infomation &infomation) noexcept;
-    trm::Infomation DeleteAccount(const trm::Infomation &infomation) noexcept;
+    trm::Information CheckAccountExist(const trm::Information &information) noexcept;
+    trm::Information QueryTag(const trm::Information &information) noexcept;
 protected:
     AccountAndAccess() noexcept;
     ~AccountAndAccess() noexcept;
@@ -31,9 +39,9 @@ protected:
     AccountAndAccess &operator=(const AccountAndAccess &) = delete;
 private:
     static std::vector<std::string> AccessCross(const std::vector<std::string> &access, const std::vector<std::string> &creator) noexcept;
+    static const std::string ACCOUNTS;
 
-    std::map<std::string, trm::Account> accounts;
-    static const std::string dataPath;
+    dat::DataBase base = DATA_BASE["acc_acc"];
 };
 
 }

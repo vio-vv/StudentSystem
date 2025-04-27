@@ -46,7 +46,7 @@ public:
      * @brief 构造函数，设置工作目录。
      * @param workSpace 工作目录
      */
-    DataBase(const std::string &workSpace) noexcept : space(workSpace)
+    explicit DataBase(const std::string &workSpace) noexcept : space(workSpace)
     {
         if (!file::CheckDirectoryExists(workSpace)) {
             assert(false); // Directory not found
@@ -63,7 +63,8 @@ public:
     /**
      * @brief 当成目录进行索引。
      * @param index 索引，是对文件名列表的索引，与文件名无任何关系。
-     * @return 仅当成文件的对象
+     * @return 仅能当成文件的对象
+     * @see List()
      */
     DataBase operator[](const unsigned long long index) noexcept;
     /**
@@ -99,6 +100,11 @@ public:
      */
     unsigned long long Size() noexcept;
     /**
+     * @brief 当成文件进行判断是否存在。
+     * @return 是否存在
+     */
+    bool Exists() const noexcept;
+    /**
      * @brief 当成文件进行增改。
      * @param value 值
      * @return 原值
@@ -127,11 +133,6 @@ public:
      * @return 工作目录
      */
     const std::string &GetSpace() const noexcept { return space; }
-    /**
-     * @brief 获取文件名列表。
-     * @return 文件名列表
-     */
-    const std::vector<std::string> &GetList() const noexcept { return list; }
 private:
     DataBase(const std::string &workSpace, bool considerAsFileOnly) : space(workSpace), consideredAsFileOnly(considerAsFileOnly) {}
     std::string space;

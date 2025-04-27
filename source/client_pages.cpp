@@ -114,7 +114,7 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                     input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
                     input->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
                     input->SetInputCallback([&input](const sf::String &name, const sf::Event &event){
-                        sharedInfomation.username = input->GetText();
+                        sharedInformation.username = input->GetText();
                     });
                     input->AddTo(user);
                 }
@@ -140,7 +140,7 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                     input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
                     input->SetSpecialCharacters(ui::InputBox::ASCII);
                     input->SetInputCallback([&input](const sf::String &name, const sf::Event &event){
-                        sharedInfomation.password = input->GetText();
+                        sharedInformation.password = input->GetText();
                     });
                     input->AddTo(pasw);
                 }
@@ -180,7 +180,7 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
         screen.Tick();
         if (login) {
             screen.HideAll();
-            auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ACCOUNT, sharedInfomation.username, sharedInfomation.password}, L"登录中");
+            auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ACCOUNT, sharedInformation.username, sharedInformation.password}, L"登录中");
             if (success == 1) {
                 if (reply[0] == trm::rpl::YES) {
                     return ID::MAIN_PAGE;
@@ -212,13 +212,13 @@ clpg::ID clpg::Forget(ui::Screen &screen) noexcept
     return ID::BREAK;
 }
 
-std::pair<int, trm::Infomation> clpg::WaitServer(ui::Screen &screen, const trm::Infomation &infomation, const sf::String &tips) noexcept
+std::pair<int, trm::Information> clpg::WaitServer(ui::Screen &screen, const trm::Information &information, const sf::String &tips) noexcept
 {
     auto id = trm::GenerateID();
     bool pass = false;
-    trm::Infomation result;
+    trm::Information result;
     bool finished = false;
-    if (!trm::MakeRequest(LINK, {id, SELF_AS_SENDER, infomation})) {
+    if (!trm::MakeRequest(LINK, {id, SELF_AS_SENDER, information})) {
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to make request." << std::endl;
         exit(1);
     }

@@ -48,7 +48,7 @@ std::pair<bool, std::vector<trm::Request>> trm::GetRequests(const std::string &s
     return {true, std::move(result)};
 }
 
-bool trm::SendReply(const std::string &link, int id, const Infomation &reply) noexcept
+bool trm::SendReply(const std::string &link, int id, const Information &reply) noexcept
 {
     if (!file::CheckDirectoryExists(link)) {
         return false;
@@ -57,7 +57,7 @@ bool trm::SendReply(const std::string &link, int id, const Infomation &reply) no
     return file::WriteFile(filePath, Encode(reply));
 }
 
-std::pair<bool, trm::Infomation> trm::PollReply(const std::string &self, int id) noexcept
+std::pair<bool, trm::Information> trm::PollReply(const std::string &self, int id) noexcept
 {
     auto filePath = file::GetFilePath(self, ToStr(id));
     if (!file::CheckFileExists(filePath)) {
@@ -71,12 +71,12 @@ std::pair<bool, trm::Infomation> trm::PollReply(const std::string &self, int id)
     return {true, Decode(read)};
 }
 
-trm::Message trm::Encode(const Infomation &infomation) noexcept
+trm::Message trm::Encode(const Information &information) noexcept
 {
-    return Combine(infomation);
+    return Combine(information);
 }
 
-trm::Infomation trm::Decode(const Message &message) noexcept
+trm::Information trm::Decode(const Message &message) noexcept
 {
     return Split(message);
 }
@@ -173,7 +173,9 @@ trm::MailContent::operator std::string() const noexcept
         ToStr(timeStamp), 
         sender, 
         receiver, 
-        content
+        subject, 
+        content, 
+        ToStr((int)read)
     });
 }
 
@@ -184,7 +186,9 @@ trm::MailContent::MailContent(const std::string &content) noexcept
         ToNum<unsigned long long>(mailContent[0]), 
         mailContent[1], 
         mailContent[2], 
-        Combine(trm::Split(mailContent[3]))
+        mailContent[3], 
+        mailContent[4], 
+        (bool)ToNum(mailContent[5])
     };
 }
 
