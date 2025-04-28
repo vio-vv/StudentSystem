@@ -173,7 +173,7 @@ namespace rqs{
 
 #pragma region 图书馆系统
     enum bk {
-        BOOK_ISBN,
+        BOOK_ISBN = 1,
         BOOK_NAME,
         BOOK_AUTHOR,
         BOOK_CATAGORY,
@@ -204,7 +204,9 @@ namespace rqs{
      * @brief 搜索图书。
      * @param search_key 查找关键字
      * @param search_type 查找图书属性 默认为书名
-     * @return FAIL or SUCC
+     * @param replace true 则重新进行检索, false 则仅进行排序
+     * @param sort_function 排序函数，排序变量需为图书成员数据 @see @struct Book
+     * @return 第一项为 FAIL or SUCCESS, 第二项为 Book 列表
      */
     const std::string SEARCH_BOOK = _AS_"SEARCH_BOOK";
     /**
@@ -213,7 +215,7 @@ namespace rqs{
      * @param password 密码
      * @param isbn 作为索引 书籍 ISBN 号
      * @param amount 存放数量
-     * @param bookInfo 书籍信息
+     * @param bookInfo 书籍信息 @see @struct Book
      * @return SUCC or FAIL or ACCESS_DENIED
      * @note ACCESS REQUIRED RESTORE_BOOK
      */
@@ -224,7 +226,7 @@ namespace rqs{
      * @param code 学工号
      * @param password 密码
      * @param isbn 作为索引 书籍 ISBN 号
-     * @param bookInfo 书籍信息
+     * @param bookInfo 书籍信息 @see @struct Book
      * @return SUCC or FAIL or ACCESS_DENIED   
      * @note ACCESS REQUIRED MODIFY_BOOK_INFO
      */
@@ -449,6 +451,22 @@ struct Book{
 };
 
 // TODO
+
+struct Date {
+    unsigned int year;
+    unsigned int month;
+    unsigned int day;
+
+    Date(const unsigned int _year, const unsigned int _month, const unsigned int _day) noexcept
+    : year(_year), month(_month), day(_day) {};
+    Date(const std::string&) noexcept;
+    operator std::string() noexcept;
+    void init();
+    int operator-(const Date &other) noexcept;
+    Date operator+(const int &day) noexcept;
+};
+
+// TODO
 struct BorrowLog {
     int borrowLast;
     Date start;
@@ -458,21 +476,6 @@ struct BorrowLog {
     BorrowLog(int _borrowLast, const Date &_start, const std::string &_borrower, const std::string &_bookIsbn) noexcept
     : borrowLast(_borrowLast), start(_start), end(_borrower + _borrower), borrower(_borrower), bookIsbn(_bookIsbn) {}
     operator std::string() const noexcept;
-};
-
-// TODO
-struct Date {
-    unsigned int year;
-    unsigned int month;
-    unsigned int day;
-
-    Date(const int _year, const int _month, const int _day) noexcept
-    : year(_year), month(_month), day(_day) {};
-    Date(const std::string&) noexcept;
-    operator std::string() noexcept;
-    void init();
-    int operator-(const Date &other) noexcept;
-    Date operator+(const int &day) noexcept;
 };
 
 
@@ -574,6 +577,12 @@ unsigned long long GenerateRandomCode() noexcept;
  */
 unsigned long long GetTimeStamp() noexcept;
 
+/**
+ * @brief 模糊匹配
+ * @return 最长公共子序列与较短字符串比值
+ */
+double FuzzyMatch(const std::string &str1, const std::string &str2) noexcept;
+
 template <typename List> concept Iterable = requires (List list) { list.begin(); list.end(); ++list.begin(); };
 template <typename List, typename InputType> concept TypeCorrespond = requires (List list, InputType input) { input = *list.begin(); };
 /**
@@ -588,26 +597,6 @@ std::vector<ReturnType> Foreach(const List &series, const std::function<ReturnTy
     }
     return std::move(result);
 }
-/**
- * @brief 模糊匹配
- * @return 最长公共子序列与较短字符串比值
- */
-double FuzzyMatch(const std::string &str1, const std::string &str2) noexcept
-{
-    const int len1 = str1.length();
-    const int len2 = str2.length();
-
-    std::vector<std::vector<int>> LCS(len1 + 1, std::vector<int>(len2 + 1));
-    for (int i = 1; i <= len1; i++) {
-        for (int j = 1; j <= len2; j++) {
-            if (str1[i - 1] == str2[j - 1]) LCS[i][j] = LCS[i - 1][j - 1] + 1;
-            else LCS[i][j] = std::max(LCS[i - 1][j], LCS[i][j - 1]);
-        }
-    }
-
-    return LCS[len1][len2] / (double) std::min(len1, len2);
-}
 
 }
-
 #endif

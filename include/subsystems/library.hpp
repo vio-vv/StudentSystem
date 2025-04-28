@@ -22,12 +22,10 @@ public:
     trm::Information BorrowBook(const trm::Information&) noexcept;
     trm::Information ReturnBook(const trm::Information&) noexcept;
     trm::Information RemoveBook(const trm::Information&) noexcept;
-    trm::Information SearchBook(const trm::Information&, const int &type) noexcept;
     trm::Information ModifyBookInfo(const trm::Information&) noexcept;
     trm::Information ShowBookList(const trm::Information&) const noexcept;
+    std::pair<trm::Information, std::vector<trm::Book>> SearchBook(const trm::Information&, std::function<bool(const trm::Book &a, const trm::Book &b)> &&f) noexcept;
     // trm::Information ShowBookList(const trm::Information&, const unsigned int&) const noexcept;
-    template<typename SortType>
-    trm::Information SortMatchBook(const trm::Information &content, std::function<bool(const SortType &a, const SortType &b)> &f) noexcept;
 
     //extra 
 
@@ -51,14 +49,8 @@ private:
     std::vector<trm::BorrowLog> timeout;
     trm::Information CrossBorrowInfo() noexcept;
     trm::Information SendReturnReminder(const trm::Information&) noexcept;
+    trm::Information SortMatchBook(const trm::Information &content, std::function<bool(const trm::Book &a, const trm::Book &b)> &f) noexcept;
 };
-
-template<typename SortType>
-trm::Information Library::SortMatchBook(const trm::Information &content, std::function<bool(const SortType &a, const SortType &b)> &f) noexcept {
-    assert(content[0] == trm::rqs::SORT_BOOK);
-    std::sort(activebookseries.begin(), activebookseries.end(), f);
-    return{trm::rpl::SUCC};
-}
 
 }
 
