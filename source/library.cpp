@@ -3,11 +3,7 @@
 
 ssys::Library::Library() noexcept
 {
-    auto base = dat::DataBase(DATA_PATH);
-    auto library = base["library"];
-    auto books = library["books"];
-    books.Push({"978-7-04-059902-2", trm::Book{"978-7-04-059902-2", "思想道德与法治", "2023-02", "政治、法律", "图书馆社会科学综合书库402", {"《思想道德与法治（2023年版）》"}}});
-
+    //books.Push({"978-7-04-059902-2", trm::Book{"978-7-04-059902-2", "思想道德与法治", "2023-02", "政治、法律", "图书馆社会科学综合书库402", {"《思想道德与法治（2023年版）》"}}});
 }
 
 ssys::Library::~Library() noexcept
@@ -24,7 +20,7 @@ trm::Information ssys::Library::RestoreNewBook(const trm::Information &content) 
     if (!books.Exists(content[3])) {
         auto book = trm::Book(content[5]);
         book.bookTot = ToNum(content[4]);
-        books.Push({content[3], book});
+        books[content[3]] = book;
     }
     else {
         trm::Book book = trm::Book(books[content[3]]);
