@@ -32,12 +32,49 @@ trm::Information ssys::Library::RestoreNewBook(const trm::Information &content) 
 
 trm::Information ssys::Library::BorrowBook(const trm::Information &content) noexcept
 {
-    return{};
+    assert(content[0] == trm::rqs::BORROW_BOOK);
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BORROW_BOOK});
+    if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
+
+    auto book = trm::Book(books[content[3]]);
+    if (book.bookTot - book.bookBorrowed < 1) return {trm::rpl::NO_SPARE_BOOK};
+    else {
+        book.bookBorrowed++;
+        books[content[3]] = book;
+        time_t currantTime = time(nullptr);
+        bookBorrowLog[content[3]].Push(trm::BorrowLog{ToNum<int>(content[4]), trm::Date(currantTime), content[1], content[3]});
+        accountBorrowLog[content[1]].Push(trm::BorrowLog{ToNum<int>(content[4]), trm::Date(currantTime), content[1], content[3]});
+    }
+    return{trm::rpl::SUCC};
 }
 
 trm::Information ssys::Library::ReturnBook(const trm::Information &content) noexcept
 {
-    return{};
+    assert(content[0] == trm::rqs::RETURN_BOOK);
+
+    auto reply = SSys::Get().CheckAccountExist({trm::rqs::CHECK_ACCOUNT_EXISTS, content[1]});
+    if (reply[0] == trm::rpl::NO) return {trm::rpl::FAIL};
+
+    auto logs = accountBorrowLog[content[1]];
+    for (auto [name, log] : logs) {
+        auto logInfo = trm::BorrowLog(log);
+        if (logInfo.bookIsbn == content[3] && logInfo.start.currantTime == ToNum<time_t>(content[4])) {
+            auto book = trm::Book(books[content[3]]);
+            book.bookBorrowed--;
+            books[content[3]] = book;
+            accountBorrowLog[content[1]][name].Clear();
+            for (auto [name1, log1] : bookBorrowLog[content[3]]) {
+                auto logInfo1 = trm::BorrowLog(log1);
+                if (logInfo1.borrower == content[1] && logInfo1.start.currantTime == ToNum<time_t>(content[4])) {
+                    bookBorrowLog[content[3]][name1].Clear();
+                    break;
+                }
+            }
+            return {trm::rpl::SUCC};
+        }
+    }
+    return{trm::rpl::NO_BORROW_RECORD};
 }
 
 trm::Information ssys::Library::RemoveBook(const trm::Information &content) noexcept
@@ -47,11 +84,22 @@ trm::Information ssys::Library::RemoveBook(const trm::Information &content) noex
     auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BOOK_MANAGE});
     if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
 
-    if (!books.Exists(content[3])) return {trm::rpl::FAIL};
+    if (!books.Exists(content[3])) return {trm::rpl::NO_BOOK};
     else {
         trm::Book book = trm::Book(books[content[3]]);
         if (content[4] == "all") {
             books[content[3]].Clear();
+            for (auto [name, log] : bookBorrowLog[content[3]]) {
+                auto logInfo = trm::BorrowLog(log);
+                for (auto [name1, log1] : accountBorrowLog[logInfo.borrower]) {
+                    auto logInfo1 = trm::BorrowLog(log1);
+                    if (logInfo1.bookIsbn == content[3]) {
+                        accountBorrowLog[logInfo1.borrower][name1].Clear();
+                    }
+                }
+                bookBorrowLog[content[3]][name].Clear();
+            }
+            bookBorrowLog[content[3]].Remove();
         }
         else {
             if (book.bookTot - book.bookBorrowed >= ToNum(content[4])) {
@@ -59,9 +107,22 @@ trm::Information ssys::Library::RemoveBook(const trm::Information &content) noex
                 books[content[3]] = book;
             }
             else {
-                return {trm::rpl::FAIL};
+                return {trm::rpl::EXCEED_BOOK_NUM};
             }
-            if (book.bookTot == 0) books[content[3]].Clear();
+            if (book.bookTot == 0)  {
+                books[content[3]].Clear();
+                for (auto [name, log] : bookBorrowLog[content[3]]) {
+                    auto logInfo = trm::BorrowLog(log);
+                    for (auto [name1, log1] : accountBorrowLog[logInfo.borrower]) {
+                        auto logInfo1 = trm::BorrowLog(log1);
+                        if (logInfo1.bookIsbn == content[3]) {
+                            accountBorrowLog[logInfo1.borrower][name1].Clear();
+                        }
+                    }
+                    bookBorrowLog[content[3]][name].Clear();
+                }
+                bookBorrowLog[content[3]].Remove();
+            }
         }
     }
 
@@ -76,15 +137,31 @@ trm::Information ssys::Library::ModifyBookInfo(const trm::Information &content) 
 
     if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
 
-    if (!books.Exists(content[3])) return {trm::rpl::FAIL};
+    if (!books.Exists(content[3])) return {trm::rpl::NO_BOOK};
     else {
         trm::Book book = content[4];
-        trm::Book oldBook = trm::Book(books[content[3]]);
+        if (books.Exists(book.bookIsbn) && book.bookIsbn != content[3]) return {trm::rpl::EXIST_BOOK}; 
+        auto oldBook = trm::Book(books[content[3]]);
         book.bookBorrowed = oldBook.bookBorrowed;
         book.bookTot = oldBook.bookTot;
-        book.borrowLog = oldBook.borrowLog;
+        if (book.bookIsbn != oldBook.bookIsbn) {
+            auto newLogs = bookBorrowLog[book.bookIsbn];
+            auto oldLogs = bookBorrowLog[content[3]];
+            for (auto [name, log] : oldLogs) {
+                auto logInfo = trm::BorrowLog(log);
+                logInfo.bookIsbn = book.bookIsbn;
+                newLogs.Push(logInfo);
+                for (auto [name1, log1] : accountBorrowLog[logInfo.borrower]) {
+                    auto logInfo1 = trm::BorrowLog(log1);
+                    if (logInfo1.bookIsbn == content[3]) {
+                        accountBorrowLog[logInfo1.borrower][name1] = logInfo;
+                    }
+                }
+            }
+            bookBorrowLog[content[3]].Remove();
+            books[content[3]].Clear();
+        }
         books[book.bookIsbn] = book;
-        books[content[3]].Clear();
     }
 
     return{trm::rpl::SUCC};
@@ -96,17 +173,33 @@ trm::Information ssys::Library::SortMatchBook(const trm::Information &content, s
     return{trm::rpl::SUCC};
 }
 
+std::pair<trm::Information, std::vector<trm::BorrowLog>> ssys::Library::GetAccountBorrowList(const trm::Information &content) noexcept
+{
+    assert(content[0] == trm::rqs::GET_ACCOUNT_BORROW_LIST);
+
+    auto reply = SSys::Get().CheckAccountExist({trm::rqs::CHECK_ACCOUNT_EXISTS, content[1]});
+    if (reply[0] == trm::rpl::NO) return {{trm::rpl::NO_ACCOUNT}, {}};
+
+    auto logs = accountBorrowLog[content[1]];
+    std::vector<trm::BorrowLog> borrowList;
+    for (auto [name, log] : logs) {
+        auto logInfo = trm::BorrowLog(log);
+        borrowList.push_back(logInfo);
+    }
+    return{{trm::rpl::SUCC}, borrowList};
+}
+
 
 std::pair<trm::Information, std::vector<trm::Book>> ssys::Library::SearchBook(const trm::Information &content, std::function<bool(const trm::Book &a, const trm::Book &b)> &&f) noexcept
 {   
     assert(content[0] == trm::rqs::SEARCH_BOOK);
     int type = ToNum<int>(content[2]);
     bool replace = false;
-    if (content[3] == "true" || ToNum<int>(content[3]) == 1) {
+    if (content[3] == "true") {
         replace = true;
     }
     if (replace) {
-        const double standard = 0.1;
+        const double standard = 0.10;
 
         activebookseries.clear();
         std::vector<std::pair<double, trm::Book>> match;
@@ -149,7 +242,7 @@ std::pair<trm::Information, std::vector<trm::Book>> ssys::Library::SearchBook(co
             }
         }
         std::sort(match.begin(), match.end(), [](const std::pair<double, trm::Book>& a, const std::pair<double, trm::Book>& b) -> bool { return a.first > b.first; });
-        for (auto [a, book] : match) {
+        for (auto [rate, book] : match) {
             activebookseries.push_back(book);
         }
     }
@@ -160,15 +253,31 @@ std::pair<trm::Information, std::vector<trm::Book>> ssys::Library::SearchBook(co
 
 trm::Information ssys::Library::SendReturnReminder(const trm::Information &content) noexcept
 {   
+    assert(content[0] == trm::rqs::SEND_RETURN_REMINDER);
+
     auto reply = CrossBorrowInfo();
-    return{};
+    if (reply[0] != trm::rpl::SUCC) return {trm::rpl::FAIL};
+
+    for (auto log : timeout) {
+        auto time = log.end.timeInfo;
+        auto book = trm::Book(books[log.bookIsbn]);
+        SSys::Get().SendMessage({trm::rqs::SEND_MESSAGE, "adm", "123", log.borrower, "图书归还提醒", "您好，您的图书《" + book.bookName + "》在" + std::to_string(time->tm_year + 1900) + "年" + std::to_string(time->tm_mon + 1) + "月" + std::to_string(time->tm_mday) + "到期，请及时归还。"});
+    }
+    timeout.clear();
+    return{trm::rpl::SUCC};
 }
 
 trm::Information ssys::Library::CrossBorrowInfo() noexcept
 {   
-    for (auto begin = borrowLogList.begin(); begin != borrowLogList.end(); begin++) {
-        // = (borrowLogList[(*begin).first]);
+    timeout.clear();
+    for (auto [name, account] : accountBorrowLog) {
+        for (auto [name1, log] : account) {
+            auto logInfo = trm::BorrowLog(log);
+            time_t now = time(nullptr);
+            if (logInfo.end.currantTime - 5 * 24 * 60 * 60 <= now ) {
+                timeout.push_back(logInfo);
+            }
+        }
     }
-    
-    return{};
+    return{trm::rpl::SUCC};
 }

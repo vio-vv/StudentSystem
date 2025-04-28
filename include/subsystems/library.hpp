@@ -23,9 +23,10 @@ public:
     trm::Information ReturnBook(const trm::Information&) noexcept;
     trm::Information RemoveBook(const trm::Information&) noexcept;
     trm::Information ModifyBookInfo(const trm::Information&) noexcept;
-    trm::Information ShowBookList(const trm::Information&) const noexcept;
+    trm::Information ResetLibrary(const trm::Information&) noexcept;
+    trm::Information SendReturnReminder(const trm::Information&) noexcept;
+    std::pair<trm::Information, std::vector<trm::BorrowLog>> GetAccountBorrowList(const trm::Information&) noexcept;
     std::pair<trm::Information, std::vector<trm::Book>> SearchBook(const trm::Information&, std::function<bool(const trm::Book &a, const trm::Book &b)> &&f) noexcept;
-    // trm::Information ShowBookList(const trm::Information&, const unsigned int&) const noexcept;
 
     //extra 
 
@@ -44,11 +45,12 @@ private:
     const std::string LIBRARY = "library";
     dat::DataBase books = DATA_BASE[LIBRARY]["books"];
     dat::DataBase borrowLogList = DATA_BASE[LIBRARY]["borrowLogList"];
+    dat::DataBase bookBorrowLog = borrowLogList["bookBorrowLog"];
+    dat::DataBase accountBorrowLog = borrowLogList["accountBorrowLog"];
 
     std::vector<trm::Book> activebookseries;
     std::vector<trm::BorrowLog> timeout;
     trm::Information CrossBorrowInfo() noexcept;
-    trm::Information SendReturnReminder(const trm::Information&) noexcept;
     trm::Information SortMatchBook(const trm::Information &content, std::function<bool(const trm::Book &a, const trm::Book &b)> &f) noexcept;
 };
 
