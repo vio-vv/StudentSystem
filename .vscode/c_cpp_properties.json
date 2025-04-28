@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "D:\\sfml\\SFML-2.6.1\\include\\**",
+                "C:\\Programme\\SFML\\SFML-2.6.1\\include\\**",
                 "${workspaceFolder}\\include\\**"
             ],
             "defines": [

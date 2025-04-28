@@ -1,5 +1,14 @@
 #include "client_pages.hpp"
 
+std::string SfToStr(const sf::String &t) noexcept
+{
+    std::string result;
+    for (auto c : t.toUtf8()) {
+        result.push_back(c);
+    }
+    return std::move(result);
+}
+
 clpg::Handler clpg::GetHandler(ID id) noexcept
 {
     switch (id)
@@ -45,7 +54,7 @@ clpg::ID clpg::EnterSystem(ui::Screen &screen) noexcept
         screen.Tick();
         if (clicked) {
             screen.FreeAll();
-            auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ONLINE}, L"正在检查服务端在线状态");
+            auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ONLINE}, "正在检查服务端在线状态");
             if (success == 1) {
                 if (reply[0] == trm::rpl::YES) {
                     return ID::LOGIN;
@@ -111,8 +120,8 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                     input->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     input->SetHSize(3);
                     input->SetLengthLimit(64);
-                    input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
-                    input->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
+                    // input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
+                    // input->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
                     input->SetInputCallback([&input](const sf::String &name, const sf::Event &event){
                         sharedInformation.username = input->GetText();
                     });
@@ -180,7 +189,7 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
         screen.Tick();
         if (login) {
             screen.HideAll();
-            auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ACCOUNT, sharedInformation.username, sharedInformation.password}, L"登录中");
+            auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ACCOUNT, SfToStr(sharedInformation.username), sharedInformation.password}, L"登录中");
             if (success == 1) {
                 if (reply[0] == trm::rpl::YES) {
                     return ID::MAIN_PAGE;
