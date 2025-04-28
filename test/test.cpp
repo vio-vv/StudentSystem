@@ -5,7 +5,7 @@
 #include "transmitter.hpp"
 #include "data_base.hpp"
 
-#define EEA
+#define LIBRARY
 
 using namespace std;
 using namespace trm;
