@@ -182,7 +182,7 @@ namespace rqs{
     };
     /**
      * @brief 对匹配的图书按指定内容排序
-     * @param sort_function 排序函数，排序变量需为图书成员数据
+     * @param sortFunction 排序函数，排序变量需为图书成员数据
      * @return SUCC or FAIL
      * @note 需先使用SEARCH_BOOK进行检索，然后使用SHOW_BOOK_LIST获取排序后图书
      */
@@ -193,19 +193,42 @@ namespace rqs{
      * @param password 密码
      * @param isbn 作为索引 书籍 ISBN 号
      * @param amount 下架数量 若为all，则下架该书所有存量
-     * @return SUCC or FAIL or ACCESS_DENIED
-     * @note ACCESS REQUIRED REMOVE_BOOK
-     * @note amount 超出存量 或 图书不存在 则返回FAIL
+     * @return SUCC or NO_BOOK or EXCEED_BOOK_NUM or ACCESS_DENIED
+     * @note ACCESS REQUIRED BOOK_MANAGE
      */
     const std::string REMOVE_BOOK = _AS_"REMOVE_BOOK";
+    /**
+     * @借阅书籍
+     * @param code 学工号
+     * @param password 密码
+     * @param isbn 作为索引 书籍 ISBN 号
+     * @param borrowPeriod 借阅期限
+     * @return SUCC or NO_BOOK or NO_SPARE_BOOK or ACCESS_DENIED
+     * @note ACCESS REQUIRED BORROW_BOOK
+     */
     const std::string BORROW_BOOK = _AS_"BORROW_BOOK";
+    /**
+     * @brief 查看账户借阅列表
+     * @param code 学工号
+     * @param password 密码
+     * @return 第一项为 NO_ACCOUNT or SUCCESS, 第二项为 BorrowLog 列表
+     */
+    const std::string GET_ACCOUNT_BORROW_LIST = _AS_"GET_ACCOUNT_BORROW_LIST";
+    /**
+     * @brief 归还书籍
+     * @param code 学工号
+     * @param password 密码
+     * @param isbn 书籍 ISBN 号 作为索引
+     * @param borrowDate 借阅时间 作为索引 
+     * @return SUCC or FAIL or NO_BORROW_RECORD
+     */
     const std::string RETURN_BOOK = _AS_"RETURN_BOOK";
     /**
      * @brief 搜索图书。
-     * @param search_key 查找关键字
-     * @param search_type 查找图书属性 默认为书名
+     * @param searchKey 查找关键字
+     * @param searchType 查找图书属性 默认为书名
      * @param replace true 则重新进行检索, false 则仅进行排序
-     * @param sort_function 排序函数，排序变量需为图书成员数据 @see @struct Book
+     * @param sortFunction 排序函数，排序变量需为图书成员数据 @see @struct Book
      * @return 第一项为 FAIL or SUCCESS, 第二项为 Book 列表
      */
     const std::string SEARCH_BOOK = _AS_"SEARCH_BOOK";
@@ -217,20 +240,24 @@ namespace rqs{
      * @param amount 存放数量
      * @param bookInfo 书籍信息 @see @struct Book
      * @return SUCC or FAIL or ACCESS_DENIED
-     * @note ACCESS REQUIRED RESTORE_BOOK
+     * @note ACCESS REQUIRED BOOK_MANAGE
      */
     const std::string RESTORE_BOOK = _AS_"RESTORE_BOOK";
-    const std::string SHOW_BOOK_LIST = _AS_"SHOW_BOOK_LIST";
     /**
      * @brief 修改书籍信息
      * @param code 学工号
      * @param password 密码
      * @param isbn 作为索引 书籍 ISBN 号
      * @param bookInfo 书籍信息 @see @struct Book
-     * @return SUCC or FAIL or ACCESS_DENIED   
-     * @note ACCESS REQUIRED MODIFY_BOOK_INFO
+     * @return SUCC or NO_BOOK or EXIST_BOOK or ACCESS_DENIED   
+     * @note ACCESS REQUIRED BOOK_MANAGE
      */
     const std::string MODIFY_BOOK_INFO = _AS_"MODIFY_BOOK_INFO";
+    /**
+     * @brief 发送还书提醒。
+     * @return SUCC or FAIL
+     */
+    const std::string SEND_RETURN_REMINDER = _AS_"SEND_RETURN_REMINDER";
 
     //extra
 
@@ -384,6 +411,12 @@ namespace rpl{
     const std::string NO_ACCOUNT = _AS_"NO_ACCOUNT";
     const std::string WRONG_PASSWORD = _AS_"WRONG_PASSWORD";
     const std::string NO_TAG = _AS_"NO_TAG";
+    
+    const std::string NO_BOOK = _AS_"NO_BOOK";
+    const std::string EXIST_BOOK = _AS_"EXIST_BOOK";
+    const std::string NO_SPARE_BOOK = _AS_"NO_SPARE_BOOK";
+    const std::string EXCEED_BOOK_NUM = _AS_"EXCEED_BOOK_NUM";
+    const std::string NO_BORROW_RECORD = _AS_"NO_BORROW_RECORD";
 }
 namespace Access{
     const std::string ADM = _AS_"ADM";                   // 拥有这个权限表示拥有所有权限
@@ -403,6 +436,7 @@ namespace Access{
     const std::string RESET_MAIL_SYSTEM = _AS_"RESET_MAIL_SYSTEM";
     
     const std::string BOOK_MANAGE = _AS_"BOOK_MANAGE";
+    const std::string BORROW_BOOK = _AS_"BORROW_BOOK";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;
@@ -428,6 +462,37 @@ struct MailContent {
     MailContent(const std::string &content) noexcept;
 };
 
+struct Date {
+    time_t currantTime;
+    tm *timeInfo;
+
+    Date(time_t _currantTime = 0) noexcept { currantTime = _currantTime ? _currantTime : time(nullptr); timeInfo = localtime(&currantTime); }
+    Date(const std::string&) noexcept;
+    operator std::string() const noexcept;
+    friend int operator-(const Date &date, const Date &other) noexcept 
+    {
+        double timeDiff = difftime(date.currantTime, other.currantTime);
+        return (int) timeDiff / (60 * 60 * 24) + 1;
+    }
+    friend Date operator+(const Date &date, const int &day) noexcept
+    {
+        return trm::Date(date.currantTime + day * 60 * 60 * 24);
+    }
+};
+
+struct BorrowLog {
+    int borrowLast;
+    Date start;
+    Date end;
+    std::string borrower;
+    std::string bookIsbn;
+    BorrowLog(int _borrowLast = 0, const Date &_start = Date(), const std::string &_borrower = "", const std::string &_bookIsbn = "") noexcept
+    : borrowLast(_borrowLast), start(_start), end(_start + _borrowLast), borrower(_borrower), bookIsbn(_bookIsbn) {}
+    BorrowLog(const std::string &content) noexcept;
+    operator std::string() const noexcept;
+};
+
+
 struct Book{
     unsigned int bookTot;                    //  藏书总数
     unsigned int bookBorrowed;               //  借阅总数
@@ -437,47 +502,17 @@ struct Book{
     std::string bookCatagory;                //  分类
     std::string storePosition;               //  藏书位置
     std::vector<std::string> bookAuthor;     //  作者
-    std::vector<std::string> borrowLog;      //  借阅日志
 
     Book(const std::string &_bookIsbn, const std::string &_bookName, const std::string &_bookPublicationDate, const std::string &_bookCatagory,
         const std::string &_storePosition, const std::vector<std::string> &_bookAuthor, 
-        const unsigned int tot = 1, const unsigned int borrow = 0, const std::vector<std::string> _borrowLog = {}) noexcept 
+        const unsigned int tot = 1, const unsigned int borrow = 0) noexcept 
     :   bookTot(tot), bookBorrowed(borrow), 
         bookIsbn(_bookIsbn), bookName(_bookName), bookPublicationDate(_bookPublicationDate), bookCatagory(_bookCatagory), storePosition(_storePosition),
-        bookAuthor(_bookAuthor), borrowLog(_borrowLog) {};
+        bookAuthor(_bookAuthor) {};
     
     Book(const std::string &constent) noexcept;
     operator std::string() const noexcept;
 };
-
-// TODO
-
-struct Date {
-    unsigned int year;
-    unsigned int month;
-    unsigned int day;
-
-    Date(const unsigned int _year, const unsigned int _month, const unsigned int _day) noexcept
-    : year(_year), month(_month), day(_day) {};
-    Date(const std::string&) noexcept;
-    operator std::string() noexcept;
-    void init();
-    int operator-(const Date &other) noexcept;
-    Date operator+(const int &day) noexcept;
-};
-
-// TODO
-struct BorrowLog {
-    int borrowLast;
-    Date start;
-    Date end;
-    std::string borrower;
-    std::string bookIsbn;
-    BorrowLog(int _borrowLast, const Date &_start, const std::string &_borrower, const std::string &_bookIsbn) noexcept
-    : borrowLast(_borrowLast), start(_start), end(_borrower + _borrower), borrower(_borrower), bookIsbn(_bookIsbn) {}
-    operator std::string() const noexcept;
-};
-
 
 #pragma endregion
 
@@ -599,4 +634,5 @@ std::vector<ReturnType> Foreach(const List &series, const std::function<ReturnTy
 }
 
 }
+
 #endif
