@@ -557,7 +557,7 @@ struct IdAndPhone
     IdAndPhone(const std::string &content) noexcept;
     operator std::string() const noexcept;
 };
-
+//暂时还没用到
 struct reserveServer
 {
     std::string leftNumber; // 剩余名额

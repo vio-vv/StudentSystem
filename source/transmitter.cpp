@@ -227,5 +227,31 @@ trm::CourseInformation::CourseInformation(const std::string &content) noexcept
     };
 }
 
+trm::IdAndPhone::operator std::string() const noexcept
+{
+    return Combine({id, phone});
+}
 
+trm::IdAndPhone::IdAndPhone(const std::string &content) noexcept
+{
+    auto idAndPhone = Split(content);
+    *this = {
+        idAndPhone[0], 
+        idAndPhone[1]
+    };
+}
 
+trm::Date::operator std::string() const noexcept
+{
+    return Combine({ToStr(month), ToStr(week), ToStr(date)});
+}
+
+trm::Date::Date(const std::string &content) noexcept
+{
+    auto date = Split(content);
+    *this = {
+       date[0],
+       date[1],
+       date[2] 
+    };
+}
