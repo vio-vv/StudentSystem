@@ -20,6 +20,7 @@ class ReserveSystem{
 public:
     trm::Information RequestReserve(const trm::Information& infomation) noexcept;
     trm::Information CancelReserve(const trm::Information& infomation) noexcept;
+    trm::Information CheckTime(const trm::Information& infomation) noexcept;
     trm::Information CheckReserveTime(const trm::Information& infomation) noexcept;
 protected:
     ReserveSystem() noexcept;
@@ -27,9 +28,8 @@ protected:
     ReserveSystem(const ReserveSystem&) = delete;
     ReserveSystem& operator=(const ReserveSystem&) = delete;
 private:
-    static const std::string dataPath;
-    std::map<std::string,std::vector<trm::ReserveInformation::Client>> reserveRequestList; // 预约申请列表
-    std::map<std::string,std::vector<trm::ReserveInformation::Server>> reserveReplyList; // 预约列表
+    dat::DataBase clientBase = DATA_BASE["reserve"]["client"];
+    dat::DataBase reserveBase = DATA_BASE["reserve"]["server"]; //一个存用户预约，一个存预约信息
 };
 
 }

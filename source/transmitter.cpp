@@ -227,32 +227,5 @@ trm::CourseInformation::CourseInformation(const std::string &content) noexcept
     };
 }
 
-trm::ReserveInformation::Server::operator std::string() const noexcept
-{
-    return Combine({
-        leftNumber, 
-        status, 
-        Combine(leftTime)
-    });
-}
 
-trm::ReserveInformation::Server::Server(const std::string &content) noexcept
-{
-    auto server = Split(content);
-    *this = {
-        server[0], 
-        server[1], 
-        trm::Split(server[2])
-    };
-}
-
-trm::ReserveInformation::Server::Server(const Server& servers) noexcept
-{
-    *this = servers;
-}
-
-trm::ReserveInformation::Client::Client(const Client& clients) noexcept
-{
-    *this = clients;
-}
 
