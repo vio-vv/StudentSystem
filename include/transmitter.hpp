@@ -634,5 +634,4 @@ std::vector<ReturnType> Foreach(const List &series, const std::function<ReturnTy
 }
 
 }
-
 #endif

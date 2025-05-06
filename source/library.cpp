@@ -189,7 +189,6 @@ std::pair<trm::Information, std::vector<trm::BorrowLog>> ssys::Library::GetAccou
     return{{trm::rpl::SUCC}, borrowList};
 }
 
-
 std::pair<trm::Information, std::vector<trm::Book>> ssys::Library::SearchBook(const trm::Information &content, std::function<bool(const trm::Book &a, const trm::Book &b)> &&f) noexcept
 {   
     assert(content[0] == trm::rqs::SEARCH_BOOK);
