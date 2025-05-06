@@ -1,0 +1,6 @@
+.vscode/
+/test/data/
+/test/test.exe
+/server/data/
+/server/server.exe
+/client/client.exe

@@ -155,6 +155,23 @@ std::string trm::Hash(const std::string &str) noexcept
     return str; // TODO: implement hash function
 }
 
+double trm::FuzzyMatch(const std::string &str1, const std::string &str2) noexcept
+{
+    const int len1 = str1.length();
+    const int len2 = str2.length();
+
+    std::vector<std::vector<int>> LCS(len1 + 1, std::vector<int>(len2 + 1));
+    for (int i = 1; i <= len1; i++) {
+        for (int j = 1; j <= len2; j++) {
+            if (str1[i - 1] == str2[j - 1]) LCS[i][j] = LCS[i - 1][j - 1] + 1;
+            else LCS[i][j] = std::max(LCS[i - 1][j], LCS[i][j - 1]);
+        }
+    }
+
+    return LCS[len1][len2] / (double) std::min(len1, len2);
+}
+
+
 trm::Account::operator std::string() const noexcept
 {
     return Combine({
@@ -209,7 +226,7 @@ trm::Account::Account(const std::string &content) noexcept
 trm::CourseInformation::operator std::string() const noexcept
 {
     return Combine({
-        courseName, 
+        courseName,
         teacher, 
         location, 
         Combine(weeks)
@@ -222,7 +239,7 @@ trm::CourseInformation::CourseInformation(const std::string &content) noexcept
     *this = {
         course[0], 
         course[1], 
-        course[2], 
+        course[2],
         trm::Split(course[3])
     };
 }
@@ -241,12 +258,50 @@ trm::IdAndPhone::IdAndPhone(const std::string &content) noexcept
     };
 }
 
-trm::Date::operator std::string() const noexcept
+trm::ReserveDate::operator std::string() const noexcept
 {
     return Combine({ToStr(month), ToStr(week), ToStr(date)});
 }
+trm::Book::Book(const std::string &content) noexcept
+{
+    auto data = trm::Split(content);
+    *this = {
+        data[0],
+        data[1],
+        data[2],
+        data[3],
+        data[4],
+        trm::Split(data[5]),
+        ToNum<unsigned int>(data[6]),
+        ToNum<unsigned int>(data[7]),
+        trm::Split(data[8])
+    };
+}
 
-trm::Date::Date(const std::string &content) noexcept
+trm::Book::operator std::string() const noexcept
+{
+    return trm::Combine({
+        bookIsbn, bookName,
+        bookPublicationDate,
+        bookCatagory,
+        storePosition,
+        trm::Combine(bookAuthor),
+        ToStr(bookTot),
+        ToStr(bookBorrowed),
+        trm::Combine(borrowLog)
+    });
+}
+
+trm::Date::operator std::string() noexcept
+{
+    return trm::Combine({
+        ToStr(year),
+        ToStr(month),
+        ToStr(day)
+    });
+}
+
+trm::ReserveDate::ReserveDate(const std::string &content) noexcept
 {
     auto date = Split(content);
     *this = {
@@ -254,4 +309,23 @@ trm::Date::Date(const std::string &content) noexcept
        date[1],
        date[2] 
     };
+}
+
+trm::Date::Date(const std::string & content) noexcept
+{
+    auto data = trm::Split(content);
+    *this = {
+        ToNum<unsigned int>(data[0]),
+        ToNum<unsigned int>(data[1]),
+        ToNum<unsigned int>(data[2])
+    };
+}
+
+int trm::Date::operator-(const Date &other) noexcept {
+    bool isLearYear = year % 4 == 0 || (year % 100 != 0 && year % 400 == 0); 
+    int exceed = 0;
+    for (int i = 1; i < month; i++) {
+
+    }
+    return 0;
 }

@@ -13,6 +13,7 @@
 
 #include <string>
 #include <sstream>
+#include "SFML/Graphics.hpp"
 
 template <typename T> concept ConvertToString = requires (T t) { (std::string)t; };
 /**

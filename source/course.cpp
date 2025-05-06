@@ -3,7 +3,7 @@
 
 ssys::CourseSystem::CourseSystem() noexcept
 {
-   
+  courseBase["10086"]=trm::CourseInformation{"工科数学分析","张三","A1 202",{"1","2","3","4","5","6"}};//TODO
 }
 
 ssys::CourseSystem::~CourseSystem() noexcept
@@ -18,7 +18,7 @@ trm::Information ssys::CourseSystem::SearchCourseInformation(const trm::Informat
     {
        if(courseName==information[2])
        {
-           return {trm::rpl::YES,courseInformation};
+           return {trm::rpl::YES,information[2],courseInformation};
        }
     }
    return {trm::rpl::NO, trm::rpl::NO_MATCH_COURSE};

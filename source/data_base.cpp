@@ -50,7 +50,7 @@ dat::DataBase dat::DataBase::operator[](const std::string &keyName) const noexce
         if (!file::CreateDirectory(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory:" << space << std::endl;
             exit(1);
-        }
+        } 
     }
     return DataBase(file::GetFilePath(space, keyName), false);
 }
@@ -133,6 +133,15 @@ unsigned long long dat::DataBase::Size() noexcept
 bool dat::DataBase::Exists() const noexcept
 {
     return file::CheckFileExists(space);
+}
+
+bool dat::DataBase::Exists(const std::string &keyName) const noexcept
+{
+    if (consideredAsFileOnly) {
+        assert(false); // Deny
+        return false;
+    }
+    return file::CheckFileExists(file::GetFilePath(space, keyName));
 }
 
 const std::string &dat::DataBase::operator=(const std::string &value) const noexcept

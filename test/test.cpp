@@ -5,8 +5,6 @@
 #include "transmitter.hpp"
 #include "data_base.hpp"
 
-#define EEA
-
 using namespace std;
 using namespace trm;
 
@@ -163,6 +161,38 @@ int main()
 
 #endif
 
+#ifdef LIBRARY
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "999-9-99-999999-1", "15", Book{"999-9-99-999999-1", "++--", "2025-04", "科学技术", "图书馆208", {"张某某"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "784-8-15-941394-1", "5", Book{"784-8-15-941394-1", "aabb", "2024-10", "科学技术", "图书馆208", {"李某某"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "189-9-39-998899-2", "5", Book{"189-9-39-998899-2", "ccad45", "1925-12", "科学技术", "图书馆208", {"李某"}}}));
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "999-9-99-999999-1", "10"}));
+    f(ssys.ModifyBookInfo({trm::rqs::MODIFY_BOOK_INFO, "adm", "123", "999-9-99-999999-1", Book{"123-4-56-789101-1", "++--", "2025-04", "科学技术", "图书馆208", {"张某某"}}}));
+    auto reply = ssys.SearchBook({trm::rqs::SEARCH_BOOK, "abc", "", "true"}, [](const trm::Book &a, const trm::Book &b) -> bool { return a.storePosition < b.storePosition; });
+    for (auto &book : reply.second) {
+        std::cout << book.bookIsbn << " " << book.bookName << " ";
+        for (auto &author : book.bookAuthor) {
+            std::cout << author << ',';
+        }
+        std::cout << " " << book.bookPublicationDate << " " << book.bookCatagory << " " << book.storePosition << std::endl;
+    }
+#endif
+#ifdef COURSE
+    std::cout<<"ok"<<std::endl;
+    f(ssys.AddCourse({trm::rqs::ADD_COURSE,"adm","123","10086"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.AddCourse({trm::rqs::ADD_COURSE,"adm","123","10086"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.SearchCourseInformation({trm::rqs::SEARCH_COURSE_INFORMATION,"adm","10086"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.SearchCourseInformation({trm::rqs::SEARCH_COURSE_INFORMATION,"adm","12345"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.DeleteCourse({trm::rqs::DELETE_COURSE,"adm","123","10086"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.DeleteCourse({trm::rqs::DELETE_COURSE,"adm","123","10086"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.SearchCourseInformation({trm::rqs::SEARCH_COURSE_INFORMATION,"adm","10086"}));
+    std::cout<<"ok"<<std::endl;
+#endif
     while (1) ;
 
     return 0;

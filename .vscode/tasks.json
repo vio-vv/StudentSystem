@@ -24,7 +24,8 @@
                 "-l", "sfml-window",
                 "-I", "${workspaceFolder}\\include",
 
-                "-std=gnu++20"
+                "-std=gnu++20",
+                "-D", "EEA"
             ],
             "options": {
                 "cwd": "${fileDirname}"

@@ -18,19 +18,18 @@ trm::Information ssys::Library::RestoreNewBook(const trm::Information &content) 
 {
     assert(content[0] == trm::rqs::RESTORE_BOOK);
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::RESTORE_BOOK});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BOOK_MANAGE});
     if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
 
-    auto books = dat::DataBase(DATA_PATH)["library"]["books"];
-    if (!file::CheckFileExists(books.GetSpace() + "\\" + content[3])) {
-        auto bk = trm::Book(content[5]);
-        bk.book_tot = ToNum(content[4]);
-        books.Push({content[3], bk});
+    if (!books.Exists(content[3])) {
+        auto book = trm::Book(content[5]);
+        book.bookTot = ToNum(content[4]);
+        books.Push({content[3], book});
     }
     else {
-        trm::Book bk = std::string(books[content[3]]);
-        bk.book_tot += ToNum(content[4]);
-        books[content[3]] = bk;
+        trm::Book book = trm::Book(books[content[3]]);
+        book.bookTot += ToNum(content[4]);
+        books[content[3]] = book;
     }
     return {trm::rpl::SUCC};
 }
@@ -46,50 +45,134 @@ trm::Information ssys::Library::ReturnBook(const trm::Information &content) noex
 }
 
 trm::Information ssys::Library::RemoveBook(const trm::Information &content) noexcept
-{
-    return{};
+{   
+    assert(content[0] == trm::rqs::REMOVE_BOOK);
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BOOK_MANAGE});
+    if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
+
+    if (!books.Exists(content[3])) return {trm::rpl::FAIL};
+    else {
+        trm::Book book = trm::Book(books[content[3]]);
+        if (content[4] == "all") {
+            books[content[3]].Clear();
+        }
+        else {
+            if (book.bookTot - book.bookBorrowed >= ToNum(content[4])) {
+                book.bookTot -= ToNum(content[4]);
+                books[content[3]] = book;
+            }
+            else {
+                return {trm::rpl::FAIL};
+            }
+            if (book.bookTot == 0) books[content[3]].Clear();
+        }
+    }
+
+    return{trm::rpl::SUCC};
 }
 
 trm::Information ssys::Library::ModifyBookInfo(const trm::Information &content) noexcept
-{
+{   
+    assert(content[0] == trm::rqs::MODIFY_BOOK_INFO);
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BOOK_MANAGE});
+
+    if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
+
+    if (!books.Exists(content[3])) return {trm::rpl::FAIL};
+    else {
+        trm::Book book = content[4];
+        trm::Book oldBook = trm::Book(books[content[3]]);
+        book.bookBorrowed = oldBook.bookBorrowed;
+        book.bookTot = oldBook.bookTot;
+        book.borrowLog = oldBook.borrowLog;
+        books[book.bookIsbn] = book;
+        books[content[3]].Clear();
+    }
+
+    return{trm::rpl::SUCC};
+}
+
+trm::Information ssys::Library::SortMatchBook(const trm::Information &content, std::function<bool(const trm::Book &a, const trm::Book &b)> &f) noexcept {
+    assert(content[0] == trm::rqs::SORT_BOOK);
+    std::sort(activebookseries.begin(), activebookseries.end(), f);
+    return{trm::rpl::SUCC};
+}
+
+
+std::pair<trm::Information, std::vector<trm::Book>> ssys::Library::SearchBook(const trm::Information &content, std::function<bool(const trm::Book &a, const trm::Book &b)> &&f) noexcept
+{   
+    assert(content[0] == trm::rqs::SEARCH_BOOK);
+    int type = ToNum<int>(content[2]);
+    bool replace = false;
+    if (content[3] == "true" || ToNum<int>(content[3]) == 1) {
+        replace = true;
+    }
+    if (replace) {
+        const double standard = 0.1;
+
+        activebookseries.clear();
+        std::vector<std::pair<double, trm::Book>> match;
+        double matchRate = 0;
+        for (auto [name, bookInfo] : books) {
+            trm::Book tmp = trm::Book(bookInfo);
+            switch (type) {
+                case trm::rqs::bk::BOOK_ISBN:
+                    matchRate = trm::FuzzyMatch(content[1], tmp.bookIsbn);
+                    if (matchRate > standard) {
+                        match.push_back({matchRate, tmp});
+                    }
+                    break;
+                case trm::rqs::bk::BOOK_AUTHOR:
+                    for (auto author : tmp.bookAuthor) {
+                        matchRate = std::max(trm::FuzzyMatch(content[1], author), matchRate);
+                    }
+                    if (matchRate > standard) {
+                        match.push_back({matchRate, tmp});
+                    }
+                    break;
+                case trm::rqs::bk::BOOK_CATAGORY:
+                    matchRate = trm::FuzzyMatch(content[1], tmp.bookCatagory);
+                    if (matchRate > standard) {
+                        match.push_back({matchRate, tmp});
+                    }
+                    break;
+                case trm::rqs::bk::BOOK_PUBLISHDATE:
+                    matchRate = trm::FuzzyMatch(content[1], tmp.bookPublicationDate);
+                    if (matchRate > standard) {
+                        match.push_back({matchRate, tmp});
+                    }    
+                    break;
+                default:
+                    matchRate = trm::FuzzyMatch(content[1], tmp.bookName);
+                    if (matchRate > standard) {
+                        match.push_back({matchRate, tmp});
+                    }
+                    break;
+            }
+        }
+        std::sort(match.begin(), match.end(), [](const std::pair<double, trm::Book>& a, const std::pair<double, trm::Book>& b) -> bool { return a.first > b.first; });
+        for (auto [a, book] : match) {
+            activebookseries.push_back(book);
+        }
+    }
+
+    SortMatchBook({trm::rqs::SORT_BOOK}, f);
+    return{{trm::rpl::SUCC}, activebookseries};
+}
+
+trm::Information ssys::Library::SendReturnReminder(const trm::Information &content) noexcept
+{   
+    auto reply = CrossBorrowInfo();
     return{};
 }
 
-trm::Information ssys::Library::ShowBookList(const trm::Information &content) noexcept
-{
+trm::Information ssys::Library::CrossBorrowInfo() noexcept
+{   
+    for (auto begin = borrowLogList.begin(); begin != borrowLogList.end(); begin++) {
+        // = (borrowLogList[(*begin).first]);
+    }
+    
     return{};
-}
-
-trm::Book::Book(const std::string &content) noexcept
-{
-    auto data = trm::Split(content);
-    *this = {
-        data[0],
-        data[1],
-        data[2],
-        data[3],
-        data[4],
-        trm::Split(data[5]),
-        ToNum<unsigned int>(data[6]),
-        ToNum<unsigned int>(data[7]),
-        trm::Split(data[8])
-    };
-}
-
-trm::Book::~Book() noexcept
-{
-}
-
-trm::Book::operator std::string() noexcept
-{
-    return trm::Combine({
-        book_isbn, book_name,
-        book_publication_date,
-        book_catagory,
-        store_position,
-        trm::Combine(book_author),
-        ToStr(book_tot),
-        ToStr(book_borrowed),
-        trm::Combine(borrow_log)
-    });
 }

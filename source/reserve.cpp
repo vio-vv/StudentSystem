@@ -13,7 +13,7 @@ ssys::ReserveSystem::~ReserveSystem() noexcept
 trm::Information ssys::ReserveSystem::CheckTime(const trm::Information& information) noexcept
 {
     assert(information[0]==trm::rqs::CHECK_TIME);
-    auto dateInformation=trm::Date(information[1]);
+    auto dateInformation=trm::ReserveDate(information[1]);
     auto reserveList=reserveBase[dateInformation.month][dateInformation.week][dateInformation.date];//找到指定日期的预约信息
     //待实现：只能在规定的天数内预约，比如只能预约最近一周
     trm::Information timeList;
@@ -30,7 +30,7 @@ trm::Information ssys::ReserveSystem::CheckTime(const trm::Information& informat
 trm::Information ssys::ReserveSystem::CheckReserveTime(const trm::Information& information) noexcept
 {
     assert(information[0]==trm::rqs::CHECK_RESERVE_TIME);
-    auto dateInformation=trm::Date(information[1]);
+    auto dateInformation=trm::ReserveDate(information[1]);
     auto targetReserve=reserveBase[dateInformation.month][dateInformation.week][dateInformation.date];//找到指定日期的预约信息
     for(auto [time,reserve]:targetReserve)//遍历预约信息
     {
