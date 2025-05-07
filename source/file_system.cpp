@@ -82,6 +82,11 @@ bool file::DeleteDirectory(const std::string &directoryPath) noexcept
     return system(("rd /s /q " + directoryPath).c_str()) == 0;
 }
 
+bool file::CheckExists(const std::string &path) noexcept
+{
+    return fs::exists(path);
+}
+
 std::string file::GetFilePath(const std::string &directionPath, const std::string &fileName) noexcept
 {
     if (directionPath.back() == '\\' || directionPath.back() == '/') {

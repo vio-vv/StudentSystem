@@ -14,7 +14,7 @@
 
 #include "file_system.hpp"
 #include "string_integral.hpp"
-#include<algorithm>
+#include <algorithm>
 
 namespace dat {
 
@@ -100,12 +100,12 @@ public:
      */
     unsigned long long Size() noexcept;
     /**
-     * @brief 当成文件进行判断是否存在。
+     * @brief 当成文件（夹）进行判断是否存在。
      * @return 是否存在
      */
     bool Exists() const noexcept;
     /**
-     * @brief 当成文件夹判断是否存在指定子文件
+     * @brief 当成文件夹判断是否存在指定子文件（夹）
      * @return 是否存在
      */
     bool Exists(const std::string &keyName) const noexcept;
@@ -138,6 +138,7 @@ public:
      * @return 工作目录
      */
     const std::string &GetSpace() const noexcept { return space; }
+    static bool fail;
 private:
     DataBase(const std::string &workSpace, bool considerAsFileOnly) : space(workSpace), consideredAsFileOnly(considerAsFileOnly) {}
     std::string space;

@@ -19,11 +19,10 @@
  */
 
 #include "file_system.hpp"
-#include "data_base.hpp"
+#include "string_integral.hpp"
 #include <functional>
 #include <random>
 #include <ctime>
-#include "string_integral.hpp"
 
 namespace trm{
 

@@ -1,14 +1,5 @@
 #include "client_pages.hpp"
 
-std::string SfToStr(const sf::String &t) noexcept
-{
-    std::string result;
-    for (auto c : t.toUtf8()) {
-        result.push_back(c);
-    }
-    return std::move(result);
-}
-
 clpg::Handler clpg::GetHandler(ID id) noexcept
 {
     switch (id)
@@ -257,6 +248,15 @@ std::pair<int, trm::Information> clpg::WaitServer(ui::Screen &screen, const trm:
         }
     }
     return {-1, {}};
+}
+
+std::string clpg::SfToStr(const sf::String &t) noexcept
+{
+    std::string result;
+    for (auto c : t.toUtf8()) {
+        result.push_back(c);
+    }
+    return std::move(result);
 }
 
 clpg::ID clpg::MainPage(ui::Screen &screen) noexcept

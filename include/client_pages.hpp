@@ -53,6 +53,11 @@ struct{
     };
 }sharedInformation;
 
+/**
+ * TO_COMPLETE
+ */
+std::string SfToStr(const sf::String &t) noexcept;
+
 }
 
 #endif

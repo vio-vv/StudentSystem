@@ -128,6 +128,14 @@ bool CreateDirectory(const std::string &directoryPath) noexcept;
 bool DeleteDirectory(const std::string &directoryPath) noexcept;
 
 /**
+ * @brief 判断路径是否存在。
+ * @param path 路径
+ * @return 路径存在与否
+ * @retval false 路径不存在或权限不足等。
+ */
+bool CheckExists(const std::string &path) noexcept;
+
+/**
  * @brief 获取文件路径。
  * @param directionPath 目录路径
  * @param fileName 文件名

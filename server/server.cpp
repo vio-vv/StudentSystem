@@ -10,13 +10,14 @@
  * - @fn main 主程序入口
  */
 
-#include "transmitter.hpp"
 #include <iostream>
 #include "SFML/System.hpp"
 #include "student_system.hpp"
 
 int main() noexcept
 {
+    auto log = dat::DataBase(DATA_PATH)["log"];
+
     std::cout << "Server started." << std::endl;
     sf::Clock interval;
     auto &ssys = SSys::Get();

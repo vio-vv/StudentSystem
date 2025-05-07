@@ -1,17 +1,21 @@
 #include "data_base.hpp"
 
+bool dat::DataBase::fail = false;
+
 dat::DataBase::operator std::string() const noexcept
 {
     if (!file::CheckFileExists(space)) {
         if (!file::WriteFile(space, "")) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file:" << space << std::endl;
-            exit(1);
+            fail= true;
+            return "";
         }
     }
     auto [success, content] = file::ReadFile(space);
     if (!success) {
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read file:" << space << std::endl;
-        exit(1);
+        fail= true;
+        return "";
     }
     return content;
 }
@@ -21,7 +25,8 @@ void dat::DataBase::Clear() const noexcept
     if (file::CheckFileExists(space)) {
         if (!file::DeleteFile(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete file:" << space << std::endl;
-            exit(1);
+            fail= true;
+            return;
         }
     }
 }
@@ -35,7 +40,8 @@ void dat::DataBase::Remove() const noexcept
     if (file::CheckDirectoryExists(space)) {
         if (!file::DeleteDirectory(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete file:" << space << std::endl;
-            exit(1);
+            fail= true;
+            return;
         }
     }
 }
@@ -49,8 +55,9 @@ dat::DataBase dat::DataBase::operator[](const std::string &keyName) const noexce
     if (!file::CheckDirectoryExists(space)) {
         if (!file::CreateDirectory(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory:" << space << std::endl;
-            exit(1);
-        } 
+            fail= true;
+            return DataBase(".\\data", false);
+        }
     }
     return DataBase(file::GetFilePath(space, keyName), false);
 }
@@ -68,7 +75,8 @@ void dat::DataBase::Push(const std::pair<std::string, std::string> &key_value) c
     if (!file::CheckDirectoryExists(space)) {
         if (!file::CreateDirectory(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory:" << space << std::endl;
-            exit(1);
+            fail= true;
+            return;
         }
     }
     const auto &next = (*this)[key_value.first];
@@ -97,13 +105,15 @@ std::vector<std::string> dat::DataBase::List() noexcept
     if (!file::CheckDirectoryExists(space)) {
         if (!file::CreateDirectory(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory:" << space << std::endl;
-            exit(1);
+            fail= true;
+            return {};
         }
     }
     auto [success, files] = file::ListDirectory(space);
     if (!success) {
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory:" << space << std::endl;
-        exit(1);
+        fail= true;
+        return {};
     }
     std::sort(files.begin(), files.end(), [](const std::string &a, const std::string &b){
         auto la = a.size();
@@ -132,23 +142,20 @@ unsigned long long dat::DataBase::Size() noexcept
 
 bool dat::DataBase::Exists() const noexcept
 {
-    return file::CheckFileExists(space);
+    return file::CheckExists(space);
 }
 
 bool dat::DataBase::Exists(const std::string &keyName) const noexcept
 {
-    if (consideredAsFileOnly) {
-        assert(false); // Deny
-        return false;
-    }
-    return file::CheckFileExists(file::GetFilePath(space, keyName));
+    return file::CheckExists(file::GetFilePath(space, keyName));
 }
 
 const std::string &dat::DataBase::operator=(const std::string &value) const noexcept
 {
     if (!file::WriteFile(space, value)) {
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file:" << space << std::endl;
-        exit(1);
+        fail= true;
+        return value;
     }
     return value;
 }
@@ -157,7 +164,8 @@ void dat::DataBase::operator+=(const std::string &delta) const noexcept
 {
     if (!file::AppendFile(space, delta)) {
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to append file:" << space << std::endl;
-        exit(1);
+        fail= true;
+        return;
     }
 }
 
