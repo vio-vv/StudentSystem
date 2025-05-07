@@ -18,6 +18,7 @@ void f(const Information &info)
 
 int main()
 {
+    freopen("out.txt", "w", stdout);
     auto &ssys = SSys::Get();
 
 #ifdef EEA
