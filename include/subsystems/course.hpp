@@ -16,14 +16,20 @@
 
 namespace ssys{
 
-class Course{
+class CourseSystem{
 public:
-    ;
+    trm::Information SearchCourseInformation(const trm::Information& information) noexcept;
+    trm::Information AddCourse(const trm::Information& information) noexcept;
+    trm::Information DeleteCourse(const trm::Information& information) noexcept;
 protected:
-    Course() noexcept;
-    ~Course() noexcept;
-    Course(const Course&) = delete;
-    Course& operator=(const Course&) = delete;
+    CourseSystem() noexcept;
+    ~CourseSystem() noexcept;
+    CourseSystem(const CourseSystem&) = delete;
+    CourseSystem& operator=(const CourseSystem&) = delete;  
+private:
+    dat::DataBase studentBase = DATA_BASE["course"]["studentCourse"];
+    dat::DataBase courseBase = DATA_BASE["course"]["courseList"];//一个存学生选课，一个存课程信息
+    //或许可以有个tag来标记本科生研究生博士生课程，待实现
 };
 
 }

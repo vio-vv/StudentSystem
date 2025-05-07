@@ -18,12 +18,18 @@ namespace ssys{
 
 class ReserveSystem{
 public:
-    ;
+    trm::Information RequestReserve(const trm::Information& infomation) noexcept;
+    trm::Information CancelReserve(const trm::Information& infomation) noexcept;
+    trm::Information CheckTime(const trm::Information& infomation) noexcept;
+    trm::Information CheckReserveTime(const trm::Information& infomation) noexcept;
 protected:
     ReserveSystem() noexcept;
     ~ReserveSystem() noexcept;
     ReserveSystem(const ReserveSystem&) = delete;
     ReserveSystem& operator=(const ReserveSystem&) = delete;
+private:
+    dat::DataBase clientBase = DATA_BASE["reserve"]["client"];
+    dat::DataBase reserveBase = DATA_BASE["reserve"]["server"]; //一个存用户预约，一个存预约信息
 };
 
 }
