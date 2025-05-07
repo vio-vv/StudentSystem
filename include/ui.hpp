@@ -32,6 +32,7 @@
 #include "SFML/Graphics.hpp"
 #include <unordered_map>
 #include <cassert>
+#include "string_integral.hpp"
 
 namespace ui{
 
@@ -1746,6 +1747,7 @@ public:
      * @brief 样式属性控制接口。*
      * *************************
      */
+    void SetCount(int newCount)                     noexcept;
     void SetFontColor(const sf::Color &color)       noexcept;
     void SetInterval(unsigned int interval)         noexcept;
     void Start() noexcept;
@@ -1767,12 +1769,6 @@ protected:
      * ****************************
      */
     void Count() noexcept;
-    std::string ToStr(auto t) noexcept
-    {
-        std::stringstream ss;
-        ss << t;
-        return ss.str();
-    }
 
     /******************************
      * @brief 封装的数据类型和常量。*

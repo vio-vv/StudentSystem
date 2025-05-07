@@ -528,10 +528,12 @@ struct Account{
     std::string hashedPassword;        // 密码哈希值
     std::vector<std::string> access;   // 权限列表
     std::vector<Tag> tags;             // 标签列表
+    Account() noexcept = default;
     Account(const std::string &_code, const std::string &_hashedPassword, const std::vector<std::string> &_access = {}, const std::vector<Tag> &_tags = {}) noexcept : 
         code(_code), hashedPassword(_hashedPassword), access(_access), tags(_tags) {}
     operator std::string() const noexcept;
     Account(const std::string &content) noexcept;
+    std::string operator[](const std::string &tagKey) noexcept;
 };
 struct MailContent {
     unsigned long long timeStamp;
@@ -641,6 +643,27 @@ struct BorrowLog {
 #pragma endregion
 
 using Information = std::vector<std::string>;
+/**
+ * @brief 客户端用以发送请求的类。
+ * @note 使用前务必调用所有静态方法。
+ */
+class Sender {
+public:
+    static void Init(const std::string &link, const std::string &self, const std::string &selfAsSender) noexcept
+        { SetLink(link); SetSelf(self); SetSelfAsSender(selfAsSender); }
+    static void SetLink(const std::string &_link) noexcept { link = _link; }
+    static void SetSelf(const std::string &_self) noexcept { self = _self; }
+    static void SetSelfAsSender(const std::string &_selfAsSender) noexcept { selfAsSender = _selfAsSender; }
+    Sender(const Information &content) noexcept;
+    std::pair<bool, trm::Information> Poll() noexcept;
+private:
+    static std::string link;
+    static std::string self;
+    static std::string selfAsSender;
+    int id;
+    bool fail = false;
+};
+
 using Message = std::string;
 struct Request{
     int id; // 请求编号

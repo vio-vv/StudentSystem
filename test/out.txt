@@ -1,0 +1,15 @@
+ok
+FAIL :: COURSE_EXISTS :: 
+ok
+FAIL :: COURSE_EXISTS :: 
+ok
+NO :: NO_MATCH_COURSE :: 
+ok
+NO :: NO_MATCH_COURSE :: 
+ok
+FAIL :: NO_MATCH_COURSE :: 
+ok
+FAIL :: NO_MATCH_COURSE :: 
+ok
+NO :: NO_MATCH_COURSE :: 
+ok

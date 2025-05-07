@@ -12,7 +12,7 @@
 
 int main() noexcept
 {
-    ui::Screen screen(1200, 800, L"学生管理系统");
+    ui::Screen screen(1500, 1000, L"学生管理系统");
     clpg::Handler handler = clpg::EnterSystem;
     while (handler && screen.IsOpen()) {
         handler = clpg::GetHandler(handler(screen));

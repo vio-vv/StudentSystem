@@ -1381,6 +1381,11 @@ void ui::LoadingRingWithText::SetText(const sf::String &newText) noexcept
     Update();
 }
 
+void ui::LoadingRingWithText::SetCount(int newCount) noexcept
+{
+    count = newCount;
+}
+
 void ui::LoadingRingWithText::SetFontColor(const sf::Color &color) noexcept
 {
     label->SetFontColor(color);

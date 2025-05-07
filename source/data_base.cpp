@@ -7,14 +7,14 @@ dat::DataBase::operator std::string() const noexcept
     if (!file::CheckFileExists(space)) {
         if (!file::WriteFile(space, "")) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file:" << space << std::endl;
-            fail= true;
+            fail = true;
             return "";
         }
     }
     auto [success, content] = file::ReadFile(space);
     if (!success) {
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to read file:" << space << std::endl;
-        fail= true;
+        fail = true;
         return "";
     }
     return content;
@@ -25,7 +25,7 @@ void dat::DataBase::Clear() const noexcept
     if (file::CheckFileExists(space)) {
         if (!file::DeleteFile(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete file:" << space << std::endl;
-            fail= true;
+            fail = true;
             return;
         }
     }
@@ -40,7 +40,7 @@ void dat::DataBase::Remove() const noexcept
     if (file::CheckDirectoryExists(space)) {
         if (!file::DeleteDirectory(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete file:" << space << std::endl;
-            fail= true;
+            fail = true;
             return;
         }
     }
@@ -55,7 +55,7 @@ dat::DataBase dat::DataBase::operator[](const std::string &keyName) const noexce
     if (!file::CheckDirectoryExists(space)) {
         if (!file::CreateDirectory(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory:" << space << std::endl;
-            fail= true;
+            fail = true;
             return DataBase(".\\data", false);
         }
     }
@@ -75,7 +75,7 @@ void dat::DataBase::Push(const std::pair<std::string, std::string> &key_value) c
     if (!file::CheckDirectoryExists(space)) {
         if (!file::CreateDirectory(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory:" << space << std::endl;
-            fail= true;
+            fail = true;
             return;
         }
     }
@@ -105,14 +105,14 @@ std::vector<std::string> dat::DataBase::List() noexcept
     if (!file::CheckDirectoryExists(space)) {
         if (!file::CreateDirectory(space)) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory:" << space << std::endl;
-            fail= true;
+            fail = true;
             return {};
         }
     }
     auto [success, files] = file::ListDirectory(space);
     if (!success) {
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to list directory:" << space << std::endl;
-        fail= true;
+        fail = true;
         return {};
     }
     std::sort(files.begin(), files.end(), [](const std::string &a, const std::string &b){
@@ -154,7 +154,7 @@ const std::string &dat::DataBase::operator=(const std::string &value) const noex
 {
     if (!file::WriteFile(space, value)) {
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file:" << space << std::endl;
-        fail= true;
+        fail = true;
         return value;
     }
     return value;
@@ -164,7 +164,7 @@ void dat::DataBase::operator+=(const std::string &delta) const noexcept
 {
     if (!file::AppendFile(space, delta)) {
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to append file:" << space << std::endl;
-        fail= true;
+        fail = true;
         return;
     }
 }

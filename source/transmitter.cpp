@@ -1,5 +1,9 @@
 #include "transmitter.hpp"
 
+std::string trm::Sender::link;
+std::string trm::Sender::self;
+std::string trm::Sender::selfAsSender;
+
 int trm::GenerateID() noexcept
 {
     static int count = 0;
@@ -223,6 +227,16 @@ trm::Account::Account(const std::string &content) noexcept
     };
 }
 
+std::string trm::Account::operator[](const std::string &tagKey) noexcept
+{
+    for (const auto &[k, v] : tags) {
+        if (k == tagKey) {
+            return v;
+        }
+    }
+    return "";
+}
+
 trm::CourseInformation::operator std::string() const noexcept
 {
     return Combine({
@@ -328,4 +342,20 @@ int trm::Date::operator-(const Date &other) noexcept {
 
     }
     return 0;
+}
+
+trm::Sender::Sender(const Information &content) noexcept
+{
+    id = GenerateID();
+    if (!MakeRequest(link, {id, selfAsSender, content})) {
+        fail = true;
+    }
+}
+
+std::pair<bool, trm::Information> trm::Sender::Poll() noexcept
+{
+    if (fail) {
+        return {true, {rpl::FAIL}};
+    }
+    return PollReply(self, id);
 }
