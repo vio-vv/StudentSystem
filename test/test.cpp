@@ -176,7 +176,23 @@ int main()
         std::cout << " " << book.bookPublicationDate << " " << book.bookCatagory << " " << book.storePosition << std::endl;
     }
 #endif
-
+#ifdef COURSE
+    std::cout<<"ok"<<std::endl;
+    f(ssys.AddCourse({trm::rqs::ADD_COURSE,"adm","123","10086"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.AddCourse({trm::rqs::ADD_COURSE,"adm","123","10086"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.SearchCourseInformation({trm::rqs::SEARCH_COURSE_INFORMATION,"adm","10086"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.SearchCourseInformation({trm::rqs::SEARCH_COURSE_INFORMATION,"adm","12345"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.DeleteCourse({trm::rqs::DELETE_COURSE,"adm","123","10086"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.DeleteCourse({trm::rqs::DELETE_COURSE,"adm","123","10086"}));
+    std::cout<<"ok"<<std::endl;
+    f(ssys.SearchCourseInformation({trm::rqs::SEARCH_COURSE_INFORMATION,"adm","10086"}));
+    std::cout<<"ok"<<std::endl;
+#endif
     while (1) ;
 
     return 0;

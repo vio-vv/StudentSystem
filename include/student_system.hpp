@@ -22,7 +22,7 @@
 
 class SSys : 
     public ssys::AccountAndAccess, 
-    public ssys::Course, 
+    public ssys::CourseSystem, 
     public ssys::Library, 
     public ssys::Canteen, 
     public ssys::ReserveSystem, 

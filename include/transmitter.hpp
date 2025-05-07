@@ -168,8 +168,54 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 课程系统
-    ;
-#pragma endregion
+    /**
+     * @brief 查询自己的特定课程信息
+     * @param code 学工号
+     * @param courseName 课程编号
+     * @param pageNumber 页面数（待定）
+     * @return 第一项为YES/NO，第一项为YES时第二项为CourseInformation,第一项为NO时第二项为NO_MATCH_COURSE @see @struct CourseInformation
+     * @retval NO_MATCH_COURSE 没有匹配的课程 
+     * @retval CourseInformation 上课周数，上课地点，上课老师
+    */
+    const std::string SEARCH_COURSE_INFORMATION =_AS_"SEARCH_COURSE_INFORMATION";
+    /**
+     * @brief 增加课程
+     * @param code 学工号
+     * @param password 密码
+     * @param courseName 课程编号
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL COURSE_EXITS课程已存在等
+     * @note ACCESS REQUIRED ADD_COURSE
+     */
+    const std::string ADD_COURSE = _AS_"ADD_COURSE";
+    /**
+     * @brief 删除课程
+     * @param code 学工号
+     * @param password 密码
+     * @param courseName 课程编号
+     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @retval FAIL NO_MATCH_COURSE待删课程不存在等
+     * @note ACCESS REQUIRED DELETE_COURSE
+     */
+    const std::string DELETE_COURSE = _AS_"DELETE_COURSE";
+    /**
+     * @brief 查看所有课程
+     * 
+     */
+    const std::string CHECK_ALL_COURSE = _AS_"CHECK_ALL_COURSE";
+    /**
+     * @brief sudo增加课程
+     * 
+     *  
+     */ 
+    const std::string MODIFY_ADD_COURSE = _AS_"MODIFY_ADD_COURSE";
+    /**
+     * @brief sudo 删除课程
+     *  
+    */  
+    const std::string MODIFY_DELETE_COURSE = _AS_"MODIFY_DELETE_COURSE";
+    
+    #pragma endregion
 
 #pragma region 图书馆系统
     enum bk {
@@ -251,7 +297,67 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 预约入校系统
-    ;
+    /**
+     * @brief 查询可预约时间
+     * @param date 日期 @see @struct Date
+     * @return 可预约时间列表
+    */
+    const std::string CHECK_TIME = _AS_"CHECK_TIME";
+    /**
+     * @brief 查询特定的预约时间
+     * @param date 日期 @see @struct Date
+     * @param time 时间
+     * @return YES or NO 第一项为 YES时无第二项,第一项为 NO 时第二项为 NO_MATCH_RESERVE or NO_LEFT_RESERVE
+     * @retval NO_MATCH_TIME 预约时间不合法
+     * @retval NO_LEFT_RESERVE 预约名额已满
+     */
+    const std::string CHECK_RESERVE_TIME = _AS_"CHECK_RESERVE_TIME"; 
+   /** 
+     * @brief 预约入校
+     * @param date 日期 @see @struct Date
+     * @param time 时间
+     * @param id 身份证号
+     * @param phone 手机号
+     * @return SUCC or FAIL
+     * @retval FAIL NO_MATCH_RESERVE 预约时间不合法或者预约名额已满
+     * @retval FAIL RESERVE_EXISTS 预约已存在
+     */
+    const std::string REQUEST_RESERVE = _AS_"REQUEST_RESERVE";
+    /**
+     * @brief 检查权限
+     * @param id 身份证号
+     * @param phone 手机号
+     * @return YES or NO
+     * @retval NO 身份证号和手机号不匹配；
+     */
+    const std::string CHECK_RESERVE_ACCESS = _AS_"CHECK_RESERVE_ACCESS";//感觉好像不是很常用，要不要封装起来待定
+    /**
+     * @brief 取消预约
+     * @param date 日期 @see @struct Date
+     * @param time 时间
+     * @param id 身份证号
+     * @param phone 手机号
+     * @return SUCC or FAIL 或者 RESERVE_ACCESS_DENIED
+     * @retval FAIL NO_MATCH_RESERVE 待取消的预约不存在
+     * @note ACCESS REQUIRED CANCEL_RESERVE
+    */
+    const std::string CANCEL_RESERVE = _AS_"CANCEL_RESERVE";
+     /**
+     * @brief 查询预约状态
+     * 
+     */
+    const std::string CHECK_RESERVE_STATUS = _AS_"CHECK_RESERVE_STATUS"; 
+    /**
+     * @brief sudo修改预约状态
+     * 
+     */
+    const std::string MODIFY_RESERVE_STATUS = _AS_"MODIFY_RESERVE_STATUS";
+    /**
+     * @brief sudo修改可预约名额
+     * 
+    */ 
+    const std::string MODIFY_RESERVE_NUMBER = _AS_"MODIFY_RESERVE_NUMBER";
+    
 #pragma endregion
 
 #pragma region 通知与公示系统
@@ -384,6 +490,13 @@ namespace rpl{
     const std::string NO_ACCOUNT = _AS_"NO_ACCOUNT";
     const std::string WRONG_PASSWORD = _AS_"WRONG_PASSWORD";
     const std::string NO_TAG = _AS_"NO_TAG";
+    const std::string NO_MATCH_COURSE = _AS_"NO_MATCH_COURSE";
+    const std::string COURSE_EXISTS = _AS_"COURSE_EXISTS";
+    const std::string NO_MATCH_RESERVE = _AS_"NO_MATCH_RESERVE";
+    const std::string NO_LEFT_RESERVE = _AS_"NO_LEFT_RESERVE";
+    const std::string NO_MATCH_TIME = _AS_"NO_MATCH_TIME";
+    const std::string RESERVE_EXISTS = _AS_"RESERVE_EXISTS";
+    const std::string NO_DERESERVE_ACCESS= _AS_"NO_DERESERVE_ACCESS";
 }
 namespace Access{
     const std::string ADM = _AS_"ADM";                   // 拥有这个权限表示拥有所有权限
@@ -402,6 +515,12 @@ namespace Access{
     const std::string DELETE_MESSAGE_OF_OTHERS = _AS_"DELETE_MESSAGE_OF_OTHERS"; // 有这个权限才能删除或清空别人的消息
     const std::string RESET_MAIL_SYSTEM = _AS_"RESET_MAIL_SYSTEM";
     
+    const std::string RESTORE_BOOK = _AS_"RESTORE_BOOK";
+
+    const std::string ADD_COURSE = _AS_"ADD_COURSE";
+    const std::string DELETE_COURSE = _AS_"DELETE_COURSE";
+
+    const std::string CANCEL_RESERVE= _AS_"CANCEL_RESERVE";
     const std::string BOOK_MANAGE = _AS_"BOOK_MANAGE";
 }
 struct Account{
@@ -450,6 +569,47 @@ struct Book{
     operator std::string() const noexcept;
 };
 
+struct CourseInformation {
+    std::string courseName;
+    std::string teacher;    // 上课老师
+    std::string location;   // 上课地点
+    std::vector<std::string> weeks; // 上课周数
+    CourseInformation(const std::string & _name,const std::string &_teacher, const std::string &_location, const std::vector<std::string> &_weeks) noexcept :
+        courseName(_name), teacher(_teacher), location(_location), weeks(_weeks) {}
+    operator std::string() const noexcept;
+    CourseInformation(const std::string &content) noexcept;
+};
+
+struct IdAndPhone 
+{
+    std::string id; // 身份证号
+    std::string phone; // 手机号
+    IdAndPhone(const std::string &_id, const std::string &_phone) noexcept :
+        id(_id), phone(_phone) {}
+    IdAndPhone(const std::string &content) noexcept;
+    operator std::string() const noexcept;
+};
+//暂时还没用到
+struct reserveServer
+{
+    std::string leftNumber; // 剩余名额
+    std::vector<std::string> leftTime; // 剩余时间
+    reserveServer(const std::string &_leftNumber,const std::vector<std::string> &_leftTime) noexcept :
+        leftNumber(_leftNumber),leftTime(_leftTime) {}
+    reserveServer(const std::string &content) noexcept;
+    operator std::string() const noexcept;
+};
+
+struct ReserveDate
+{
+    std::string month; // 月份
+    std::string week; // 周数
+    std::string date; // 日期
+    ReserveDate(const std::string &_month, const std::string &_week, const std::string &_date) noexcept :
+        month(_month), week(_week), date(_date) {}
+    ReserveDate(const std::string &content) noexcept;
+    operator std::string() const noexcept;
+};
 // TODO
 
 struct Date {
@@ -542,12 +702,12 @@ Message Encode(const Information &information) noexcept;
 Information Decode(const Message &message) noexcept;
 
 /**
- * TO_COMPLETE
+ * @brief 将字符串数组信息转化为字符串。
  */
 std::string Combine(const std::vector<std::string> &series) noexcept;
 
 /**
- * TO_COMPLETE
+ * @brief 将字符串转化为字符串数组。
  */
 std::vector<std::string> Split(const std::string &str) noexcept;
 
