@@ -1,4 +1,3 @@
-#include "subsystems/course.hpp"
 #include "student_system.hpp"
 
 ssys::CourseSystem::CourseSystem() noexcept

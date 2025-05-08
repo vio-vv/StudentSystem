@@ -1,4 +1,3 @@
-#include "subsystems/mail.hpp"
 #include "student_system.hpp"
 
 const std::string SSys::MailSystem::BOX = "box";

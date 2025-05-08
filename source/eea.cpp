@@ -250,7 +250,8 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
         screen.Tick();
         if (login) {
             screen.HideAll();
-            auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ACCOUNT, sharedInformation.username, sharedInformation.password}, L"登录中");
+            auto [success, reply] = WaitServer(screen, 
+                {trm::rqs::CHECK_ACCOUNT, sharedInformation.username, sharedInformation.password}, L"登录中");
             if (success == 1) {
                 if (reply[0] == trm::rpl::YES) {
                     sharedInformation.account = reply[1];
