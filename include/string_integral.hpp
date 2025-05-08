@@ -44,13 +44,15 @@ template<typename ReturnType = int> requires std::is_integral_v<ReturnType>
 ReturnType ToNum(const std::string &s) noexcept
 {
     ReturnType result = 0;
+    bool mark = 0;
     for (auto c : s) {
         if (c == '-') {
-            result = -result;
+            mark = 1;
             continue;
         }
         result = result * 10 + (c - '0');
     }
+    if (mark) result = -result;
     return result;
 }
 

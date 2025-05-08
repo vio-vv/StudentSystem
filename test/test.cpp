@@ -176,6 +176,81 @@ int main()
         }
         std::cout << " " << book.bookPublicationDate << " " << book.bookCatagory << " " << book.storePosition << std::endl;
     }
+
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "123-4-56-789101-1", "15", Book{"123-4-56-789101-1", "8416++--", "1945-04", "自然哲学", "图书馆108", {"廖某"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "123-4-56-784875-2", "100", Book{"123-4-56-784875-2", "jasjiw", "1885-04", "信息技术", "图书馆103", {"欧锦"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "443-4-56-784875-2", "100", Book{"443-4-56-784875-2", "百科大全", "1885-04", "信息技术", "图书馆106", {"王"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "333-4-56-784875-2", "100", Book{"333-4-56-784875-2", "深度学习下计算机视觉", "2019-04", "信息技术", "图书馆106", {"阿达"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "553-4-56-784875-2", "100", Book{"553-4-56-784875-2", "数学分析", "2015-04", "数学", "图书馆104", {"莫"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "123-4-96-784875-2", "100", Book{"123-4-96-784875-2", "材料", "1995-04", "自然科学", "图书馆203", {"孙少平"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "123-4-55-784875-2", "100", Book{"123-4-55-784875-2", "经济与文化演变", "2005-04", "社会学", "图书馆302", {"kk"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "123-5-56-784875-2", "100", Book{"123-5-56-784875-2", "民法典探讨", "1885-04", "法学", "图书馆203", {"康"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "123-8-56-784875-2", "100", Book{"123-8-56-784875-2", "神曲", "1485-04", "文学", "图书馆101", {"但丁"}}}));
+    f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "123-3-56-784875-2", "100", Book{"123-2-56-784875-2", "中国近现代史", "2019-04", "历史", "图书馆104", {"白"}}}));
+
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "123-4-56-789101-1", "20"}));
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "123-4-56-784875-2", "105"}));
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "443-4-56-784875-2", "80"}));
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "333-4-56-784875-2", "90"}));
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "553-4-56-784875-2", "10"}));
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "123-4-96-784875-2", "120"}));
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "123-4-55-784875-2", "10"}));
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "123-5-56-784875-2", "900"}));
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "123-8-56-784875-2", "all"}));
+    f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "123-3-56-784875-2", "1"}));
+
+    f(ssys.BorrowBook({trm::rqs::BORROW_BOOK, "adm", "123", "443-4-56-784875-2", "20"}));
+    f(ssys.BorrowBook({trm::rqs::BORROW_BOOK, "adm", "123", "333-4-56-784875-2", "10"}));
+    f(ssys.BorrowBook({trm::rqs::BORROW_BOOK, "adm", "123", "553-4-56-784875-2", "5"}));
+    f(ssys.BorrowBook({trm::rqs::BORROW_BOOK, "adm", "123", "123-4-96-784875-2", "10"}));
+    f(ssys.BorrowBook({trm::rqs::BORROW_BOOK, "adm", "123", "123-4-55-784875-2", "-10"}));
+    auto reply_ = ssys.GetAccountBorrowList({trm::rqs::GET_ACCOUNT_BORROW_LIST, "adm", "123"});
+    for (auto &borrow : reply_.second) {
+        std::cout << borrow.borrowLast << " " << borrow.start.currantTime << " " << borrow.end.currantTime << " " << borrow.bookIsbn << " " << borrow.borrower << std::endl;
+    }
+
+    f(ssys.SendReturnReminder({trm::rqs::SEND_RETURN_REMINDER}));
+
+    auto reply_4 = ssys.SearchBook({trm::rqs::SEARCH_BOOK, "经济", "", "true"}, [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookPublicationDate < b.bookPublicationDate; });
+    for (auto &book : reply_4.second) {
+        std::cout << book.bookIsbn << " "; 
+        std::cout << book.bookName << " ";
+        for (auto &author : book.bookAuthor) {
+            std::cout << author << ',';
+        }
+        std::cout << " " << book.bookPublicationDate << " " << book.bookCatagory << " " << book.storePosition << std::endl;
+    }
+
+    f(ssys.ModifyBookInfo({trm::rqs::MODIFY_BOOK_INFO, "adm", "123", "443-4-56-784875-2", Book{"111-1-11-111111-1", "asdi-", "2015-04", "科学技术", "图书馆207", {"张某某"}}}));
+    f(ssys.ModifyBookInfo({trm::rqs::MODIFY_BOOK_INFO, "adm", "123", "333-4-56-784875-2", Book{"222-2-22-222222-2", "+ojo-", "2019-04", "信息技术", "图书馆106", {"阿达"}}}));
+    f(ssys.ModifyBookInfo({trm::rqs::MODIFY_BOOK_INFO, "adm", "123", "553-4-56-784875-2", Book{"553-4-56-784875-2", "oooj-", "2015-04", "数学", "图书馆104", {"莫"}}}));
+
+    std::vector<std::pair<std::string, std::string>> date;
+    auto reply_2 = ssys.GetAccountBorrowList({trm::rqs::GET_ACCOUNT_BORROW_LIST, "adm", "123"});
+    for (auto &borrow : reply_2.second) {
+        std::cout << borrow.borrowLast << " " << borrow.start.currantTime << " " << borrow.end.currantTime << " " << borrow.bookIsbn << " " << borrow.borrower << std::endl;
+        date.push_back({ToStr(borrow.start.currantTime), borrow.bookIsbn});
+    }
+
+    auto reply_3 = ssys.SearchBook({trm::rqs::SEARCH_BOOK, "计算机", "", "true"}, [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookPublicationDate < b.bookPublicationDate; });
+    for (auto &book : reply_3.second) {
+        std::cout << book.bookIsbn << " " << book.bookName << " ";
+        for (auto &author : book.bookAuthor) {
+            std::cout << author << ',';
+        }
+        std::cout << " " << book.bookPublicationDate << " " << book.bookCatagory << " " << book.storePosition << std::endl;
+    }
+
+    f(ssys.ReturnBook({trm::rqs::RETURN_BOOK, "adm", "123", date[0].second, date[0].first}));
+    f(ssys.ReturnBook({trm::rqs::RETURN_BOOK, "adm", "123", date[2].second, date[2].first}));
+    f(ssys.ReturnBook({trm::rqs::RETURN_BOOK, "adm", "123", date[1].second, date[1].first}));
+
+    auto reply__ = ssys.GetAccountBorrowList({trm::rqs::GET_ACCOUNT_BORROW_LIST, "adm", "123"});
+    for (auto& borrow : reply__.second) {
+        std::cout << borrow.borrowLast << " " << borrow.start.currantTime << " " << borrow.end.currantTime << " " << borrow.bookIsbn << " " << borrow.borrower << std::endl;
+    }
+
+
 #endif
 #ifdef COURSE
     std::cout<<"ok"<<std::endl;
