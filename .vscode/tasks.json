@@ -3,7 +3,7 @@
         {
             "type": "cppbuild",
             "label": "C/C++: g++.exe build active file",
-            "command": "C:\\Programme\\MinGW\\bin\\g++.exe",
+            "command": "C:\\mingw64\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
 
@@ -14,8 +14,8 @@
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
 
-                "-I", "C:\\Programme\\SFML\\SFML-2.6.1\\include",
-                "-L", "C:\\Programme\\SFML\\SFML-2.6.1\\lib",
+                "-I", "C:\\SFML\\SFML-2.6.1\\include",
+                "-L", "C:\\SFML\\SFML-2.6.1\\lib",
                 "-l", "openal32",
                 "-l", "sfml-audio",
                 "-l", "sfml-graphics",
@@ -25,7 +25,7 @@
                 "-I", "${workspaceFolder}\\include",
 
                 "-std=gnu++20",
-                "-D", "EEA"
+                "-D", "COURSE"
             ],
             "options": {
                 "cwd": "${fileDirname}"

@@ -13,14 +13,28 @@ trm::Information ssys::CourseSystem::SearchCourseInformation(const trm::Informat
 {
     assert(information[0] == trm::rqs::SEARCH_COURSE_INFORMATION); // Procession not matched.
     auto it= studentBase[information[1]];//找到指定学生的课程列表
-    for(auto [courseName,courseInformation]:it)
-    {
-       if(courseName==information[2])
+    if(it[information[2]].Exists())
        {
-           return {trm::rpl::YES,information[2],courseInformation};
+           return {trm::rpl::YES,information[2],it[information[2]]};
        }
-    }
+    
    return {trm::rpl::NO, trm::rpl::NO_MATCH_COURSE};
+}
+
+trm::Information ssys::CourseSystem::CheckAllCourse(const trm::Information& information) noexcept
+{
+    assert(information[0] ==trm::rqs::CHECK_ALL_COURSE);
+    trm::Information replylist;
+    replylist.push_back(trm::rpl::SUCC);
+    if(!studentBase[information[1]].Exists())
+    {
+        return {trm::rpl::FAIL, trm::rpl::NO_COURSE_EXITS};
+    }
+    for( auto[courseID, courseInformation]:studentBase[information[1]])
+    {
+        replylist.push_back(trm::Combine({courseID,courseInformation}));
+    }
+    return replylist;
 }
 
 trm::Information ssys::CourseSystem::AddCourse(const trm::Information& information) noexcept
@@ -30,11 +44,14 @@ trm::Information ssys::CourseSystem::AddCourse(const trm::Information& informati
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
-    for(auto [courseName, courseInformation] : courseBase ){//遍历课程列表
-        if (courseName == information[3]) {
-            return {trm::rpl::FAIL,trm::rpl::COURSE_EXISTS};
-        }
-    }
+    if (studentBase[information[3]].Exists()) 
+      {
+        return {trm::rpl::FAIL,trm::rpl::COURSE_EXISTS};
+      }
+    if(!courseBase[information[3]].Exists())
+      {
+        return {trm::rpl::FAIL,trm::rpl::NO_MATCH_COURSE};
+      }
     //待实现，按年级和课程属性来增加（模拟真实选课）
     return {trm::rpl::SUCC};
 }
@@ -46,11 +63,40 @@ trm::Information ssys::CourseSystem::DeleteCourse(const trm::Information& inform
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
-    auto courseReply = SSys::Get().SearchCourseInformation({trm::rqs::SEARCH_COURSE_INFORMATION, information[1], information[3]});//待修改，参数不太对
-    if (courseReply[0] != trm::rpl::YES) {
-        return {trm::rpl::FAIL, trm::rpl::NO_MATCH_COURSE};
-    }
+    if(!studentBase[information[1]][information[3]].Exists()) 
+      {
+        return {trm::rpl::FAIL,trm::rpl::NO_MATCH_COURSE};
+      }
     studentBase[information[1]][information[3]].Clear();//删除课程
     return {trm::rpl::SUCC};
 }
 
+trm::Information ssys::CourseSystem::AdmAddCour(const trm::Information& information) noexcept
+{
+    assert(information[0] == trm::rqs::ADM_ADD_COUR); // Procession not matched.
+    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADM_ADD_COUR});//待修改，参数不太对
+    if (accessReply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+    if (courseBase[information[3]].Exists()) 
+      {
+        return {trm::rpl::FAIL,trm::rpl::COURSE_EXISTS};
+      }
+    courseBase[information[3]]=information[4];//增加课程
+    return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::CourseSystem::AdmDeleteCour(const trm::Information& information) noexcept
+{
+    assert(information[0] == trm::rqs::ADM_DELETE_COUR); // Procession not matched.
+    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADM_DELETE_COUR});//待修改，参数不太对
+    if (accessReply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+    if(!courseBase[information[3]].Exists()) 
+    {
+        return {trm::rpl::FAIL,trm::rpl::NO_MATCH_COURSE};
+    }
+    courseBase[information[3]].Clear();//删除课程
+    return {trm::rpl::SUCC};
+}
