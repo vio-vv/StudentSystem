@@ -75,12 +75,12 @@ clpg::ID clpg::EnterSystem(ui::Screen &screen) noexcept
     bool clicked = false;
 
     auto btn = new ui::Button;
+    screen.Add(btn);
     btn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
     btn->SetCaption(L"进入系统");
     btn->SetClickCallback([&clicked](const Atstr &name, const sf::Event &event){
         clicked = true;
     });
-    screen.Add(btn);
 
     while (screen.IsOpen()) {
         screen.Tick();
@@ -114,6 +114,7 @@ std::pair<int, trm::Information> clpg::WaitServer(ui::Screen &screen, const trm:
     auto sender = trm::Sender(information);
 
     auto load = new ui::LoadingRingWithText;
+    screen.Add(load);
     load->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
     load->SetText(tips);
     load->SetCountCallback([&pass, &result, &sender](const Atstr &name, const sf::Event &event){
@@ -127,7 +128,6 @@ std::pair<int, trm::Information> clpg::WaitServer(ui::Screen &screen, const trm:
         finished = true;
     });
     load->Start();
-    screen.Add(load);
 
     while (screen.IsOpen()) {
         screen.Tick();

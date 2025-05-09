@@ -36,25 +36,45 @@ const sf::String ui::InputBox::ASCII = (sf::String)
 void ui::Control::SetCenter(Direction directrion, int percentage) noexcept
 {
     center[directrion] = percentage;
-    if (parent) parent->Update();
+    if (parent) parent->UpdateInQueue();
+}
+
+void ui::Control::Tick() noexcept
+{
+    if (inQueue) {
+        Update(resetMinSize); 
+        inQueue = false; 
+        resetMinSize = false; 
+    }
+}
+
+void ui::Container::Tick() noexcept
+{
+    for (auto child : *children) {
+        child->Tick();
+    }
+    Control::Tick();
+    for (auto child : *children) {
+        child->Tick();
+    }
 }
 
 void ui::Control::SetAnchor(Direction directrion, int percentage) noexcept
 {
     anchor[directrion] = percentage;
-    if (parent) parent->Update();
+    if (parent) parent->UpdateInQueue();
 }
 
 void ui::Control::SetPosition(Direction directrion, int absolute) noexcept
 {
     position[directrion] = absolute;
-    if (parent) parent->Update();
+    if (parent) parent->UpdateInQueue();
 }
 
 void ui::Control::SetVisible(bool flag) noexcept
 {
     visible = flag;
-    if (parent) parent->Update();
+    if (parent) parent->UpdateInQueue();
 }
 
 void ui::Control::AddTo(Container *container) noexcept
@@ -116,25 +136,25 @@ void ui::Control::SetMinSize(Direction directrion, unsigned int absolute) noexce
 {
     if (minSize[directrion] == absolute) return;
     minSize[directrion] = absolute;
-    if (parent) parent->Update();
+    if (parent) parent->UpdateInQueue();
 }
 
 void ui::Control::SetSizeWrap(Direction directrion, bool flag) noexcept
 {
     sizeWrap[directrion] = flag;
-    if (parent) parent->Update();
+    if (parent) parent->UpdateInQueue();
 }
 
 void ui::Control::SetSizeValueType(Direction direction, ValueType valueType) noexcept
 {
     sizeValueType[direction] = valueType;
-    if (parent) parent->Update();
+    if (parent) parent->UpdateInQueue();
 }
 
 void ui::Control::SetSize(Direction directrion, unsigned int value) noexcept
 {
     size[directrion] = value;
-    if (parent) parent->Update();
+    if (parent) parent->UpdateInQueue();
 }
 
 void ui::Control::SetParent(Container *container) noexcept
@@ -145,20 +165,20 @@ void ui::Control::SetParent(Container *container) noexcept
 void ui::Control::SetGlobalPosition(Direction directrion, int absolute) noexcept
 {
     globalPosition[directrion] = absolute;
-    Update(false);
+    UpdateInQueue(true);
 }
 
 void ui::Control::SetGlobalSize(Direction directrion, unsigned int absolute) noexcept
 {
     globalSize[directrion] = absolute;
-    Update(false);
+    UpdateInQueue(true);
 }
 
 void ui::Container::Add(Control *control) noexcept
 {
     children->push_back(control);
     control->SetParent(this);
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Container::Remove(Control *control) noexcept
@@ -172,7 +192,7 @@ void ui::Container::Remove(Control *control) noexcept
     }
     if (toDelete != children->end()) children->erase(toDelete);
     control->SetParent(nullptr);
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Container::FreeAll() noexcept
@@ -190,7 +210,7 @@ void ui::Container::FreeAll() noexcept
         each->SetParent(nullptr);
         delete each;
     }
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Container::HideAll() noexcept
@@ -198,7 +218,7 @@ void ui::Container::HideAll() noexcept
     for (auto child : *children) {
         child->SetVisible(false);
     }
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Container::ShowAll() noexcept
@@ -206,7 +226,7 @@ void ui::Container::ShowAll() noexcept
     for (auto child : *children) {
         child->SetVisible(true);
     }
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Container::ToggleVisible() noexcept
@@ -214,7 +234,7 @@ void ui::Container::ToggleVisible() noexcept
     for (auto child : *children) {
         child->SetVisible(!child->GetVisible());
     }
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Container::FreeAllVisible() noexcept
@@ -234,7 +254,7 @@ void ui::Container::FreeAllVisible() noexcept
             delete each;
         }
     }
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Container::SyncChildren(Children *pointer) noexcept
@@ -242,7 +262,7 @@ void ui::Container::SyncChildren(Children *pointer) noexcept
     FreeAll();
     delete children;
     children = pointer;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Container::UnsyncChildren() noexcept
@@ -333,7 +353,7 @@ void ui::Screen::Tick() noexcept
         if (screen.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 screen.close();
-            } else if (event.type ==  sf::Event::Resized) {
+            } else if (event.type == sf::Event::Resized) {
                 SetGlobalSize(Direction::HORIZONTAL, event.size.width);
                 SetGlobalSize(Direction::VERTICAL, event.size.height);
                 sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
@@ -343,6 +363,7 @@ void ui::Screen::Tick() noexcept
             }
         }
         screen.clear();
+        Container::Tick();
         Draw(screen);
         screen.display();
     }
@@ -452,6 +473,40 @@ void ui::Center::Update(bool resetMinSize) noexcept
     }
 }
 
+void ui::ScrollingBox::Tick() noexcept
+{
+    Container::Tick();
+    layer.Tick();
+}
+
+void ui::Button::Tick() noexcept
+{
+    layer.Tick();
+    Control::Tick();
+    layer.Tick();
+}
+
+void ui::InputBox::Tick() noexcept
+{
+    layer.Tick();
+    Control::Tick();
+    layer.Tick();
+}
+
+void ui::ScrollBar::Tick() noexcept
+{
+    layer.Tick();
+    Control::Tick();
+    layer.Tick();
+}
+
+void ui::LoadingRingWithText::Tick() noexcept
+{
+    layer.Tick();
+    Control::Tick();
+    layer.Tick();
+}
+
 void ui::LinearBox::SetAllChildrenWrap(Direction direction, bool flag) noexcept
 {
     for (auto child : *children) {
@@ -463,19 +518,19 @@ void ui::LinearBox::SetAllChildrenWrap(Direction direction, bool flag) noexcept
 void ui::LinearBox::SetGap(int absolute) noexcept
 {
     gap = absolute;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::LinearBox::SetProportionMode(bool flag) noexcept
 {
     proportionMode = flag;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::LinearBox::SetDelta(int absolute) noexcept
 {
     delta = absolute;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcept
@@ -571,7 +626,7 @@ void ui::VerticalBox::Update(bool resetMinSize) noexcept
 void ui::Label::SetContent(const sf::String &newContent) noexcept
 {
     content = newContent;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Label::SetFont(const sf::String &fontFile) noexcept
@@ -579,7 +634,7 @@ void ui::Label::SetFont(const sf::String &fontFile) noexcept
     if (!font.loadFromFile(fontFile)) {
         error = true;
     }
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Label::Update(bool resetMinSize) noexcept
@@ -597,7 +652,7 @@ void ui::Label::Update(bool resetMinSize) noexcept
 void ui::Label::SetFontSize(unsigned int size) noexcept
 {
     fontSize = size;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Label::SetFontColor(const sf::Color &color) noexcept
@@ -623,13 +678,13 @@ void ui::Label::Draw(sf::RenderWindow &screen) noexcept
 void ui::Button::SetCaption(const sf::String &caption) noexcept
 {
     label->SetContent(caption);
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Button::SetFontSize(unsigned int size) noexcept
 {
     label->SetFontSize(size);
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Button::SetFontColor(const sf::Color &color) noexcept
@@ -640,7 +695,7 @@ void ui::Button::SetFontColor(const sf::Color &color) noexcept
 void ui::Button::SetFont(const sf::String &fontFile) noexcept
 {
     label->SetFont(fontFile);
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Button::Update(bool resetMinSize) noexcept
@@ -754,31 +809,31 @@ void ui::Button::SetPressed(bool flag) noexcept
 void ui::Margin::SetMargin(unsigned int top, unsigned int bottom, unsigned int left, unsigned int right) noexcept
 {
     margin = {top, bottom, left, right};
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Margin::SetMarginTop(unsigned int top) noexcept
 {
     margin.top = top;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Margin::SetMarginBottom(unsigned int bottom) noexcept
 {
     margin.bottom = bottom;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Margin::SetMarginLeft(unsigned int left) noexcept
 {
     margin.left = left;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Margin::SetMarginRight(unsigned int right) noexcept
 {
     margin.right = right;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::Margin::Update(bool resetMinSize) noexcept
@@ -804,13 +859,13 @@ void ui::InputBox::SetText(const sf::String &text) noexcept
 {
     sf::String textSatisfiysLimits = GetTextSatisfysLimits(text);
     textCopy = textSatisfiysLimits;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::InputBox::SetFontSize(unsigned int size) noexcept
 {
     label->SetFontSize(size);
-    Update();
+    UpdateInQueue();
 }
 
 void ui::InputBox::SetFontColor(const sf::Color &color) noexcept
@@ -862,13 +917,13 @@ void ui::InputBox::SetSpecialCharacters(const sf::String &list) noexcept
 void ui::InputBox::SetFont(const sf::String &fontFile) noexcept
 {
     label->SetFont(fontFile);
-    Update();
+    UpdateInQueue();
 }
 
 void ui::InputBox::SetProtectText(bool flag) noexcept
 {
     protectText = flag;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::InputBox::Update(bool resetMinSize) noexcept
@@ -1029,7 +1084,7 @@ void ui::ScrollBar::SetPort(unsigned int absolute) noexcept
             sum = port;
         }
     }
-    Update();
+    UpdateInQueue();
 }
 
 void ui::ScrollBar::SetSum(unsigned int absolute) noexcept
@@ -1043,7 +1098,7 @@ void ui::ScrollBar::SetSum(unsigned int absolute) noexcept
             sum = port;
         }
     }
-    Update();
+    UpdateInQueue();
 }
 
 void ui::ScrollBar::SetRate(unsigned int absolute) noexcept
@@ -1052,7 +1107,7 @@ void ui::ScrollBar::SetRate(unsigned int absolute) noexcept
     if (rate + port > sum) {
         rate = sum - port;
     }
-    Update();
+    UpdateInQueue();
 }
 
 void ui::ScrollBar::AddRate(int absolute) noexcept
@@ -1176,13 +1231,13 @@ void ui::VerticalScrollBar::DragTo(int x, int y) noexcept
 void ui::ScrollingBox::SetBarSize(unsigned int size) noexcept
 {
     barSize = size;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::ScrollingBox::SetBarAtFront(bool flag) noexcept
 {
     barAtFront = flag;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::ScrollingBox::SetRate(unsigned int absolute) noexcept
@@ -1354,31 +1409,31 @@ void ui::LoadingRing::Draw(sf::RenderWindow &screen) noexcept
 void ui::LoadingRingWithText::SetFontSize(unsigned int size) noexcept
 {
     label->SetFontSize(size);
-    Update();
+    UpdateInQueue();
 }
 
 void ui::LoadingRingWithText::SetFont(const sf::String &fontFile) noexcept
 {
     label->SetFont(fontFile);
-    Update();
+    UpdateInQueue();
 }
 
 void ui::LoadingRingWithText::SetTextHeight(unsigned int height) noexcept
 {
     textHeight = height;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::LoadingRingWithText::SetRingHeight(unsigned int height) noexcept
 {
     ringHeight = height;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::LoadingRingWithText::SetText(const sf::String &newText) noexcept
 {
     text = newText;
-    Update();
+    UpdateInQueue();
 }
 
 void ui::LoadingRingWithText::SetCount(int newCount) noexcept
@@ -1436,7 +1491,7 @@ void ui::LoadingRingWithText::Draw(sf::RenderWindow &screen) noexcept
 void ui::LoadingRingWithText::Count() noexcept
 {
     --count;
-    Update();
+    UpdateInQueue();
     countCallback(name, {});
     if (count == 0) {
         finishedCallback(name, {});
@@ -1456,7 +1511,7 @@ void ui::PictureBox::SetPicture(const sf::String &filename) noexcept
         originSize.height = 100;
     }
     sprite.setTexture(texture);
-    Update();
+    UpdateInQueue();
 }
 
 void ui::PictureBox::SetScale(unsigned int percentage) noexcept

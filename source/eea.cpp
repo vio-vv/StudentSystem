@@ -25,30 +25,31 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
     Atstr which = "";
 
     auto margin = new ui::Margin;
+    screen.Add(margin);
     margin->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
     margin->SetMargin(50, 50, 150, 150);
-    screen.Add(margin);
     {
         auto ver = new ui::VerticalBox;
-        ver->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         ver->AddTo(margin);
+        ver->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         {
             auto flat = new ui::Flat;
+            flat->AddTo(ver);
             flat->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
             flat->SetVSize(150);
-            flat->AddTo(ver);
             {
                 auto head = new ui::HorizontalBox;
+                head->AddTo(flat);
                 head->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 head->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
-                head->AddTo(flat);
                 {
                     auto icon = new ui::PictureBox;
+                    icon->AddTo(head);
                     icon->SetPicture(_ASSETS_"icon.png");
                     icon->KeepHeight(flat->GetGlobalSize(ui::Control::Direction::VERTICAL));
-                    icon->AddTo(head);
 
                     auto label = new ui::Label;
+                    label->AddTo(head);
                     label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                     Atstr prefix = L"欢迎您，";
                     Atstr name = sharedInformation.account["name"];
@@ -56,12 +57,11 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
                         name = L"【未设置姓名】";
                     }
                     label->SetContent(prefix + name);
-                    label->AddTo(head);
                 }
                 auto feet = new ui::HorizontalBox;
+                feet->AddTo(flat);
                 feet->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 feet->SetHPreset(ui::Control::Preset::WRAP_AT_END);
-                feet->AddTo(flat);
                 {
                     auto idNum = new ui::Label;
                     idNum->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
@@ -71,14 +71,14 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
                 }
             }
             auto hor = new ui::HorizontalBox;
-            hor->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
             hor->AddTo(ver);
+            hor->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
             {
                 auto ver = new ui::VerticalScrollingBox;
+                ver->AddTo(hor);
                 ver->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 ver->SetInsideBoxScrollable(true);
                 ver->SetHSize(500);
-                ver->AddTo(hor);
                 {
                     auto reserveBtn = new ui::Button;
                     reserveBtn->SetCaption(L"预约入校");
@@ -109,11 +109,11 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
                     reserveBtn->SetName("A");
 
                     for (auto btn : {reserveBtn, courseBtn, libraryBtn, canteenBtn, mailBtn, nolifyBtn, accBtn}) {
+                        btn->AddTo(ver);
                         btn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                         btn->SetClickCallback([&which](const Atstr &name, const sf::Event &event){
                             which = name;
                         });
-                        btn->AddTo(ver);
                     }
                 }
             }
@@ -168,9 +168,9 @@ clpg::ID clpg::Forget(ui::Screen &screen) noexcept
 clpg::ID clpg::Retry(ui::Screen &screen) noexcept
 {
     auto label = new ui::Label;
+    screen.Add(label);
     label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
     label->SetContent(L"服务端未响应，请检查后再试。");
-    screen.Add(label);
 
     while (screen.IsOpen()) {
         screen.Tick();
@@ -187,38 +187,39 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
     ui::Label *tips = nullptr;
 
     auto centerBox = new ui::VerticalBox;
-    centerBox->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
     screen.Add(centerBox);
+    centerBox->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
     {
         auto pic = new ui::PictureBox;
+        pic->AddTo(centerBox);
         pic->SetPicture(_ASSETS_"icon_with_title.png");
         pic->KeepHeight(100);
-        pic->AddTo(centerBox);
 
         auto box = new ui::VerticalBox;
-        box->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
         box->SetGap(80);
         box->AddTo(centerBox);
+        box->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
         {
             auto vertical = new ui::VerticalBox;
-            vertical->SetSize(900, 250);
             vertical->AddTo(box);
+            vertical->SetSize(900, 250);
             {
                 auto user = new ui::HorizontalBox;
-                user->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 user->AddTo(vertical);
+                user->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 {
                     auto center = new ui::Center;
+                    center->AddTo(user);
                     center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     center->SetHSize(1);
-                    center->AddTo(user);
                     {
                         auto label = new ui::Label;
+                        label->AddTo(center);
                         label->SetSizeWrap(true);
                         label->SetContent(L"帐号");
-                        label->AddTo(center);
                     }
                     auto input = new ui::InputBox;
+                    input->AddTo(user);
                     input->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     input->SetHSize(3);
                     input->SetLengthLimit(64);
@@ -227,23 +228,23 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                     input->SetInputCallback([&input](const Atstr &name, const sf::Event &event){
                         sharedInformation.username = input->GetText();
                     });
-                    input->AddTo(user);
                 }
                 auto pasw = new ui::HorizontalBox;
-                pasw->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 pasw->AddTo(vertical);
+                pasw->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 {
                     auto center = new ui::Center;
+                    center->AddTo(pasw);
                     center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     center->SetHSize(1);
-                    center->AddTo(pasw);
                     {
                         auto label = new ui::Label;
+                        label->AddTo(center);
                         label->SetSizeWrap(true);
                         label->SetContent(L"密码");
-                        label->AddTo(center);
                     }
                     auto input = new ui::InputBox;
+                    input->AddTo(pasw);
                     input->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     input->SetHSize(3);
                     input->SetProtectText(true);
@@ -253,13 +254,12 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                     input->SetInputCallback([&input](const Atstr &name, const sf::Event &event){
                         sharedInformation.password = input->GetText();
                     });
-                    input->AddTo(pasw);
                 }
             }
             auto btnBox = new ui::HorizontalBox;
+            btnBox->AddTo(box);
             btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
             btnBox->SetGap(50);
-            btnBox->AddTo(box);
             {
                 auto loginBtn = new ui::Button;
                 loginBtn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
@@ -290,11 +290,11 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
             }
         }
         tips = new ui::Label;
+        tips->AddTo(centerBox);
         tips->SetPreset(ui::Control::Preset::WRAP_AT_FRONT);
         tips->SetFontColor(sf::Color::Red);
         tips->SetFontSize(30);
         tips->SetVisible(false);
-        tips->AddTo(centerBox);
     }
 
     while (screen.IsOpen()) {

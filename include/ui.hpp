@@ -324,10 +324,11 @@ public:
     /**
      * @fn 更新组件内容尺寸位置
      * @param resetMinSize 是否重置最小尺寸
-     * @note 调用时机：组件最终尺寸和位置变化时，调用 Update(false)；组件内容尺寸和位置变化时，调用 Update(true)。
+     * @note 调用时机：组件最终尺寸和位置变化时，调用 UpdateInQueue(false)；组件内容尺寸和位置变化时，调用 UpdateInQueue(true)。
      * @note 实现功能：确定内容的最终尺寸和位置。
      */
     virtual void Update  (bool resetMinSize = true)                                 noexcept = 0;
+    void UpdateInQueue(bool argv = true) noexcept { inQueue = true; resetMinSize = resetMinSize || argv; } // 用以提升性能
     /**
      * @fn 处理事件
      * @param event 事件
@@ -342,6 +343,12 @@ public:
      * @note 实现功能：绘制组件。
      */
     virtual void Draw    (sf::RenderWindow &screen)                                 noexcept = 0;
+    /**
+     * @fn 帧刷新组件
+     * @note 调用时机：每一帧刷新时。
+     * @note 实现功能：刷新组件。
+     */
+    virtual void Tick    ()                                                         noexcept;
 
     /*****************************************
      * @brief 父容器更新内容的尺寸和位置的接口。*
@@ -379,6 +386,8 @@ public:
     virtual ~Control() noexcept;
 protected:
     sf::String name = "default";
+    bool inQueue = false;
+    bool resetMinSize = false; // 用以提升性能
 
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -520,6 +529,7 @@ public:
     void Update (bool resetMinSize = true)                                 noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
     void Draw   (sf::RenderWindow &screen)                                 noexcept;
+    void Tick   ()                                                         noexcept;
 
     ~Container() noexcept;
 protected:
@@ -648,7 +658,7 @@ class Center : public Container{
 public:
     Center() noexcept
     {
-        Update(true);
+        UpdateInQueue(true);
     }
     
     /*******************************************
@@ -759,7 +769,7 @@ class HorizontalBox : public LinearBox{
 public:
     HorizontalBox() noexcept
     {
-        Update(true);
+        UpdateInQueue(true);
     }
     
     /*******************************************
@@ -808,7 +818,7 @@ class VerticalBox : public LinearBox{
 public:
     VerticalBox() noexcept
     {
-        Update(true);
+        UpdateInQueue(true);
     }
     
     /*******************************************
@@ -857,7 +867,7 @@ class Margin : public Container{
 public:
     Margin() noexcept
     {
-        Update(true);
+        UpdateInQueue(true);
     }
     
     /*******************************************
@@ -919,7 +929,7 @@ public:
     Label() noexcept
     {
         SetFont(FONT_FILE_PATH);
-        Update(true);
+        UpdateInQueue(true);
     }
     const sf::String &GetContent() const noexcept { return content; }
     bool              GetError()   const noexcept { return error; }
@@ -1049,7 +1059,7 @@ public:
         label->SetPreset(Preset::WRAP_AT_CENTER);
         layer.Add(rect);
         layer.Add(label);
-        Update(true);
+        UpdateInQueue(true);
     }
     void SetEnterCallback(Callback function)     noexcept { enterCallback = function; }
     void SetLeaveCallback(Callback function)     noexcept { leaveCallback = function; }
@@ -1087,6 +1097,7 @@ public:
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
     void Draw   (sf::RenderWindow &screen) noexcept;
+    void Tick() noexcept;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1138,7 +1149,7 @@ public:
         layer.Add(button);
         layer.Add(rect);
         layer.Add(label);
-        Update(true);
+        UpdateInQueue(true);
     }
     void SetBeginCallback(Callback function)  noexcept { beginCallback = function; }
     void SetInputCallback(Callback function)  noexcept { inputCallback = function; }
@@ -1191,6 +1202,7 @@ public:
     void Update (bool resetMinSize = true)                                 noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
     void Draw   (sf::RenderWindow &screen)                                 noexcept;
+    void Tick   ()                                                         noexcept;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1295,6 +1307,7 @@ public:
     void Update (bool resetMinSize = true)                                 noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
     void Draw   (sf::RenderWindow &screen)                                 noexcept;
+    void Tick   ()                                                         noexcept;
 protected:
     Callback enteredCallback = DO_NOTHING;
     Callback leaveCallback = DO_NOTHING;
@@ -1340,7 +1353,7 @@ class HorizontalScrollBar : public ScrollBar{
 public:
     HorizontalScrollBar() noexcept
     {
-        Update();
+        UpdateInQueue();
     }
     
     /*******************************************
@@ -1390,7 +1403,7 @@ class VerticalScrollBar : public ScrollBar{
 public:
     VerticalScrollBar() noexcept
     {
-        Update();
+        UpdateInQueue();
     }
 
     /*******************************************
@@ -1476,6 +1489,7 @@ public:
     void Update(bool resetMinSize = true)                                 noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)  noexcept;
     void Draw(sf::RenderWindow &screen)                                   noexcept;
+    void Tick()                                                           noexcept;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1530,7 +1544,7 @@ public:
         layer.Add(box);
         layer.Add(bar);
 
-        Update(true);
+        UpdateInQueue(true);
     }
     
     /***************************
@@ -1594,7 +1608,7 @@ public:
         layer.Add(box);
         layer.Add(bar);
 
-        Update(true);
+        UpdateInQueue(true);
     }
 
     /*******************************************
@@ -1652,7 +1666,7 @@ public:
         circle.setFillColor(sf::Color::Transparent);
         circle.setOutlineColor(sf::Color::White);
         circle.setOutlineThickness(10);
-        Update();
+        UpdateInQueue();
     }
     void SetCallback(Callback function) noexcept { callback = function; }
 
@@ -1729,7 +1743,7 @@ public:
         ring->SetCallback([this](const sf::String &name, const sf::Event &event){
             this->Count();
         });
-        Update(true);
+        UpdateInQueue(true);
     }
     void SetCountCallback(Callback function) noexcept { countCallback = function; }
     void SetFinishedCallback(Callback function) noexcept { finishedCallback = function; }
@@ -1768,6 +1782,7 @@ public:
     void Update(bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
     void Draw(sf::RenderWindow &screen) noexcept;
+    void Tick() noexcept;
 protected:
     Callback countCallback = DO_NOTHING;
     Callback finishedCallback = DO_NOTHING;
@@ -1893,6 +1908,7 @@ public:
     void Update(bool resetMinSize = true) noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept = 0;
     void Draw(sf::RenderWindow &screen) noexcept = 0;
+    void Tick() noexcept = 0; // 组合时需重写
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
