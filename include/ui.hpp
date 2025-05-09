@@ -13,6 +13,8 @@
     screen.draw(____)
 #endif
 
+#define _ASSETS_ "../assets/"
+
 /**
  * @brief 实现 UI 界面的布局和绘制。
  * @namespace ui
@@ -171,6 +173,12 @@ class Control;
      * @note countCallback、finishCallback 回调函数 event 参数失效。
      */
     class LoadingRingWithText;
+    /**
+     * @class 图片框类
+     * @brief 显示图片的组件。
+     * @note minSize 属性由用户决定。
+     */
+    class PictureBox;
 
 /*******************************************
  * @brief 所有组件类的接口声明。*
@@ -1793,6 +1801,69 @@ protected:
     int count = 5;
 };
 
+class PictureBox : public Control {
+public:
+    PictureBox() noexcept
+    {
+        ;
+    }
+    bool GetError() const noexcept { return error; }
+
+    /*******************************************
+     * @brief 约定的常量和数据类型以及外工具方法。*
+     * *****************************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+    void SetPicture(const sf::String &filename) noexcept;
+    void SetScale(unsigned int percentage) noexcept;
+    void KeepWidth(unsigned int absolute) noexcept;
+    void KeepHeight(unsigned int absolute) noexcept;
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update(bool resetMinSize = true) noexcept;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept {}
+    void Draw(sf::RenderWindow &screen) noexcept;
+protected:
+    /******************************
+     * @brief 封装的工具方法和属性。*
+     * ****************************
+     */
+
+    /******************************
+     * @brief 封装的数据类型和常量。*
+     * ****************************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+    sf::Texture texture;
+    struct{
+        unsigned int width = 200;
+        unsigned int height = 100;
+    }originSize;
+    sf::Sprite sprite;
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+    bool error = false;
+};
+    
 class Example : public Control {
 public:
     Example() noexcept

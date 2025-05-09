@@ -1,7 +1,7 @@
 #define SELF ".\\space"
 
-#define REGISTER(ENUM, FUNC)                                                    \
-    else if (request.content[0] == ENUM) {                            \
+#define REGISTER(ENUM, FUNC)                                               \
+    else if (request.content[0] == ENUM) {                                 \
         trm::SendReply(request.sender, request.id, FUNC(request.content)); \
     }
 

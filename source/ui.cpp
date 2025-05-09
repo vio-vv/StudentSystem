@@ -8,7 +8,7 @@ const unsigned int ui::Label::REVISION_X = 15;
 
 const unsigned int ui::Label::REVISION_Y = 20;
 
-const sf::String ui::Label::FONT_FILE_PATH = "../assets/simfang.ttf";
+const sf::String ui::Label::FONT_FILE_PATH = _ASSETS_"simfang.ttf";
 
 const float ui::LoadingRing::PI = 3.14159265358979323846;
 
@@ -1441,4 +1441,55 @@ void ui::LoadingRingWithText::Count() noexcept
     if (count == 0) {
         finishedCallback(name, {});
     }
+}
+
+void ui::PictureBox::SetPicture(const sf::String &filename) noexcept
+{
+    if (!texture.loadFromFile(filename)) {
+        error = true;
+    }
+    originSize = {texture.getSize().x, texture.getSize().y};
+    if (originSize.width == 0) {
+        originSize.width = 200;
+    }
+    if (originSize.height == 0) {
+        originSize.height = 100;
+    }
+    sprite.setTexture(texture);
+    Update();
+}
+
+void ui::PictureBox::SetScale(unsigned int percentage) noexcept
+{
+    SetSize(originSize.width * percentage / 100, originSize.height * percentage / 100);
+}
+
+void ui::PictureBox::KeepWidth(unsigned int absolute) noexcept
+{
+    SetSize(absolute, absolute * originSize.height / originSize.width);
+}
+
+void ui::PictureBox::KeepHeight(unsigned int absolute) noexcept
+{
+    SetSize(absolute * originSize.width / originSize.height, absolute);
+}
+
+void ui::PictureBox::Draw(sf::RenderWindow &screen) noexcept
+{
+    if (!error) {
+        screen.draw(sprite);
+    } else {
+        sf::RectangleShape rect(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL]));
+        rect.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
+        rect.setFillColor(sf::Color::Red);
+        screen.draw(rect);
+    }
+
+    DRAW_DEBUG_RECT;
+}
+
+void ui::PictureBox::Update(bool resetMinSize) noexcept
+{
+    sprite.setPosition(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]);
+    sprite.setScale((float)globalSize[Direction::HORIZONTAL] / originSize.width, (float)globalSize[Direction::VERTICAL] / originSize.height);
 }
