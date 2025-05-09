@@ -25,8 +25,8 @@ public:
     trm::Information ModifyBookInfo(const trm::Information&) noexcept;
     trm::Information ResetLibrary(const trm::Information&) noexcept;
     trm::Information SendReturnReminder(const trm::Information&) noexcept;
-    std::pair<trm::Information, std::vector<trm::BorrowLog>> GetAccountBorrowList(const trm::Information&) noexcept;
-    std::pair<trm::Information, std::vector<trm::Book>> SearchBook(const trm::Information&, std::function<bool(const trm::Book &a, const trm::Book &b)> &&f) noexcept;
+    trm::Information SearchBook(const trm::Information&) noexcept;
+    trm::Information GetAccountBorrowList(const trm::Information&) noexcept;
 
     //extra 
 

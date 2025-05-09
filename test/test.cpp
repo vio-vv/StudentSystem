@@ -168,8 +168,8 @@ int main()
     f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "189-9-39-998899-2", "5", Book{"189-9-39-998899-2", "ccad45", "1925-12", "科学技术", "图书馆208", {"李某"}}}));
     f(ssys.RemoveBook({trm::rqs::REMOVE_BOOK, "adm", "123", "999-9-99-999999-1", "10"}));
     f(ssys.ModifyBookInfo({trm::rqs::MODIFY_BOOK_INFO, "adm", "123", "999-9-99-999999-1", Book{"123-4-56-789101-1", "++--", "2025-04", "科学技术", "图书馆208", {"张某某"}}}));
-    auto reply = ssys.SearchBook({trm::rqs::SEARCH_BOOK, "abc", "", "true"}, [](const trm::Book &a, const trm::Book &b) -> bool { return a.storePosition < b.storePosition; });
-    for (auto &book : reply.second) {
+    auto reply = ssys.SearchBook({trm::rqs::SEARCH_BOOK, "abc", "", "true", "true"});
+    for (trm::Book book : reply) {
         std::cout << book.bookIsbn << " " << book.bookName << " ";
         for (auto &author : book.bookAuthor) {
             std::cout << author << ',';
@@ -205,14 +205,14 @@ int main()
     f(ssys.BorrowBook({trm::rqs::BORROW_BOOK, "adm", "123", "123-4-96-784875-2", "10"}));
     f(ssys.BorrowBook({trm::rqs::BORROW_BOOK, "adm", "123", "123-4-55-784875-2", "-10"}));
     auto reply_ = ssys.GetAccountBorrowList({trm::rqs::GET_ACCOUNT_BORROW_LIST, "adm", "123"});
-    for (auto &borrow : reply_.second) {
+    for (trm::BorrowLog borrow : reply_) {
         std::cout << borrow.borrowLast << " " << borrow.start.currantTime << " " << borrow.end.currantTime << " " << borrow.bookIsbn << " " << borrow.borrower << std::endl;
     }
 
     f(ssys.SendReturnReminder({trm::rqs::SEND_RETURN_REMINDER}));
 
-    auto reply_4 = ssys.SearchBook({trm::rqs::SEARCH_BOOK, "经济", "", "true"}, [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookPublicationDate < b.bookPublicationDate; });
-    for (auto &book : reply_4.second) {
+    auto reply_4 = ssys.SearchBook({trm::rqs::SEARCH_BOOK, "经济", "", "true", "true"});
+    for (trm::Book book : reply_4) {
         std::cout << book.bookIsbn << " "; 
         std::cout << book.bookName << " ";
         for (auto &author : book.bookAuthor) {
@@ -227,13 +227,13 @@ int main()
 
     std::vector<std::pair<std::string, std::string>> date;
     auto reply_2 = ssys.GetAccountBorrowList({trm::rqs::GET_ACCOUNT_BORROW_LIST, "adm", "123"});
-    for (auto &borrow : reply_2.second) {
+    for (trm::BorrowLog borrow : reply_2) {
         std::cout << borrow.borrowLast << " " << borrow.start.currantTime << " " << borrow.end.currantTime << " " << borrow.bookIsbn << " " << borrow.borrower << std::endl;
         date.push_back({ToStr(borrow.start.currantTime), borrow.bookIsbn});
     }
 
-    auto reply_3 = ssys.SearchBook({trm::rqs::SEARCH_BOOK, "计算机", "", "true"}, [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookPublicationDate < b.bookPublicationDate; });
-    for (auto &book : reply_3.second) {
+    auto reply_3 = ssys.SearchBook({trm::rqs::SEARCH_BOOK, "计算机", "", "true", "true"});
+    for (trm::Book book : reply_3) {
         std::cout << book.bookIsbn << " " << book.bookName << " ";
         for (auto &author : book.bookAuthor) {
             std::cout << author << ',';
@@ -246,10 +246,9 @@ int main()
     f(ssys.ReturnBook({trm::rqs::RETURN_BOOK, "adm", "123", date[1].second, date[1].first}));
 
     auto reply__ = ssys.GetAccountBorrowList({trm::rqs::GET_ACCOUNT_BORROW_LIST, "adm", "123"});
-    for (auto& borrow : reply__.second) {
+    for (trm::BorrowLog borrow : reply__) {
         std::cout << borrow.borrowLast << " " << borrow.start.currantTime << " " << borrow.end.currantTime << " " << borrow.bookIsbn << " " << borrow.borrower << std::endl;
     }
-
 
 #endif
 #ifdef COURSE

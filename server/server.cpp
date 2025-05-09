@@ -74,6 +74,14 @@ int main() noexcept
                  * @attention VIO_VV 请在此处添加。*
                  * ********************************
                  */
+                REGISTER(trm::rqs::BORROW_BOOK, ssys.BorrowBook)
+                REGISTER(trm::rqs::RETURN_BOOK, ssys.ReturnBook)
+                REGISTER(trm::rqs::MODIFY_BOOK_INFO, ssys.ModifyBookInfo)
+                REGISTER(trm::rqs::REMOVE_BOOK, ssys.RemoveBook)
+                REGISTER(trm::rqs::RESTORE_BOOK, ssys.RestoreNewBook)
+                REGISTER(trm::rqs::SEARCH_BOOK, ssys.SearchBook)
+                REGISTER(trm::rqs::GET_ACCOUNT_BORROW_LIST, ssys.GetAccountBorrowList)
+                REGISTER(trm::rqs::SEND_RETURN_REMINDER, ssys.SendReturnReminder)
                 // REGISTER(trm::rqs::???, ssys.???)
 
                 else {

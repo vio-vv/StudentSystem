@@ -270,7 +270,7 @@ namespace rqs{
      * @brief 查看账户借阅列表
      * @param code 学工号
      * @param password 密码
-     * @return 第一项为 NO_ACCOUNT or SUCCESS, 第二项为 BorrowLog 列表
+     * @return 成功时返回借阅列表，失败时返回 NO_ACCOUNT
      */
     const std::string GET_ACCOUNT_BORROW_LIST = _AS_"GET_ACCOUNT_BORROW_LIST";
     /**
@@ -286,9 +286,9 @@ namespace rqs{
      * @brief 搜索图书。
      * @param searchKey 查找关键字
      * @param searchType 查找图书属性 默认为书名
-     * @param replace true 则重新进行检索, false 则仅进行排序
-     * @param sortFunction 排序函数，排序变量需为图书成员数据 @see @struct Book
-     * @return 第一项为 FAIL or SUCCESS, 第二项为 Book 列表
+     * @param isSort 是否进行排序 默认为 false
+     * @param ascendingOrder 排序图书属性与searchType相同 排序方式 默认字典序小在前，true 为字典序小在前，false 为字典序大在前
+     * @return 成功时返回匹配书籍 失败时返回 FAIL
      */
     const std::string SEARCH_BOOK = _AS_"SEARCH_BOOK";
     /**

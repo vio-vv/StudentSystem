@@ -172,82 +172,98 @@ trm::Information ssys::Library::SortMatchBook(const trm::Information &content, s
     return{trm::rpl::SUCC};
 }
 
-std::pair<trm::Information, std::vector<trm::BorrowLog>> ssys::Library::GetAccountBorrowList(const trm::Information &content) noexcept
+trm::Information ssys::Library::GetAccountBorrowList(const trm::Information &content) noexcept
 {
     assert(content[0] == trm::rqs::GET_ACCOUNT_BORROW_LIST);
 
     auto reply = SSys::Get().CheckAccountExist({trm::rqs::CHECK_ACCOUNT_EXISTS, content[1]});
-    if (reply[0] == trm::rpl::NO) return {{trm::rpl::NO_ACCOUNT}, {}};
+    if (reply[0] == trm::rpl::NO) return {{trm::rpl::NO_ACCOUNT}};
+
+    trm::Information ret;
 
     auto logs = accountBorrowLog[content[1]];
-    std::vector<trm::BorrowLog> borrowList;
     for (auto [name, log] : logs) {
         auto logInfo = trm::BorrowLog(log);
-        borrowList.push_back(logInfo);
+        ret.push_back(logInfo);
     }
-    return{{trm::rpl::SUCC}, borrowList};
+    return ret;
 }
 
 
-std::pair<trm::Information, std::vector<trm::Book>> ssys::Library::SearchBook(const trm::Information &content, std::function<bool(const trm::Book &a, const trm::Book &b)> &&f) noexcept
+trm::Information ssys::Library::SearchBook(const trm::Information &content) noexcept
 {   
     assert(content[0] == trm::rqs::SEARCH_BOOK);
     int type = ToNum<int>(content[2]);
-    bool replace = false;
-    if (content[3] == "true") {
-        replace = true;
+    bool ascending = true;
+    if (content[4] == "false") {
+        ascending = false;
     }
-    if (replace) {
-        const double standard = 0.10;
+    std::function<bool(const trm::Book &a, const trm::Book &b)> f;
+    const double standard = 0.10;
 
-        activebookseries.clear();
-        std::vector<std::pair<double, trm::Book>> match;
-        double matchRate = 0;
-        for (auto [name, bookInfo] : books) {
-            trm::Book tmp = trm::Book(bookInfo);
-            switch (type) {
-                case trm::rqs::bk::BOOK_ISBN:
-                    matchRate = trm::FuzzyMatch(content[1], tmp.bookIsbn);
-                    if (matchRate > standard) {
-                        match.push_back({matchRate, tmp});
-                    }
-                    break;
-                case trm::rqs::bk::BOOK_AUTHOR:
-                    for (auto author : tmp.bookAuthor) {
-                        matchRate = std::max(trm::FuzzyMatch(content[1], author), matchRate);
-                    }
-                    if (matchRate > standard) {
-                        match.push_back({matchRate, tmp});
-                    }
-                    break;
-                case trm::rqs::bk::BOOK_CATAGORY:
-                    matchRate = trm::FuzzyMatch(content[1], tmp.bookCatagory);
-                    if (matchRate > standard) {
-                        match.push_back({matchRate, tmp});
-                    }
-                    break;
-                case trm::rqs::bk::BOOK_PUBLISHDATE:
-                    matchRate = trm::FuzzyMatch(content[1], tmp.bookPublicationDate);
-                    if (matchRate > standard) {
-                        match.push_back({matchRate, tmp});
-                    }    
-                    break;
-                default:
-                    matchRate = trm::FuzzyMatch(content[1], tmp.bookName);
-                    if (matchRate > standard) {
-                        match.push_back({matchRate, tmp});
-                    }
-                    break;
-            }
+    trm::Information ret;
+    std::vector<std::pair<double, trm::Book>> match;
+    double matchRate = 0;
+    for (auto [name, bookInfo] : books) {
+        trm::Book tmp = trm::Book(bookInfo);
+        switch (type) {
+            case trm::rqs::bk::BOOK_ISBN:
+                matchRate = trm::FuzzyMatch(content[1], tmp.bookIsbn);
+                if (matchRate > standard) {
+                    match.push_back({matchRate, tmp});
+                }
+                if (ascending) f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookIsbn < b.bookIsbn; };
+                else f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookIsbn > b.bookIsbn; };
+                break;
+            case trm::rqs::bk::BOOK_AUTHOR:
+                for (auto author : tmp.bookAuthor) {
+                    matchRate = std::max(trm::FuzzyMatch(content[1], author), matchRate);
+                }
+                if (matchRate > standard) {
+                    match.push_back({matchRate, tmp});
+                }
+                if (ascending) f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookAuthor[0] < b.bookAuthor[0]; };
+                else f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookAuthor[0] > b.bookAuthor[0]; };
+                break;
+            case trm::rqs::bk::BOOK_CATAGORY:
+                matchRate = trm::FuzzyMatch(content[1], tmp.bookCatagory);
+                if (matchRate > standard) {
+                    match.push_back({matchRate, tmp});
+                }
+                if (ascending) f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookCatagory < b.bookCatagory; };
+                else f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookCatagory > b.bookCatagory; };
+                break;
+            case trm::rqs::bk::BOOK_PUBLISHDATE:
+                matchRate = trm::FuzzyMatch(content[1], tmp.bookPublicationDate);
+                if (matchRate > standard) {
+                    match.push_back({matchRate, tmp});
+                }
+                if (ascending) f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookPublicationDate < b.bookPublicationDate; };
+                else f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookPublicationDate > b.bookPublicationDate; };
+                break;
+            default:
+                matchRate = trm::FuzzyMatch(content[1], tmp.bookName);
+                if (matchRate > standard) {
+                    match.push_back({matchRate, tmp});
+                }
+                if (ascending) f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookName < b.bookName; };
+                else f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookName > b.bookName; };
+                break;
         }
+    
         std::sort(match.begin(), match.end(), [](const std::pair<double, trm::Book>& a, const std::pair<double, trm::Book>& b) -> bool { return a.first > b.first; });
         for (auto [rate, book] : match) {
             activebookseries.push_back(book);
         }
+        match.clear();
     }
 
-    SortMatchBook({trm::rqs::SORT_BOOK}, f);
-    return{{trm::rpl::SUCC}, activebookseries};
+    if (content[3] == "true") SortMatchBook({trm::rqs::SORT_BOOK}, f);
+    for (auto book : activebookseries) {
+        ret.push_back(book);
+    }
+    activebookseries.clear();
+    return ret;
 }
 
 trm::Information ssys::Library::SendReturnReminder(const trm::Information &content) noexcept
