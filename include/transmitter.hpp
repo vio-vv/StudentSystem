@@ -749,7 +749,7 @@ public:
     static void SetLink(const std::string &_link) noexcept { link = _link; }
     static void SetSelf(const std::string &_self) noexcept { self = _self; }
     static void SetSelfAsSender(const std::string &_selfAsSender) noexcept { selfAsSender = _selfAsSender; }
-    Sender(const Information &content) noexcept;
+    explicit Sender(const Information &content) noexcept;
     std::pair<bool, trm::Information> Poll() noexcept;
 private:
     static std::string link;

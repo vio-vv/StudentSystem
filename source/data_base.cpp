@@ -83,6 +83,23 @@ void dat::DataBase::Push(const std::pair<std::string, std::string> &key_value) c
     next = key_value.second;
 }
 
+void dat::DataBase::Push(const std::string &keyName, const std::string &value) const noexcept
+{
+    if (consideredAsFileOnly) {
+        assert(false); // Deny
+        return;
+    }
+    if (!file::CheckDirectoryExists(space)) {
+        if (!file::CreateDirectory(space)) {
+            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to create directory:" << space << std::endl;
+            fail = true;
+            return;
+        }
+    }
+    const auto &next = (*this)[keyName];
+    next = value;
+}
+
 void dat::DataBase::Push(const std::string &value) noexcept
 {
     List();
