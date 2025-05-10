@@ -12,7 +12,14 @@ clpg::ID clpg::EnterCanteen(ui::Screen &screen) noexcept
 
 clpg::ID clpg::EnterMailSystem(ui::Screen &screen) noexcept
 {
-    bool back = false;
+    auto backBtn = new ui::Button;
+    auto l3 = new ui::Button; l3->SetName("-3");
+    auto l2 = new ui::Button; l2->SetName("-2");
+    auto l1 = new ui::Button; l1->SetName("-1");
+    auto cur = new ui::Label;
+    auto r1 = new ui::Button; r1->SetName("+1");
+    auto r2 = new ui::Button; r2->SetName("+2");
+    auto r3 = new ui::Button; r3->SetName("+3");
 
     auto mar = new ui::Margin;
     screen.Add(mar);
@@ -34,14 +41,9 @@ clpg::ID clpg::EnterMailSystem(ui::Screen &screen) noexcept
                 btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 btnBox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 {
-                    auto backBtn = new ui::Button;
                     backBtn->AddTo(btnBox);
                     backBtn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     backBtn->SetCaption(L"返回主页");
-                    backBtn->SetClickCallback([&back](const Atstr &name, const sf::Event &event){
-                        back = true;
-                    });
-
                     auto writeMailBtn = new ui::Button;
                     writeMailBtn->AddTo(btnBox);
                     writeMailBtn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
@@ -57,16 +59,57 @@ clpg::ID clpg::EnterMailSystem(ui::Screen &screen) noexcept
                     label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                     label->SetContent(L"↓ 收件箱 ↓");
 
-                    ;
+                    auto listBox = new ui::VerticalBox;
+                    listBox->AddTo(inBox);
+                    listBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    {
+                        auto list = new ui::VerticalBox;
+                        list->AddTo(listBox);
+                        list->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        {
+                            ;
+                        }
+
+                        auto btnBox = new ui::HorizontalBox;
+                        btnBox->AddTo(listBox);
+                        btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        btnBox->SetVPreset(ui::Control::Preset::PLACR_AT_END);
+                        btnBox->SetVSize(50);
+                        {
+                            auto elp1 = new ui::Label;
+                            elp1->SetContent(L"...");
+                            cur->SetContent("1");
+                            auto elp2 = new ui::Label;
+                            elp2->SetContent(L"...");
+                            
+                            for (auto e : std::vector<ui::Control *>{elp1, l3, l2, l1, cur, r1, r2, r3, elp2}) {
+                                e->AddTo(btnBox);
+                                e->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
+    Atstr step = "";
+
+    auto nextPage = ID::NOT_DETERMINED_YET;
+    for (auto e : {l3, l2, l1, r1, r2, r3}) {
+        e->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+            step = name;
+        });
+        e->SetCaption("-"); // TODO
+    }
+    backBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::MAIN_PAGE;
+    });
+
     while (screen.IsOpen()) {
         screen.Tick();
-        if (back) {
-            return ID::MAIN_PAGE;
+        if (nextPage != ID::NOT_DETERMINED_YET) {
+            return  nextPage;
         }
     }
     return ID::BREAK;
@@ -74,10 +117,16 @@ clpg::ID clpg::EnterMailSystem(ui::Screen &screen) noexcept
 
 clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
 {
-    Atstr which = "";
-    bool logout = false;
-
+    auto logoutBtn = new ui::Button;
     auto margin = new ui::Margin;
+    auto reserveBtn = new ui::Button; reserveBtn->SetName("R");
+    auto courseBtn = new ui::Button; courseBtn->SetName("C");
+    auto libraryBtn = new ui::Button; libraryBtn->SetName("L");
+    auto canteenBtn = new ui::Button; canteenBtn->SetName("F");
+    auto mailBtn = new ui::Button; mailBtn->SetName("M");
+    auto nolifyBtn = new ui::Button; nolifyBtn->SetName("N");
+    auto accBtn = new ui::Button; accBtn->SetName("A");
+
     screen.Add(margin);
     margin->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
     margin->SetMargin(80, 80, 200, 200);
@@ -123,13 +172,9 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
                     idNum->SetContent(prefix + sharedInformation.account.code);
                     idNum->AddTo(feet);
 
-                    auto logoutBtn = new ui::Button;
                     logoutBtn->AddTo(feet);
                     logoutBtn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                     logoutBtn->SetCaption(L"登出");
-                    logoutBtn->SetClickCallback([&logout](const Atstr &name, const sf::Event &event){
-                        logout = true;
-                    });
                 }
             }
             auto hor = new ui::HorizontalBox;
@@ -142,69 +187,52 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
                 ver->SetHSize(500);
                 ver->SetInsideBoxScrollable(true);
                 {
-                    auto reserveBtn = new ui::Button;
                     reserveBtn->SetCaption(L"预约入校");
-                    reserveBtn->SetName("R");
-
-                    auto courseBtn = new ui::Button;
                     courseBtn->SetCaption(L"课程系统");
-                    courseBtn->SetName("C");
-
-                    auto libraryBtn = new ui::Button;
                     libraryBtn->SetCaption(L"图书馆");
-                    libraryBtn->SetName("L");
-
-                    auto canteenBtn = new ui::Button;
                     canteenBtn->SetCaption(L"在线饭堂");
-                    canteenBtn->SetName("F");
-
-                    auto mailBtn = new ui::Button;
                     mailBtn->SetCaption(L"私信");
-                    mailBtn->SetName("M");
-
-                    auto nolifyBtn = new ui::Button;
                     nolifyBtn->SetCaption(L"通知与公示");
-                    nolifyBtn->SetName("N");
-
-                    auto accBtn = new ui::Button;
                     accBtn->SetCaption(L"帐户权限管理");
-                    accBtn->SetName("A");
-
                     for (auto btn : {reserveBtn, courseBtn, libraryBtn, canteenBtn, mailBtn, nolifyBtn, accBtn}) {
                         btn->AddTo(ver);
                         btn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        btn->SetClickCallback([&which](const Atstr &name, const sf::Event &event){
-                            which = name;
-                        });
                     }
                 }
             }
         }
     }
 
+    auto nextPage = ID::NOT_DETERMINED_YET;
+    logoutBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::LOGIN;
+    });
+    reserveBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::ENTER_RESERVE;
+    });
+    courseBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::ENTER_COURSE;
+    });
+    libraryBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::ENTER_LIBRARY;
+    });
+    canteenBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::ENTER_CANTEEN;
+    });
+    mailBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::ENTER_MAILSYSTEM;
+    });
+    nolifyBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::ENTER_NOLIFY;
+    });
+    accBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::ENTER_ACC_MANAGE;
+    });
+
     while (screen.IsOpen()) {
         screen.Tick();
-        if (which != "") {
-            if (which == "R") {
-                return ID::ENTER_RESERVE;
-            } else if (which == "C") {
-                return ID::ENTER_CANTEEN;
-            } else if (which == "L") {
-                return ID::ENTER_LIBRARY;
-            } else if (which == "F") {
-                return ID::ENTER_CANTEEN;
-            } else if (which == "M") {
-                return ID::ENTER_MAILSYSTEM;
-            } else if (which == "N") {
-                return ID::ENTER_NOLIFY;
-            } else if (which == "A") {
-                return ID::ENTER_ACC_MANAGE;
-            } else {
-                assert(false); // Invalid button name.
-            }
-        }
-        if (logout) {
-            return ID::LOGIN;
+        if (nextPage != ID::NOT_DETERMINED_YET) {
+            return  nextPage;
         }
     }
     return ID::BREAK;
@@ -245,11 +273,12 @@ clpg::ID clpg::Retry(ui::Screen &screen) noexcept
 
 clpg::ID clpg::Login(ui::Screen &screen) noexcept
 {
-    bool login = false;
-    bool forget = false;
-    bool reserve = false;
-
-    ui::Label *tips = nullptr;
+    auto userInput = new ui::InputBox;
+    auto paswInput = new ui::InputBox;
+    auto loginBtn = new ui::Button;
+    auto forgetBtn = new ui::Button;
+    auto reserveBtn = new ui::Button;
+    auto tips = new ui::Label;
 
     auto box = new ui::VerticalBox;
     box->SetGap(80);
@@ -275,23 +304,13 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                 label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 label->SetContent(L"帐号");
 
-                auto input = new ui::InputBox;
-                input->AddTo(user);
-                input->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                input->SetText(sharedInformation.username);
-                sharedInformation.password = "";
-                sharedInformation.account = {};
-                input->SetHSize(3);
-                input->SetLengthLimit(64);
-                input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
-                input->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
-                input->SetInputCallback([&input](const Atstr &name, const sf::Event &event){
-                    sharedInformation.username = input->GetText();
-                });
-                input->SetExceedLimitCallback([&tips](const Atstr &name, const sf::Event &event){
-                    tips->SetContent(L"帐号只能由数字、大小写字母以及 _-@. 构成，\n且长度不超过 64 个字符。");
-                    tips->SetVisible(true);
-                });
+                userInput->AddTo(user);
+                userInput->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                userInput->SetText(sharedInformation.username);
+                userInput->SetHSize(3);
+                userInput->SetLengthLimit(64);
+                userInput->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
+                userInput->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
             }
             auto pasw = new ui::HorizontalBox;
             pasw->AddTo(vertical);
@@ -303,21 +322,13 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                 label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 label->SetContent(L"密码");
 
-                auto input = new ui::InputBox;
-                input->AddTo(pasw);
-                input->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                input->SetHSize(3);
-                input->SetProtectText(true);
-                input->SetLengthLimit(64);
-                input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
-                input->SetSpecialCharacters(ui::InputBox::ASCII);
-                input->SetInputCallback([&input](const Atstr &name, const sf::Event &event){
-                    sharedInformation.password = input->GetText();
-                });
-                input->SetExceedLimitCallback([&tips](const Atstr &name, const sf::Event &event){
-                    tips->SetContent(L"密码只能由 ASCII 字符构成，\n且长度不超过 64 个字符。");
-                    tips->SetVisible(true);
-                });
+                paswInput->AddTo(pasw);
+                paswInput->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                paswInput->SetHSize(3);
+                paswInput->SetProtectText(true);
+                paswInput->SetLengthLimit(64);
+                paswInput->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
+                paswInput->SetSpecialCharacters(ui::InputBox::ASCII);
             }
         }
         auto feetBox = new ui::VerticalBox;
@@ -329,34 +340,21 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
             btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
             btnBox->SetGap(50);
             {
-                auto loginBtn = new ui::Button;
                 loginBtn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 loginBtn->SetHSize(2);
                 loginBtn->SetCaption(L"登录");
-                loginBtn->SetClickCallback([&login](const Atstr &name, const sf::Event &event){
-                    login = true;
-                });
                 loginBtn->AddTo(btnBox);
 
-                auto forgetBtn = new ui::Button;
                 forgetBtn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 forgetBtn->SetHSize(2);
                 forgetBtn->SetCaption(L"忘记密码");
-                forgetBtn->SetClickCallback([&forget](const Atstr &name, const sf::Event &event){
-                    forget = true;
-                });
                 forgetBtn->AddTo(btnBox);
                 
-                auto reserveBtn = new ui::Button;
                 reserveBtn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 reserveBtn->SetHSize(1);
                 reserveBtn->SetCaption(L"校外人员\n预约入校");
-                reserveBtn->SetClickCallback([&reserve](const Atstr &name, const sf::Event &event){
-                    reserve = true;
-                });
                 reserveBtn->AddTo(btnBox);
             }
-            tips = new ui::Label;
             tips->AddTo(feetBox);
             tips->SetPreset(ui::Control::Preset::WRAP_AT_FRONT);
             tips->SetFontColor(sf::Color::Red);
@@ -365,40 +363,60 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
         }        
     }
 
-    while (screen.IsOpen()) {
-        screen.Tick();
-        if (login) {
-            if (sharedInformation.username == "" || sharedInformation.password == "") {
-                login = false;
-                tips->SetContent(L"帐号或密码不能为空。");
-                tips->SetVisible(true);
-            } else {
-                screen.HideAll();
-                auto [success, reply] = WaitServer(screen, 
-                    {trm::rqs::CHECK_ACCOUNT, sharedInformation.username, sharedInformation.password}, L"登录中");
-                if (success == 1) {
-                    if (reply[0] == trm::rpl::YES) {
-                        sharedInformation.account = reply[1];
-                        return ID::MAIN_PAGE;
-                    } else if (reply[0] == trm::rpl::NO) {
-                        login = false;
-                        tips->SetContent(L"帐号或密码错误。");
-                        tips->SetVisible(true);
-                        screen.FreeAllVisible();
-                        screen.ShowAll();
-                    } else {
-                        assert(false); // Invalid reply.
-                    }    
-                } else if (success == 0) {
-                    return ID::RETRY;
-                }
+    sharedInformation.password = "";
+    sharedInformation.account = {};
+
+    auto nextPage = ID::NOT_DETERMINED_YET;
+    userInput->SetInputCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        sharedInformation.username = userInput->GetText();
+    });
+    userInput->SetExceedLimitCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        tips->SetContent(L"帐号只能由数字、大小写字母以及 _-@. 构成，\n且长度不超过 64 个字符。");
+        tips->SetVisible(true);
+    });
+    paswInput->SetInputCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        sharedInformation.password = paswInput->GetText();
+    });
+    paswInput->SetExceedLimitCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        tips->SetContent(L"密码只能由 ASCII 字符构成，\n且长度不超过 64 个字符。");
+        tips->SetVisible(true);
+    });
+    loginBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        if (sharedInformation.username == "" || sharedInformation.password == "") {
+            tips->SetContent(L"帐号或密码不能为空。");
+            tips->SetVisible(true);
+        } else {
+            screen.HideAll();
+            auto [success, reply] = WaitServer(screen, 
+                {trm::rqs::CHECK_ACCOUNT, sharedInformation.username, sharedInformation.password}, L"登录中");
+            if (success == 1) {
+                if (reply[0] == trm::rpl::YES) {
+                    sharedInformation.account = reply[1];
+                    nextPage = ID::MAIN_PAGE;
+                } else if (reply[0] == trm::rpl::NO) {
+                    tips->SetContent(L"帐号或密码错误。");
+                    tips->SetVisible(true);
+                    screen.FreeAllVisible();
+                    screen.ShowAll();
+                } else {
+                    assert(false); // Invalid reply.
+                }    
+            } else if (success == 0) {
+                nextPage = ID::RETRY;
             }
         }
-        if (forget) {
-            return ID::FORGET;
-        }
-        if (reserve) {
-            return ID::ENTER_RESERVE;
+    });
+    forgetBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::FORGET;
+    });
+    reserveBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        nextPage = ID::ENTER_RESERVE;
+    });
+
+    while (screen.IsOpen()) {
+        screen.Tick();
+        if (nextPage != ID::NOT_DETERMINED_YET) {
+            return  nextPage;
         }
     }
     return ID::BREAK;

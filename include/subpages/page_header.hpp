@@ -43,7 +43,8 @@ enum class ID{
     ENTER_LIBRARY,
     ENTER_NOLIFY,
 
-    BREAK
+    BREAK,
+    NOT_DETERMINED_YET
 };
 
 class Atstr : public sf::String {

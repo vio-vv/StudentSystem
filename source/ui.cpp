@@ -692,6 +692,26 @@ void ui::Button::SetFontColor(const sf::Color &color) noexcept
     label->SetFontColor(color);
 }
 
+void ui::Button::SetFlatOutlineColor(const sf::Color &color) noexcept
+{
+    flatOutlineColor = color;
+}
+
+void ui::Button::SetFocusOutlineColor(const sf::Color &color) noexcept
+{
+    focusOutlineColor = color;
+}
+
+void ui::Button::SetFlatBackColor(const sf::Color &color) noexcept
+{
+    flatBackColor = color;
+}
+
+void ui::Button::SetFocusBackColor(const sf::Color &color) noexcept
+{
+    focusBackColor = color;
+}
+
 void ui::Button::SetFont(const sf::String &fontFile) noexcept
 {
     label->SetFont(fontFile);

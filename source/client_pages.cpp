@@ -72,30 +72,30 @@ clpg::ID clpg::EnterSystem(ui::Screen &screen) noexcept
 {
     Init();
 
-    bool clicked = false;
-
     auto btn = new ui::Button;
     screen.Add(btn);
     btn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
     btn->SetCaption(L"进入系统");
-    btn->SetClickCallback([&clicked](const Atstr &name, const sf::Event &event){
-        clicked = true;
+
+    auto nextPage = ID::NOT_DETERMINED_YET;
+    btn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        screen.HideAll();
+        auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ONLINE}, L"正在检查服务端在线状态");
+        if (success == 1) {
+            if (reply[0] == trm::rpl::YES) {
+                nextPage = ID::LOGIN;
+            } else {
+                assert(false); // Invalid reply.
+            }
+        } else if (success == 0) {
+            nextPage = ID::RETRY;
+        }
     });
 
     while (screen.IsOpen()) {
         screen.Tick();
-        if (clicked) {
-            screen.FreeAll();
-            auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ONLINE}, L"正在检查服务端在线状态");
-            if (success == 1) {
-                if (reply[0] == trm::rpl::YES) {
-                    return ID::LOGIN;
-                } else {
-                    assert(false); // Invalid reply.
-                }
-            } else if (success == 0) {
-                return ID::RETRY;
-            }
+        if (nextPage != ID::NOT_DETERMINED_YET) {
+            return  nextPage;
         }
     }
     return ID::BREAK;
@@ -108,27 +108,28 @@ void clpg::Init() noexcept
 
 std::pair<int, trm::Information> clpg::WaitServer(ui::Screen &screen, const trm::Information &information, const Atstr &tips) noexcept
 {
-    bool pass = false;
-    trm::Information result;
-    bool finished = false;
-    auto sender = trm::Sender(information);
-
     auto load = new ui::LoadingRingWithText;
     screen.Add(load);
     load->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
     load->SetText(tips);
-    load->SetCountCallback([&pass, &result, &sender](const Atstr &name, const sf::Event &event){
+    
+    auto sender = trm::Sender(information);
+
+    bool pass = false;
+    trm::Information result;
+    bool finished = false;
+    load->SetCountCallback([&](const Atstr &name, const sf::Event &event) -> void {
         auto reply = sender.Poll();
         if (reply.first) {
             pass = true;
             result = reply.second;
         }
     });
-    load->SetFinishedCallback([&finished](const Atstr &name, const sf::Event &event){
+    load->SetFinishedCallback([&](const Atstr &name, const sf::Event &event) -> void {
         finished = true;
     });
-    load->Start();
 
+    load->Start();
     while (screen.IsOpen()) {
         screen.Tick();
         if (pass) {
