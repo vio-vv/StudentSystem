@@ -5,16 +5,35 @@
 #include "transmitter.hpp"
 #include "data_base.hpp"
 
+#define EEA
+#define LAB
+#define VIO_VV
+
+#ifdef D_EEA
+    #undef LAB
+    #undef VIO_VV
+#endif
+#ifdef D_LAB
+    #undef EEA
+    #undef VIO_VV
+#endif
+#ifdef D_VIO_VV
+    #undef EEA
+    #undef LAB
+#endif
+
+#ifdef LAB
+    #define COURSE
+    #define RESERVE
+#endif
+#ifdef VIO_VV
+    #define LIBRARY
+#endif
+
+#define f(info) cout << __LINE__ << " >>> "; for (const auto &each : info) { cout << each << " :: "; } cout << endl;
+
 using namespace std;
 using namespace trm;
-
-void f(const Information &info)
-{
-    for (const auto &each : info) {
-        cout << each << " :: ";
-    }
-    cout << endl;
-}
 
 int main()
 {

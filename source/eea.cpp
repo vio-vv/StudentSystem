@@ -190,16 +190,16 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
     screen.Add(centerBox);
     centerBox->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
     {
-        auto pic = new ui::PictureBox;
-        pic->AddTo(centerBox);
-        pic->SetPicture(_ASSETS_"icon_with_title.png");
-        pic->KeepHeight(100);
-
         auto box = new ui::VerticalBox;
         box->SetGap(80);
         box->AddTo(centerBox);
         box->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
         {
+            auto pic = new ui::PictureBox;
+            pic->AddTo(box);
+            pic->SetPicture(_ASSETS_"icon_with_title.png");
+            pic->KeepHeight(100);
+
             auto vertical = new ui::VerticalBox;
             vertical->AddTo(box);
             vertical->SetSize(900, 250);
