@@ -52,7 +52,7 @@ trm::Information ssys::CourseSystem::AddCourse(const trm::Information& informati
       {
         return {trm::rpl::FAIL,trm::rpl::NO_MATCH_COURSE};
       }
-    studentBase[information[1]].Push(std::make_pair(information[3],courseBase[information[3]]));//增加课程
+    studentBase[information[1]].Push(information[3],courseBase[information[3]]);//增加课程
     //待实现，按年级和课程属性来增加（模拟真实选课）
     return {trm::rpl::SUCC};
 }
@@ -83,7 +83,7 @@ trm::Information ssys::CourseSystem::AdmAddCour(const trm::Information& informat
       {
         return {trm::rpl::FAIL,trm::rpl::COURSE_EXISTS};
       }
-    courseBase.Push(std::make_pair(information[3],information[4]));//增加课程
+    courseBase.Push(information[3],information[4]);//增加课程
     return {trm::rpl::SUCC};
 }
 

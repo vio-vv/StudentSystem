@@ -355,7 +355,7 @@ namespace rqs{
      * @brief 查询特定的预约时间
      * @param date 日期 @see @struct Date
      * @param time 时间
-     * @return YES or NO 第一项为 YES时无第二项,第一项为 NO 时第二项为 NO_MATCH_RESERVE or NO_LEFT_RESERVE
+     * @return YES or NO 第一项为 YES时无第二项,第一项为 NO 时第二项为 NO_MATCH_TIME or NO_LEFT_RESERVE
      * @retval NO_MATCH_TIME 预约时间不合法
      * @retval NO_LEFT_RESERVE 预约名额已满
      */
