@@ -2,7 +2,7 @@
 
 ssys::ReserveSystem::ReserveSystem() noexcept
 {
-    reserveBase["10"]["1"]["20"].Push(std::make_pair("15:00", "10")); // 预约信息
+    reserveBase["10"]["1"]["20"].Push(std::make_pair("15 00","10")); // 预约信息
     //TODO
 }
 
@@ -32,20 +32,17 @@ trm::Information ssys::ReserveSystem::CheckReserveTime(const trm::Information& i
     assert(information[0]==trm::rqs::CHECK_RESERVE_TIME);
     auto dateInformation=trm::ReserveDate(information[1]);
     auto targetReserve=reserveBase[dateInformation.month][dateInformation.week][dateInformation.date];//找到指定日期的预约信息
-    for(auto [time,reserve]:targetReserve)//遍历预约信息
+   if(targetReserve[information[2]].Exists())//检查是否存在预约信息
     {
-        if(time==information[2])//找到指定时间的预约信息
+        if(std::string(targetReserve[information[2]]) != "0")//检查是否有可预约时间
         {
-            if(std::string(reserve)=="0")//如果预约名额已满
-            {
-                return {trm::rpl::NO,trm::rpl::NO_LEFT_RESERVE};
-            }
-            else
-            {
-                return {trm::rpl::YES};
-            }
+            return {trm::rpl::YES};
         }
-    }
+        else
+        {
+            return {trm::rpl::NO,trm::rpl::NO_LEFT_RESERVE};//如果没有找到指定时间的预约信息
+        }
+    } 
     return {trm::rpl::NO,trm::rpl::NO_MATCH_TIME};//如果没有找到指定时间的预约信息
 }
 
@@ -147,7 +144,7 @@ trm::Information ssys::ReserveSystem::AdmAddReserveTime(const trm::Information& 
     {
         return {trm::rpl::FAIL,trm::rpl::TIME_HAVE_SET};
     }
-    reserveList[information[4]]=information[5];//将可预约时间加入数据库
+    reserveList.Push(std::make_pair(information[4],information[5]));//将可预约时间加入数据库
     return {trm::rpl::SUCC};
 }
 

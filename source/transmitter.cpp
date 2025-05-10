@@ -260,12 +260,14 @@ trm::CourseInformation::CourseInformation(const std::string &content) noexcept
 
 trm::IdAndPhone::operator std::string() const noexcept
 {
-    return Combine({id, phone});
+    std::string idandphone;
+    idandphone += id + '-' + phone;
+    return idandphone;
 }
 
 trm::IdAndPhone::IdAndPhone(const std::string &content) noexcept
 {
-    auto idAndPhone = Split(content);
+    auto idAndPhone = Split(content, '-');
     *this = {
         idAndPhone[0], 
         idAndPhone[1]
@@ -274,7 +276,7 @@ trm::IdAndPhone::IdAndPhone(const std::string &content) noexcept
 
 trm::ReserveDate::operator std::string() const noexcept
 {
-    return Combine({ToStr(month), ToStr(week), ToStr(date)});
+    return Combine({ToStr(month), ToStr(week), ToStr(date)},'-');
 }
 trm::Book::Book(const std::string &content) noexcept
 {
@@ -313,11 +315,11 @@ trm::Date::operator std::string() const noexcept
 
 trm::ReserveDate::ReserveDate(const std::string &content) noexcept
 {
-    auto date = Split(content);
+    auto date = trm::Split(content,'-');
     *this = {
        date[0],
        date[1],
-       date[2] 
+       date[2],
     };
 }
 
