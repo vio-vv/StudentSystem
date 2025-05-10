@@ -138,6 +138,7 @@ class Control;
      * @class 输入框类
      * @brief 允许用户输入文本的组件。
      * @note minSize 属性由组件决定。
+     * @note exceedLimitCallback 回调函数 event 参数失效。
      */
     class InputBox;
     /**
@@ -371,7 +372,13 @@ public:
      * @param absolute 最终绝对位置
      */
     void SetGlobalPosition(Direction directrion, int absolute)          noexcept;
+    /**
+     * @note 外部调用时，要先调用 screen.Tick()。
+     */
     unsigned int GetGlobalSize    (Direction direction) const noexcept { return globalSize[direction]; }
+    /**
+     * @note 外部调用时，要先调用 screen.Tick()。
+     */
     int          GetGlobalPosition(Direction direction) const noexcept { return globalPosition[direction]; }
 
     ValueType    GetSizeValueType(Direction direction) const noexcept { return sizeValueType[direction]; }
@@ -1154,6 +1161,7 @@ public:
     void SetBeginCallback(Callback function)  noexcept { beginCallback = function; }
     void SetInputCallback(Callback function)  noexcept { inputCallback = function; }
     void SetEndCallback(Callback function)    noexcept { endCallback = function; }
+    void SetExceedLimitCallback(Callback function) noexcept { exceedLimitCallback = function; }
     const sf::String &GetText() const noexcept { return textCopy; }
     bool GetInputting()         const noexcept { return inputting; }
     bool GetError()             const noexcept { return button->GetError() || label->GetError(); }
@@ -1248,6 +1256,7 @@ protected:
     Callback beginCallback = DO_NOTHING;
     Callback inputCallback = DO_NOTHING;
     Callback endCallback = DO_NOTHING;
+    Callback exceedLimitCallback = DO_NOTHING;
 };
 
 class ScrollBar : public Control{
@@ -1341,7 +1350,7 @@ protected:
      * @brief 样式属性。*
      * ******************
      */
-    float sensitivity = 1;
+    float sensitivity = 2;
     bool reserve = false;
     sf::Color backColor = sf::Color::White;
     sf::Color frontColor = sf::Color::Blue;

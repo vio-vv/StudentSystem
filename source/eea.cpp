@@ -12,10 +12,62 @@ clpg::ID clpg::EnterCanteen(ui::Screen &screen) noexcept
 
 clpg::ID clpg::EnterMailSystem(ui::Screen &screen) noexcept
 {
-    ;
+    bool back = false;
+
+    auto mar = new ui::Margin;
+    screen.Add(mar);
+    mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+    mar->SetMargin(80, 80, 200, 200);
+    {
+        auto hor = new ui::HorizontalBox;
+        hor->AddTo(mar);
+        hor->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        {
+            auto ver = new ui::VerticalBox;
+            ver->AddTo(hor);
+            ver->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            ver->SetHSize(500);
+            ver->SetGap(100);
+            {
+                auto btnBox = new ui::VerticalBox;
+                btnBox->AddTo(ver);
+                btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                btnBox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                {
+                    auto backBtn = new ui::Button;
+                    backBtn->AddTo(btnBox);
+                    backBtn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    backBtn->SetCaption(L"返回主页");
+                    backBtn->SetClickCallback([&back](const Atstr &name, const sf::Event &event){
+                        back = true;
+                    });
+
+                    auto writeMailBtn = new ui::Button;
+                    writeMailBtn->AddTo(btnBox);
+                    writeMailBtn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    writeMailBtn->SetCaption(L"写  信");
+                }
+
+                auto inBox = new ui::VerticalBox;
+                inBox->AddTo(ver);
+                inBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                {
+                    auto label = new ui::Label;
+                    label->AddTo(inBox);
+                    label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    label->SetContent(L"↓ 收件箱 ↓");
+
+                    ;
+                }
+            }
+        }
+    }
 
     while (screen.IsOpen()) {
         screen.Tick();
+        if (back) {
+            return ID::MAIN_PAGE;
+        }
     }
     return ID::BREAK;
 }
@@ -23,11 +75,12 @@ clpg::ID clpg::EnterMailSystem(ui::Screen &screen) noexcept
 clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
 {
     Atstr which = "";
+    bool logout = false;
 
     auto margin = new ui::Margin;
     screen.Add(margin);
     margin->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-    margin->SetMargin(50, 50, 150, 150);
+    margin->SetMargin(80, 80, 200, 200);
     {
         auto ver = new ui::VerticalBox;
         ver->AddTo(margin);
@@ -46,6 +99,7 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
                     auto icon = new ui::PictureBox;
                     icon->AddTo(head);
                     icon->SetPicture(_ASSETS_"icon.png");
+                    screen.Tick();
                     icon->KeepHeight(flat->GetGlobalSize(ui::Control::Direction::VERTICAL));
 
                     auto label = new ui::Label;
@@ -68,6 +122,14 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
                     Atstr prefix = L"学工号：";
                     idNum->SetContent(prefix + sharedInformation.account.code);
                     idNum->AddTo(feet);
+
+                    auto logoutBtn = new ui::Button;
+                    logoutBtn->AddTo(feet);
+                    logoutBtn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    logoutBtn->SetCaption(L"登出");
+                    logoutBtn->SetClickCallback([&logout](const Atstr &name, const sf::Event &event){
+                        logout = true;
+                    });
                 }
             }
             auto hor = new ui::HorizontalBox;
@@ -77,8 +139,8 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
                 auto ver = new ui::VerticalScrollingBox;
                 ver->AddTo(hor);
                 ver->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                ver->SetInsideBoxScrollable(true);
                 ver->SetHSize(500);
+                ver->SetInsideBoxScrollable(true);
                 {
                     auto reserveBtn = new ui::Button;
                     reserveBtn->SetCaption(L"预约入校");
@@ -86,27 +148,27 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
 
                     auto courseBtn = new ui::Button;
                     courseBtn->SetCaption(L"课程系统");
-                    reserveBtn->SetName("C");
+                    courseBtn->SetName("C");
 
                     auto libraryBtn = new ui::Button;
                     libraryBtn->SetCaption(L"图书馆");
-                    reserveBtn->SetName("L");
+                    libraryBtn->SetName("L");
 
                     auto canteenBtn = new ui::Button;
                     canteenBtn->SetCaption(L"在线饭堂");
-                    reserveBtn->SetName("F");
+                    canteenBtn->SetName("F");
 
                     auto mailBtn = new ui::Button;
                     mailBtn->SetCaption(L"私信");
-                    reserveBtn->SetName("M");
+                    mailBtn->SetName("M");
 
                     auto nolifyBtn = new ui::Button;
                     nolifyBtn->SetCaption(L"通知与公示");
-                    reserveBtn->SetName("N");
+                    nolifyBtn->SetName("N");
 
                     auto accBtn = new ui::Button;
                     accBtn->SetCaption(L"帐户权限管理");
-                    reserveBtn->SetName("A");
+                    accBtn->SetName("A");
 
                     for (auto btn : {reserveBtn, courseBtn, libraryBtn, canteenBtn, mailBtn, nolifyBtn, accBtn}) {
                         btn->AddTo(ver);
@@ -140,6 +202,9 @@ clpg::ID clpg::MainPage(ui::Screen &screen) noexcept
             } else {
                 assert(false); // Invalid button name.
             }
+        }
+        if (logout) {
+            return ID::LOGIN;
         }
     }
     return ID::BREAK;
@@ -186,78 +251,81 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
 
     ui::Label *tips = nullptr;
 
-    auto centerBox = new ui::VerticalBox;
-    screen.Add(centerBox);
-    centerBox->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+    auto box = new ui::VerticalBox;
+    box->SetGap(80);
+    screen.Add(box);
+    box->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
     {
-        auto box = new ui::VerticalBox;
-        box->SetGap(80);
-        box->AddTo(centerBox);
-        box->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-        {
-            auto pic = new ui::PictureBox;
-            pic->AddTo(box);
-            pic->SetPicture(_ASSETS_"icon_with_title.png");
-            pic->KeepHeight(100);
+        auto pic = new ui::PictureBox;
+        pic->AddTo(box);
+        pic->SetPicture(_ASSETS_"icon_with_title.png");
+        pic->KeepHeight(100);
 
-            auto vertical = new ui::VerticalBox;
-            vertical->AddTo(box);
-            vertical->SetSize(900, 250);
+        auto vertical = new ui::VerticalBox;
+        vertical->AddTo(box);
+        vertical->SetSize(900, 250);
+        {
+            auto user = new ui::HorizontalBox;
+            user->AddTo(vertical);
+            user->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            user->SetGap(50);
             {
-                auto user = new ui::HorizontalBox;
-                user->AddTo(vertical);
-                user->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                {
-                    auto center = new ui::Center;
-                    center->AddTo(user);
-                    center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                    center->SetHSize(1);
-                    {
-                        auto label = new ui::Label;
-                        label->AddTo(center);
-                        label->SetSizeWrap(true);
-                        label->SetContent(L"帐号");
-                    }
-                    auto input = new ui::InputBox;
-                    input->AddTo(user);
-                    input->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                    input->SetHSize(3);
-                    input->SetLengthLimit(64);
-                    input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
-                    input->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
-                    input->SetInputCallback([&input](const Atstr &name, const sf::Event &event){
-                        sharedInformation.username = input->GetText();
-                    });
-                }
-                auto pasw = new ui::HorizontalBox;
-                pasw->AddTo(vertical);
-                pasw->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                {
-                    auto center = new ui::Center;
-                    center->AddTo(pasw);
-                    center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                    center->SetHSize(1);
-                    {
-                        auto label = new ui::Label;
-                        label->AddTo(center);
-                        label->SetSizeWrap(true);
-                        label->SetContent(L"密码");
-                    }
-                    auto input = new ui::InputBox;
-                    input->AddTo(pasw);
-                    input->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                    input->SetHSize(3);
-                    input->SetProtectText(true);
-                    input->SetLengthLimit(64);
-                    input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
-                    input->SetSpecialCharacters(ui::InputBox::ASCII);
-                    input->SetInputCallback([&input](const Atstr &name, const sf::Event &event){
-                        sharedInformation.password = input->GetText();
-                    });
-                }
+                auto label = new ui::Label;
+                label->AddTo(user);
+                label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                label->SetContent(L"帐号");
+
+                auto input = new ui::InputBox;
+                input->AddTo(user);
+                input->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                input->SetText(sharedInformation.username);
+                sharedInformation.password = "";
+                sharedInformation.account = {};
+                input->SetHSize(3);
+                input->SetLengthLimit(64);
+                input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
+                input->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
+                input->SetInputCallback([&input](const Atstr &name, const sf::Event &event){
+                    sharedInformation.username = input->GetText();
+                });
+                input->SetExceedLimitCallback([&tips](const Atstr &name, const sf::Event &event){
+                    tips->SetContent(L"帐号只能由数字、大小写字母以及 _-@. 构成，\n且长度不超过 64 个字符。");
+                    tips->SetVisible(true);
+                });
             }
+            auto pasw = new ui::HorizontalBox;
+            pasw->AddTo(vertical);
+            pasw->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            pasw->SetGap(50);
+            {
+                auto label = new ui::Label;
+                label->AddTo(pasw);
+                label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                label->SetContent(L"密码");
+
+                auto input = new ui::InputBox;
+                input->AddTo(pasw);
+                input->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                input->SetHSize(3);
+                input->SetProtectText(true);
+                input->SetLengthLimit(64);
+                input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
+                input->SetSpecialCharacters(ui::InputBox::ASCII);
+                input->SetInputCallback([&input](const Atstr &name, const sf::Event &event){
+                    sharedInformation.password = input->GetText();
+                });
+                input->SetExceedLimitCallback([&tips](const Atstr &name, const sf::Event &event){
+                    tips->SetContent(L"密码只能由 ASCII 字符构成，\n且长度不超过 64 个字符。");
+                    tips->SetVisible(true);
+                });
+            }
+        }
+        auto feetBox = new ui::VerticalBox;
+        feetBox->AddTo(box);
+        feetBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        {
             auto btnBox = new ui::HorizontalBox;
-            btnBox->AddTo(box);
+            btnBox->AddTo(feetBox);
             btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
             btnBox->SetGap(50);
             {
@@ -288,13 +356,13 @@ clpg::ID clpg::Login(ui::Screen &screen) noexcept
                 });
                 reserveBtn->AddTo(btnBox);
             }
-        }
-        tips = new ui::Label;
-        tips->AddTo(centerBox);
-        tips->SetPreset(ui::Control::Preset::WRAP_AT_FRONT);
-        tips->SetFontColor(sf::Color::Red);
-        tips->SetFontSize(30);
-        tips->SetVisible(false);
+            tips = new ui::Label;
+            tips->AddTo(feetBox);
+            tips->SetPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            tips->SetFontColor(sf::Color::Red);
+            tips->SetFontSize(30);
+            tips->SetVisible(false);
+        }        
     }
 
     while (screen.IsOpen()) {

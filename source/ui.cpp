@@ -1023,6 +1023,8 @@ sf::String ui::InputBox::GetTextSatisfysLimits(const sf::String &s) noexcept
             for (auto c : s) {
                 if (!IsSpecialCharacter(c)) {
                     textSatisfiysLimits += c;
+                } else {
+                    exceedLimitCallback(name, {});
                 }
             }
             break;
@@ -1030,6 +1032,8 @@ sf::String ui::InputBox::GetTextSatisfysLimits(const sf::String &s) noexcept
             for (auto c : s) {
                 if (IsSpecialCharacter(c)) {
                     textSatisfiysLimits += c;
+                } else {
+                    exceedLimitCallback(name, {});
                 }
             }
             break;
@@ -1040,6 +1044,7 @@ sf::String ui::InputBox::GetTextSatisfysLimits(const sf::String &s) noexcept
     if (lengthLimited) {
         if (s.getSize() > lengthLimited) {
             textSatisfiysLimits = textSatisfiysLimits.substring(0, lengthLimited);
+            exceedLimitCallback(name, {});
         }
     }
     return textSatisfiysLimits;
