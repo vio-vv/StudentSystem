@@ -317,6 +317,14 @@ namespace rqs{
      * @return SUCC or FAIL
      */
     const std::string SEND_RETURN_REMINDER = _AS_"SEND_RETURN_REMINDER";
+    /**
+     * @重置图书馆
+     * @param code 学工号
+     * @param password 密码
+     * @return SUCC 或者 ACCESS_DENIED
+     * @note ACCESS REQUIRED RESET_LIBRARY
+     */
+    const std::string RESET_LIBRARY = _AS_"RESET_LIBRARY";
 
     //extra
 
@@ -613,6 +621,7 @@ namespace Access{
 
     const std::string BOOK_MANAGE = _AS_"BOOK_MANAGE";
     const std::string BORROW_BOOK = _AS_"BORROW_BOOK";
+    const std::string RESET_LIBRARY = _AS_"RESET_LIBRARY";
 }
 struct Account{
     using Tag = std::pair<std::string, std::string>;
@@ -644,7 +653,7 @@ struct Date {
     time_t currantTime;
     tm *timeInfo;
 
-    Date(time_t _currantTime = 0) noexcept { currantTime = _currantTime ? _currantTime : time(nullptr); timeInfo = localtime(&currantTime); }
+    Date(time_t _currantTime = 0) noexcept { currantTime = _currantTime ? _currantTime : time(nullptr); timeInfo = new tm; localtime_s(timeInfo, &currantTime); }
     Date(const std::string&) noexcept;
     operator std::string() const noexcept;
     friend int operator-(const Date &date, const Date &other) noexcept 
@@ -653,7 +662,7 @@ struct Date {
         return (int) timeDiff / (60 * 60 * 24) + 1;
     }
     friend Date operator+(const Date &date, const int &day) noexcept
-    {
+    {   
         return trm::Date(date.currantTime + day * 60 * 60 * 24);
     }
 };

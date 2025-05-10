@@ -2,7 +2,6 @@
 
 ssys::Library::Library() noexcept
 {
-    //books.Push({"978-7-04-059902-2", trm::Book{"978-7-04-059902-2", "思想道德与法治", "2023-02", "政治、法律", "图书馆社会科学综合书库402", {"《思想道德与法治（2023年版）》"}}});
 }
 
 ssys::Library::~Library() noexcept
@@ -42,8 +41,9 @@ trm::Information ssys::Library::BorrowBook(const trm::Information &content) noex
         book.bookBorrowed++;
         books[content[3]] = book;
         time_t currantTime = time(nullptr);
-        bookBorrowLog[content[3]].Push(trm::BorrowLog{ToNum<int>(content[4]), trm::Date(currantTime), content[1], content[3]});
-        accountBorrowLog[content[1]].Push(trm::BorrowLog{ToNum<int>(content[4]), trm::Date(currantTime), content[1], content[3]});
+        auto date = trm::Date(currantTime);
+        bookBorrowLog[content[3]].Push(trm::BorrowLog{ToNum<int>(content[4]), date, content[1], content[3]});
+        accountBorrowLog[content[1]].Push(trm::BorrowLog{ToNum<int>(content[4]), date, content[1], content[3]});
     }
     return{trm::rpl::SUCC};
 }
@@ -294,5 +294,18 @@ trm::Information ssys::Library::CrossBorrowInfo() noexcept
             }
         }
     }
+    return{trm::rpl::SUCC};
+}
+
+trm::Information ssys::Library::ResetLibrary(const trm::Information &content) noexcept
+{
+    assert(content[0] == trm::rqs::RESET_LIBRARY);
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::RESET_LIBRARY});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    DATA_BASE[LIBRARY].Remove();
     return{trm::rpl::SUCC};
 }

@@ -26,9 +26,6 @@
     #define COURSE
     #define RESERVE
 #endif
-#ifdef VIO_VV
-    #define LIBRARY
-#endif
 
 #define f(info) cout << __LINE__ << " >>> "; for (const auto &each : info) { cout << each << " :: "; } cout << endl;
 
@@ -181,7 +178,7 @@ int main()
 
 #endif
 
-#ifdef LIBRARY
+#ifdef VIO_VV
     f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "999-9-99-999999-1", "15", Book{"999-9-99-999999-1", "++--", "2025-04", "科学技术", "图书馆208", {"张某某"}}}));
     f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "784-8-15-941394-1", "5", Book{"784-8-15-941394-1", "aabb", "2024-10", "科学技术", "图书馆208", {"李某某"}}}));
     f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "189-9-39-998899-2", "5", Book{"189-9-39-998899-2", "ccad45", "1925-12", "科学技术", "图书馆208", {"李某"}}}));
@@ -268,6 +265,13 @@ int main()
     for (trm::BorrowLog borrow : reply__) {
         std::cout << borrow.borrowLast << " " << borrow.start.currantTime << " " << borrow.end.currantTime << " " << borrow.bookIsbn << " " << borrow.borrower << std::endl;
     }
+    auto rep = ssys.GetUnreadMessageNumber({trm::rqs::GET_UNREAD_MESSAGE_NUMBER, "adm", "123"});
+    f(ssys.ResetLibrary({trm::rqs::RESET_LIBRARY, "adm", "123"}));
+    for (unsigned long long i = 0; i < ToNum<unsigned long long>(rep[0]); i++) {
+        auto message = ssys.GetMessage({trm::rqs::GET_MESSAGE, "adm", "123", ToStr(i)});
+        std::cout << message[0] << std::endl;
+    }
+    f(ssys.ResetMailSystem({trm::rqs::RESET_MAIL_SYSTEM, "adm", "123"}));
 
 #endif
 #ifdef LAB

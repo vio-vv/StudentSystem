@@ -18,12 +18,19 @@ namespace ssys{
 
 class Nolify{
 public:
-    ;
+    trm::Information publishNolify(trm::Information&);
+    trm::Information deleteNolify(trm::Information&);
+    trm::Information updateNolify(trm::Information&);
+    trm::Information getNolify(trm::Information&);
+    trm::Information markNolifyAsRead(trm::Information&);
+    trm::Information markNolifyAsUnread(trm::Information&);
 protected:
     Nolify() noexcept;
     ~Nolify() noexcept;
     Nolify(const Nolify&) = delete;
     Nolify& operator=(const Nolify&) = delete;
+private:
+    dat::DataBase nolifys = DATA_BASE["Nolify"]["content"];
 };
 
 }
