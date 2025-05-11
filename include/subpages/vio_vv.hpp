@@ -9,7 +9,7 @@ using namespace clpg;
 class EnterLibrary : public PageBase {
 private:
     ;
-public:
+protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
@@ -17,7 +17,7 @@ public:
 class EnterNolify : public PageBase {
 private:
     ;
-public:
+protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;

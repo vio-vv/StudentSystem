@@ -22,7 +22,7 @@ namespace clpg {
 class EnterSystem : public PageBase {
 private:
     ui::Button *btn;
-public:
+protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;

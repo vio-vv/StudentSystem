@@ -761,6 +761,7 @@ public:
     static void SetSelf(const std::string &_self) noexcept { self = _self; }
     static void SetSelfAsSender(const std::string &_selfAsSender) noexcept { selfAsSender = _selfAsSender; }
     explicit Sender(const Information &content = {rqs::CHECK_ONLINE}, bool autoSend = true) noexcept;
+    void SetContent(const Information &content) noexcept;
     void Send() noexcept;
     std::pair<bool, trm::Information> Poll() noexcept;
     int GetID() const noexcept { return id; }

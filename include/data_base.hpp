@@ -72,12 +72,12 @@ public:
      */
     DataBase operator[](const unsigned long long index) noexcept;
     /**
-     * @warning 已弃用。重载函数之一的错误实现，请使用重载函数之一的另一个实现 Push(const std::string &keyName, const std::string &value) const noexcept。该函数可能在未来的 commit 中被彻底移除。
      * @brief 当成目录增加元素。
      * @param value 值
      * @note 重载之一，文件名被指定。
      */
-    [[deprecated("已弃用。重载函数之一的错误实现，请使用重载函数之一的另一个实现 Push(const std::string &keyName, const std::string &value) const noexcept。该函数可能在未来的 commit 中被彻底移除。")]] void Push(const std::pair<std::string, std::string> &key_value) const noexcept;
+    [[deprecated("已弃用。重载函数之一的错误实现，请使用重载函数之一的另一个实现 Push(const std::string &keyName, const std::string &value) const noexcept。该函数可能在未来的 commit 中被彻底移除。")]]
+    void Push(const std::pair<std::string, std::string> &key_value) const noexcept;
     /**
      * @brief 当成目录增加元素。
      * @param value 值

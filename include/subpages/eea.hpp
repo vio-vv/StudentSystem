@@ -9,7 +9,7 @@ using namespace clpg;
 class Retry : public PageBase {
 private:
     ;
-public:
+protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
@@ -22,7 +22,7 @@ private:
     ui::Button *forgetBtn = nullptr;
     ui::Button *reserveBtn = nullptr;
     ui::Label *tips = nullptr;
-public:
+protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
@@ -30,7 +30,7 @@ public:
 class Forget : public PageBase {
 private:
     ;
-public:
+protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
@@ -45,7 +45,7 @@ private:
     ui::Button *mailBtn = nullptr;
     ui::Button *nolifyBtn = nullptr;
     ui::Button *accBtn = nullptr;
-public:
+protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
@@ -54,7 +54,7 @@ public:
 class EnterAccManage : public PageBase {
 private:
     ;
-public:
+protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
@@ -63,7 +63,7 @@ public:
 class EnterCanteen : public PageBase {
 private:
     ;
-public:
+protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
@@ -78,7 +78,7 @@ private:
     ui::Button *r1 = nullptr;
     ui::Button *r2 = nullptr;
     ui::Button *r3 = nullptr;
-public:
+protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;

@@ -360,6 +360,11 @@ trm::Sender::Sender(const Information &content, bool autoSend) noexcept
     }
 }
 
+void trm::Sender::SetContent(const Information &content) noexcept
+{
+    saved = std::move(content);
+}
+
 void trm::Sender::Send() noexcept
 {
     id = GenerateID();
