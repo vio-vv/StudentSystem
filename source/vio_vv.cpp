@@ -1,21 +1,31 @@
 #include "client_pages.hpp"
 
-clpg::ID clpg::EnterLibrary(ui::Screen &screen) noexcept
+void vio::EnterLibrary::Load(ui::Screen *screen) noexcept
 {
     ;
-
-    while (screen.IsOpen()) {
-        screen.Tick();
-    }
-    return ID::BREAK;
 }
 
-clpg::ID clpg::EnterNolify(ui::Screen &screen) noexcept
+void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
 {
     ;
+}
 
-    while (screen.IsOpen()) {
-        screen.Tick();
-    }
-    return ID::BREAK;
+void vio::EnterLibrary::Ready(ui::Screen *screen) noexcept
+{
+    ;
+}
+
+void vio::EnterNolify::Load(ui::Screen *screen) noexcept
+{
+    ;
+}
+
+void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
+{
+    ;
+}
+
+void vio::EnterNolify::Ready(ui::Screen *screen) noexcept
+{
+    ;
 }

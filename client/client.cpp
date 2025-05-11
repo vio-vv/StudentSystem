@@ -13,11 +13,15 @@
 int main() noexcept
 {
     ui::Screen screen(1500, 1000, L"校园系统 - 大作业");
-    clpg::Handler handler = clpg::EnterSystem;
-    while (handler && screen.IsOpen()) {
-        handler = clpg::GetHandler(handler(screen));
-        screen.FreeAll();
-    }
 
+    clpg::PageBase *cur = new clpg::EnterSystem;
+    clpg::PageBase *nxt = nullptr;
+
+    while (cur) {
+        nxt = cur->RunOn(&screen);
+        delete cur;
+        cur = nxt;
+    }
+    
     return 0;
 }

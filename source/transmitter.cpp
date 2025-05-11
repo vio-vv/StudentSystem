@@ -352,10 +352,18 @@ trm::BorrowLog::BorrowLog(const std::string &content) noexcept
     };
 }
 
-trm::Sender::Sender(const Information &content) noexcept
+trm::Sender::Sender(const Information &content, bool autoSend) noexcept
+{
+    saved = std::move(content);
+    if (autoSend) {
+        Send();
+    }
+}
+
+void trm::Sender::Send() noexcept
 {
     id = GenerateID();
-    if (!MakeRequest(link, {id, selfAsSender, content})) {
+    if (!MakeRequest(link, {id, selfAsSender, saved})) {
         fail = true;
     }
 }
@@ -365,5 +373,6 @@ std::pair<bool, trm::Information> trm::Sender::Poll() noexcept
     if (fail) {
         return {true, {rpl::FAIL}};
     }
+    ++count;
     return PollReply(self, id);
 }

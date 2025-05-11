@@ -15,19 +15,19 @@
 #include <sstream>
 #include "SFML/Graphics.hpp"
 
-template <typename T> concept ConvertToString = requires (T t) { (std::string)t; };
+template<typename T> concept ConvertToString = requires (T t) { (std::string)t; };
 /**
  * @brief 将任意类型转为字符串。
  * @param t 待转换的类型
  * @return 转换后的字符串
  */
-template <typename InputType> requires ConvertToString<InputType>
+template<typename InputType> requires ConvertToString<InputType>
 std::string ToStr(InputType t) noexcept
 {
     return t;
 }
-template <typename T> concept StreamToString = requires (T t, std::stringstream ss) { ss << t; };
-template <typename InputType> requires (!ConvertToString<InputType>) && StreamToString<InputType>
+template<typename T> concept StreamToString = requires (T t, std::stringstream ss) { ss << t; };
+template<typename InputType> requires (!ConvertToString<InputType>) && StreamToString<InputType>
 std::string ToStr(InputType t) noexcept
 {
     std::stringstream ss;

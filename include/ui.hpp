@@ -406,7 +406,7 @@ protected:
      * @brief 封装的数据类型和常量。*
      * ****************************
      */
-    template <typename DataType>
+    template<typename DataType>
     class Around{
     public: 
         DataType horizontal; 
@@ -657,6 +657,11 @@ public:
      * @note 务必在事件循环中调用。
      */
     void Tick      ()                                        noexcept;
+    /**
+     * @fn 绘制窗口
+     * @note 务必在事件循环中调用。
+     */
+    void Draw      ()                                        noexcept;
 protected:
     sf::RenderWindow screen;
 };
@@ -1153,7 +1158,7 @@ public:
     InputBox() noexcept
     {
         button->SetPreset(Preset::FILL_FROM_CENTER);
-        button->SetClickCallback([this](const sf::String &name, const sf::Event &event){
+        button->SetClickCallback([&](const sf::String &name, const sf::Event &event){
             if (!this->inputting) {
                 this->SetInputting(true);
                 this->beginCallback(this->name, event);
@@ -1550,7 +1555,7 @@ public:
         box->SetProportionMode(false);
         box->SyncChildren(children);
         
-        bar->SetScrollCallback([this](const sf::String &name, const sf::Event &event){
+        bar->SetScrollCallback([&](const sf::String &name, const sf::Event &event){
             box->SetDelta(-bar->GetRate());
         });
         SetSensitivity(DEFAULT_SENSITIVITY);
@@ -1614,7 +1619,7 @@ public:
         box->SetProportionMode(false);
         box->SyncChildren(children);
 
-        bar->SetScrollCallback([this](const sf::String &name, const sf::Event &event){
+        bar->SetScrollCallback([&](const sf::String &name, const sf::Event &event){
             box->SetDelta(-bar->GetRate());
         });
         bar->SetSensitivity(DEFAULT_SENSITIVITY);
@@ -1757,7 +1762,7 @@ public:
         ring->SetPreset(Direction::HORIZONTAL, Preset::FILL_FROM_CENTER);
         ring->SetSize(Direction::VERTICAL, ringHeight);
         ring->SetInterval(1000);
-        ring->SetCallback([this](const sf::String &name, const sf::Event &event){
+        ring->SetCallback([&](const sf::String &name, const sf::Event &event){
             this->Count();
         });
         UpdateInQueue(true);

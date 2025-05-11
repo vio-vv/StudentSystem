@@ -3,10 +3,24 @@
 
 #include "page_header.hpp"
 
-namespace clpg{
+namespace lab{
+using namespace clpg;
 
-ID EnterCourse(ui::Screen &screen) noexcept;
-ID EnterReserve(ui::Screen &screen) noexcept;
+class EnterCourse : public PageBase {
+private:
+    ;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+class EnterReserve : public PageBase {
+    ;
+private:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
 
 }
     

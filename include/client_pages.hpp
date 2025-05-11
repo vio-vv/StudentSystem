@@ -19,9 +19,14 @@
 
 namespace clpg {
 
-using Handler = std::function<ID (ui::Screen &screen)>;
-Handler GetHandler(ID id) noexcept;
-ID EnterSystem(ui::Screen &screen) noexcept;
+class EnterSystem : public PageBase {
+private:
+    ui::Button *btn;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
 
 }
 

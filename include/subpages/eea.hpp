@@ -3,17 +3,86 @@
 
 #include "page_header.hpp"
 
-namespace clpg{
+namespace eea{
+using namespace clpg;
 
-ID Retry(ui::Screen &screen) noexcept;
-ID Login(ui::Screen &screen) noexcept;
-ID Forget(ui::Screen &screen) noexcept;
-ID MainPage(ui::Screen &screen) noexcept;
+class Retry : public PageBase {
+private:
+    ;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+class Login : public PageBase {
+private:
+    ui::InputBox *userInput = nullptr;
+    ui::InputBox* paswInput = nullptr;
+    ui::Button *loginBtn = nullptr;
+    ui::Button *forgetBtn = nullptr;
+    ui::Button *reserveBtn = nullptr;
+    ui::Label *tips = nullptr;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+class Forget : public PageBase {
+private:
+    ;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+class MainPage : public PageBase {
+private:
+    ui::Button *logoutBtn = nullptr;
+    ui::Button *reserveBtn = nullptr;
+    ui::Button *courseBtn = nullptr;
+    ui::Button *libraryBtn = nullptr;
+    ui::Button *canteenBtn = nullptr;
+    ui::Button *mailBtn = nullptr;
+    ui::Button *nolifyBtn = nullptr;
+    ui::Button *accBtn = nullptr;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
 
-ID EnterAccManage(ui::Screen &screen) noexcept;
+class EnterAccManage : public PageBase {
+private:
+    ;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
 
-ID EnterCanteen(ui::Screen &screen) noexcept;
-ID EnterMailSystem(ui::Screen &screen) noexcept;
+class EnterCanteen : public PageBase {
+private:
+    ;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+class EnterMailSystem : public PageBase {
+private:
+    ui::Button *backBtn = nullptr;
+    ui::Button *l3 = nullptr;
+    ui::Button *l2 = nullptr;
+    ui::Button *l1 = nullptr;
+    ui::Label *cur = nullptr;
+    ui::Button *r1 = nullptr;
+    ui::Button *r2 = nullptr;
+    ui::Button *r3 = nullptr;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
 
 }
 

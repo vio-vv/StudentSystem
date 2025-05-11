@@ -12,41 +12,6 @@
 
 namespace clpg{
 
-enum class ID{
-    ENTER_SYSTEM, 
-
-    /*******************************
-     * @attention EEA 请在此处添加。*
-     * *****************************
-     */
-    RETRY, 
-    LOGIN,
-    FORGET,
-    MAIN_PAGE,
-
-    ENTER_ACC_MANAGE,
-
-    ENTER_CANTEEN,
-    ENTER_MAILSYSTEM,
-
-    /*******************************
-     * @attention LAB 请在此处添加。*
-     * *****************************
-     */
-    ENTER_COURSE,
-    ENTER_RESERVE,
-    
-    /**********************************
-     * @attention VIO_VV 请在此处添加。*
-     * ********************************
-     */
-    ENTER_LIBRARY,
-    ENTER_NOLIFY,
-
-    BREAK,
-    NOT_DETERMINED_YET
-};
-
 class Atstr : public sf::String {
 public:
     Atstr(const sf::String &other) : sf::String(other) {}
@@ -58,18 +23,56 @@ public:
     operator std::string() const;
 };
 
-void Init() noexcept;
-std::pair<int, trm::Information> WaitServer(ui::Screen &screen, const trm::Information &information, const Atstr &tips) noexcept;
+class PageBase {
+public:
+    using Callback = std::function<void (int, const trm::Information &)>;
+    PageBase();
+    PageBase *RunOn(ui::Screen *screen) noexcept;
+    virtual void Load(ui::Screen *screen) noexcept = 0;
+    virtual void Logic(ui::Screen *screen) noexcept = 0;
+    virtual void Ready(ui::Screen *screen) noexcept= 0;
+    virtual void Tick(ui::Screen *screen) noexcept {}
+    virtual void TickAtSpecificIntervals(ui::Screen *screen) noexcept {}
+    virtual void Unload(ui::Screen *screen) noexcept {}
+protected:
+    static std::pair<int, trm::Information> WaitServer(ui::Screen *screen, const trm::Information &information, const Atstr &tips) noexcept;
+    static Atstr username;
+    static Atstr password;
+    static trm::Account account;
+    
+    void Listen(trm::Sender *sender, Callback &&callback) noexcept;
+    void SwitchTo(PageBase *page);
+    void SetInterval(int newInterval) noexcept;
+    void SetLimit(int newLimit) noexcept;
+private:
+    static bool initialized;
+    std::vector<std::pair<trm::Sender *, Callback>> queue;
+    PageBase *nextPage = nullptr;
+    int interval = 500;
+    int limit = 15;
+};
 
-struct{
-    Atstr username = "";
-    Atstr password = "";
-    trm::Account account;
+class Example : public PageBase {
+private:
+    ; // # 在这里写页面的关键成员（有回调函数的组件、被回调函数需要的组件、* 定时器即 sf::Clock 对象等）。
+public:
+    Example() noexcept = default; // * 在这里可自定义长间隔监测的间隔即监听间隔，以及监听次数等。
+    void Load(ui::Screen *screen) noexcept = 0; // # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性）。
+    void Logic(ui::Screen *screen) noexcept = 0; // # 在这里写回调逻辑（设置组件回调函数动态增减组件，做请求并设置监听回调函数，进而动态设置组件属性、动态增减组件、跳转页面等）。
+    void Ready(ui::Screen *screen) noexcept = 0; // # 在这里可作初始化逻辑（准备维护基类静态成员的值，* 启动定时器等）。
+    void Tick(ui::Screen *screen) noexcept = 0; // * 在这里可作页面的监测（定时器等）。
+    void TickAtSpecificIntervals(ui::Screen *screen) noexcept = 0; // * 在这里可作页面的长间隔监测（可当作一个定时器等）。
+    void Unload(ui::Screen *screen) noexcept = 0; // * 在这里写页面的卸载逻辑（释放拥有所有权的指针，停止定时器等）。
+};
 
-    union{
-        ;
-    };
-}sharedInformation;
+class Copy : public PageBase {
+private:
+    ;
+public:
+    void Load(ui::Screen *screen) noexcept = 0;
+    void Logic(ui::Screen *screen) noexcept = 0;
+    void Ready(ui::Screen *screen) noexcept = 0;
+};
 
 }
 

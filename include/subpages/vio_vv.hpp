@@ -3,10 +3,25 @@
 
 #include "page_header.hpp"
 
-namespace clpg{
+namespace vio{
+using namespace clpg;
 
-ID EnterLibrary(ui::Screen &screen) noexcept;
-ID EnterNolify(ui::Screen &screen) noexcept;
+class EnterLibrary : public PageBase {
+private:
+    ;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+class EnterNolify : public PageBase {
+private:
+    ;
+public:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
 
 }
         

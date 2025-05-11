@@ -565,11 +565,13 @@ namespace rqs{
 }
 #pragma region <<<--- 常量列表 --->>>
 namespace rpl{
+    const std::string TIME_OUT = _AS_"TIME_OUT";
     const std::string ACCESS_DENIED = _AS_"ACCESS_DENIED";
     const std::string YES = _AS_"YES";
     const std::string NO = _AS_"NO";
     const std::string SUCC = _AS_"SUCC";
     const std::string FAIL = _AS_"FAIL";
+    
     const std::string NO_ACCOUNT = _AS_"NO_ACCOUNT";
     const std::string WRONG_PASSWORD = _AS_"WRONG_PASSWORD";
     const std::string NO_TAG = _AS_"NO_TAG";
@@ -749,7 +751,7 @@ struct ReserveDate
 using Information = std::vector<std::string>;
 /**
  * @brief 客户端用以发送请求的类。
- * @note 使用前务必调用所有静态方法。
+ * @note 使用前务必完成初始化。
  */
 class Sender {
 public:
@@ -758,14 +760,19 @@ public:
     static void SetLink(const std::string &_link) noexcept { link = _link; }
     static void SetSelf(const std::string &_self) noexcept { self = _self; }
     static void SetSelfAsSender(const std::string &_selfAsSender) noexcept { selfAsSender = _selfAsSender; }
-    explicit Sender(const Information &content) noexcept;
+    explicit Sender(const Information &content = {rqs::CHECK_ONLINE}, bool autoSend = true) noexcept;
+    void Send() noexcept;
     std::pair<bool, trm::Information> Poll() noexcept;
+    int GetID() const noexcept { return id; }
+    int GetCount() const noexcept { return count; }
 private:
     static std::string link;
     static std::string self;
     static std::string selfAsSender;
     int id;
+    int count = 0;
     bool fail = false;
+    Information saved;
 };
 
 using Message = std::string;
@@ -869,12 +876,12 @@ unsigned long long GetTimeStamp() noexcept;
  */
 double FuzzyMatch(const std::string &str1, const std::string &str2) noexcept;
 
-template <typename List> concept Iterable = requires (List list) { list.begin(); list.end(); ++list.begin(); };
-template <typename List, typename InputType> concept TypeCorrespond = requires (List list, InputType input) { input = *list.begin(); };
+template<typename List> concept Iterable = requires (List list) { list.begin(); list.end(); ++list.begin(); };
+template<typename List, typename InputType> concept TypeCorrespond = requires (List list, InputType input) { input = *list.begin(); };
 /**
  * TO_COMPLETE
  */
-template <typename ReturnType, typename InputType, typename List> requires Iterable<List> && TypeCorrespond<List, InputType>
+template<typename ReturnType, typename InputType, typename List> requires Iterable<List> && TypeCorrespond<List, InputType>
 std::vector<ReturnType> Foreach(const List &series, const std::function<ReturnType (const InputType &)> &func) noexcept
 {
     std::vector<ReturnType> result;

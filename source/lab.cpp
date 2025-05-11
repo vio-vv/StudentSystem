@@ -1,21 +1,31 @@
 #include "client_pages.hpp"
 
-clpg::ID clpg::EnterCourse(ui::Screen &screen) noexcept
+void lab::EnterCourse::Load(ui::Screen *screen) noexcept
 {
     ;
-
-    while (screen.IsOpen()) {
-        screen.Tick();
-    }
-    return ID::BREAK;
 }
 
-clpg::ID clpg::EnterReserve(ui::Screen &screen) noexcept
+void lab::EnterCourse::Logic(ui::Screen *screen) noexcept
 {
     ;
+}
 
-    while (screen.IsOpen()) {
-        screen.Tick();
-    }
-    return ID::BREAK;
+void lab::EnterCourse::Ready(ui::Screen *screen) noexcept
+{
+    ;
+}
+
+void lab::EnterReserve::Load(ui::Screen *screen) noexcept
+{
+    ;
+}
+
+void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
+{
+    ;
+}
+
+void lab::EnterReserve::Ready(ui::Screen *screen) noexcept
+{
+    ;
 }
