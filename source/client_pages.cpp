@@ -5,7 +5,8 @@ void clpg::EnterSystem::Load(ui::Screen *screen) noexcept
     btn = new ui::Button;{
         btn->AddTo(screen);
         btn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-        btn->SetCaption(L"进入系统");}
+        btn->SetCaption(L"进入系统");
+    }
 }
 
 void clpg::EnterSystem::Logic(ui::Screen *screen) noexcept

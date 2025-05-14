@@ -55,10 +55,10 @@ private:
 
 class Example : public PageBase {
 private:
-    ; // # 在这里写页面的关键成员（有回调函数的组件、被回调函数需要的组件、Sender 对象、* 定时器即 sf::Clock 对象等）。
+    ; // # 在这里声明页面的关键成员（有回调函数的组件、被回调函数需要的组件、Sender 对象、* 定时器即 sf::Clock 对象等）。
 protected:
     Example() noexcept = default; // * 在这里可自定义长间隔监测的间隔即监听间隔，以及监听次数等。
-    void Load(ui::Screen *screen) noexcept = 0; // # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性）。
+    void Load(ui::Screen *screen) noexcept = 0; // # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性等）。
     void Logic(ui::Screen *screen) noexcept = 0; // # 在这里写回调逻辑（设置组件回调函数、监听回调函数，进而动态设置组件属性、动态增减组件、跳转页面等）。
     void Ready(ui::Screen *screen) noexcept = 0; // # 在这里可作初始化逻辑（准备维护基类静态成员的值，发送请求，* 启动定时器等）。
     void Tick(ui::Screen *screen) noexcept = 0; // * 在这里可作页面的监测（定时器等）。

@@ -176,7 +176,7 @@ namespace rqs{
      * @retval NO_MATCH_COURSE 没有匹配的课程 
      * @retval CourseInformation 上课周数，上课地点，上课老师
     */
-    const std::string SEARCH_COURSE_INFORMATION =_AS_"SEARCH_COURSE_INFORMATION";
+    const std::string SEARCH_COURSE_INFORMATION = _AS_"SEARCH_COURSE_INFORMATION";
     /**
      * @brief 增加课程
      * @param code 学工号
@@ -757,9 +757,9 @@ class Sender {
 public:
     static void Init(const std::string &link, const std::string &self, const std::string &selfAsSender) noexcept
         { SetLink(link); SetSelf(self); SetSelfAsSender(selfAsSender); }
-    static void SetLink(const std::string &_link) noexcept { link = _link; }
-    static void SetSelf(const std::string &_self) noexcept { self = _self; }
-    static void SetSelfAsSender(const std::string &_selfAsSender) noexcept { selfAsSender = _selfAsSender; }
+    static void SetLink(const std::string &serverLink) noexcept { link = serverLink; }
+    static void SetSelf(const std::string &selfSpace) noexcept { self = selfSpace; }
+    static void SetSelfAsSender(const std::string &selfAsSenderForServer) noexcept { selfAsSender = selfAsSenderForServer; }
     explicit Sender(const Information &content = {rqs::CHECK_ONLINE}, bool autoSend = true) noexcept;
     void SetContent(const Information &content) noexcept;
     void Send() noexcept;

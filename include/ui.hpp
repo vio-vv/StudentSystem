@@ -57,7 +57,6 @@ class Control;
         /**
          * @class 平凡容器类
          * @brief 仅为组件提供尺寸和位置的参考。
-         * @note minSize 属性由用户决定。
          */
         class Flat;
             /**
@@ -69,7 +68,6 @@ class Control;
          * @class 中心布局类
          * @brief 将组件居中。
          * @note 仅能接受一个子组件。
-         * @note minSize 属性由组件决定。
          */
         class Center;
         /**
@@ -81,13 +79,11 @@ class Control;
             /**
              * @class 水平布局类
              * @brief 按行排列子组件。
-             * @note minSize 属性由组件决定；但非占比模式下水平方向由用户决定。
              */
             class HorizontalBox;
             /**
              * @class 垂直布局类
              * @brief 按列排列子组件。
-             * @note minSize 属性由组件决定；但非占比模式下垂直方向由用户决定。
              */
             class VerticalBox;
         /**
@@ -99,13 +95,11 @@ class Control;
             /**
              * @class 水平滚动线性布局类
              * @brief 按行排列子组件，并能滚动。
-             * @note minSize 属性，垂直方向由组件决定，水平方向由用户决定。
              */
             class HorizontalScrollingBox;
             /**
              * @class 垂直滚动线性布局类
              * @brief 按列排列子组件，并能滚动。
-             * @note minSize 属性，水平方向由组件决定，垂直方向由用户决定。
              */
             class VerticalScrollingBox;
         /**
@@ -113,31 +107,26 @@ class Control;
          * @brief 给组件添加边距。
          * @note 仅能接受一个子组件。
          * @note 无视子组件的期望尺寸和位置。
-         * @note minSize 属性由组件决定。
          */
         class Margin;
     /**
      * @class 间隔类
-     * @brief 用于调整组件之间的距离或绘制一个矩形。
-     * @note minSize 属性由用户决定。
+     * @brief 用于调整组件之间的距离，或绘制一个矩形。
      */
     class Spacer;
     /**
      * @class 标签类
      * @brief 显示文本的组件。
-     * @note minSize 属性由组件决定。
      */
     class Label;
     /**
      * @class 按钮类
      * @brief 响应用户按键操作的组件。
-     * @note minSize 属性由组件决定。
      */
     class Button;
     /**
      * @class 输入框类
      * @brief 允许用户输入文本的组件。
-     * @note minSize 属性由组件决定。
      * @note exceedLimitCallback 回调函数 event 参数失效。
      */
     class InputBox;
@@ -151,33 +140,35 @@ class Control;
         /**
          * @class 水平滚动条类
          * @brief 响应用户滚动操作的组件。
-         * @note minSize 属性由用户决定。
          */
         class HorizontalScrollBar;
         /**
          * @class 垂直滚动条类
          * @brief 响应用户滚动操作的组件。
-         * @note minSize 属性由用户决定。
          */
         class VerticalScrollBar;
     /**
-     * @class 加载指示器类
-     * @brief 显示加载交互的组件。
-     * @note minSize 属性由用户决定。
+     * @class 组件计时器类
+     * @brief 用于计时和触发回调函数的组件。
      * @note callBack 回调函数 event 参数失效。
+     * @note 仅提供计时器功能，不会被绘制。
      */
-    class LoadingRing;
+    class Timer;
+        /**
+         * @class 加载指示器类
+         * @brief 显示加载交互的组件。
+         * @note callBack 回调函数 event 参数失效。
+         */
+        class LoadingRing;
     /**
-     * @class 带文本加载指示器类
+     * @class 带文本的加载指示器类
      * @brief 显示加载交互的组件，并显示文本。
-     * @note minSize 属性由组件决定。
      * @note countCallback、finishCallback 回调函数 event 参数失效。
      */
     class LoadingRingWithText;
     /**
      * @class 图片框类
      * @brief 显示图片的组件。
-     * @note minSize 属性由用户决定。
      */
     class PictureBox;
 
@@ -190,6 +181,7 @@ public:
     using Callback = std::function<void (const sf::String &, const sf::Event &)>;
     static const Callback DO_NOTHING;
     void SetName(const sf::String &newName) noexcept { name = newName; }
+    const sf::String &GetName() const noexcept { return name; }
 
     /*******************************************
      * @brief 约定的常量和数据类型以及外工具方法。*
@@ -243,43 +235,42 @@ public:
      * @param flag 是否自动紧缩
      * @note 仅当期望尺寸值类型为绝对值时有效，当值为 true 时，组件的尺寸会自动缩小到最小尺寸，并使期望尺寸失效。
      */
-    void SetSizeWrap     (Direction directrion, bool flag)             noexcept;
+    void SetSizeWrap     (Direction direction, bool flag)             noexcept;
     /**
      * @fn 设置期望尺寸
      * @param direction 方向
      * @param value 期望尺寸
      * @note 当期望尺寸值类型为百分值时，其值表示所占父容器的百分比或权重；当期望尺寸值类型为绝对值时，要求自动紧缩为 false 时有效，其值为绝对尺寸。
      */
-    void SetSize         (Direction directrion, unsigned int value)    noexcept;
+    void SetSize         (Direction direction, unsigned int value)    noexcept;
     /**
-     * @fn 设置最小尺寸
+     * @fn 设置期望最小尺寸
      * @param direction 方向
-     * @param absolute 最小绝对尺寸
-     * @note 默认该值由用户自由设定，但更多情况是由组件自行决定。此时请注意该值的初始化。
-     * @see “组件类一览”
+     * @param absolute 期望最小绝对尺寸
      */
-    void SetMinSize      (Direction directrion, unsigned int absolute) noexcept;
+    void SetMinSize      (Direction direction, unsigned int absolute) noexcept;
     /**
      * @fn 设置组件的中心点
      * @param direction 方向
      * @param percentage 从前端算起中心点所在位置相对于最终尺寸的百分比
      */
-    void SetCenter    (Direction directrion, int percentage) noexcept;
+    void SetCenter    (Direction direction, int percentage) noexcept;
     /**
      * @fn 设置组件的锚点
      * @param direction 方向
      * @param percentage 从父容器前端算起锚点所在位置相对于父容器最终尺寸的百分比
      */
-    void SetAnchor    (Direction directrion, int percentage) noexcept;
+    void SetAnchor    (Direction direction, int percentage) noexcept;
     /**
      * @fn 设置组件的位置
      * @param direction 方向
      * @param absolute 中心点偏离锚点的绝对位置
      */
-    void SetPosition  (Direction directrion, int absolute)   noexcept;
+    void SetPosition  (Direction direction, int absolute)   noexcept;
     /**
      * @fn 设置组件的可见性
      * @param flag 是否可见
+     * @note 不可见时，也不会响应事件、不会占据空间。
      */
     void SetVisible (bool flag) noexcept;
 
@@ -365,13 +356,13 @@ public:
      * @param direction 方向
      * @param absolute 最终绝对尺寸
      */
-    void SetGlobalSize    (Direction directrion, unsigned int absolute) noexcept;
+    void SetGlobalSize    (Direction direction, unsigned int absolute) noexcept;
     /**
      * @fn 设置最终位置
      * @param direction 方向
      * @param absolute 最终绝对位置
      */
-    void SetGlobalPosition(Direction directrion, int absolute)          noexcept;
+    void SetGlobalPosition(Direction direction, int absolute)          noexcept;
     /**
      * @note 外部调用时，要先调用 screen.Tick()。
      */
@@ -384,11 +375,13 @@ public:
     ValueType    GetSizeValueType(Direction direction) const noexcept { return sizeValueType[direction]; }
     bool         GetSizeWrap     (Direction direction) const noexcept { return sizeWrap[direction]; }
     unsigned int GetSize         (Direction direction) const noexcept { return size[direction]; }
-    unsigned int GetMinSize      (Direction direction) const noexcept { return minSize[direction]; }
+    unsigned int GetMinSize      (Direction direction) const noexcept { return std::max(minSize[direction], _minSize[direction]); }
     int  GetCenter  (Direction direction) const noexcept { return center[direction]; }
     int  GetAnchor  (Direction direction) const noexcept { return anchor[direction]; }
     int  GetPosition(Direction direction) const noexcept { return position[direction]; }
     bool GetVisible() const noexcept { return visible; }
+    
+    void Set_minSize(Direction direction, unsigned int absolute) noexcept;
 
     virtual ~Control() noexcept;
 protected:
@@ -435,7 +428,7 @@ protected:
         }
     };
 
-    /*****************************************
+    /****************************
      * @brief 期望尺寸和位置属性。*
      * **************************
      */
@@ -448,13 +441,15 @@ protected:
     Around<int> position = {0, 0};
     bool visible = true;
 
-    /*****************************************
+    /****************************
      * @brief 最终尺寸和位置属性。*
      * **************************
      */
     Container           *parent         = nullptr;
     Around<unsigned int> globalSize     = {200, 100};
     Around<int>          globalPosition = {0, 0};
+
+    Around<unsigned int> _minSize = {0, 0};
 };
 
 class Container : public Control{
@@ -1681,7 +1676,63 @@ protected:
      */
 };
 
-class LoadingRing : public Control{
+class Timer : public Control {
+public:
+    void SetCallback(Callback &&function) noexcept { callback = function; }
+
+    /*******************************************
+     * @brief 约定的常量和数据类型以及外工具方法。*
+     * *****************************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    void SetInterval(unsigned int interval) noexcept;
+    void Start() noexcept;
+    void Stop()  noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update(bool resetMinSize = true) noexcept {}
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept {}
+    void Draw(sf::RenderWindow &screen) noexcept;
+protected:
+    Callback callback = DO_NOTHING;
+
+    /******************************
+     * @brief 封装的工具方法和属性。*
+     * ****************************
+     */
+
+    /******************************
+     * @brief 封装的数据类型和常量。*
+     * ****************************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+    unsigned int interval = 200;
+    sf::Clock clock;
+    bool started = false;
+};
+
+class LoadingRing : public Timer{
 public:
     LoadingRing() noexcept
     {
@@ -1690,7 +1741,6 @@ public:
         circle.setOutlineThickness(10);
         UpdateInQueue();
     }
-    void SetCallback(Callback &&function) noexcept { callback = function; }
 
     /*******************************************
      * @brief 约定的常量和数据类型以及外工具方法。*
@@ -1710,9 +1760,6 @@ public:
     void SetColor(const sf::Color &color) noexcept;
     void SetThickness(float thickness) noexcept;
     void SetSpeed(float speed) noexcept;
-    void SetInterval(unsigned int interval) noexcept;
-    void Start() noexcept;
-    void Stop()  noexcept;
 
     /************************************
      * @brief 实现了的和待实现的抽象方法。*
@@ -1722,8 +1769,6 @@ public:
     void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept {}
     void Draw(sf::RenderWindow &screen) noexcept;
 protected:
-    Callback callback = DO_NOTHING;
-
     /******************************
      * @brief 封装的工具方法和属性。*
      * ****************************
@@ -1746,9 +1791,6 @@ protected:
      * ******************
      */
     float speed = 0.05;
-    unsigned int interval = 200;
-    sf::Clock clock;
-    bool started = false;
 };
 
 class LoadingRingWithText : public Control {
@@ -1840,10 +1882,6 @@ protected:
 
 class PictureBox : public Control {
 public:
-    PictureBox() noexcept
-    {
-        ;
-    }
     bool GetError() const noexcept { return error; }
 
     /*******************************************

@@ -49,11 +49,15 @@ ReturnType ToNum(const std::string &s) noexcept
         if (c == '-') {
             mark = true;
             continue;
+        } else if (c == '+') {
+            mark = false;
+            continue;
         }
         result = result * 10 + (c - '0');
     }
     if (mark) result = -result;
     return result;
 }
+int ToNum(char c) noexcept;
 
 #endif

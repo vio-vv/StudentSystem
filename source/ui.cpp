@@ -33,9 +33,9 @@ const sf::String ui::InputBox::ASCII = (sf::String)
     "\xE0\xE1\xE2\xE3\xE4\xE5\xE6\xE7\xE8\xE9\xEA\xEB\xEC\xED\xEE\xEF" + 
     "\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF";
 
-void ui::Control::SetCenter(Direction directrion, int percentage) noexcept
+void ui::Control::SetCenter(Direction direction, int percentage) noexcept
 {
-    center[directrion] = percentage;
+    center[direction] = percentage;
     if (parent) parent->UpdateInQueue();
 }
 
@@ -59,15 +59,15 @@ void ui::Container::Tick() noexcept
     }
 }
 
-void ui::Control::SetAnchor(Direction directrion, int percentage) noexcept
+void ui::Control::SetAnchor(Direction direction, int percentage) noexcept
 {
-    anchor[directrion] = percentage;
+    anchor[direction] = percentage;
     if (parent) parent->UpdateInQueue();
 }
 
-void ui::Control::SetPosition(Direction directrion, int absolute) noexcept
+void ui::Control::SetPosition(Direction direction, int absolute) noexcept
 {
-    position[directrion] = absolute;
+    position[direction] = absolute;
     if (parent) parent->UpdateInQueue();
 }
 
@@ -132,16 +132,16 @@ void ui::Control::SetPreset(Direction direction, Preset preset) noexcept
     SetPosition(direction, 0);
 }
 
-void ui::Control::SetMinSize(Direction directrion, unsigned int absolute) noexcept
+void ui::Control::SetMinSize(Direction direction, unsigned int absolute) noexcept
 {
-    if (minSize[directrion] == absolute) return;
-    minSize[directrion] = absolute;
+    if (minSize[direction] == absolute) return;
+    minSize[direction] = absolute;
     if (parent) parent->UpdateInQueue();
 }
 
-void ui::Control::SetSizeWrap(Direction directrion, bool flag) noexcept
+void ui::Control::SetSizeWrap(Direction direction, bool flag) noexcept
 {
-    sizeWrap[directrion] = flag;
+    sizeWrap[direction] = flag;
     if (parent) parent->UpdateInQueue();
 }
 
@@ -151,9 +151,9 @@ void ui::Control::SetSizeValueType(Direction direction, ValueType valueType) noe
     if (parent) parent->UpdateInQueue();
 }
 
-void ui::Control::SetSize(Direction directrion, unsigned int value) noexcept
+void ui::Control::SetSize(Direction direction, unsigned int value) noexcept
 {
-    size[directrion] = value;
+    size[direction] = value;
     if (parent) parent->UpdateInQueue();
 }
 
@@ -162,15 +162,15 @@ void ui::Control::SetParent(Container *container) noexcept
     parent = container;
 }
 
-void ui::Control::SetGlobalPosition(Direction directrion, int absolute) noexcept
+void ui::Control::SetGlobalPosition(Direction direction, int absolute) noexcept
 {
-    globalPosition[directrion] = absolute;
+    globalPosition[direction] = absolute;
     UpdateInQueue(true);
 }
 
-void ui::Control::SetGlobalSize(Direction directrion, unsigned int absolute) noexcept
+void ui::Control::SetGlobalSize(Direction direction, unsigned int absolute) noexcept
 {
-    globalSize[directrion] = absolute;
+    globalSize[direction] = absolute;
     UpdateInQueue(true);
 }
 
@@ -473,7 +473,7 @@ void ui::Center::Update(bool resetMinSize) noexcept
                     break;
             }
         }
-        if (resetMinSize) SetMinSize(direction, myMinSize);
+        if (resetMinSize) Set_minSize(direction, myMinSize);
     }
 }
 
@@ -556,7 +556,7 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
                 break;
         }
     }
-    if (resetMinSize) SetMinSize(another, anotherMinSize);
+    if (resetMinSize) Set_minSize(another, anotherMinSize);
 
     if (proportionMode) {
         unsigned int directionMinSize = 0;
@@ -581,7 +581,7 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
             }
             ++childCount;
         }
-        if (resetMinSize) SetMinSize(direction, directionMinSize + std::max(0, childCount - 1) * gap);
+        if (resetMinSize) Set_minSize(direction, directionMinSize + std::max(0, childCount - 1) * gap);
         unsigned int sizeLeft    = globalSize[direction] - std::max(0, childCount - 1) * gap - sizeOccupied;
         bool fixing = true;
         std::unordered_map<Control *, bool> mark;
@@ -648,8 +648,8 @@ void ui::Label::Update(bool resetMinSize) noexcept
     text.setFont(font);
     text.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
     if (resetMinSize) {
-        SetMinSize(Direction::HORIZONTAL, text.getGlobalBounds().getSize().x + REVISION_X);
-        SetMinSize(Direction::VERTICAL, std::max((unsigned int)text.getGlobalBounds().getSize().y, fontSize) + REVISION_Y);
+        Set_minSize(Direction::HORIZONTAL, text.getGlobalBounds().getSize().x + REVISION_X);
+        Set_minSize(Direction::VERTICAL, std::max((unsigned int)text.getGlobalBounds().getSize().y, fontSize) + REVISION_Y);
     }
 }
 
@@ -729,8 +729,8 @@ void ui::Button::Update(bool resetMinSize) noexcept
     layer.SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL]);
     layer.SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL]);
     if (resetMinSize) {
-        SetMinSize(Direction::HORIZONTAL, label->GetMinSize(Direction::HORIZONTAL));
-        SetMinSize(Direction::VERTICAL, label->GetMinSize(Direction::VERTICAL));
+        Set_minSize(Direction::HORIZONTAL, label->GetMinSize(Direction::HORIZONTAL));
+        Set_minSize(Direction::VERTICAL, label->GetMinSize(Direction::VERTICAL));
     }
 }
 
@@ -744,6 +744,13 @@ bool ui::Control::IsInside(int x, int y) const noexcept
         return true;
     }
     return false;
+}
+
+void ui::Control::Set_minSize(Direction direction, unsigned int absolute) noexcept
+{
+    if (_minSize[direction] == absolute) return;
+    _minSize[direction] = absolute;
+    if (parent) parent->UpdateInQueue();
 }
 
 ui::Control::~Control() noexcept
@@ -874,8 +881,8 @@ void ui::Margin::Update(bool resetMinSize) noexcept
         minSizeV = std::max(minSizeV, child->GetMinSize(Direction::VERTICAL));
     }
     if (resetMinSize) {
-        SetMinSize(Direction::HORIZONTAL, minSizeH + margin.left + margin.right);
-        SetMinSize(Direction::VERTICAL, minSizeV + margin.top + margin.bottom);
+        Set_minSize(Direction::HORIZONTAL, minSizeH + margin.left + margin.right);
+        Set_minSize(Direction::VERTICAL, minSizeV + margin.top + margin.bottom);
     }
 }
 
@@ -962,8 +969,8 @@ void ui::InputBox::Update(bool resetMinSize) noexcept
     layer.SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL]);
     layer.SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL]);
     if (resetMinSize) {
-        SetMinSize(Direction::HORIZONTAL, label->GetMinSize(Direction::HORIZONTAL));
-        SetMinSize(Direction::VERTICAL, label->GetMinSize(Direction::VERTICAL));
+        Set_minSize(Direction::HORIZONTAL, label->GetMinSize(Direction::HORIZONTAL));
+        Set_minSize(Direction::VERTICAL, label->GetMinSize(Direction::VERTICAL));
     }
 }
 
@@ -1344,7 +1351,7 @@ void ui::ScrollingBox::SharedUpdate(bool resetMinSize, Direction direction) noex
     auto another = GetAnotherDirection(direction);
 
     if (resetMinSize) {
-        SetMinSize(another, GetBox()->GetMinSize(another) + barSize);
+        Set_minSize(another, GetBox()->GetMinSize(another) + barSize);
     }
 
     rect->SetPreset(direction, Preset::FILL_FROM_CENTER);
@@ -1392,29 +1399,35 @@ void ui::LoadingRing::SetSpeed(float speed) noexcept
     speed = speed;
 }
 
-void ui::LoadingRing::SetInterval(unsigned int newInterval) noexcept
+void ui::Timer::SetInterval(unsigned int newInterval) noexcept
 {
     interval = newInterval;
     clock.restart();
 }
 
-void ui::LoadingRing::Start() noexcept
+void ui::Timer::Start() noexcept
 {
     started = true;
     clock.restart();
 }
 
-void ui::LoadingRing::Stop() noexcept
+void ui::Timer::Stop() noexcept
 {
     started = false;
 }
 
-void ui::LoadingRing::Draw(sf::RenderWindow &screen) noexcept
-{
+void ui::Timer::Draw(sf::RenderWindow &screen) noexcept {
     if (started && clock.getElapsedTime().asMilliseconds() > interval) { 
         callback(name, {});
         clock.restart();
     }
+
+    DRAW_DEBUG_RECT;
+}
+
+void ui::LoadingRing::Draw(sf::RenderWindow &screen) noexcept
+{
+    Timer::Draw(screen);
 
     if (globalSize[Direction::HORIZONTAL] > globalSize[Direction::VERTICAL]) {
         circle.setRadius(globalSize[Direction::VERTICAL] / 2 * (sin(rate) + 1) / 2);
@@ -1500,8 +1513,8 @@ void ui::LoadingRingWithText::Update(bool resetMinSize) noexcept
     layer.SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL]);
     layer.SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL]);
     if (resetMinSize) {
-        SetMinSize(Direction::HORIZONTAL, layer.GetMinSize(Direction::HORIZONTAL));
-        SetMinSize(Direction::VERTICAL, layer.GetMinSize(Direction::VERTICAL));
+        Set_minSize(Direction::HORIZONTAL, layer.GetMinSize(Direction::HORIZONTAL));
+        Set_minSize(Direction::VERTICAL, layer.GetMinSize(Direction::VERTICAL));
     }
 }
 

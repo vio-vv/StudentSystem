@@ -78,10 +78,13 @@ private:
     ui::Button *r1 = nullptr;
     ui::Button *r2 = nullptr;
     ui::Button *r3 = nullptr;
+    ui::LoadingRing *loading = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
+private:
+    void UpdateButton();
 };
 
 }
