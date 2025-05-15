@@ -2,7 +2,7 @@
 
 ssys::ReserveSystem::ReserveSystem() noexcept
 {
-    reserveBase["10"]["1"]["20"].Push(std::make_pair("15","10")); // 预约信息
+    reserveBase["10"]["1"]["20"].Push("15","10"); // 预约信息
     //TODO
 }
 

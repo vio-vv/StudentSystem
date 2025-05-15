@@ -196,6 +196,7 @@ public:
     };
     /**
      * @enum 尺寸值类型枚举
+     * @brief 尺寸值类型枚举
      */
     enum class ValueType{
         PERCENTAGE, // 百分值
@@ -203,6 +204,7 @@ public:
     };
     /**
      * @enum 预设尺寸和位置枚举
+     * @brief 预设尺寸和位置枚举
      */
     enum class Preset{
         PLACR_AT_FRONT,  PLACR_AT_END,  PLACR_AT_CENTER,  // 置于容器前端、末端、中间
@@ -211,6 +213,7 @@ public:
     };
     /**
      * @fn 判断屏幕坐标是否在组件内
+     * @brief 判断屏幕坐标是否在组件内
      * @param x 坐标 x
      * @param y 坐标 y
      * @return 是否在组件内
@@ -305,7 +308,8 @@ public:
     void SetPreset        (Preset preset)                                  noexcept { SetHPreset       (preset);      SetVPreset       (preset); }
     /**
      * @fn 将组件添加到容器中
-     * @param container 容器
+     * @brief 将组件添加到容器中
+     * @param container 容器(父容器)
      */
     void AddTo            (Container *container)                           noexcept;
 
@@ -466,6 +470,7 @@ public:
      */
     /**
      * @fn 向容器中添加子组件
+     * @brief 向容器中添加子组件
      * @param control 子组件
      */
     void Add           (Control *control)   noexcept;
@@ -1896,6 +1901,11 @@ public:
     void SetPicture(const sf::String &filename) noexcept;
     void SetScale(unsigned int percentage) noexcept;
     void KeepWidth(unsigned int absolute) noexcept;
+    /**
+     * @brief 图片高度
+     * 
+     * @param absolute 
+     */
     void KeepHeight(unsigned int absolute) noexcept;
 
     /***************************

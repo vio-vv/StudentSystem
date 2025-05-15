@@ -68,8 +68,21 @@ int main() noexcept
                  * @attention LAB 请在此处添加。*
                  * *****************************
                  */
-                // REGISTER(trm::rqs::???, ssys.???)
-                
+                REGISTER(trm::rqs::ADD_COURSE, ssys.AddCourse)
+                REGISTER(trm::rqs::DELETE_COURSE, ssys.DeleteCourse)
+                REGISTER(trm::rqs::ADM_ADD_COUR,ssys.AdmAddCour)
+                REGISTER(trm::rqs::ADM_DELETE_COUR,ssys.AdmDeleteCour)
+                REGISTER(trm::rqs::CHECK_ALL_COURSE, ssys.CheckAllCourse)
+                REGISTER(trm::rqs::SEARCH_COURSE_INFORMATION, ssys.SearchCourseInformation)
+                REGISTER(trm::rqs::REQUEST_RESERVE, ssys.RequestReserve)
+                REGISTER(trm::rqs::CANCEL_RESERVE, ssys.CancelReserve)
+                REGISTER(trm::rqs::CHECK_TIME, ssys.CheckTime)
+                REGISTER(trm::rqs::CHECK_RESERVE_TIME, ssys.CheckReserveTime)
+                REGISTER(trm::rqs::CHECK_RESERVE_STATUS, ssys.CheckReserveStatus)
+                REGISTER(trm::rqs::CHECK_RESERVE_STATUS_LIST, ssys.CheckReserveStatusList)
+                REGISTER(trm::rqs::ADM_ADD_RESERVE_TIME, ssys.AdmAddReserveTime)
+                REGISTER(trm::rqs::ADM_DELETE_RESERVE_TIME, ssys.AdmDeleteReserveTime)
+                REGISTER(trm::rqs::ADM_MODIFY_RESERVE_NUMBER, ssys.AdmModifyReserveNumber)
                 /**********************************
                  * @attention VIO_VV 请在此处添加。*
                  * ********************************
