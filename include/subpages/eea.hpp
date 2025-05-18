@@ -8,7 +8,7 @@ using namespace clpg;
 
 class Retry : public PageBase {
 private:
-    ;
+    ui::Button *btn = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
@@ -53,7 +53,13 @@ protected:
 
 class EnterAccManage : public PageBase {
 private:
-    ;
+    ui::Button *backBtn = nullptr;
+    ui::Center *ringCenter = nullptr;
+    ui::LoadingRing *ring = nullptr;
+    ui::HorizontalBox *list = nullptr;
+    ui::VerticalBox *code = nullptr;
+    ui::VerticalBox *access = nullptr;
+    ui::VerticalBox *tags = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;

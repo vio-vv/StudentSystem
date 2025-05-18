@@ -63,6 +63,7 @@ int main() noexcept
                 REGISTER(trm::rqs::REMOVE_TAG, ssys.RemoveTag)
                 REGISTER(trm::rqs::CLEAR_TAG, ssys.ClearTag)
                 REGISTER(trm::rqs::RESET_ACCOUNT_AND_ACCESS, ssys.ResetAccountAndAccess)
+                REGISTER(trm::rqs::LIST_ACCOUNT, ssys.ListAccount)
 
                 /*******************************
                  * @attention LAB 请在此处添加。*

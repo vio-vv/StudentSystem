@@ -12,7 +12,7 @@
 
 int main() noexcept
 {
-    ui::Screen screen(1500, 1000, L"校园系统 - 大作业");
+    ui::Screen screen(1500, 1000, "校园系统 - 大作业");
 
     clpg::PageBase *cur = new clpg::EnterSystem;
     clpg::PageBase *nxt = nullptr;

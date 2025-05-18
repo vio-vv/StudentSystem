@@ -1,6 +1,6 @@
 #include "ui.hpp"
 
-const ui::Button::Callback ui::Control::DO_NOTHING = [](const sf::String &name, const sf::Event &event){};
+const ui::Button::Callback ui::Control::DO_NOTHING = [](const std::string &name, const sf::Event &event){};
 
 const float ui::ScrollingBox::DEFAULT_SENSITIVITY = 15;
 
@@ -8,7 +8,7 @@ const unsigned int ui::Label::REVISION_X = 15;
 
 const unsigned int ui::Label::REVISION_Y = 20;
 
-const sf::String ui::Label::FONT_FILE_PATH = _ASSETS_"simfang.ttf";
+const std::string ui::Label::FONT_FILE_PATH = _ASSETS_"simfang.ttf";
 
 const float ui::LoadingRing::PI = 3.14159265358979323846;
 
@@ -216,7 +216,7 @@ void ui::Container::FreeAll() noexcept
 void ui::Container::HideAll() noexcept
 {
     for (auto child : *children) {
-        child->SetVisible(false);
+        child->Hide();
     }
     UpdateInQueue();
 }
@@ -224,7 +224,7 @@ void ui::Container::HideAll() noexcept
 void ui::Container::ShowAll() noexcept
 {
     for (auto child : *children) {
-        child->SetVisible(true);
+        child->Show();
     }
     UpdateInQueue();
 }
@@ -336,9 +336,15 @@ void ui::Screen::SetRange(unsigned int width, unsigned int height) noexcept
     screen.setSize({width, height});
 }
 
-void ui::Screen::SetCaption(const sf::String &caption) noexcept
+sf::String ui::Control::convert(const std::string &str)
 {
-    screen.setTitle(caption);
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    return converter.from_bytes(str);
+}
+
+void ui::Screen::SetCaption(const std::string &caption) noexcept
+{
+    screen.setTitle(convert(caption));
 }
 
 bool ui::Screen::IsOpen() const noexcept
@@ -627,15 +633,15 @@ void ui::VerticalBox::Update(bool resetMinSize) noexcept
     UpdateLinear(Direction::VERTICAL, resetMinSize);
 }
 
-void ui::Label::SetContent(const sf::String &newContent) noexcept
+void ui::Label::SetContent(const std::string &newContent) noexcept
 {
     content = newContent;
     UpdateInQueue();
 }
 
-void ui::Label::SetFont(const sf::String &fontFile) noexcept
+void ui::Label::SetFont(const std::string &fontFile) noexcept
 {
-    if (!font.loadFromFile(fontFile)) {
+    if (!font.loadFromFile(convert(fontFile))) {
         error = true;
     }
     UpdateInQueue();
@@ -643,7 +649,7 @@ void ui::Label::SetFont(const sf::String &fontFile) noexcept
 
 void ui::Label::Update(bool resetMinSize) noexcept
 {
-    text.setString(content);
+    text.setString(convert(content));
     text.setCharacterSize(fontSize);
     text.setFont(font);
     text.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
@@ -679,7 +685,7 @@ void ui::Label::Draw(sf::RenderWindow &screen) noexcept
     DRAW_DEBUG_RECT;
 }
 
-void ui::Button::SetCaption(const sf::String &caption) noexcept
+void ui::Button::SetCaption(const std::string &caption) noexcept
 {
     label->SetContent(caption);
     UpdateInQueue();
@@ -716,7 +722,7 @@ void ui::Button::SetFocusBackColor(const sf::Color &color) noexcept
     focusBackColor = color;
 }
 
-void ui::Button::SetFont(const sf::String &fontFile) noexcept
+void ui::Button::SetFont(const std::string &fontFile) noexcept
 {
     label->SetFont(fontFile);
     UpdateInQueue();
@@ -772,6 +778,15 @@ ui::Control::Direction ui::Control::GetAnotherDirection(Direction direction) noe
             return Direction::VERTICAL;
             break;
     }
+}
+
+std::string ui::Control::convert(const sf::String &str)
+{
+    std::string result;
+    for (auto c : str.toUtf8()) {
+        result.push_back(c);
+    }
+    return std::move(result);
 }
 
 void ui::Button::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
@@ -886,9 +901,9 @@ void ui::Margin::Update(bool resetMinSize) noexcept
     }
 }
 
-void ui::InputBox::SetText(const sf::String &text) noexcept
+void ui::InputBox::SetText(const std::string &text) noexcept
 {
-    sf::String textSatisfiysLimits = GetTextSatisfysLimits(text);
+    sf::String textSatisfiysLimits = GetTextSatisfysLimits(convert(text));
     textCopy = textSatisfiysLimits;
     UpdateInQueue();
 }
@@ -945,7 +960,7 @@ void ui::InputBox::SetSpecialCharacters(const sf::String &list) noexcept
     specialCharacters = list;
 }
 
-void ui::InputBox::SetFont(const sf::String &fontFile) noexcept
+void ui::InputBox::SetFont(const std::string &fontFile) noexcept
 {
     label->SetFont(fontFile);
     UpdateInQueue();
@@ -962,7 +977,7 @@ void ui::InputBox::Update(bool resetMinSize) noexcept
     if (protectText) {
         label->SetContent(std::string(textCopy.getSize(), '*'));
     } else {
-        label->SetContent(textCopy);
+        label->SetContent(convert(textCopy));
     }
     layer.SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL]);
     layer.SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL]);
@@ -981,10 +996,10 @@ void ui::InputBox::Process(const sf::Event &event, const sf::RenderWindow &scree
     auto input = [&](sf::Uint32 c){
         switch (c) {
             case '\b':
-                SetText(textCopy.substring(0, textCopy.getSize() - 1));
+                SetText(convert(textCopy.substring(0, textCopy.getSize() - 1)));
                 break;
             default:
-                SetText(textCopy + c);
+                SetText(convert(textCopy + c));
                 break;
         }
     };
@@ -1454,7 +1469,7 @@ void ui::LoadingRingWithText::SetFontSize(unsigned int size) noexcept
     UpdateInQueue();
 }
 
-void ui::LoadingRingWithText::SetFont(const sf::String &fontFile) noexcept
+void ui::LoadingRingWithText::SetFont(const std::string &fontFile) noexcept
 {
     label->SetFont(fontFile);
     UpdateInQueue();
@@ -1472,7 +1487,7 @@ void ui::LoadingRingWithText::SetRingHeight(unsigned int height) noexcept
     UpdateInQueue();
 }
 
-void ui::LoadingRingWithText::SetText(const sf::String &newText) noexcept
+void ui::LoadingRingWithText::SetText(const std::string &newText) noexcept
 {
     text = newText;
     UpdateInQueue();
@@ -1540,9 +1555,9 @@ void ui::LoadingRingWithText::Count() noexcept
     }
 }
 
-void ui::PictureBox::SetPicture(const sf::String &filename) noexcept
+void ui::PictureBox::SetPicture(const std::string &filename) noexcept
 {
-    if (!texture.loadFromFile(filename)) {
+    if (!texture.loadFromFile(convert(filename))) {
         error = true;
     }
     originSize = {texture.getSize().x, texture.getSize().y};

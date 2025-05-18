@@ -5,23 +5,15 @@
 #define SELF ".\\space"
 #define SELF_AS_SENDER "..\\client\\space"
 
+#define UI_CALLBACK [&](const std::string &name, const sf::Event &event) -> void 
+#define SD_CALLBACK [&](int id, const trm::Information &reply) -> void 
+
 #include <iostream>
 #include <cassert>
 #include "ui.hpp"
 #include "transmitter.hpp"
 
 namespace clpg{
-
-class Atstr : public sf::String {
-public:
-    Atstr(const sf::String &other) : sf::String(other) {}
-    Atstr() : sf::String() {}
-    Atstr(const std::string &str) : sf::String(str) {}
-    Atstr(const char *str) : sf::String(str) {}
-    Atstr(const wchar_t *str) : sf::String(str) {}
-    Atstr(const Atstr &other) : sf::String(other) {}
-    operator std::string() const;
-};
 
 class PageBase {
 public:
@@ -36,9 +28,9 @@ protected:
     virtual void TickAtSpecificIntervals(ui::Screen *screen) noexcept {}
     virtual void Unload(ui::Screen *screen) noexcept {}
 
-    static std::pair<int, trm::Information> WaitServer(ui::Screen *screen, const trm::Information &information, const Atstr &tips) noexcept;
-    static Atstr username;
-    static Atstr password;
+    static std::pair<int, trm::Information> WaitServer(ui::Screen *screen, const trm::Information &information, const std::string &tips) noexcept;
+    static std::string username;
+    static std::string password;
     static trm::Account account;
     
     void Listen(trm::Sender *sender, Callback &&callback) noexcept;

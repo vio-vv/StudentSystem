@@ -1,4 +1,5 @@
 #include "student_system.hpp"
+#include "account_and_access.hpp"
 
 const std::string ssys::AccountAndAccess::ACCOUNTS = "accounts";
 
@@ -288,6 +289,25 @@ trm::Information ssys::AccountAndAccess::ResetAccountAndAccess(const trm::Inform
 
     base.Remove();
     return {trm::rpl::SUCC};
+}
+
+trm::Information ssys::AccountAndAccess::ListAccount(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::LIST_ACCOUNT); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::LIST_ACCOUNT});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
+    }
+
+    auto list = base[ACCOUNTS];
+
+    trm::Information result;
+    for (auto [_, accountBase] : list) {
+        result.push_back(accountBase);
+    }
+
+    return std::move(result);
 }
 
 ssys::AccountAndAccess::AccountAndAccess() noexcept

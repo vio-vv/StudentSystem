@@ -35,6 +35,8 @@
 #include <unordered_map>
 #include <cassert>
 #include "string_integral.hpp"
+#include <locale>
+#include <codecvt>
 
 namespace ui{
 
@@ -178,10 +180,10 @@ class Control;
  */
 class Control{
 public:
-    using Callback = std::function<void (const sf::String &, const sf::Event &)>;
+    using Callback = std::function<void (const std::string &, const sf::Event &)>;
     static const Callback DO_NOTHING;
-    void SetName(const sf::String &newName) noexcept { name = newName; }
-    const sf::String &GetName() const noexcept { return name; }
+    void SetName(const std::string &newName) noexcept { name = newName; }
+    const std::string &GetName() const noexcept { return name; }
 
     /*******************************************
      * @brief 约定的常量和数据类型以及外工具方法。*
@@ -306,6 +308,8 @@ public:
     void SetAnchor        (int percentageH, int percentageV)               noexcept { SetHAnchor       (percentageH); SetVAnchor       (percentageV); }
     void SetPosition      (int absoluteH, int absoluteV)                   noexcept { SetHPosition     (absoluteH);   SetVPosition     (absoluteV); }
     void SetPreset        (Preset preset)                                  noexcept { SetHPreset       (preset);      SetVPreset       (preset); }
+    void Hide             ()                                               noexcept { SetVisible(false); }
+    void Show             ()                                               noexcept { SetVisible(true); }
     /**
      * @fn 将组件添加到容器中
      * @brief 将组件添加到容器中
@@ -389,7 +393,7 @@ public:
 
     virtual ~Control() noexcept;
 protected:
-    sf::String name = "default";
+    std::string name = "default";
     bool inQueue = false;
     bool resetMinSize = false; // 用以提升性能
 
@@ -398,6 +402,8 @@ protected:
      * ****************************
      */
     static Direction GetAnotherDirection(Direction direction) noexcept;
+    static std::string convert(const sf::String &str);
+    static sf::String convert(const std::string &str);
 
     /******************************
      * @brief 封装的数据类型和常量。*
@@ -624,9 +630,9 @@ public:
         screen.create(sf::VideoMode({width, height}), "Caption");
         screen.setVerticalSyncEnabled(true);
     }
-    Screen(unsigned int width, unsigned int height, const sf::String &caption) noexcept
+    Screen(unsigned int width, unsigned int height, const std::string &caption) noexcept
     {
-        screen.create(sf::VideoMode({width, height}), caption);
+        screen.create(sf::VideoMode({width, height}), convert(caption));
         screen.setVerticalSyncEnabled(true);
         SetGlobalSize(Direction::HORIZONTAL, width);
         SetGlobalSize(Direction::VERTICAL, height);
@@ -646,7 +652,7 @@ public:
      * @fn 设置窗口标题
      * @param caption 标题
      */
-    void SetCaption(const sf::String &caption)               noexcept;
+    void SetCaption(const std::string &caption)               noexcept;
     /**
      * @fn 检查窗口是否打开
      * @return 是否打开
@@ -936,14 +942,14 @@ private:
 };
 
 class Label : public Control{
-    static const sf::String FONT_FILE_PATH;
+    static const std::string FONT_FILE_PATH;
 public:
     Label() noexcept
     {
         SetFont(FONT_FILE_PATH);
         UpdateInQueue(true);
     }
-    const sf::String &GetContent() const noexcept { return content; }
+    const std::string &GetContent() const noexcept { return content; }
     bool              GetError()   const noexcept { return error; }
 
     /*******************************************
@@ -955,9 +961,9 @@ public:
      * @brief 内容属性控制接口。*
      * *************************
      */
-    void SetContent(const sf::String &newContent) noexcept;
+    void SetContent(const std::string &newContent) noexcept;
     void SetFontSize(unsigned int size)           noexcept;
-    void SetFont(const sf::String &fontFile)      noexcept;
+    void SetFont(const std::string &fontFile)      noexcept;
 
     /***************************
      * @brief 样式属性控制接口。*
@@ -990,7 +996,7 @@ protected:
      * @brief 内容属性。*
      * ******************
      */
-    sf::String content = "";
+    std::string content = "";
     unsigned int fontSize = 50;
     sf::Font font;
     sf::Text text;
@@ -1078,7 +1084,7 @@ public:
     void SetPressDownCallback(Callback &&function) noexcept { pressDownCallback = function; }
     void SetPressUpCallback(Callback &&function)   noexcept { pressUpCallback = function; }
     void SetClickCallback(Callback &&function)     noexcept { clickCallback = function; }
-    const sf::String &GetCaption() const noexcept { return label->GetContent(); }
+    const std::string GetCaption() const noexcept { return label->GetContent(); }
     bool              GetEntered() const noexcept { return entered; }
     bool              GetPressed() const noexcept { return pressed; }
     bool              GetError()   const noexcept { return label->GetError(); }
@@ -1092,9 +1098,9 @@ public:
      * @brief 内容属性控制接口。*
      * *************************
      */
-    void SetCaption(const sf::String &caption)   noexcept;
+    void SetCaption(const std::string &caption)   noexcept;
     void SetFontSize(unsigned int size)            noexcept;
-    void SetFont(const sf::String &fontFile)      noexcept;
+    void SetFont(const std::string &fontFile)      noexcept;
 
     /***************************
      * @brief 样式属性控制接口。*
@@ -1158,7 +1164,7 @@ public:
     InputBox() noexcept
     {
         button->SetPreset(Preset::FILL_FROM_CENTER);
-        button->SetClickCallback([&](const sf::String &name, const sf::Event &event){
+        button->SetClickCallback([&](const std::string &name, const sf::Event &event){
             if (!this->inputting) {
                 this->SetInputting(true);
                 this->beginCallback(this->name, event);
@@ -1175,7 +1181,7 @@ public:
     void SetInputCallback(Callback &&function)  noexcept { inputCallback = function; }
     void SetEndCallback(Callback &&function)    noexcept { endCallback = function; }
     void SetExceedLimitCallback(Callback &&function) noexcept { exceedLimitCallback = function; }
-    const sf::String &GetText() const noexcept { return textCopy; }
+    const std::string GetText() const noexcept { return convert(textCopy); }
     bool GetInputting()         const noexcept { return inputting; }
     bool GetError()             const noexcept { return button->GetError() || label->GetError(); }
 
@@ -1197,9 +1203,9 @@ public:
      * @brief 内容属性控制接口。*
      * *************************
      */
-    void SetText(const sf::String &text)           noexcept;
+    void SetText(const std::string &text)           noexcept;
     void SetFontSize(unsigned int size)            noexcept;
-    void SetFont(const sf::String &fontFile)       noexcept;
+    void SetFont(const std::string &fontFile)       noexcept;
     void SetProtectText(bool flag)               noexcept;
 
     /***************************
@@ -1555,7 +1561,7 @@ public:
         box->SetProportionMode(false);
         box->SyncChildren(children);
         
-        bar->SetScrollCallback([&](const sf::String &name, const sf::Event &event){
+        bar->SetScrollCallback([&](const std::string &name, const sf::Event &event){
             box->SetDelta(-bar->GetRate());
         });
         SetSensitivity(DEFAULT_SENSITIVITY);
@@ -1619,7 +1625,7 @@ public:
         box->SetProportionMode(false);
         box->SyncChildren(children);
 
-        bar->SetScrollCallback([&](const sf::String &name, const sf::Event &event){
+        bar->SetScrollCallback([&](const std::string &name, const sf::Event &event){
             box->SetDelta(-bar->GetRate());
         });
         bar->SetSensitivity(DEFAULT_SENSITIVITY);
@@ -1809,7 +1815,7 @@ public:
         ring->SetPreset(Direction::HORIZONTAL, Preset::FILL_FROM_CENTER);
         ring->SetSize(Direction::VERTICAL, ringHeight);
         ring->SetInterval(1000);
-        ring->SetCallback([&](const sf::String &name, const sf::Event &event){
+        ring->SetCallback([&](const std::string &name, const sf::Event &event){
             this->Count();
         });
         UpdateInQueue(true);
@@ -1829,10 +1835,10 @@ public:
      * *************************
      */
     void SetFontSize(unsigned int size)           noexcept;
-    void SetFont(const sf::String &fontFile)      noexcept;
+    void SetFont(const std::string &fontFile)      noexcept;
     void SetTextHeight(unsigned int height)       noexcept;
     void SetRingHeight(unsigned int height)       noexcept;
-    void SetText(const sf::String &newText)       noexcept;
+    void SetText(const std::string &newText)       noexcept;
 
     /***************************
      * @brief 样式属性控制接口。*
@@ -1876,7 +1882,7 @@ protected:
     LoadingRing *ring = new LoadingRing;
     unsigned int textHeight = 140;
     unsigned int ringHeight = 60;
-    sf::String text = "";
+    std::string text = "";
 
     /********************
      * @brief 样式属性。*
@@ -1898,7 +1904,7 @@ public:
      * @brief 内容属性控制接口。*
      * *************************
      */
-    void SetPicture(const sf::String &filename) noexcept;
+    void SetPicture(const std::string &filename) noexcept;
     void SetScale(unsigned int percentage) noexcept;
     void KeepWidth(unsigned int absolute) noexcept;
     /**

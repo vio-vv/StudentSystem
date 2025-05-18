@@ -29,6 +29,7 @@ public:
     trm::Information RemoveTag(const trm::Information &information) noexcept;
     trm::Information ClearTag(const trm::Information &information) noexcept;
     trm::Information ResetAccountAndAccess(const trm::Information &information) noexcept;
+    trm::Information ListAccount(const trm::Information &information) noexcept;
 
     trm::Information CheckAccountExist(const trm::Information &information) noexcept;
     trm::Information QueryTag(const trm::Information &information) noexcept;

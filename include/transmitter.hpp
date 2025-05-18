@@ -164,6 +164,14 @@ namespace rqs{
      * @note 重置后，所有数据都会被删除。
      */
     const std::string RESET_ACCOUNT_AND_ACCESS = _AS_"RESET_ACCOUNT_AND_ACCESS";
+    /**
+     * @brief 列出所有帐户。
+     * @param code 学工号
+     * @param password 密码
+     * @return 帐户列表，或者 ACCESS_DENIED @see @struct Account
+     * @note ACCESS REQUIRED LIST_ACCOUNT
+     */
+    const std::string LIST_ACCOUNT = _AS_"LIST_ACCOUNT";
 #pragma endregion
 
 #pragma region 课程系统
@@ -570,7 +578,7 @@ namespace rpl{
     const std::string YES = _AS_"YES";
     const std::string NO = _AS_"NO";
     const std::string SUCC = _AS_"SUCC";
-    const std::string FAIL = _AS_"FAIL";
+    const std::string FAIL = _AS_"FAI";
     
     const std::string NO_ACCOUNT = _AS_"NO_ACCOUNT";
     const std::string WRONG_PASSWORD = _AS_"WRONG_PASSWORD";
@@ -605,6 +613,7 @@ namespace Access{
     const std::string ADD_TAG = _AS_"ADD_TAG";
     const std::string REMOVE_TAG = _AS_"REMOVE_TAG"; // 有这个权限才能删除或清空别人的标签
     const std::string RESET_ACCOUNT_AND_ACCESS = _AS_"RESET_ACCOUNT_AND_ACCESS";
+    const std::string LIST_ACCOUNT = _AS_"LIST_ACCOUNT";
 
     const std::string SEND_MESSAGE = _AS_"SEND_MESSAGE";
     const std::string DELETE_MESSAGE = _AS_"DELETE_MESSAGE"; // 有这个权限才能删除或清空自己的消息

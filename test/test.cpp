@@ -39,6 +39,8 @@ int main()
 
 #ifdef EEA
 
+    f(ssys.ListAccount({trm::rqs::LIST_ACCOUNT, "adm", "123"}));
+
     f(ssys.CheckAccountExist({rqs::CHECK_ACCOUNT_EXISTS, "admin"}));
     f(ssys.CheckAccountExist({rqs::CHECK_ACCOUNT_EXISTS, "adm"}));
 

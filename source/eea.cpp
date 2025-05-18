@@ -43,7 +43,7 @@ void eea::Login::Load(ui::Screen *screen) noexcept
                 auto label = new ui::Label; {
                     label->AddTo(user);
                     label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                    label->SetContent(L"帐号");
+                    label->SetContent("帐号");
                 }
                 userInput = new ui::InputBox; {
                     userInput->AddTo(user);
@@ -64,7 +64,7 @@ void eea::Login::Load(ui::Screen *screen) noexcept
                 auto label = new ui::Label; {
                     label->AddTo(pasw);
                     label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                    label->SetContent(L"密码");
+                    label->SetContent("密码");
                 }
                 paswInput = new ui::InputBox; {
                     paswInput->AddTo(pasw);
@@ -92,19 +92,19 @@ void eea::Login::Load(ui::Screen *screen) noexcept
                     loginBtn->AddTo(btnBox);
                     loginBtn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     loginBtn->SetHSize(2);
-                    loginBtn->SetCaption(L"登录");
+                    loginBtn->SetCaption("登录");
                 }
                 forgetBtn = new ui::Button; {
                     forgetBtn->AddTo(btnBox);
                     forgetBtn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     forgetBtn->SetHSize(2);
-                    forgetBtn->SetCaption(L"忘记密码");
+                    forgetBtn->SetCaption("忘记密码");
                 }
                 reserveBtn = new ui::Button; {
                     reserveBtn->AddTo(btnBox);
                     reserveBtn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     reserveBtn->SetHSize(1);
-                    reserveBtn->SetCaption(L"校外人员\n预约入校");
+                    reserveBtn->SetCaption("校外人员\n预约入校");
                 }
             }
             tips = new ui::Label; {
@@ -112,7 +112,7 @@ void eea::Login::Load(ui::Screen *screen) noexcept
                 tips->SetPreset(ui::Control::Preset::WRAP_AT_FRONT);
                 tips->SetFontColor(sf::Color::Red);
                 tips->SetFontSize(30);
-                tips->SetVisible(false);
+                tips->Hide();
             }
         }        
     }
@@ -120,28 +120,28 @@ void eea::Login::Load(ui::Screen *screen) noexcept
 
 void eea::Login::Logic(ui::Screen *screen) noexcept
 {
-    userInput->SetInputCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    userInput->SetInputCallback(UI_CALLBACK{
         username = userInput->GetText();
     });
-    userInput->SetExceedLimitCallback([&](const Atstr &name, const sf::Event &event) -> void {
-        tips->SetContent(L"帐号只能由数字、大小写字母以及 _-@. 构成，\n且长度不超过 64 个字符。");
-        tips->SetVisible(true);
+    userInput->SetExceedLimitCallback(UI_CALLBACK{
+        tips->SetContent("帐号只能由数字、大小写字母以及 _-@. 构成，\n且长度不超过 64 个字符。");
+        tips->Show();
     });
-    paswInput->SetInputCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    paswInput->SetInputCallback(UI_CALLBACK{
         password = paswInput->GetText();
     });
-    paswInput->SetExceedLimitCallback([&](const Atstr &name, const sf::Event &event) -> void {
-        tips->SetContent(L"密码只能由 ASCII 字符构成，\n且长度不超过 64 个字符。");
-        tips->SetVisible(true);
+    paswInput->SetExceedLimitCallback(UI_CALLBACK{
+        tips->SetContent("密码只能由 ASCII 字符构成，\n且长度不超过 64 个字符。");
+        tips->Show();
     });
-    loginBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    loginBtn->SetClickCallback(UI_CALLBACK{
         if (username == "" || password == "") {
-            tips->SetContent(L"帐号或密码不能为空。");
-            tips->SetVisible(true);
+            tips->SetContent("帐号或密码不能为空。");
+            tips->Show();
         } else {
             screen->HideAll();
             auto [success, reply] = WaitServer(screen, 
-                {trm::rqs::CHECK_ACCOUNT, username, password}, L"登录中");
+                {trm::rqs::CHECK_ACCOUNT, username, password}, "登录中");
             screen->FreeAllVisible();
             screen->ShowAll();
             if (success == 1) {
@@ -149,8 +149,8 @@ void eea::Login::Logic(ui::Screen *screen) noexcept
                     account = reply[1];
                     SwitchTo(new MainPage);
                 } else if (reply[0] == trm::rpl::NO) {
-                    tips->SetContent(L"帐号或密码错误。");
-                    tips->SetVisible(true);
+                    tips->SetContent("帐号或密码错误。");
+                    tips->Show();
                 } else {
                     assert(false); // Invalid reply.
                 }    
@@ -159,10 +159,10 @@ void eea::Login::Logic(ui::Screen *screen) noexcept
             }
         }
     });
-    forgetBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    forgetBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new Forget);
     });
-    reserveBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    reserveBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new lab::EnterReserve);
     });
 }
@@ -217,12 +217,12 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                     backBtn = new ui::Button; {
                         backBtn->AddTo(btnBox);
                         backBtn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        backBtn->SetCaption(L"返回主页");
+                        backBtn->SetCaption("返回主页");
                     }
                     auto writeMailBtn = new ui::Button; {
                         writeMailBtn->AddTo(btnBox);
                         writeMailBtn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        writeMailBtn->SetCaption(L"写  信");
+                        writeMailBtn->SetCaption("写  信");
                     }
                 }
                 auto inBox = new ui::VerticalBox; {
@@ -233,7 +233,7 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                     auto label = new ui::Label; {
                         label->AddTo(inBox);
                         label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                        label->SetContent(L"↓ 收件箱 ↓");
+                        label->SetContent("↓ 收件箱 ↓");
                     }
                     auto listBox = new ui::VerticalBox; {
                         listBox->AddTo(inBox);
@@ -258,7 +258,7 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                         }
                         {
                             auto elp1 = new ui::Label; {
-                                elp1->SetContent(L"...");
+                                elp1->SetContent("...");
                             }
                             l3 = new ui::Button; {
                                 l3->SetName("-3");
@@ -288,7 +288,7 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                                 r3->SetName("+3");
                             }
                             auto elp2 = new ui::Label; {
-                                elp2->SetContent(L"...");
+                                elp2->SetContent("...");
                             }
                             for (auto e : std::vector<ui::Control *>{elp1, l3, l2, l1, center, r1, r2, r3, elp2}) {
                                 e->AddTo(btnBox);
@@ -310,7 +310,7 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                                 auto label = new ui::Label; {
                                     label->AddTo(center);
                                     label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                                    label->SetContent(L"跳转至");
+                                    label->SetContent("跳转至");
                                 }
                             }
                             center = new ui::Center; {
@@ -332,13 +332,13 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                                 auto maxNum = new ui::Label; {
                                     maxNum->AddTo(center);
                                     maxNum->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                                    maxNum->SetContent(L"/ 1");
+                                    maxNum->SetContent("/ 1");
                                 }
                             }
                             auto goBtn = new ui::Button; {
                                 goBtn->AddTo(gotoBox);
                                 goBtn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                                goBtn->SetCaption(L"跳转");
+                                goBtn->SetCaption("跳转");
                             }
                         }
                     }
@@ -351,13 +351,13 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
 void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
 {
     for (auto e : {l3, l2, l1, r1, r2, r3}) {
-        e->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+        e->SetClickCallback(UI_CALLBACK{
             int d = ToNum(name);
             cur->SetContent(ToStr(ToNum(cur->GetContent()) + d));
             UpdateButton();
         });
     }
-    backBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    backBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new MainPage);
     });
 }
@@ -408,10 +408,10 @@ void eea::MainPage::Load(ui::Screen *screen) noexcept
                     auto label = new ui::Label; {
                         label->AddTo(head);
                         label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                        Atstr prefix = L"欢迎您，";
-                        Atstr name = account["name"];
+                        std::string prefix = "欢迎您，";
+                        std::string name = account["name"];
                         if (name == "") {
-                            name = L"【未设置姓名】";
+                            name = "【未设置姓名】";
                         }
                         label->SetContent(prefix + name);
                     }
@@ -424,14 +424,14 @@ void eea::MainPage::Load(ui::Screen *screen) noexcept
                 {
                     auto idNum = new ui::Label; {
                         idNum->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                        Atstr prefix = L"学工号：";
+                        std::string prefix = "学工号：";
                         idNum->SetContent(prefix + account.code);
                         idNum->AddTo(feet);
                     }
                     logoutBtn = new ui::Button; {
                         logoutBtn->AddTo(feet);
                         logoutBtn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                        logoutBtn->SetCaption(L"登出");
+                        logoutBtn->SetCaption("登出");
                     }
                 }
             }
@@ -448,25 +448,25 @@ void eea::MainPage::Load(ui::Screen *screen) noexcept
                 }
                 {
                     reserveBtn = new ui::Button; {
-                        reserveBtn->SetCaption(L"预约入校");
+                        reserveBtn->SetCaption("预约入校");
                     }
                     courseBtn = new ui::Button; {
-                        courseBtn->SetCaption(L"课程系统");
+                        courseBtn->SetCaption("课程系统");
                     }
                     libraryBtn = new ui::Button; {
-                        libraryBtn->SetCaption(L"图书馆");
+                        libraryBtn->SetCaption("图书馆");
                     }
                     canteenBtn = new ui::Button; {
-                        canteenBtn->SetCaption(L"在线饭堂");
+                        canteenBtn->SetCaption("在线饭堂");
                     }
                     mailBtn = new ui::Button; {
-                        mailBtn->SetCaption(L"私信");
+                        mailBtn->SetCaption("私信");
                     }
                     nolifyBtn = new ui::Button; {
-                        nolifyBtn->SetCaption(L"通知与公示");
+                        nolifyBtn->SetCaption("通知与公示");
                     }
                     accBtn = new ui::Button; {
-                        accBtn->SetCaption(L"帐户权限管理");
+                        accBtn->SetCaption("帐户权限管理");
                     }
                     for (auto btn : {reserveBtn, courseBtn, libraryBtn, canteenBtn, mailBtn, nolifyBtn, accBtn}) {
                         btn->AddTo(ver);
@@ -480,28 +480,28 @@ void eea::MainPage::Load(ui::Screen *screen) noexcept
 
 void eea::MainPage::Logic(ui::Screen *screen) noexcept
 {
-    logoutBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    logoutBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new Login);
     });
-    reserveBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    reserveBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new lab::EnterReserve);
     });
-    courseBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    courseBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new lab::EnterCourse);
     });
-    libraryBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    libraryBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new vio::EnterLibrary);
     });
-    canteenBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    canteenBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new EnterCanteen);
     });
-    mailBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    mailBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new EnterMailSystem);
     });
-    nolifyBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    nolifyBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new vio::EnterNolify);
     });
-    accBtn->SetClickCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    accBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new EnterAccManage);
     });
 }
@@ -513,12 +513,30 @@ void eea::MainPage::Ready(ui::Screen *screen) noexcept
 
 void eea::Retry::Load(ui::Screen *screen) noexcept
 {
-    ;
+    auto vbox = new ui::VerticalBox; {
+        vbox->AddTo(screen);
+        vbox->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+        vbox->SetGap(50);
+    }
+    {
+        auto label = new ui::Label; {
+            label->AddTo(vbox);
+            label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            label->SetContent("服务器未响应，请检查后重试");
+        }
+        btn = new ui::Button; {
+            btn->AddTo(vbox);
+            btn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            btn->SetCaption("确定");
+        }
+    }
 }
 
 void eea::Retry::Logic(ui::Screen *screen) noexcept
 {
-    ;
+    btn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new EnterSystem);
+    });
 }
 
 void eea::Retry::Ready(ui::Screen *screen) noexcept
@@ -528,15 +546,142 @@ void eea::Retry::Ready(ui::Screen *screen) noexcept
 
 void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
 {
-    ;
+    auto mar = new ui::Margin; {
+        screen->Add(mar);
+        mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        mar->SetMargin(80, 80, 200, 200);
+    }
+    {
+        auto verBox = new ui::VerticalBox; {
+            verBox->AddTo(mar);
+        }
+        {
+            auto btnBox = new ui::HorizontalBox; {
+                btnBox->AddTo(verBox);
+                btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                btnBox->SetVSize(80);
+            }
+            {
+                backBtn = new ui::Button; {
+                    backBtn->AddTo(btnBox);
+                    backBtn->SetCaption("返回主页");
+                    backBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                }
+            }
+            ringCenter = new ui::Center; {
+                ringCenter->AddTo(verBox);
+                ringCenter->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            }
+            {
+                ring = new ui::LoadingRing; {
+                    ring->AddTo(ringCenter);
+                    ring->SetSize(80, 80);
+                }
+            }
+            list = new ui::HorizontalBox; {
+                list->AddTo(verBox);
+                list->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                list->Hide();
+            }
+            {
+                code = new ui::VerticalBox; {
+                    code->AddTo(list);
+                    code->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                }
+                {
+                    auto label = new ui::Label; {
+                        label->AddTo(code);
+                        label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        label->SetContent("学工号");
+                    }
+                }
+                access = new ui::VerticalBox; {
+                    access->AddTo(list);
+                    access->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                }
+                {
+                    auto label = new ui::Label; {
+                        label->AddTo(access);
+                        label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        label->SetContent("权限");
+                    }
+                }
+                tags = new ui::VerticalBox; {
+                    tags->AddTo(list);
+                    tags->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                }
+                {
+                    auto label = new ui::Label; {
+                        label->AddTo(tags);
+                        label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        label->SetContent("标签");
+                    }
+                }
+            }
+        }
+    }
 }
 
 void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
 {
-    ;
+    backBtn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new MainPage);
+    });
 }
 
 void eea::EnterAccManage::Ready(ui::Screen *screen) noexcept
 {
-    ;
+    ring->Start();
+    Listen(new trm::Sender({trm::rqs::LIST_ACCOUNT, username, password}), SD_CALLBACK{
+        if (reply[0] == trm::rpl::TIME_OUT) {
+            SwitchTo(new Retry);
+        } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+            ringCenter->Hide();
+            auto center = new ui::Center; {
+                center->AddTo(list);
+                center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            }
+            {
+                auto label = new ui::Label; {
+                    label->AddTo(center);
+                    label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    label->SetContent("对不起，您没有查看系统内帐户的权限");
+                }
+            }
+        } else {
+            ringCenter->Hide();
+            list->Show();
+            for (trm::Account acc : reply) {
+                ui::Label *label;
+                label = new ui::Label; {
+                    label->AddTo(code);
+                    label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    label->SetContent(acc.code);
+                }
+                label = new ui::Label; {
+                    label->AddTo(access);
+                    label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    std::string cnt;
+                    for (auto each : acc.access) {
+                        cnt += each;
+                        cnt += "; ";
+                    }
+                    label->SetContent(cnt);
+                }
+                label = new ui::Label; {
+                    label->AddTo(tags);
+                    label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    std::string cnt;
+                    for (auto each : acc.tags) {
+                        cnt += " [";
+                        cnt += each.first;
+                        cnt += ": ";
+                        cnt += each.second;
+                        cnt += "]; ";
+                    }
+                    label->SetContent(cnt);
+                }
+            }
+        }
+    });
 }

@@ -1,18 +1,10 @@
 #include "subpages/page_header.hpp"
+#include "page_header.hpp"
 
-clpg::Atstr clpg::PageBase::username = "";
-clpg::Atstr clpg::PageBase::password = "";
+std::string clpg::PageBase::username = "";
+std::string clpg::PageBase::password = "";
 trm::Account clpg::PageBase::account;
 bool clpg::PageBase::initialized = false;
-
-clpg::Atstr::operator std::string() const
-{
-    std::string result;
-    for (auto c : this->toUtf8()) {
-        result.push_back(c);
-    }
-    return std::move(result);
-}
 
 clpg::PageBase::PageBase()
 {
@@ -31,36 +23,42 @@ clpg::PageBase *clpg::PageBase::RunOn(ui::Screen *screen) noexcept
     Ready(screen);
     sf::Clock clock;
     while (screen->IsOpen()) {
-        screen->Tick();
         if (nextPage) {
             break;
         }
         Tick(screen);
         if (clock.getElapsedTime().asMilliseconds() >= interval) {
+            std::vector<trm::Sender *> toDelete;
             for (auto [sender, callback] : queue) {
-                auto reply = sender->Poll();
-                if (reply.first) {
-                    callback(sender->GetID(), reply.second);
+                auto [success, reply] = sender->Poll();
+                if (success) {
+                    callback(sender->GetID(), reply);
+                    toDelete.push_back(sender);
                 } else {
                     if (sender->GetCount() > limit) {
                         callback(sender->GetID(), {trm::rpl::TIME_OUT});
+                        toDelete.push_back(sender);
                     }
                 }
             }
-            std::vector toDelete = {queue.end()};
-            for (auto iter = queue.begin(); iter != queue.end(); ++iter) {
-                if (iter->first->GetCount() > limit) {
-                    toDelete.push_back(iter);
-                }
-            }
             for (auto each : toDelete) {
-                if (each != queue.end()) {
-                    queue.erase(each);
+                std::vector itList = {queue.end()};
+                for (auto iter = queue.begin(); iter != queue.end(); ++iter) {
+                    if (iter->first == each) {
+                        itList.push_back(iter);
+                    }
                 }
+                for (auto iter : itList) {
+                    if (iter != queue.end()){
+                        queue.erase(iter);
+                    }
+                }
+                delete each;
             }
             TickAtSpecificIntervals(screen);
             clock.restart();
         }
+        screen->Tick();
         screen->Draw();
     }
     Unload(screen);
@@ -71,7 +69,7 @@ clpg::PageBase *clpg::PageBase::RunOn(ui::Screen *screen) noexcept
     return nextPage;
 }
 
-std::pair<int, trm::Information> clpg::PageBase::WaitServer(ui::Screen *screen, const trm::Information &information, const Atstr &tips) noexcept
+std::pair<int, trm::Information> clpg::PageBase::WaitServer(ui::Screen *screen, const trm::Information &information, const std::string &tips) noexcept
 {
     bool pass = false;
     trm::Information result;
@@ -83,26 +81,26 @@ std::pair<int, trm::Information> clpg::PageBase::WaitServer(ui::Screen *screen, 
         load->SetText(tips);}
     auto sender = trm::Sender(information);
     
-    load->SetCountCallback([&](const Atstr &name, const sf::Event &event) -> void {
-        auto reply = sender.Poll();
-        if (reply.first) {
+    load->SetCountCallback([&](const std::string &name, const sf::Event &event) -> void {
+        auto [success, reply] = sender.Poll();
+        if (success) {
             pass = true;
-            result = reply.second;
+            result = reply;
         }
     });
-    load->SetFinishedCallback([&](const Atstr &name, const sf::Event &event) -> void {
+    load->SetFinishedCallback([&](const std::string &name, const sf::Event &event) -> void {
         finished = true;
     });
     
     load->Start();
 
     while (screen->IsOpen()) {
-        screen->Tick();
         if (pass) {
             return {1, std::move(result)};
         } else if (finished) {
             return {0, {}};
         }
+        screen->Tick();
         screen->Draw();
     }
     return {-1, {}};
