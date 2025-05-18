@@ -9,3 +9,8 @@
 /*.py
 debug/*.bat
 debug/debug.exe
+makefile
+/source/ui.o
+/debug/debug.o
+/debug/debug_ui.exe
+/debug/debug.cpp

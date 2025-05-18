@@ -707,6 +707,7 @@ struct CourseInformation {
     std::string courseName;
     std::string teacher;    // 上课老师
     std::string location;   // 上课地点
+    //std::string time;      // 上课时间
     std::vector<std::string> weeks; // 上课周数
     CourseInformation(const std::string & _name,const std::string &_teacher, const std::string &_location, const std::vector<std::string> &_weeks) noexcept :
         courseName(_name), teacher(_teacher), location(_location), weeks(_weeks) {}
