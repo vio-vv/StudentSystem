@@ -21,8 +21,6 @@
 
 int main() noexcept
 {
-    auto log = dat::DataBase(DATA_PATH)["log"];
-
     std::cout << "Server started." << std::endl;
     sf::Clock interval;
     auto &ssys = SSys::Get();
@@ -64,6 +62,7 @@ int main() noexcept
                 REGISTER(trm::rqs::CLEAR_TAG, ssys.ClearTag)
                 REGISTER(trm::rqs::RESET_ACCOUNT_AND_ACCESS, ssys.ResetAccountAndAccess)
                 REGISTER(trm::rqs::LIST_ACCOUNT, ssys.ListAccount)
+                REGISTER(trm::rqs::GET_ACCOUNT_DETAIL, ssys.GetAccountDetail)
 
                 /*******************************
                  * @attention LAB 请在此处添加。*

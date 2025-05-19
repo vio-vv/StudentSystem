@@ -54,12 +54,27 @@ protected:
 class EnterAccManage : public PageBase {
 private:
     ui::Button *backBtn = nullptr;
+    ui::Button *refreshBtn = nullptr;
+
+    ui::Center *labelCenter = nullptr;
+    ui::Label *resultLabel = nullptr;
+
     ui::Center *ringCenter = nullptr;
-    ui::LoadingRing *ring = nullptr;
-    ui::HorizontalBox *list = nullptr;
-    ui::VerticalBox *code = nullptr;
-    ui::VerticalBox *access = nullptr;
-    ui::VerticalBox *tags = nullptr;
+
+    ui::VerticalScrollingBox *list = nullptr;
+
+    ui::VerticalBox *detailBox = nullptr;
+
+    ui::Control::Callback refresh = ui::Control::DO_NOTHING;
+protected:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+
+class AccountDelail : public PageBase {
+private:
+    ;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;

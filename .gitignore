@@ -14,3 +14,5 @@ makefile
 /debug/debug.o
 /debug/debug_ui.exe
 /debug/debug.cpp
+/client/space/
+/server/space/

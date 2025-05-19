@@ -165,13 +165,22 @@ namespace rqs{
      */
     const std::string RESET_ACCOUNT_AND_ACCESS = _AS_"RESET_ACCOUNT_AND_ACCESS";
     /**
-     * @brief 列出所有帐户。
+     * @brief 列出所有帐户的学工号。
      * @param code 学工号
      * @param password 密码
-     * @return 帐户列表，或者 ACCESS_DENIED @see @struct Account
+     * @return 学工号列表，或者 ACCESS_DENIED
      * @note ACCESS REQUIRED LIST_ACCOUNT
      */
     const std::string LIST_ACCOUNT = _AS_"LIST_ACCOUNT";
+    /**
+     * @brief 查看某一帐户的详细信息。
+     * @param code 学工号
+     * @param password 密码
+     * @param codeToQuery 待查询帐户的学工号
+     * @return Account 对象，包含帐户信息，或者 ACCESS_DENIED @see @struct Account
+     * @note ACCESS REQUIRED LIST_ACCOUNT
+     */
+    const std::string GET_ACCOUNT_DETAIL = _AS_"GET_ACCOUNT_DETAIL";
 #pragma endregion
 
 #pragma region 课程系统

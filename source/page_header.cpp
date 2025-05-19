@@ -106,7 +106,7 @@ std::pair<int, trm::Information> clpg::PageBase::WaitServer(ui::Screen *screen, 
     return {-1, {}};
 }
 
-void clpg::PageBase::Listen(trm::Sender *sender, Callback &&callback) noexcept
+void clpg::PageBase::Listen(trm::Sender *sender, const Callback &callback) noexcept
 {
     queue.push_back({sender, callback});
 }

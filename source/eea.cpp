@@ -1,6 +1,21 @@
 #include "client_pages.hpp"
 #include "eea.hpp"
 
+void eea::AccountDelail::Load(ui::Screen *screen) noexcept
+{
+    ;
+}
+
+void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
+{
+    ;
+}
+
+void eea::AccountDelail::Ready(ui::Screen *screen) noexcept
+{
+    ;
+}
+
 void eea::EnterCanteen::Load(ui::Screen *screen) noexcept
 {
     ;
@@ -191,7 +206,7 @@ void eea::Forget::Ready(ui::Screen *screen) noexcept
 void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
 {
     auto mar = new ui::Margin; {
-        screen->Add(mar);
+        mar->AddTo(screen);
         mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         mar->SetMargin(80, 80, 200, 200);
     }
@@ -522,7 +537,7 @@ void eea::Retry::Load(ui::Screen *screen) noexcept
         auto label = new ui::Label; {
             label->AddTo(vbox);
             label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-            label->SetContent("服务器未响应，请检查后重试");
+            label->SetContent("服务端未响应，请检查后重试");
         }
         btn = new ui::Button; {
             btn->AddTo(vbox);
@@ -547,74 +562,86 @@ void eea::Retry::Ready(ui::Screen *screen) noexcept
 void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
 {
     auto mar = new ui::Margin; {
-        screen->Add(mar);
+        mar->AddTo(screen);
         mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         mar->SetMargin(80, 80, 200, 200);
     }
     {
-        auto verBox = new ui::VerticalBox; {
-            verBox->AddTo(mar);
+        auto hor = new ui::HorizontalBox; {
+            hor->AddTo(mar);
         }
         {
-            auto btnBox = new ui::HorizontalBox; {
-                btnBox->AddTo(verBox);
-                btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                btnBox->SetVSize(80);
+            auto verBox = new ui::VerticalBox; {
+                verBox->AddTo(hor);
+                verBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                verBox->SetHSize(1);
+                verBox->SetGap(50);
             }
             {
-                backBtn = new ui::Button; {
-                    backBtn->AddTo(btnBox);
-                    backBtn->SetCaption("返回主页");
-                    backBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                }
-            }
-            ringCenter = new ui::Center; {
-                ringCenter->AddTo(verBox);
-                ringCenter->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-            }
-            {
-                ring = new ui::LoadingRing; {
-                    ring->AddTo(ringCenter);
-                    ring->SetSize(80, 80);
-                }
-            }
-            list = new ui::HorizontalBox; {
-                list->AddTo(verBox);
-                list->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                list->Hide();
-            }
-            {
-                code = new ui::VerticalBox; {
-                    code->AddTo(list);
-                    code->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                auto btnBox = new ui::HorizontalBox; {
+                    btnBox->AddTo(verBox);
+                    btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    btnBox->SetVSize(80);
                 }
                 {
-                    auto label = new ui::Label; {
-                        label->AddTo(code);
-                        label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                        label->SetContent("学工号");
+                    backBtn = new ui::Button; {
+                        backBtn->AddTo(btnBox);
+                        backBtn->SetCaption("返回主页");
+                        backBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    }
+                    refreshBtn = new ui::Button; {
+                        refreshBtn->AddTo(btnBox);
+                        refreshBtn->SetCaption("刷新");
+                        refreshBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     }
                 }
-                access = new ui::VerticalBox; {
-                    access->AddTo(list);
-                    access->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                labelCenter = new ui::Center; {
+                    labelCenter->AddTo(verBox);
+                    labelCenter->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    labelCenter->Hide();
                 }
                 {
-                    auto label = new ui::Label; {
-                        label->AddTo(access);
-                        label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                        label->SetContent("权限");
+                    resultLabel = new ui::Label; {
+                        resultLabel->AddTo(labelCenter);
+                        resultLabel->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                     }
                 }
-                tags = new ui::VerticalBox; {
-                    tags->AddTo(list);
-                    tags->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                ringCenter = new ui::Center; {
+                    ringCenter->AddTo(verBox);
+                    ringCenter->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    ringCenter->Hide();
+                }
+                {
+                    auto ring = new ui::LoadingRing; {
+                        ring->AddTo(ringCenter);
+                        ring->SetSize(80, 80);
+                        ring->Start();
+                    }
+                }
+                list = new ui::VerticalScrollingBox; {
+                    list->AddTo(verBox);
+                    list->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    list->SetInsideBoxScrollable(true);
+                }
+                {
+                    ;
+                }
+            }
+            detailBox = new ui::VerticalBox; {
+                detailBox->AddTo(hor);
+                detailBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                detailBox->SetHSize(2);
+            }
+            {
+                auto center = new ui::Center; {
+                    center->AddTo(detailBox);
+                    center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 }
                 {
                     auto label = new ui::Label; {
-                        label->AddTo(tags);
+                        label->AddTo(center);
                         label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                        label->SetContent("标签");
+                        label->SetContent("选择一个帐户，\n在这里查看详细信息");
                     }
                 }
             }
@@ -624,64 +651,82 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
 
 void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
 {
+    static auto print = [&](const trm::Account &acc){
+        detailBox->Add(new ui::Label("学工号：" + acc.code));
+    };
+    auto detailBtnCallback = UI_CALLBACK{
+        static bool on = false;
+        if (on) return;
+        on = true;
+        detailBox->FreeAll();
+        auto center = new ui::Center; {
+            center->AddTo(detailBox);
+            center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        }
+        {
+            auto ring = new ui::LoadingRing; {
+                ring->AddTo(center);
+                ring->SetSize(80, 80);
+                ring->Start();
+            }
+        }
+        Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_DETAIL, username, password, name}), SD_CALLBACK{
+            center->FreeAll();
+            if (reply[0] == trm::rpl::TIME_OUT) {
+                center->Add(new ui::Label("服务端未响应，请检查后重试"));
+            } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                center->Add(new ui::Label("对不起，您没有查看系统内帐户的权限"));
+            } else {
+                detailBox->FreeAll();
+                print(trm::Account(reply[0]));
+            }
+            on = false;
+        });
+    };
     backBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new MainPage);
+    });
+    refreshBtn->SetClickCallback(refresh = UI_CALLBACK{
+        refreshBtn->Enable(false);
+        list->FreeAll();
+        auto label = new ui::Label; {
+            label->AddTo(list);
+            label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            label->SetContent("-- 帐户列表 --");
+        }
+
+        list->Hide();
+        labelCenter->Hide();
+        ringCenter->Show();
+        Listen(new trm::Sender({trm::rqs::LIST_ACCOUNT, username, password}), SD_CALLBACK{
+            list->Hide();
+            labelCenter->Hide();
+            ringCenter->Hide();
+            if (reply[0] == trm::rpl::TIME_OUT) {
+                labelCenter->Show();
+                resultLabel->SetContent("服务端未响应，请检查后刷新重试");
+            } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                labelCenter->Show();
+                resultLabel->SetContent("对不起，您没有查看系统内帐户的权限");
+            } else {
+                list->Show();
+                for (auto acc : reply) {
+                    auto btn = new ui::Button; {
+                        btn->AddTo(list);
+                        btn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        btn->SetName(acc);
+                        btn->SetCaption(acc);
+                        btn->SetClickCallback(detailBtnCallback);
+                    }
+                }
+            }
+
+            refreshBtn->Enable();
+        });
     });
 }
 
 void eea::EnterAccManage::Ready(ui::Screen *screen) noexcept
 {
-    ring->Start();
-    Listen(new trm::Sender({trm::rqs::LIST_ACCOUNT, username, password}), SD_CALLBACK{
-        if (reply[0] == trm::rpl::TIME_OUT) {
-            SwitchTo(new Retry);
-        } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
-            ringCenter->Hide();
-            auto center = new ui::Center; {
-                center->AddTo(list);
-                center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-            }
-            {
-                auto label = new ui::Label; {
-                    label->AddTo(center);
-                    label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                    label->SetContent("对不起，您没有查看系统内帐户的权限");
-                }
-            }
-        } else {
-            ringCenter->Hide();
-            list->Show();
-            for (trm::Account acc : reply) {
-                ui::Label *label;
-                label = new ui::Label; {
-                    label->AddTo(code);
-                    label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                    label->SetContent(acc.code);
-                }
-                label = new ui::Label; {
-                    label->AddTo(access);
-                    label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                    std::string cnt;
-                    for (auto each : acc.access) {
-                        cnt += each;
-                        cnt += "; ";
-                    }
-                    label->SetContent(cnt);
-                }
-                label = new ui::Label; {
-                    label->AddTo(tags);
-                    label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                    std::string cnt;
-                    for (auto each : acc.tags) {
-                        cnt += " [";
-                        cnt += each.first;
-                        cnt += ": ";
-                        cnt += each.second;
-                        cnt += "]; ";
-                    }
-                    label->SetContent(cnt);
-                }
-            }
-        }
-    });
+    refresh("", {});
 }

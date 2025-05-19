@@ -300,14 +300,19 @@ trm::Information ssys::AccountAndAccess::ListAccount(const trm::Information &inf
         return {trm::rpl::ACCESS_DENIED};
     }
 
-    auto list = base[ACCOUNTS];
+    return base[ACCOUNTS].List();
+}
 
-    trm::Information result;
-    for (auto [_, accountBase] : list) {
-        result.push_back(accountBase);
+trm::Information ssys::AccountAndAccess::GetAccountDetail(const trm::Information &information) noexcept
+{
+    assert(information[0] == trm::rqs::GET_ACCOUNT_DETAIL); // Procession not matched.
+
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::LIST_ACCOUNT});
+    if (reply[0] != trm::rpl::YES) {
+        return {trm::rpl::ACCESS_DENIED};
     }
 
-    return std::move(result);
+    return {base[ACCOUNTS][information[3]]};
 }
 
 ssys::AccountAndAccess::AccountAndAccess() noexcept

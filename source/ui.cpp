@@ -722,6 +722,21 @@ void ui::Button::SetFocusBackColor(const sf::Color &color) noexcept
     focusBackColor = color;
 }
 
+void ui::Button::SetDisabledOutlineColor(const sf::Color &color) noexcept
+{
+    disabledOutlineColor = color;
+}
+
+void ui::Button::SetDisabledBackColor(const sf::Color &color) noexcept
+{
+    disabledBackColor = color;
+}
+
+void ui::Button::Enable(bool flag) noexcept
+{
+    enabled = flag;
+}
+
 void ui::Button::SetFont(const std::string &fontFile) noexcept
 {
     label->SetFont(fontFile);
@@ -791,6 +806,7 @@ std::string ui::Control::convert(const sf::String &str)
 
 void ui::Button::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
 {
+    if (!enabled) return;
     if (event.type == sf::Event::MouseMoved) {
         if (IsInside(event.mouseMove.x, event.mouseMove.y)) {
             if (!entered) {
@@ -817,7 +833,7 @@ void ui::Button::Process(const sf::Event &event, const sf::RenderWindow &screen)
             if (pressed) {
                 SetPressed(false);
                 pressUpCallback(name, event);
-                if (IsInside(event.mouseButton.x, event.mouseButton.y)) {
+                if (IsInside(event.mouseButton.x, event.mouseButton.y)) {    
                     clickCallback(name, event);
                 }
             }
@@ -826,16 +842,21 @@ void ui::Button::Process(const sf::Event &event, const sf::RenderWindow &screen)
 }
 
 void ui::Button::Draw(sf::RenderWindow &screen) noexcept
-{
-    if (entered) {
-        rect->SetOutlineColor(focusOutlineColor);
+{   
+    if (enabled) {
+        if (entered) {
+            rect->SetOutlineColor(focusOutlineColor);
+        } else {
+            rect->SetOutlineColor(flatOutlineColor);
+        }
+        if (pressed) {
+            rect->SetFillColor(focusBackColor);
+        } else {
+            rect->SetFillColor(flatBackColor);
+        }
     } else {
-        rect->SetOutlineColor(flatOutlineColor);
-    }
-    if (pressed) {
-        rect->SetFillColor(focusBackColor);
-    } else {
-        rect->SetFillColor(flatBackColor);
+        rect->SetFillColor(disabledBackColor);
+        rect->SetOutlineColor(disabledOutlineColor);
     }
     layer.Draw(screen);
 

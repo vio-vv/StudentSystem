@@ -3,7 +3,7 @@
 void lab::EnterCourse::Load(ui::Screen *screen) noexcept
 {
     auto mar=new ui::Margin();{
-        screen->Add(mar);
+        mar->AddTo(screen);
         mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         mar->SetMargin(80, 80, 200, 200);
     }
@@ -73,7 +73,7 @@ void lab::EnterCourse::Ready(ui::Screen *screen) noexcept
 void lab::CourseList::Load(ui::Screen *screen) noexcept
 {
     auto mar = new ui::Margin; {
-        screen->Add(mar);
+        mar->AddTo(screen);
         mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         mar->SetMargin(80, 80, 200, 200);
     }
@@ -180,7 +180,7 @@ void lab::CourseList::Ready(ui::Screen *screen) noexcept
 void lab::AddAndDelete::Load(ui::Screen *screen) noexcept
 {
     auto mar = new ui::Margin; {
-        screen->Add(mar);
+        mar->AddTo(screen);
         mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         mar->SetMargin(200, 200, 200, 200);
     }

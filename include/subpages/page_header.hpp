@@ -32,8 +32,10 @@ protected:
     static std::string username;
     static std::string password;
     static trm::Account account;
+
+    trm::Information argvs;
     
-    void Listen(trm::Sender *sender, Callback &&callback) noexcept;
+    void Listen(trm::Sender *sender, const Callback &callback) noexcept;
     void SwitchTo(PageBase *page);
     void SetInterval(int newInterval) noexcept;
     void SetLimit(int newLimit) noexcept;
@@ -64,7 +66,7 @@ private:
 protected:
     void Load(ui::Screen *screen) noexcept = 0;
     void Logic(ui::Screen *screen) noexcept = 0;
-    void Ready(ui::Screen *screen) noexcept = 0;
+    void Ready(ui::Screen *screen) noexcept = 0; // ! 复制后，这些 = 0 要删掉的
 };
 
 }

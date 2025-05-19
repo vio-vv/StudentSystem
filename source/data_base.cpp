@@ -39,7 +39,7 @@ void dat::DataBase::Remove() const noexcept
     }
     if (file::CheckDirectoryExists(space)) {
         if (!file::DeleteDirectory(space)) {
-            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete file:" << space << std::endl;
+            std::cout << __FILE__ << ':' << __LINE__ << ":Failed to delete directory:" << space << std::endl;
             fail = true;
             return;
         }

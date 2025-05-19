@@ -949,6 +949,12 @@ public:
         SetFont(FONT_FILE_PATH);
         UpdateInQueue(true);
     }
+    Label(const std::string &content) noexcept
+    {
+        SetFont(FONT_FILE_PATH);
+        UpdateInQueue(true);
+        SetContent(content);
+    }
     const std::string &GetContent() const noexcept { return content; }
     bool              GetError()   const noexcept { return error; }
 
@@ -1079,11 +1085,11 @@ public:
         layer.Add(label);
         UpdateInQueue(true);
     }
-    void SetEnterCallback(Callback &&function)     noexcept { enterCallback = function; }
-    void SetLeaveCallback(Callback &&function)     noexcept { leaveCallback = function; }
-    void SetPressDownCallback(Callback &&function) noexcept { pressDownCallback = function; }
-    void SetPressUpCallback(Callback &&function)   noexcept { pressUpCallback = function; }
-    void SetClickCallback(Callback &&function)     noexcept { clickCallback = function; }
+    void SetEnterCallback(const Callback &function)     noexcept { enterCallback = function; }
+    void SetLeaveCallback(const Callback &function)     noexcept { leaveCallback = function; }
+    void SetPressDownCallback(const Callback &function) noexcept { pressDownCallback = function; }
+    void SetPressUpCallback(const Callback &function)   noexcept { pressUpCallback = function; }
+    void SetClickCallback(const Callback &function)     noexcept { clickCallback = function; }
     const std::string GetCaption() const noexcept { return label->GetContent(); }
     bool              GetEntered() const noexcept { return entered; }
     bool              GetPressed() const noexcept { return pressed; }
@@ -1106,11 +1112,14 @@ public:
      * @brief 样式属性控制接口。*
      * *************************
      */
-    void SetFontColor(const sf::Color &color)           noexcept;
-    void SetFlatOutlineColor(const sf::Color &color)    noexcept;
-    void SetFocusOutlineColor(const sf::Color &color)   noexcept;
-    void SetFlatBackColor(const sf::Color &color)       noexcept;
-    void SetFocusBackColor(const sf::Color &color)      noexcept;
+    void SetFontColor(const sf::Color &color)            noexcept;
+    void SetFlatOutlineColor(const sf::Color &color)     noexcept;
+    void SetFocusOutlineColor(const sf::Color &color)    noexcept;
+    void SetDisabledOutlineColor(const sf::Color &color) noexcept;
+    void SetFlatBackColor(const sf::Color &color)        noexcept;
+    void SetFocusBackColor(const sf::Color &color)       noexcept;
+    void SetDisabledBackColor(const sf::Color &color)    noexcept;
+    void Enable(bool flag = true)                        noexcept;
 
     /************************************
      * @brief 实现了的和待实现的抽象方法。*
@@ -1149,8 +1158,11 @@ protected:
     bool pressed = false;
     sf::Color flatOutlineColor  = sf::Color::White;
     sf::Color focusOutlineColor = sf::Color::Blue;
+    sf::Color disabledOutlineColor = sf::Color::Transparent;
     sf::Color flatBackColor     = sf::Color::Transparent;
     sf::Color focusBackColor    = sf::Color::Blue;
+    sf::Color disabledBackColor  = sf::Color::Transparent;
+    bool enabled = true;
 
     Callback enterCallback = DO_NOTHING;
     Callback leaveCallback = DO_NOTHING;
@@ -1177,10 +1189,10 @@ public:
         layer.Add(label);
         UpdateInQueue(true);
     }
-    void SetBeginCallback(Callback &&function)  noexcept { beginCallback = function; }
-    void SetInputCallback(Callback &&function)  noexcept { inputCallback = function; }
-    void SetEndCallback(Callback &&function)    noexcept { endCallback = function; }
-    void SetExceedLimitCallback(Callback &&function) noexcept { exceedLimitCallback = function; }
+    void SetBeginCallback(const Callback &function)  noexcept { beginCallback = function; }
+    void SetInputCallback(const Callback &function)  noexcept { inputCallback = function; }
+    void SetEndCallback(const Callback &function)    noexcept { endCallback = function; }
+    void SetExceedLimitCallback(const Callback &function) noexcept { exceedLimitCallback = function; }
     const std::string GetText() const noexcept { return convert(textCopy); }
     bool GetInputting()         const noexcept { return inputting; }
     bool GetError()             const noexcept { return button->GetError() || label->GetError(); }
@@ -1294,7 +1306,7 @@ public:
         layer.Add(background);
         layer.Add(front);
     }
-    void SetEnteredCallback(Callback &&function) noexcept { enteredCallback = function; }
+    void SetEnteredCallback(const Callback &function) noexcept { enteredCallback = function; }
     void SetLeaveCallback  (Callback function) noexcept { leaveCallback = function; }
     void SetScrollCallback (Callback function) noexcept { scrollCallback = function; }
     void SetDragCallback (Callback function) noexcept { dragCallback = function; }
@@ -1689,7 +1701,7 @@ protected:
 
 class Timer : public Control {
 public:
-    void SetCallback(Callback &&function) noexcept { callback = function; }
+    void SetCallback(const Callback &function) noexcept { callback = function; }
 
     /*******************************************
      * @brief 约定的常量和数据类型以及外工具方法。*
@@ -1820,8 +1832,8 @@ public:
         });
         UpdateInQueue(true);
     }
-    void SetCountCallback(Callback &&function) noexcept { countCallback = function; }
-    void SetFinishedCallback(Callback &&function) noexcept { finishedCallback = function; }
+    void SetCountCallback(const Callback &function) noexcept { countCallback = function; }
+    void SetFinishedCallback(const Callback &function) noexcept { finishedCallback = function; }
     int  GetCount()   const noexcept { return count; }
     bool GetError()   const noexcept { return label->GetError(); }
 
