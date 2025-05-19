@@ -356,7 +356,7 @@ namespace rqs{
     /**
      * @brief 查询可预约时间
      * @param date 日期 @see @struct Date
-     * @return 可预约时间列表
+     * @return 可预约时间列表 @see @struct ReserveTime
     */
     const std::string CHECK_TIME = _AS_"CHECK_TIME";
     /**
@@ -733,16 +733,7 @@ struct IdAndPhone
     IdAndPhone(const std::string &content) noexcept;
     operator std::string() const noexcept;
 };
-//暂时还没用到
-struct reserveServer
-{
-    std::string leftNumber; // 剩余名额
-    std::vector<std::string> leftTime; // 剩余时间
-    reserveServer(const std::string &_leftNumber,const std::vector<std::string> &_leftTime) noexcept :
-        leftNumber(_leftNumber),leftTime(_leftTime) {}
-    reserveServer(const std::string &content) noexcept;
-    operator std::string() const noexcept;
-};
+
 
 struct ReserveDate
 {

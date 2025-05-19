@@ -21,7 +21,7 @@ trm::Information ssys::ReserveSystem::CheckTime(const trm::Information& informat
     {
         if(std::string(reserve)!="0")
         {
-            timeList.push_back(time);//将可预约时间加入列表
+            timeList.push_back(trm::Combine({time,reserve,std::string(reserve)},':'));//将可预约时间加入列表
         }
     }
     return timeList; 
