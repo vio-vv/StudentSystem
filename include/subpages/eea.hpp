@@ -66,6 +66,8 @@ private:
     ui::VerticalScrollingBox *detailBox = nullptr;
     bool detailCalling = false;
 
+    ui::Button *newBtn = nullptr;
+
     ui::Control::Callback refresh = ui::Control::DO_NOTHING;
 protected:
     void Load(ui::Screen *screen) noexcept;
@@ -75,7 +77,21 @@ protected:
 
 class AccountDelail : public PageBase {
 private:
-    ;
+    ui::Button *backBtn = nullptr;
+
+    ui::InputBox *userInput = nullptr;
+    ui::InputBox* paswInput = nullptr;
+    ui::Button *randPaswBtn = nullptr;
+    ui::Label *limitTips = nullptr;
+
+    ui::HorizontalBox *accessBox = nullptr;
+    int columnNum = 3;
+    std::function<void ()> reorganizeAccessBox = [](){};
+    ui::Button *columnAdd = nullptr;
+    ui::Button *columnDel = nullptr;
+    std::vector<ui::VerticalBox *> vers;
+
+    ui::Button *okBtn = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;

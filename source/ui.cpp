@@ -307,7 +307,7 @@ void ui::Container::Process(const sf::Event &event, const sf::RenderWindow &scre
     }
 }
 
-void ui::Container::Draw(sf::RenderWindow &screen) noexcept
+void ui::Container::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
     for (auto child : *children) {
         if (!child->GetVisible()) continue;
@@ -316,7 +316,7 @@ void ui::Container::Draw(sf::RenderWindow &screen) noexcept
             if (!IsThisInside(child)) continue;
         }
 
-        child->Draw(screen);
+        child->Draw(screen, delta);
     }
 
     DRAW_DEBUG_RECT;
@@ -362,7 +362,7 @@ void ui::Screen::Tick() noexcept
             } else if (event.type == sf::Event::Resized) {
                 SetGlobalSize(Direction::HORIZONTAL, event.size.width);
                 SetGlobalSize(Direction::VERTICAL, event.size.height);
-                sf::FloatRect visibleArea(0.f, 0.f, event.size.width, event.size.height);
+                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
                 screen.setView(sf::View(visibleArea));
             } else {
                 Process(event, screen);
@@ -375,7 +375,8 @@ void ui::Screen::Tick() noexcept
 void ui::Screen::Draw() noexcept
 {
     screen.clear();
-    Container::Draw(screen);
+    Container::Draw(screen, clock.getElapsedTime().asSeconds());
+    clock.restart();
     screen.display();
 }
 
@@ -671,7 +672,7 @@ void ui::Label::SetFontColor(const sf::Color &color) noexcept
     text.setFillColor(fontColor);
 }
 
-void ui::Label::Draw(sf::RenderWindow &screen) noexcept
+void ui::Label::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
     if (!error) {
         screen.draw(text);
@@ -735,6 +736,11 @@ void ui::Button::SetDisabledBackColor(const sf::Color &color) noexcept
 void ui::Button::Enable(bool flag) noexcept
 {
     enabled = flag;
+}
+
+void ui::Button::Disable() noexcept
+{
+    Enable(false);
 }
 
 void ui::Button::SetFont(const std::string &fontFile) noexcept
@@ -841,7 +847,47 @@ void ui::Button::Process(const sf::Event &event, const sf::RenderWindow &screen)
     }
 }
 
-void ui::Button::Draw(sf::RenderWindow &screen) noexcept
+void ui::ToggleButton::SetOn(bool flag) noexcept
+{
+    on = flag;
+}
+
+void ui::ToggleButton::Toggle() noexcept
+{
+    SetOn(!GetOn());
+}
+
+void ui::ToggleButton::SetOnColor(const sf::Color &color) noexcept
+{
+    onColor = color;
+}
+
+void ui::ToggleButton::Draw(sf::RenderWindow &screen, float delta) noexcept
+{
+    if (enabled) {
+        if (entered) {
+            rect->SetOutlineColor(focusOutlineColor);
+        } else {
+            rect->SetOutlineColor(flatOutlineColor);
+        }
+        if (pressed) {
+            rect->SetFillColor(focusBackColor);
+        } else {
+            rect->SetFillColor(flatBackColor);
+        }
+    } else {
+        rect->SetFillColor(disabledBackColor);
+        rect->SetOutlineColor(disabledOutlineColor);
+    }
+    if (on) {
+        rect->SetFillColor(onColor);
+    }
+    layer.Draw(screen, delta);
+
+    DRAW_DEBUG_RECT;
+}
+
+void ui::Button::Draw(sf::RenderWindow &screen, float delta) noexcept
 {   
     if (enabled) {
         if (entered) {
@@ -858,7 +904,7 @@ void ui::Button::Draw(sf::RenderWindow &screen) noexcept
         rect->SetFillColor(disabledBackColor);
         rect->SetOutlineColor(disabledOutlineColor);
     }
-    layer.Draw(screen);
+    layer.Draw(screen, delta);
 
     DRAW_DEBUG_RECT;
 }
@@ -1043,7 +1089,7 @@ void ui::InputBox::Process(const sf::Event &event, const sf::RenderWindow &scree
     }
 }
 
-void ui::InputBox::Draw(sf::RenderWindow &screen) noexcept
+void ui::InputBox::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
     if (inputting) {
         rect->SetFillColor(inputtingBackColor);
@@ -1052,7 +1098,7 @@ void ui::InputBox::Draw(sf::RenderWindow &screen) noexcept
         rect->SetFillColor(backColor);
         label->SetFontColor(fontColor);
     }
-    layer.Draw(screen);
+    layer.Draw(screen, delta);
 
     if (inputting) {
         if (flickerTimer.getElapsedTime().asMilliseconds() > flickerInterval) {
@@ -1138,7 +1184,7 @@ void ui::Spacer::Update(bool resetMinSize) noexcept
     rect.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
 }
 
-void ui::Spacer::Draw(sf::RenderWindow &screen) noexcept
+void ui::Spacer::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
     screen.draw(rect);
 
@@ -1263,9 +1309,9 @@ void ui::ScrollBar::Process(const sf::Event &event, const sf::RenderWindow &scre
     }
 }
 
-void ui::ScrollBar::Draw(sf::RenderWindow &screen) noexcept
+void ui::ScrollBar::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
-    layer.Draw(screen);
+    layer.Draw(screen, delta);
 
     DRAW_DEBUG_RECT;
 }
@@ -1371,13 +1417,13 @@ void ui::ScrollingBox::Process(const sf::Event &event, const sf::RenderWindow &s
     Container::Process(event, screen);
 }
 
-void ui::ScrollingBox::Draw(sf::RenderWindow &screen) noexcept
+void ui::ScrollingBox::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
-    rect->Draw(screen);
+    rect->Draw(screen, delta);
 
-    Container::Draw(screen);
+    Container::Draw(screen, delta);
 
-    GetBar()->Draw(screen);
+    GetBar()->Draw(screen, delta);
 
     DRAW_DEBUG_RECT;
 }
@@ -1457,7 +1503,7 @@ void ui::Timer::Stop() noexcept
     started = false;
 }
 
-void ui::Timer::Draw(sf::RenderWindow &screen) noexcept {
+void ui::Timer::Draw(sf::RenderWindow &screen, float delta) noexcept {
     if (started && clock.getElapsedTime().asMilliseconds() > interval) { 
         callback(name, {});
         clock.restart();
@@ -1466,9 +1512,9 @@ void ui::Timer::Draw(sf::RenderWindow &screen) noexcept {
     DRAW_DEBUG_RECT;
 }
 
-void ui::LoadingRing::Draw(sf::RenderWindow &screen) noexcept
+void ui::LoadingRing::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
-    Timer::Draw(screen);
+    Timer::Draw(screen, delta);
 
     if (globalSize[Direction::HORIZONTAL] > globalSize[Direction::VERTICAL]) {
         circle.setRadius(globalSize[Direction::VERTICAL] / 2 * (sin(rate) + 1) / 2);
@@ -1480,7 +1526,7 @@ void ui::LoadingRing::Draw(sf::RenderWindow &screen) noexcept
             globalPosition[Direction::VERTICAL] + globalSize[Direction::VERTICAL] / 2 - circle.getRadius());
     }
     if (started) {
-        rate += speed;
+        rate += speed * delta;
     }
     if (rate > 2 * PI) rate = 0;
 
@@ -1564,9 +1610,9 @@ void ui::LoadingRingWithText::Process(const sf::Event &event, const sf::RenderWi
     layer.Process(event, screen);
 }
 
-void ui::LoadingRingWithText::Draw(sf::RenderWindow &screen) noexcept
+void ui::LoadingRingWithText::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
-    layer.Draw(screen);
+    layer.Draw(screen, delta);
 
     DRAW_DEBUG_RECT;
 }
@@ -1612,7 +1658,7 @@ void ui::PictureBox::KeepHeight(unsigned int absolute) noexcept
     SetSize(absolute * originSize.width / originSize.height, absolute);
 }
 
-void ui::PictureBox::Draw(sf::RenderWindow &screen) noexcept
+void ui::PictureBox::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
     if (!error) {
         screen.draw(sprite);

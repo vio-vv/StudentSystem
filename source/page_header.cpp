@@ -4,6 +4,8 @@
 std::string clpg::PageBase::username = "";
 std::string clpg::PageBase::password = "";
 trm::Account clpg::PageBase::account;
+
+std::vector<std::string> clpg::PageBase::argvs;
 bool clpg::PageBase::initialized = false;
 
 clpg::PageBase::PageBase()

@@ -3,17 +3,236 @@
 
 void eea::AccountDelail::Load(ui::Screen *screen) noexcept
 {
-    ;
+    auto mar = new ui::Margin; {
+        mar->AddTo(screen);
+        mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        mar->SetMargin(80, 80, 200, 200);
+    }
+    {
+        auto ver = new ui::VerticalBox; {
+            ver->AddTo(mar);
+            ver->SetGap(100);
+        }
+        {
+            backBtn = new ui::Button; {
+                backBtn->AddTo(ver);
+                backBtn->SetCaption("返回上一级");
+            }
+            auto box = new ui::VerticalScrollingBox; {
+                box->AddTo(ver);
+                box->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                box->SetGap(80);
+                box->SetInsideBoxScrollable(true);
+            }
+            {
+                auto base = new ui::VerticalBox; {
+                    base->AddTo(box);
+                    base->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    base->SetHSize(80);
+                    base->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                }
+                {
+                    auto hbox = new ui::HorizontalBox; {
+                        hbox->AddTo(base);
+                        hbox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        hbox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    }
+                    {
+                        auto label = new ui::Label; {
+                            label->AddTo(hbox);
+                            label->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);  
+                            label->SetHSize(175);
+                            label->SetContent("学工号");      
+                        }
+                        userInput = new ui::InputBox; {
+                            userInput->AddTo(hbox);
+                            userInput->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            userInput->SetLengthLimit(64);
+                            userInput->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
+                            userInput->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
+                        }
+                    }
+                    hbox = new ui::HorizontalBox; {
+                        hbox->AddTo(base);
+                        hbox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        hbox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    }
+                    {
+                        auto label = new ui::Label; {
+                            label->AddTo(hbox);
+                            label->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER); 
+                            label->SetHSize(175);
+                            label->SetContent("密码");
+                        }
+                        paswInput = new ui::InputBox; {
+                            paswInput->AddTo(hbox);
+                            paswInput->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            paswInput->SetLengthLimit(64);
+                            paswInput->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
+                            paswInput->SetSpecialCharacters(ui::InputBox::ASCII);
+                        }
+                        randPaswBtn = new ui::Button; {
+                            randPaswBtn->AddTo(hbox);
+                            randPaswBtn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            randPaswBtn->SetCaption("随机");
+                        }
+                    }
+                    limitTips = new ui::Label; {
+                        limitTips->AddTo(base);  
+                        limitTips->SetFontColor(sf::Color::Red);
+                        limitTips->SetFontSize(30);
+                        limitTips->Hide();
+                        limitTips->SetContent((std::string)"帐号只能由数字、大小写字母以及 _-@. 构成，\n且长度不超过 64 个字符。\n"
+                            + "密码只能由 ASCII 字符构成，\n且长度不超过 64 个字符。");
+                    };
+                }
+                base = new ui::VerticalBox; {
+                    base->AddTo(box);
+                    base->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    base->SetHSize(80);
+                    base->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                }
+                {
+                    auto label = new ui::Label; {
+                        label->AddTo(base);
+                        label->SetContent("权限");
+                    }
+                    accessBox = new ui::HorizontalBox; {
+                        accessBox->AddTo(base);
+                        accessBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        accessBox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    }
+                    auto flat = new ui::Flat; {
+                        flat->AddTo(base);
+                        flat->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        flat->SetVSize(50);
+                    }
+                    {
+                        columnAdd = new ui::Button; {
+                            columnAdd->AddTo(flat);
+                            columnAdd->SetHPreset(ui::Control::Preset::PLACR_AT_END);
+                            columnAdd->SetHSize(100);
+                            columnAdd->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            columnAdd->SetCaption("+");
+                        }    
+                        columnDel = new ui::Button; {
+                            columnDel->AddTo(flat);
+                            columnDel->SetPreset(ui::Control::Preset::PLACR_AT_FRONT);
+                            columnDel->SetHSize(100);
+                            columnDel->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            columnDel->SetCaption("-");
+                        }
+                    }
+                }
+                base = new ui::VerticalBox; {
+                    base->AddTo(box);
+                    base->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    base->SetHSize(80);
+                    base->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                }
+                {
+                    auto label = new ui::Label; {
+                        label->AddTo(base);
+                        label->SetContent("标签");
+                    }
+                }
+            }
+            okBtn = new ui::Button; {
+                okBtn->AddTo(ver);
+                okBtn->SetCaption("确认新建");
+                okBtn->SetHPreset(ui::Control::Preset::PLACR_AT_END);
+            }
+        }
+    }
 }
 
 void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
 {
-    ;
+    backBtn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new EnterAccManage);
+    });
+
+    userInput->SetExceedLimitCallback(UI_CALLBACK{
+        limitTips->Show();
+    });
+    paswInput->SetExceedLimitCallback(UI_CALLBACK{
+        limitTips->Show();
+    });
+
+    auto rand = [=, this](){
+        auto g = trm::GenerateRandomCode;
+        char c;
+        static char s[] = "!@#$%?&*";
+        do {
+            if (g() % 2) {
+                if (g() % 2) {
+                    c = '0' + (g() % 10); // 数字
+                } else {
+                    c = s[g() % 8]; // 特殊字符
+                }
+            } else {
+                if (g() % 2) {
+                    c = 'a' + (g() % 26); // 小写字母
+                } else {
+                    c = 'A' + (g() % 26); // 大写字母
+                }
+            }
+        } while (c == '1' || c == 'l' || c == 'I' || c == '0' || c == 'O');
+        return c;
+    };
+    randPaswBtn->SetClickCallback(UI_CALLBACK{
+        std::string newPasw;
+        for (int c = 10; c--; ) newPasw += rand();
+        paswInput->SetText(newPasw);
+    });
+
+    columnAdd->SetClickCallback(UI_CALLBACK{
+        ++columnNum;
+        reorganizeAccessBox();
+    });
+    columnDel->SetClickCallback(UI_CALLBACK{
+        if (columnNum > 1) {
+            --columnNum;
+            reorganizeAccessBox();
+        }
+    });
+
+    reorganizeAccessBox = [=, this](){
+        accessBox->FreeAll();
+        vers.clear();
+        for (int c = columnNum; c--; ) {
+            auto ver = new ui::VerticalBox; {
+                ver->AddTo(accessBox);
+                ver->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                ver->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            }
+            vers.push_back(ver);
+        }
+        std::vector<std::pair<std::string, std::string>> accs = {
+            {"最高管理权限", trm::Access::ADM},
+            {"创建帐户", trm::Access::CREATE_ACCOUNT},
+            {"删除帐户", trm::Access::DELETE_ACCOUNT},
+            {"授予权限", trm::Access::GRANT_ACCESS},
+            {"撤销权限", trm::Access::REVOKE_ACCESS},
+            {"添加标签", trm::Access::ADD_TAG},
+            {"删除标签", trm::Access::REMOVE_TAG},
+            {"重置帐号和权限系统", trm::Access::RESET_ACCOUNT_AND_ACCESS},
+            {"查看系统内帐户", trm::Access::LIST_ACCOUNT},
+        };
+        int col = 0;
+        for (auto [profile, access] : accs) {
+            auto btn = new ui::ToggleButton(profile, access);
+            btn->SetPreset(ui::Control::Preset::PLACR_AT_CENTER);
+            vers[col]->Add(btn);
+            ++col;
+            if (col == columnNum) col = 0;
+        }
+    };
 }
 
 void eea::AccountDelail::Ready(ui::Screen *screen) noexcept
 {
-    ;
+    reorganizeAccessBox();
 }
 
 void eea::EnterCanteen::Load(ui::Screen *screen) noexcept
@@ -569,6 +788,7 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
     {
         auto hor = new ui::HorizontalBox; {
             hor->AddTo(mar);
+            hor->SetGap(40);
         }
         {
             auto verBox = new ui::VerticalBox; {
@@ -625,6 +845,18 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
                 }
                 {
                     ;
+                }
+                btnBox = new ui::HorizontalBox; {
+                    btnBox->AddTo(verBox);
+                    btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    btnBox->SetVSize(80);
+                }
+                {
+                    newBtn = new ui::Button; {
+                        newBtn->AddTo(btnBox);
+                        newBtn->SetCaption("新建帐户");
+                        newBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    }
                 }
             }
             detailBox = new ui::VerticalScrollingBox; {
@@ -762,6 +994,9 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
 
             refreshBtn->Enable();
         });
+    });
+    newBtn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new AccountDelail);
     });
 }
 

@@ -33,7 +33,7 @@ protected:
     static std::string password;
     static trm::Account account;
 
-    trm::Information argvs;
+    static std::vector<std::string> argvs;
     
     void Listen(trm::Sender *sender, const Callback &callback) noexcept;
     void SwitchTo(PageBase *page);

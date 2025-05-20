@@ -342,7 +342,7 @@ public:
      * @note 调用时机：父容器需要组件被绘制时。
      * @note 实现功能：绘制组件。
      */
-    virtual void Draw    (sf::RenderWindow &screen)                                 noexcept = 0;
+    virtual void Draw    (sf::RenderWindow &screen, float delta)             noexcept = 0;
     /**
      * @fn 帧刷新组件
      * @note 调用时机：每一帧刷新时。
@@ -541,7 +541,7 @@ public:
      */
     void Update (bool resetMinSize = true)                                 noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen)                                 noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)             noexcept;
     void Tick   ()                                                         noexcept;
 
     ~Container() noexcept;
@@ -670,6 +670,7 @@ public:
     void Draw      ()                                        noexcept;
 protected:
     sf::RenderWindow screen;
+    sf::Clock clock;
 };
 
 class Center : public Container{
@@ -949,10 +950,8 @@ public:
         SetFont(FONT_FILE_PATH);
         UpdateInQueue(true);
     }
-    Label(const std::string &content) noexcept
+    Label(const std::string &content) noexcept : Label()
     {
-        SetFont(FONT_FILE_PATH);
-        UpdateInQueue(true);
         SetContent(content);
     }
     const std::string &GetContent() const noexcept { return content; }
@@ -983,7 +982,7 @@ public:
      */
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept {}
-    void Draw   (sf::RenderWindow &screen) noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta) noexcept;
 protected:
     static const unsigned int REVISION_X;
     static const unsigned int REVISION_Y;
@@ -1049,7 +1048,7 @@ public:
      */
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept {}
-    void Draw   (sf::RenderWindow &screen) noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta) noexcept;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1084,6 +1083,12 @@ public:
         layer.Add(rect);
         layer.Add(label);
         UpdateInQueue(true);
+    }
+    Button(const std::string &caption, Callback clickCallback, const std::string &name = "default") noexcept : Button()
+    {
+        SetCaption(caption);
+        SetClickCallback(clickCallback);
+        SetName(name);
     }
     void SetEnterCallback(const Callback &function)     noexcept { enterCallback = function; }
     void SetLeaveCallback(const Callback &function)     noexcept { leaveCallback = function; }
@@ -1120,6 +1125,7 @@ public:
     void SetFocusBackColor(const sf::Color &color)       noexcept;
     void SetDisabledBackColor(const sf::Color &color)    noexcept;
     void Enable(bool flag = true)                        noexcept;
+    void Disable()                                       noexcept;
 
     /************************************
      * @brief 实现了的和待实现的抽象方法。*
@@ -1127,7 +1133,7 @@ public:
      */
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen) noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)             noexcept;
     void Tick   ()                         noexcept;
 protected:
     /******************************
@@ -1240,7 +1246,7 @@ public:
      */
     void Update (bool resetMinSize = true)                                 noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen)                                 noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)             noexcept;
     void Tick   ()                                                         noexcept;
 protected:
     /******************************
@@ -1346,7 +1352,7 @@ public:
      */
     void Update (bool resetMinSize = true)                                 noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen)                                 noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)             noexcept;
     void Tick   ()                                                         noexcept;
 protected:
     Callback enteredCallback = DO_NOTHING;
@@ -1529,7 +1535,7 @@ public:
      */
     void Update(bool resetMinSize = true)                                 noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)  noexcept;
-    void Draw(sf::RenderWindow &screen)                                   noexcept;
+    void Draw(sf::RenderWindow &screen, float delta)               noexcept;
     void Tick()                                                           noexcept;
 protected:
     /******************************
@@ -1728,7 +1734,7 @@ public:
      */
     void Update(bool resetMinSize = true) noexcept {}
     void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept {}
-    void Draw(sf::RenderWindow &screen) noexcept;
+    void Draw(sf::RenderWindow &screen, float delta) noexcept;
 protected:
     Callback callback = DO_NOTHING;
 
@@ -1791,7 +1797,7 @@ public:
      */
     void Update(bool resetMinSize = true) noexcept {}
     void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept {}
-    void Draw(sf::RenderWindow &screen) noexcept;
+    void Draw(sf::RenderWindow &screen, float delta) noexcept;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1814,7 +1820,7 @@ protected:
      * @brief 样式属性。*
      * ******************
      */
-    float speed = 0.05;
+    float speed = 2 * PI;
 };
 
 class LoadingRingWithText : public Control {
@@ -1869,7 +1875,7 @@ public:
      */
     void Update(bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
-    void Draw(sf::RenderWindow &screen) noexcept;
+    void Draw(sf::RenderWindow &screen, float delta) noexcept;
     void Tick() noexcept;
 protected:
     Callback countCallback = DO_NOTHING;
@@ -1938,7 +1944,7 @@ public:
      */
     void Update(bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept {}
-    void Draw(sf::RenderWindow &screen) noexcept;
+    void Draw(sf::RenderWindow &screen, float delta) noexcept;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1966,6 +1972,85 @@ protected:
      * ******************
      */
     bool error = false;
+};
+
+class ToggleButton : public Button {
+public:
+    ToggleButton() noexcept
+    {
+        SetClickCallback([this](const std::string &name, const sf::Event &event){
+            Toggle();
+            if (GetOn()) {
+                toggleOncallback(name, event);
+            } else {
+                toggleOffcallback(name, event);
+            }
+            toggleCallback(name, event);
+        });
+    }
+    ToggleButton(const std::string &caption, const std::string &name, Callback toggleOncallback = DO_NOTHING, Callback toggleOffcallback = DO_NOTHING, Callback toggleCallback = DO_NOTHING) noexcept : ToggleButton()
+    {
+        SetCaption(caption);
+        SetName(name);
+        SetToggleOnCallback(toggleOncallback);
+        SetToggleOffCallback(toggleOffcallback);
+        SetToggleCallback(toggleCallback);
+    }
+    void SetToggleOnCallback(const Callback &function) noexcept { toggleOncallback = function; }
+    void SetToggleOffCallback(const Callback &function) noexcept { toggleOffcallback = function; }
+    void SetToggleCallback(const Callback &function) noexcept { toggleCallback = function; }
+    bool GetOn() const noexcept { return on; }
+
+    /*******************************************
+     * @brief 约定的常量和数据类型以及外工具方法。*
+     * *****************************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+    void SetOn(bool flag = true) noexcept;
+    void Toggle() noexcept;
+    void SetOnColor(const sf::Color &color) noexcept;
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Draw(sf::RenderWindow &screen, float delta) noexcept;
+protected:
+    using Button::SetClickCallback;
+    Callback toggleOncallback = DO_NOTHING;
+    Callback toggleOffcallback = DO_NOTHING;
+    Callback toggleCallback = DO_NOTHING;
+
+    /******************************
+     * @brief 封装的工具方法和属性。*
+     * ****************************
+     */
+
+    /******************************
+     * @brief 封装的数据类型和常量。*
+     * ****************************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+    bool on = false;
+    sf::Color onColor = sf::Color::Blue;
 };
     
 class Example : public Control {
@@ -1996,7 +2081,7 @@ public:
      */
     void Update(bool resetMinSize = true) noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept = 0;
-    void Draw(sf::RenderWindow &screen) noexcept = 0;
+    void Draw(sf::RenderWindow &screen, float delta) noexcept = 0;
     void Tick() noexcept = 0; // 组合时需重写
 protected:
     /******************************
