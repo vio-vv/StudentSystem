@@ -13,10 +13,18 @@ void lab::EnterCourse::Load(ui::Screen *screen) noexcept
             flat->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         }
         {
+            auto backbtn = new ui::Button; {
+                backbtn->AddTo(flat);
+                backbtn->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                backbtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backbtn->SetCaption("返回");
+            }
             auto hbox1 = new ui::HorizontalBox();{
                 hbox1->AddTo(flat);
                 hbox1->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 hbox1->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                hbox1->SetHSize(75);
+                hbox1->SetVAnchor(5);
             }
             {   
                 auto input = new ui::InputBox;{
@@ -41,7 +49,7 @@ void lab::EnterCourse::Load(ui::Screen *screen) noexcept
                 glabel->AddTo(flat);
                 glabel->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 glabel->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
-                glabel->SetVAnchor(10);
+                glabel->SetVAnchor(15);
                 glabel->SetSizeWrap(ui::Control::Direction::HORIZONTAL, false);
                 glabel->SetHSize(700);
             }
@@ -271,10 +279,19 @@ void lab::EnterReserve::Load(ui::Screen *screen) noexcept
             flat->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         }
         {
+            auto backbtn = new ui::Button; {
+                backbtn->AddTo(flat);
+                backbtn->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                backbtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backbtn->SetCaption("返回");
+            }
             auto hbox1 = new ui::HorizontalBox();{
                 hbox1->AddTo(flat);
                 hbox1->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 hbox1->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                hbox1->SetHSize(75);
+                hbox1->SetVAnchor(5);
+
             }
             {   
                 auto input = new ui::InputBox;{
@@ -298,7 +315,7 @@ void lab::EnterReserve::Load(ui::Screen *screen) noexcept
                 glabel->AddTo(flat);
                 glabel->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 glabel->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
-                glabel->SetVAnchor(10);
+                glabel->SetVAnchor(15);
                 glabel->SetSizeWrap(ui::Control::Direction::HORIZONTAL, false);
                 glabel->SetHSize(700);
             }
