@@ -1014,7 +1014,7 @@ void ui::InputBox::Process(const sf::Event &event, const sf::RenderWindow &scree
 {
     button->Process(event, screen);
 
-    auto input = [&](sf::Uint32 c){
+    auto input = [this](sf::Uint32 c){
         switch (c) {
             case '\b':
                 SetText(convert(textCopy.substring(0, textCopy.getSize() - 1)));

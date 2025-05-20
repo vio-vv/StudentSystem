@@ -5,8 +5,8 @@
 #define SELF ".\\space"
 #define SELF_AS_SENDER "..\\client\\space"
 
-#define UI_CALLBACK [&](const std::string &name, const sf::Event &event) -> void 
-#define SD_CALLBACK [&](int id, const trm::Information &reply) -> void 
+#define UI_CALLBACK [=, this](const std::string &name, const sf::Event &event) -> void 
+#define SD_CALLBACK [=, this](int id, const trm::Information &reply) -> void 
 
 #include <iostream>
 #include <cassert>

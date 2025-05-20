@@ -651,7 +651,7 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
 
 void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
 {
-    static auto print = [&](const trm::Account &acc){
+    static auto print = [=, this](const trm::Account &acc){
         detailBox->Add(new ui::Label("学工号：" + acc.code));
     };
     auto detailBtnCallback = UI_CALLBACK{

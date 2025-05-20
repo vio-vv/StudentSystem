@@ -1176,7 +1176,7 @@ public:
     InputBox() noexcept
     {
         button->SetPreset(Preset::FILL_FROM_CENTER);
-        button->SetClickCallback([&](const std::string &name, const sf::Event &event){
+        button->SetClickCallback([this](const std::string &name, const sf::Event &event){
             if (!this->inputting) {
                 this->SetInputting(true);
                 this->beginCallback(this->name, event);
@@ -1573,7 +1573,7 @@ public:
         box->SetProportionMode(false);
         box->SyncChildren(children);
         
-        bar->SetScrollCallback([&](const std::string &name, const sf::Event &event){
+        bar->SetScrollCallback([this](const std::string &name, const sf::Event &event){
             box->SetDelta(-bar->GetRate());
         });
         SetSensitivity(DEFAULT_SENSITIVITY);
@@ -1637,7 +1637,7 @@ public:
         box->SetProportionMode(false);
         box->SyncChildren(children);
 
-        bar->SetScrollCallback([&](const std::string &name, const sf::Event &event){
+        bar->SetScrollCallback([this](const std::string &name, const sf::Event &event){
             box->SetDelta(-bar->GetRate());
         });
         bar->SetSensitivity(DEFAULT_SENSITIVITY);
@@ -1827,7 +1827,7 @@ public:
         ring->SetPreset(Direction::HORIZONTAL, Preset::FILL_FROM_CENTER);
         ring->SetSize(Direction::VERTICAL, ringHeight);
         ring->SetInterval(1000);
-        ring->SetCallback([&](const std::string &name, const sf::Event &event){
+        ring->SetCallback([this](const std::string &name, const sf::Event &event){
             this->Count();
         });
         UpdateInQueue(true);

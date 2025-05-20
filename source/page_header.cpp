@@ -81,14 +81,14 @@ std::pair<int, trm::Information> clpg::PageBase::WaitServer(ui::Screen *screen, 
         load->SetText(tips);}
     auto sender = trm::Sender(information);
     
-    load->SetCountCallback([&](const std::string &name, const sf::Event &event) -> void {
+    load->SetCountCallback([&](const std::string &name, const sf::Event &event) -> void{
         auto [success, reply] = sender.Poll();
         if (success) {
             pass = true;
             result = reply;
         }
     });
-    load->SetFinishedCallback([&](const std::string &name, const sf::Event &event) -> void {
+    load->SetFinishedCallback([&](const std::string &name, const sf::Event &event) -> void{
         finished = true;
     });
     
