@@ -627,10 +627,12 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
                     ;
                 }
             }
-            detailBox = new ui::VerticalBox; {
+            detailBox = new ui::VerticalScrollingBox; {
                 detailBox->AddTo(hor);
                 detailBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 detailBox->SetHSize(2);
+                detailBox->SetGap(80);
+                detailBox->SetInsideBoxScrollable(true);
             }
             {
                 auto center = new ui::Center; {
@@ -651,13 +653,50 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
 
 void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
 {
-    static auto print = [=, this](const trm::Account &acc){
-        detailBox->Add(new ui::Label("学工号：" + acc.code));
+    auto print = [=, this](const trm::Account &acc){
+        auto label = new ui::Label; {
+            label->AddTo(detailBox);
+            label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            label->SetContent("==== 详细信息 ====");
+        }
+        auto box = new ui::VerticalBox; {
+            box->AddTo(detailBox);
+            box->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            box->SetHSize(80);
+            box->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+        }
+        {
+            box->Add(new ui::Label("学工号：" + acc.code));
+            box->Add(new ui::Label("密码哈希值：" + acc.hashedPassword));
+        }
+        box = new ui::VerticalBox; {
+            box->AddTo(detailBox);
+            box->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            box->SetHSize(80);
+            box->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+        }
+        {
+            box->Add(new ui::Label("权限列表：" ));
+            for (auto access : acc.access) {
+                box->Add(new ui::Label("- " + access));
+            }
+        }
+        box = new ui::VerticalBox; {
+            box->AddTo(detailBox);
+            box->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            box->SetHSize(80);
+            box->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+        }
+        {
+            box->Add(new ui::Label("标签列表：" ));
+            for (auto tag : acc.tags) {
+                box->Add(new ui::Label("- " + tag.first + ": " + tag.second));
+            }
+        }
     };
     auto detailBtnCallback = UI_CALLBACK{
-        static bool on = false;
-        if (on) return;
-        on = true;
+        if (detailCalling) return;
+        detailCalling = true;
         detailBox->FreeAll();
         auto center = new ui::Center; {
             center->AddTo(detailBox);
@@ -680,7 +719,7 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
                 detailBox->FreeAll();
                 print(trm::Account(reply[0]));
             }
-            on = false;
+            detailCalling = false;
         });
     };
     backBtn->SetClickCallback(UI_CALLBACK{

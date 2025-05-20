@@ -63,7 +63,8 @@ private:
 
     ui::VerticalScrollingBox *list = nullptr;
 
-    ui::VerticalBox *detailBox = nullptr;
+    ui::VerticalScrollingBox *detailBox = nullptr;
+    bool detailCalling = false;
 
     ui::Control::Callback refresh = ui::Control::DO_NOTHING;
 protected:

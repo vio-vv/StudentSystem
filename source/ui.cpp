@@ -1312,6 +1312,11 @@ void ui::ScrollingBox::SetBarAtFront(bool flag) noexcept
     UpdateInQueue();
 }
 
+void ui::ScrollingBox::SetGap(int absolute) noexcept
+{
+    GetBox()->SetGap(absolute);
+}
+
 void ui::ScrollingBox::SetRate(unsigned int absolute) noexcept
 {
     GetBar()->SetRate(absolute);

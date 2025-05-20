@@ -1512,6 +1512,7 @@ public:
      */
     void SetBarSize(unsigned int size) noexcept;
     void SetBarAtFront(bool flag) noexcept;
+    void SetGap(int absolute) noexcept;
 
     /***************************
      * @brief 样式属性控制接口。*
