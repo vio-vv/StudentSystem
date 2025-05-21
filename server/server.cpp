@@ -21,6 +21,10 @@
 
 int main() noexcept
 {
+    if (!trm::Initialize(SELF)) {
+        assert(false); // Unexpected failure.
+        std::cout << "Init failed." << std::endl;
+    }
     std::cout << "Server started." << std::endl;
     sf::Clock interval;
     auto &ssys = SSys::Get();
@@ -39,7 +43,7 @@ int main() noexcept
                 continue;
             }
             for (const auto &request : ok_requests.second) {
-                assert(request.content.size() > 0); // Abnormal request information size.
+                assert(request.content.size() > 0); // Unexpected information size.
                 if (request.content[0] == trm::rqs::CHECK_ONLINE) {
                     trm::SendReply(request.sender, request.id, {trm::rpl::YES});
                 } 
@@ -98,7 +102,7 @@ int main() noexcept
                 // REGISTER(trm::rqs::???, ssys.???)
 
                 else {
-                    assert(false); // Unknown request.
+                    assert(false); // Deny.
                     std::cout << "Unknown request: " << request.content[0] << std::endl;
                 }
             }

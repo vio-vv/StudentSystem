@@ -209,7 +209,7 @@ public:
      * @brief 预设尺寸和位置枚举
      */
     enum class Preset{
-        PLACR_AT_FRONT,  PLACR_AT_END,  PLACR_AT_CENTER,  // 置于容器前端、末端、中间
+        PLACE_AT_FRONT,  PLACE_AT_END,  PLACE_AT_CENTER,  // 置于容器前端、末端、中间
         WRAP_AT_FRONT,   WRAP_AT_END,   WRAP_AT_CENTER,   // 紧缩在容器前端、末端、中间
         FILL_FROM_FRONT, FILL_FROM_END, FILL_FROM_CENTER  // 自容器前端、末端、中间填充
     };
@@ -342,7 +342,7 @@ public:
      * @note 调用时机：父容器需要组件被绘制时。
      * @note 实现功能：绘制组件。
      */
-    virtual void Draw    (sf::RenderWindow &screen, float delta)             noexcept = 0;
+    virtual void Draw    (sf::RenderWindow &screen, float delta)                    noexcept = 0;
     /**
      * @fn 帧刷新组件
      * @note 调用时机：每一帧刷新时。
@@ -420,7 +420,7 @@ protected:
                 case Direction::HORIZONTAL: return horizontal; break;
                 case Direction::VERTICAL:   return vertical;   break;
                 default:
-                    assert(false); // Unknown direction.
+                    assert(false); // Impossible direction.
                     break; 
             }
             return horizontal;
@@ -431,7 +431,7 @@ protected:
                 case Direction::HORIZONTAL: return horizontal; break;
                 case Direction::VERTICAL:   return vertical;   break;
                 default:
-                    assert(false); // Unknown direction.
+                    assert(false); // Impossible direction.
                     break; 
             }
             return horizontal;
@@ -541,7 +541,7 @@ public:
      */
     void Update (bool resetMinSize = true)                                 noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)             noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)                    noexcept;
     void Tick   ()                                                         noexcept;
 
     ~Container() noexcept;
@@ -1133,7 +1133,7 @@ public:
      */
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)             noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)                    noexcept;
     void Tick   ()                         noexcept;
 protected:
     /******************************
@@ -1246,7 +1246,7 @@ public:
      */
     void Update (bool resetMinSize = true)                                 noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)             noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)                    noexcept;
     void Tick   ()                                                         noexcept;
 protected:
     /******************************
@@ -1352,7 +1352,7 @@ public:
      */
     void Update (bool resetMinSize = true)                                 noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)             noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)                    noexcept;
     void Tick   ()                                                         noexcept;
 protected:
     Callback enteredCallback = DO_NOTHING;
@@ -1535,7 +1535,7 @@ public:
      */
     void Update(bool resetMinSize = true)                                 noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)  noexcept;
-    void Draw(sf::RenderWindow &screen, float delta)               noexcept;
+    void Draw(sf::RenderWindow &screen, float delta)                      noexcept;
     void Tick()                                                           noexcept;
 protected:
     /******************************

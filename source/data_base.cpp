@@ -34,7 +34,7 @@ void dat::DataBase::Clear() const noexcept
 void dat::DataBase::Remove() const noexcept
 {
     if (consideredAsFileOnly) {
-        assert(false); // Deny
+        assert(false); // Deny.
         return;
     }
     if (file::CheckDirectoryExists(space)) {
@@ -49,7 +49,7 @@ void dat::DataBase::Remove() const noexcept
 dat::DataBase dat::DataBase::operator[](const std::string &keyName) const noexcept
 {
     if (consideredAsFileOnly) {
-        assert(false); // Deny
+        assert(false); // Deny.
         return DataBase(".\\data", false);
     }
     if (!file::CheckDirectoryExists(space)) {
@@ -69,7 +69,7 @@ dat::DataBase dat::DataBase::operator[](const unsigned long long index) noexcept
 void dat::DataBase::Push(const std::pair<std::string, std::string> &key_value) const noexcept
 {
     if (consideredAsFileOnly) {
-        assert(false); // Deny
+        assert(false); // Deny.
         return;
     }
     if (!file::CheckDirectoryExists(space)) {
@@ -86,7 +86,7 @@ void dat::DataBase::Push(const std::pair<std::string, std::string> &key_value) c
 void dat::DataBase::Push(const std::string &keyName, const std::string &value) const noexcept
 {
     if (consideredAsFileOnly) {
-        assert(false); // Deny
+        assert(false); // Deny.
         return;
     }
     if (!file::CheckDirectoryExists(space)) {
@@ -116,7 +116,7 @@ void dat::DataBase::Push(const std::string &value) noexcept
 std::vector<std::string> dat::DataBase::List() noexcept
 {
     if (consideredAsFileOnly) {
-        assert(false); // Deny
+        assert(false); // Deny.
         return {};
     }
     if (!file::CheckDirectoryExists(space)) {

@@ -20,7 +20,7 @@ void clpg::EnterSystem::Logic(ui::Screen *screen) noexcept
             if (reply[0] == trm::rpl::YES) {
                 SwitchTo(new eea::Login);
             } else {
-                assert(false); // Invalid reply.
+                assert(false); // Unexpected reply.
             }
         } else if (success == 0) {
             SwitchTo(new eea::Retry);

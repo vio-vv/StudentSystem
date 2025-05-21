@@ -612,9 +612,9 @@ namespace rpl{
     const std::string NO_BORROW_RECORD = _AS_"NO_BORROW_RECORD";
 }
 
+namespace acc {
 enum Access{
-    ADM,          // 拥有这个权限表示拥有所有权限
-    EVERYONE_OWN, // 这个权限被所有人拥有
+    ADM, // 拥有这个权限表示拥有所有权限
 
     CREATE_ACCOUNT,
     DELETE_ACCOUNT,
@@ -644,8 +644,12 @@ enum Access{
     BORROW_BOOK,
     RESET_LIBRARY,
 
+    _COMMON, // 这个权限被所有人拥有
+
     _
 };
+}
+using Access = acc::Access;
 struct AccessBox {
     Access access;
     AccessBox(Access _access) noexcept : access(_access) {}
@@ -653,6 +657,11 @@ struct AccessBox {
     AccessBox(const std::string &content) noexcept;
     operator Access() const noexcept;
 };
+struct AccessInfo{
+    std::string name;
+    std::string description;
+};
+const AccessInfo &GetAccessInfo(Access access) noexcept;
 
 struct Account{
     using Tag = std::pair<std::string, std::string>;
@@ -779,7 +788,7 @@ public:
     static void Init(const std::string &link, const std::string &self, const std::string &selfAsSender) noexcept
         { SetLink(link); SetSelf(self); SetSelfAsSender(selfAsSender); }
     static void SetLink(const std::string &serverLink) noexcept { link = serverLink; }
-    static void SetSelf(const std::string &selfSpace) noexcept { self = selfSpace; }
+    static void SetSelf(const std::string &selfSpace) noexcept;
     static void SetSelfAsSender(const std::string &selfAsSenderForServer) noexcept { selfAsSender = selfAsSenderForServer; }
     explicit Sender(const Information &content = {rqs::CHECK_ONLINE}, bool autoSend = true) noexcept;
     void SetContent(const Information &content) noexcept;
@@ -803,6 +812,13 @@ struct Request{
     std::string sender;    // 请求发送者链接（相对于服务端）
     Information content;    // 请求内容
 };
+
+/**
+ * @brief 初始化环境（文件夹）。
+ * @param self 自身链接（文件夹）（相对于自身）
+ * @return 初始化成功与否
+ */
+bool Initialize(const std::string &self) noexcept;
 
 /**
  * @brief 客户端用以生成请求编号。

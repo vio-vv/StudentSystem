@@ -3,6 +3,7 @@
 /test/test.exe
 /test/out.txt
 /server/data/
+/client/data/
 /server/server.exe
 /client/client.exe
 /*.bat

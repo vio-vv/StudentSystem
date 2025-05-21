@@ -110,14 +110,14 @@ void eea::AccountDelail::Load(ui::Screen *screen) noexcept
                     {
                         columnAdd = new ui::Button; {
                             columnAdd->AddTo(flat);
-                            columnAdd->SetHPreset(ui::Control::Preset::PLACR_AT_END);
+                            columnAdd->SetHPreset(ui::Control::Preset::PLACE_AT_END);
                             columnAdd->SetHSize(100);
                             columnAdd->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                             columnAdd->SetCaption("+");
                         }    
                         columnDel = new ui::Button; {
                             columnDel->AddTo(flat);
-                            columnDel->SetPreset(ui::Control::Preset::PLACR_AT_FRONT);
+                            columnDel->SetPreset(ui::Control::Preset::PLACE_AT_FRONT);
                             columnDel->SetHSize(100);
                             columnDel->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                             columnDel->SetCaption("-");
@@ -140,7 +140,7 @@ void eea::AccountDelail::Load(ui::Screen *screen) noexcept
             okBtn = new ui::Button; {
                 okBtn->AddTo(ver);
                 okBtn->SetCaption("确认新建");
-                okBtn->SetHPreset(ui::Control::Preset::PLACR_AT_END);
+                okBtn->SetHPreset(ui::Control::Preset::PLACE_AT_END);
             }
         }
     }
@@ -208,21 +208,10 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
             }
             vers.push_back(ver);
         }
-        std::vector<std::pair<std::string, std::string>> accs = {
-            {"最高管理权限", trm::AccessBox{trm::Access::ADM}},
-            {"创建帐户", trm::AccessBox{trm::Access::CREATE_ACCOUNT}},
-            {"删除帐户", trm::AccessBox{trm::Access::DELETE_ACCOUNT}},
-            {"授予权限", trm::AccessBox{trm::Access::GRANT_ACCESS}},
-            {"撤销权限", trm::AccessBox{trm::Access::REVOKE_ACCESS}},
-            {"添加标签", trm::AccessBox{trm::Access::ADD_TAG}},
-            {"删除标签", trm::AccessBox{trm::Access::REMOVE_TAG}},
-            {"重置帐号和权限系统", trm::AccessBox{trm::Access::RESET_ACCOUNT_AND_ACCESS}},
-            {"查看系统内帐户", trm::AccessBox{trm::Access::LIST_ACCOUNT}},
-        };
         int col = 0;
-        for (auto [profile, access] : accs) {
-            auto btn = new ui::ToggleButton(profile, access);
-            btn->SetPreset(ui::Control::Preset::PLACR_AT_CENTER);
+        for (int access = 0; access < trm::Access::_COMMON; ++access) {
+            auto btn = new ui::ToggleButton(trm::GetAccessInfo((trm::Access)access).name, ToStr(access));
+            btn->SetPreset(ui::Control::Preset::PLACE_AT_CENTER);
             vers[col]->Add(btn);
             ++col;
             if (col == columnNum) col = 0;
@@ -386,7 +375,7 @@ void eea::Login::Logic(ui::Screen *screen) noexcept
                     tips->SetContent("帐号或密码错误。");
                     tips->Show();
                 } else {
-                    assert(false); // Invalid reply.
+                    assert(false); // Unexpected reply.
                 }    
             } else if (success == 0) {
                 SwitchTo(new Retry);
@@ -910,7 +899,7 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
         {
             box->Add(new ui::Label("权限列表：" ));
             for (auto access : acc.access) {
-                box->Add(new ui::Label("- " + access));
+                box->Add(new ui::Label("- " + trm::GetAccessInfo(access).name));
             }
         }
         box = new ui::VerticalBox; {

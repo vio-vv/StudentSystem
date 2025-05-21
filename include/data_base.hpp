@@ -53,7 +53,6 @@ public:
     explicit DataBase(const std::string &workSpace) noexcept : space(workSpace)
     {
         if (!file::CheckDirectoryExists(workSpace)) {
-            assert(false); // Directory not found
             space = ".\\data";
         }
     }

@@ -4,6 +4,66 @@ std::string trm::Sender::link;
 std::string trm::Sender::self;
 std::string trm::Sender::selfAsSender;
 
+const trm::AccessInfo &trm::GetAccessInfo(Access access) noexcept
+{
+    static AccessInfo accessInfo[Access::_];
+    static bool initialized = false;
+    if (!initialized) {
+        for (auto &each : accessInfo) {
+            each = {
+                "【未命名权限】",
+                "【无说明】"
+            };
+        }
+        
+        /*******************************
+         * @attention EEA 请在此处添加。*
+         * *****************************
+         */
+        accessInfo[Access::ADM] = {"最高管理权限", "相当于拥有所有权限。"};
+        accessInfo[Access::CREATE_ACCOUNT] = {"创建帐户", "可以在系统内创建新的帐户。"};
+        accessInfo[Access::DELETE_ACCOUNT] = {"删除帐户", "可以删除系统内的帐户。"};
+        accessInfo[Access::GRANT_ACCESS] = {"授予权限", "可以授予系统内帐户的权限。"};
+        accessInfo[Access::REVOKE_ACCESS] = { "撤销权限", "可以撤销系统内帐户的权限。"};
+        accessInfo[Access::ADD_TAG] = {"添加标签", "可以给系统内的帐户添加标签。"};
+        accessInfo[Access::REMOVE_TAG] = {"删除标签", "可以删除系统内的帐户的标签。"};
+        accessInfo[Access::RESET_ACCOUNT_AND_ACCESS] = {"重置帐户和权限系统", "可以重置帐户和权限系统，即删除所有帐户信息。"};
+        accessInfo[Access::LIST_ACCOUNT] = {"查看系统内帐户", "可以查看系统内的帐户信息。"};
+
+        /*******************************
+         * @attention LAB 请在此处添加。*
+         * *****************************
+         */
+        // accessInfo[???] = {???, ???};
+        // 也可以这样写：accessInfo[???].name = "???";
+        // 不写的话会有默认值 "【未命名权限】"、"【无说明】"。
+
+        /**********************************
+         * @attention VIO_VV 请在此处添加。*
+         * ********************************
+         */
+        // accessInfo[???] = {???, ???};
+        // 也可以这样写：accessInfo[???].name = "???";
+        // 不写的话会有默认值 "【未命名权限】"、"【无说明】"。
+
+        initialized = true;
+    }
+    return accessInfo[access];
+}
+
+bool trm::Initialize(const std::string &self) noexcept
+{
+    if (file::CheckDirectoryExists(self)) {
+        if (!file::DeleteDirectory(self)) {
+            return false;
+        }
+    }
+    if (!file::CreateDirectory(self)) {
+        return false;
+    }
+    return true;
+}
+
 int trm::GenerateID() noexcept
 {
     static int count = 0;
@@ -356,6 +416,12 @@ trm::BorrowLog::BorrowLog(const std::string &content) noexcept
     };
 }
 
+void trm::Sender::SetSelf(const std::string &selfSpace) noexcept
+{
+    self = selfSpace;
+    Initialize(self);
+}
+
 trm::Sender::Sender(const Information &content, bool autoSend) noexcept
 {
     saved = std::move(content);
@@ -388,12 +454,12 @@ std::pair<bool, trm::Information> trm::Sender::Poll() noexcept
 
 trm::AccessBox::operator std::string() const noexcept
 {
-    return ToStr((int)access);
+    return Combine({ToStr((int)access), GetAccessInfo(access).name});
 }
 
 trm::AccessBox::AccessBox(const std::string &content) noexcept
 {
-    *this = {(Access)ToNum(content)};
+    *this = {(Access)ToNum(Split(content)[0])};
 }
 
 trm::AccessBox::operator Access() const noexcept

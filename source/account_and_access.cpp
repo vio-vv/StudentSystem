@@ -58,7 +58,7 @@ trm::Information ssys::AccountAndAccess::CheckAccess(const trm::Information &inf
     auto access = trm::AccessBox{information[3]};
 
     if (reply[0] == trm::rpl::YES) {
-        if (access == trm::Access::EVERYONE_OWN) {
+        if (access == trm::Access::_COMMON) {
             return {trm::rpl::YES};
         }
 
@@ -325,7 +325,7 @@ ssys::AccountAndAccess::AccountAndAccess() noexcept
 {
     auto admBase = base[ACCOUNTS]["adm"];
     if (!admBase.Exists()) {
-        admBase = trm::Account{"adm", "123", {trm::Access::ADM}, {"name", "最高管理员"}};
+        admBase = trm::Account{"adm", "123", {trm::Access::ADM}, {{"name", "最高管理员"}}};
     }
 }
 

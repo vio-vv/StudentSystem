@@ -50,9 +50,9 @@ int main()
     f(ssys.CheckAccount({rqs::CHECK_ACCOUNT, "1", "1"}));
     f(ssys.CheckAccount({rqs::CHECK_ACCOUNT, "2", "1"}));
 
-    f(ssys.CheckAccess({rqs::CHECK_ACCESS, "adm", "123456", Access::CREATE_ACCOUNT}));
-    f(ssys.CheckAccess({rqs::CHECK_ACCESS, "1", "123", Access::CREATE_ACCOUNT}));
-    f(ssys.CheckAccess({rqs::CHECK_ACCESS, "1", "1", Access::CREATE_ACCOUNT}));
+    f(ssys.CheckAccess({rqs::CHECK_ACCESS, "adm", "123456", AccessBox{Access::CREATE_ACCOUNT}}));
+    f(ssys.CheckAccess({rqs::CHECK_ACCESS, "1", "123", AccessBox{Access::CREATE_ACCOUNT}}));
+    f(ssys.CheckAccess({rqs::CHECK_ACCESS, "1", "1", AccessBox{Access::CREATE_ACCOUNT}}));
 
     f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "adm", "123", Account{"2", "2", {Access::SEND_MESSAGE, Access::CREATE_ACCOUNT}}}));
     f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "adm", "123", Account{"2", "2", {Access::SEND_MESSAGE, Access::CREATE_ACCOUNT}}}));
@@ -101,8 +101,8 @@ int main()
     f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
 
     f(ssys.DeleteMessage({rqs::DELETE_MESSAGE, "1", "1", "1"}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "12", "1", Access::DELETE_MESSAGE}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::DELETE_MESSAGE}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "12", "1", AccessBox{Access::DELETE_MESSAGE}}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", AccessBox{Access::DELETE_MESSAGE}}));
     f(ssys.DeleteMessage({rqs::DELETE_MESSAGE, "1", "1", "1"}));
     f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
     f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
@@ -110,21 +110,21 @@ int main()
     f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
     f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
 
-    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "adm", "123", "1", Access::DELETE_MESSAGE}));
+    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "adm", "123", "1", AccessBox{Access::DELETE_MESSAGE}}));
     f(ssys.DeleteMessage({rqs::DELETE_MESSAGE, "1", "1", "0"}));
     f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
     f(ssys.GetUnreadMessageNumber({rqs::GET_UNREAD_MESSAGE_NUMBER, "1", "1"}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::GRANT_ACCESS}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::REVOKE_ACCESS}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "1", "1", "adm", Access::DELETE_MESSAGE}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "1", "1", "admin", Access::GRANT_ACCESS}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "1", "1", "adm", Access::GRANT_ACCESS}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "1", "1", "adm", Access::GRANT_ACCESS}));
-    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "1", "1", "adm", Access::GRANT_ACCESS}));
-    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "1", "1", "adm", Access::GRANT_ACCESS}));
-    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "1", "1", "adm", Access::ADM}));
-    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "adm", "123", "1", Access::GRANT_ACCESS}));
-    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "adm", "123", "1", Access::REVOKE_ACCESS}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", AccessBox{Access::GRANT_ACCESS}}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", AccessBox{Access::REVOKE_ACCESS}}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "1", "1", "adm", AccessBox{Access::DELETE_MESSAGE}}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "1", "1", "admin", AccessBox{Access::GRANT_ACCESS}}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "1", "1", "adm", AccessBox{Access::GRANT_ACCESS}}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "1", "1", "adm", AccessBox{Access::GRANT_ACCESS}}));
+    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "1", "1", "adm", AccessBox{Access::GRANT_ACCESS}}));
+    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "1", "1", "adm", AccessBox{Access::GRANT_ACCESS}}));
+    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "1", "1", "adm", AccessBox{Access::ADM}}));
+    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "adm", "123", "1", AccessBox{Access::GRANT_ACCESS}}));
+    f(ssys.RevokeAccess({rqs::REVOKE_ACCESS, "adm", "123", "1", AccessBox{Access::REVOKE_ACCESS}}));
 
     f(ssys.DeleteMessageOfOthers({rqs::DELETE_MESSAGE_OF_OTHERS, "adm", "123", "1", "2"}));
     f(ssys.GetMessageNumber({rqs::GET_MESSAGE_NUMBER, "1", "1"}));
@@ -166,11 +166,11 @@ int main()
     f(ssys.ClearTag({rqs::CLEAR_TAG, "adm", "1", "1"}));
     f(ssys.ClearTag({rqs::CLEAR_TAG, "adm", "123", "1"}));
 
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::SEND_MESSAGE}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::CREATE_ACCOUNT}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::REVOKE_ACCESS}));
-    f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "1", "1", Account{"2", "2", {Access::SEND_MESSAGE, Access::CREATE_ACCOUNT, trm::AccessBox{trm::Access::DELETE_ACCOUNT}}}));
-    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "2", Access::DELETE_ACCOUNT}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", AccessBox{Access::SEND_MESSAGE}}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", AccessBox{Access::CREATE_ACCOUNT}}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", AccessBox{Access::REVOKE_ACCESS}}));
+    f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "1", "1", Account{"2", "2", {Access::SEND_MESSAGE, Access::CREATE_ACCOUNT, Access::DELETE_ACCOUNT}}}));
+    f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "2", AccessBox{Access::DELETE_ACCOUNT}}));
     f(ssys.RevokeAllAccess({rqs::REVOKE_ALL_ACCESS, "1", "2", "2"}));
     f(ssys.RevokeAllAccess({rqs::REVOKE_ALL_ACCESS, "1", "1", "2"}));
     f(ssys.RevokeAllAccess({rqs::REVOKE_ALL_ACCESS, "adm", "123", "2"}));

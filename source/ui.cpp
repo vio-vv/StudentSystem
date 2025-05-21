@@ -97,36 +97,36 @@ void ui::Control::SetPreset(Direction direction, Preset preset) noexcept
             SetSizeValueType(direction, ValueType::PERCENTAGE);
             SetSize(direction, 100);
             break;
-        case Preset::PLACR_AT_FRONT:
-        case Preset::PLACR_AT_END:
-        case Preset::PLACR_AT_CENTER:
+        case Preset::PLACE_AT_FRONT:
+        case Preset::PLACE_AT_END:
+        case Preset::PLACE_AT_CENTER:
             break;
         default:
-            assert(false); // Invalid preset.
+            assert(false); // Impossible preset.
             break;
     }
 
     switch (preset) {
-        case Preset::PLACR_AT_FRONT:
+        case Preset::PLACE_AT_FRONT:
         case Preset::WRAP_AT_FRONT:
         case Preset::FILL_FROM_FRONT:
             SetCenter(direction, 0);
             SetAnchor(direction, 0);
             break;
-        case Preset::PLACR_AT_END:
+        case Preset::PLACE_AT_END:
         case Preset::WRAP_AT_END:
         case Preset::FILL_FROM_END:
             SetCenter(direction, 100);
             SetAnchor(direction, 100);
             break;
-        case Preset::PLACR_AT_CENTER:
+        case Preset::PLACE_AT_CENTER:
         case Preset::WRAP_AT_CENTER:
         case Preset::FILL_FROM_CENTER:
             SetCenter(direction, 50);
             SetAnchor(direction, 50);
             break;
         default:
-            assert(false); // Invalid preset.
+            assert(false); // Impossible preset.
             break;
     }
     SetPosition(direction, 0);
@@ -134,7 +134,7 @@ void ui::Control::SetPreset(Direction direction, Preset preset) noexcept
 
 void ui::Control::SetMinSize(Direction direction, unsigned int absolute) noexcept
 {
-    if (minSize[direction] == absolute) return;
+    if (absolute == minSize[direction]) return;
     minSize[direction] = absolute;
     if (parent) parent->UpdateInQueue();
 }
@@ -428,7 +428,7 @@ unsigned int ui::Container::ObtainDefaultGlobalSize(ValueType sizeValueType, boo
             tmpSize = size * parentSize / 100;
             break;
         default:
-            assert(false); // Invalid value type.
+            assert(false); // Impossible value type.
             break;
     }
     return std::max(minSize, tmpSize);
@@ -476,7 +476,7 @@ void ui::Center::Update(bool resetMinSize) noexcept
                     myMinSize = std::max(myMinSize, child->GetMinSize(direction));
                     break;
                 default:
-                    assert(false); // Invalid value type.
+                    assert(false); // Impossible value type.
                     break;
             }
         }
@@ -559,7 +559,7 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
                 anotherMinSize = std::max(anotherMinSize, child->GetMinSize(another));
                 break;
             default:
-                assert(false); // Invalid value type.
+                assert(false); // Impossible value type.
                 break;
         }
     }
@@ -583,7 +583,7 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
                     ratioSum         += child->GetSize(direction);
                     break;
                 default:
-                    assert(false); //"Invalid value type.
+                    assert(false); // Impossible value type.
                     break;
             }
             ++childCount;
@@ -775,7 +775,7 @@ bool ui::Control::IsInside(int x, int y) const noexcept
 
 void ui::Control::Set_minSize(Direction direction, unsigned int absolute) noexcept
 {
-    if (_minSize[direction] == absolute) return;
+    if (absolute == _minSize[direction]) return;
     _minSize[direction] = absolute;
     if (parent) parent->UpdateInQueue();
 }
@@ -795,7 +795,7 @@ ui::Control::Direction ui::Control::GetAnotherDirection(Direction direction) noe
             return Direction::HORIZONTAL;
             break;
         default:
-            assert(false); // Invalid direction.
+            assert(false); // Impossible direction.
             return Direction::VERTICAL;
             break;
     }
@@ -1443,13 +1443,13 @@ void ui::ScrollingBox::SharedUpdate(bool resetMinSize, Direction direction) noex
 
     rect->SetPreset(direction, Preset::FILL_FROM_CENTER);
     if (barAtFront) {
-        GetBar()->SetPreset(another, Preset::PLACR_AT_FRONT);
-        GetBox()->SetPreset(another, Preset::PLACR_AT_END);
-        rect->SetPreset(another, Preset::PLACR_AT_END);
+        GetBar()->SetPreset(another, Preset::PLACE_AT_FRONT);
+        GetBox()->SetPreset(another, Preset::PLACE_AT_END);
+        rect->SetPreset(another, Preset::PLACE_AT_END);
     } else {
-        GetBar()->SetPreset(another, Preset::PLACR_AT_END);
-        GetBox()->SetPreset(another, Preset::PLACR_AT_FRONT);
-        rect->SetPreset(another, Preset::PLACR_AT_FRONT);
+        GetBar()->SetPreset(another, Preset::PLACE_AT_END);
+        GetBox()->SetPreset(another, Preset::PLACE_AT_FRONT);
+        rect->SetPreset(another, Preset::PLACE_AT_FRONT);
     }
 
     GetBox()->SetSize(another, globalSize[another] - barSize);
