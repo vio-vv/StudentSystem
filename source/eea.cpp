@@ -209,15 +209,15 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
             vers.push_back(ver);
         }
         std::vector<std::pair<std::string, std::string>> accs = {
-            {"最高管理权限", trm::Access::ADM},
-            {"创建帐户", trm::Access::CREATE_ACCOUNT},
-            {"删除帐户", trm::Access::DELETE_ACCOUNT},
-            {"授予权限", trm::Access::GRANT_ACCESS},
-            {"撤销权限", trm::Access::REVOKE_ACCESS},
-            {"添加标签", trm::Access::ADD_TAG},
-            {"删除标签", trm::Access::REMOVE_TAG},
-            {"重置帐号和权限系统", trm::Access::RESET_ACCOUNT_AND_ACCESS},
-            {"查看系统内帐户", trm::Access::LIST_ACCOUNT},
+            {"最高管理权限", trm::AccessBox{trm::Access::ADM}},
+            {"创建帐户", trm::AccessBox{trm::Access::CREATE_ACCOUNT}},
+            {"删除帐户", trm::AccessBox{trm::Access::DELETE_ACCOUNT}},
+            {"授予权限", trm::AccessBox{trm::Access::GRANT_ACCESS}},
+            {"撤销权限", trm::AccessBox{trm::Access::REVOKE_ACCESS}},
+            {"添加标签", trm::AccessBox{trm::Access::ADD_TAG}},
+            {"删除标签", trm::AccessBox{trm::Access::REMOVE_TAG}},
+            {"重置帐号和权限系统", trm::AccessBox{trm::Access::RESET_ACCOUNT_AND_ACCESS}},
+            {"查看系统内帐户", trm::AccessBox{trm::Access::LIST_ACCOUNT}},
         };
         int col = 0;
         for (auto [profile, access] : accs) {

@@ -60,7 +60,7 @@ namespace rqs{
      * @brief 检查是否拥有指定权限。
      * @param code 学工号
      * @param password 密码
-     * @param access 权限 @see @namespace Access
+     * @param access 权限对象 @see @struct Access
      * @return YES or NO
      * @retval NO 没有权限，或者帐户不存在或密码错误等
      */
@@ -91,7 +91,7 @@ namespace rqs{
      * @param code 学工号
      * @param password 密码
      * @param codeToGrant 被授予权限的帐户学工号
-     * @param access 权限 @see @namespace Access
+     * @param access 权限对象 @see @struct Access
      * @return SUCC or FAIL，或者 ACCESS_DENIED
      * @retval FAIL 被授予权限的帐户不存在等
      * @note ACCESS REQUIRED GRANT_ACCESS
@@ -103,7 +103,7 @@ namespace rqs{
      * @param code 学工号
      * @param password 密码
      * @param codeToRevoke 被撤销权限的帐户学工号
-     * @param access 权限 @see @namespace Access
+     * @param access 权限对象 @see @struct Access
      * @return SUCC or FAIL，或者 ACCESS_DENIED
      * @retval FAIL 被撤销权限的帐户不存在等
      * @note ACCESS REQUIRED REVOKE_ACCESS
@@ -611,46 +611,57 @@ namespace rpl{
     const std::string EXCEED_BOOK_NUM = _AS_"EXCEED_BOOK_NUM";
     const std::string NO_BORROW_RECORD = _AS_"NO_BORROW_RECORD";
 }
-namespace Access{
-    const std::string ADM = _AS_"ADM";                   // 拥有这个权限表示拥有所有权限
-    const std::string EVERYONE_OWN = _AS_"EVERYONE_OWN"; // 这个权限被所有人拥有
 
-    const std::string CREATE_ACCOUNT = _AS_"CREATE_ACCOUNT";
-    const std::string DELETE_ACCOUNT = _AS_"DELETE_ACCOUNT";
-    const std::string GRANT_ACCESS = _AS_"GRANT_ACCESS";
-    const std::string REVOKE_ACCESS = _AS_"REVOKE_ACCESS"; // 有这个权限才能撤销或清空别人的权限
-    const std::string ADD_TAG = _AS_"ADD_TAG";
-    const std::string REMOVE_TAG = _AS_"REMOVE_TAG"; // 有这个权限才能删除或清空别人的标签
-    const std::string RESET_ACCOUNT_AND_ACCESS = _AS_"RESET_ACCOUNT_AND_ACCESS";
-    const std::string LIST_ACCOUNT = _AS_"LIST_ACCOUNT";
+enum Access{
+    ADM,          // 拥有这个权限表示拥有所有权限
+    EVERYONE_OWN, // 这个权限被所有人拥有
 
-    const std::string SEND_MESSAGE = _AS_"SEND_MESSAGE";
-    const std::string DELETE_MESSAGE = _AS_"DELETE_MESSAGE"; // 有这个权限才能删除或清空自己的消息
-    const std::string DELETE_MESSAGE_OF_OTHERS = _AS_"DELETE_MESSAGE_OF_OTHERS"; // 有这个权限才能删除或清空别人的消息
-    const std::string RESET_MAIL_SYSTEM = _AS_"RESET_MAIL_SYSTEM";
+    CREATE_ACCOUNT,
+    DELETE_ACCOUNT,
+    GRANT_ACCESS,
+    REVOKE_ACCESS, // 有这个权限才能撤销或清空别人的权限
+    ADD_TAG,
+    REMOVE_TAG, // 有这个权限才能删除或清空别人的标签
+    RESET_ACCOUNT_AND_ACCESS,
+    LIST_ACCOUNT,
+
+    SEND_MESSAGE,
+    DELETE_MESSAGE, // 有这个权限才能删除或清空自己的消息
+    DELETE_MESSAGE_OF_OTHERS, // 有这个权限才能删除或清空别人的消息
+    RESET_MAIL_SYSTEM,
     
-    const std::string ADD_COURSE = _AS_"ADD_COURSE";
-    const std::string DELETE_COURSE = _AS_"DELETE_COURSE";
-    const std::string ADM_ADD_COUR = _AS_"ADM_ADD_COUR";
-    const std::string ADM_DELETE_COUR = _AS_"ADM_DELETE_COUR";
+    ADD_COURSE,
+    DELETE_COURSE,
+    ADM_ADD_COUR,
+    ADM_DELETE_COUR,
 
-    const std::string ADM_SET_RESERVE_NUMBER = _AS_"ADM_SET_RESERVE_NUMBER"; // 管理员设置可预约数量
-    const std::string ADM_ADD_RESERVE_TIME = _AS_"ADM_SET_RESERVE_TIME"; // 管理员增加可预约时间
-    const std::string ADM_DELETE_RESERVE_TIME = _AS_"ADM_DELETE_RESERVE_TIME"; // 管理员删除可预约时间
-    const std::string ADM_MODIFTY_RESERVE_NUMBER = _AS_"ADM_MODIFTY_RESERVE_NUMBER"; // 管理员修改可预约数量
+    ADM_SET_RESERVE_NUMBER, // 管理员设置可预约数量
+    ADM_ADD_RESERVE_TIME, // 管理员增加可预约时间
+    ADM_DELETE_RESERVE_TIME, // 管理员删除可预约时间
+    ADM_MODIFTY_RESERVE_NUMBER, // 管理员修改可预约数量
 
-    const std::string BOOK_MANAGE = _AS_"BOOK_MANAGE";
-    const std::string BORROW_BOOK = _AS_"BORROW_BOOK";
-    const std::string RESET_LIBRARY = _AS_"RESET_LIBRARY";
-}
+    BOOK_MANAGE,
+    BORROW_BOOK,
+    RESET_LIBRARY,
+
+    _
+};
+struct AccessBox {
+    Access access;
+    AccessBox(Access _access) noexcept : access(_access) {}
+    operator std::string() const noexcept;
+    AccessBox(const std::string &content) noexcept;
+    operator Access() const noexcept;
+};
+
 struct Account{
     using Tag = std::pair<std::string, std::string>;
     std::string code;                  // 学工号
     std::string hashedPassword;        // 密码哈希值
-    std::vector<std::string> access;   // 权限列表
+    std::vector<Access> access;        // 权限列表
     std::vector<Tag> tags;             // 标签列表
     Account() noexcept = default;
-    Account(const std::string &_code, const std::string &_hashedPassword, const std::vector<std::string> &_access = {}, const std::vector<Tag> &_tags = {}) noexcept : 
+    Account(const std::string &_code, const std::string &_hashedPassword, const std::vector<Access> &_access = {}, const std::vector<Tag> &_tags = {}) noexcept : 
         code(_code), hashedPassword(_hashedPassword), access(_access), tags(_tags) {}
     operator std::string() const noexcept;
     Account(const std::string &content) noexcept;

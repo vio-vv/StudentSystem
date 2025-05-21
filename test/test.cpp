@@ -169,7 +169,7 @@ int main()
     f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::SEND_MESSAGE}));
     f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::CREATE_ACCOUNT}));
     f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "1", Access::REVOKE_ACCESS}));
-    f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "1", "1", Account{"2", "2", {Access::SEND_MESSAGE, Access::CREATE_ACCOUNT, trm::Access::DELETE_ACCOUNT}}}));
+    f(ssys.CreateAccount({rqs::CREATE_ACCOUNT, "1", "1", Account{"2", "2", {Access::SEND_MESSAGE, Access::CREATE_ACCOUNT, trm::AccessBox{trm::Access::DELETE_ACCOUNT}}}));
     f(ssys.GrantAccess({rqs::GRANT_ACCESS, "adm", "123", "2", Access::DELETE_ACCOUNT}));
     f(ssys.RevokeAllAccess({rqs::REVOKE_ALL_ACCESS, "1", "2", "2"}));
     f(ssys.RevokeAllAccess({rqs::REVOKE_ALL_ACCESS, "1", "1", "2"}));

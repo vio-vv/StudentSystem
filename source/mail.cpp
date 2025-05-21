@@ -7,7 +7,7 @@ trm::Information ssys::MailSystem::SendMessage(const trm::Information &informati
 {
     assert(information[0] == trm::rqs::SEND_MESSAGE); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::SEND_MESSAGE});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::SEND_MESSAGE}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -27,7 +27,7 @@ trm::Information ssys::MailSystem::GetMessageNumber(const trm::Information &info
 {
     assert(information[0] == trm::rqs::GET_MESSAGE_NUMBER); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::EVERYONE_OWN}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -39,7 +39,7 @@ trm::Information ssys::MailSystem::GetMessageProfile(const trm::Information &inf
 {
     assert(information[0] == trm::rqs::GET_MESSAGE_PROFILE); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::EVERYONE_OWN}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -77,7 +77,7 @@ trm::Information ssys::MailSystem::MarkAsRead(const trm::Information &informatio
 {
     assert(information[0] == trm::rqs::MARK_AS_READ); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::EVERYONE_OWN}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -102,7 +102,7 @@ trm::Information ssys::MailSystem::MarkAsUnread(const trm::Information &informat
 {
     assert(information[0] == trm::rqs::MARK_AS_UNREAD); // Procession not matched.
     
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::EVERYONE_OWN}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -127,7 +127,7 @@ trm::Information ssys::MailSystem::GetUnreadMessageNumber(const trm::Information
 {
     assert(information[0] == trm::rqs::GET_UNREAD_MESSAGE_NUMBER); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::EVERYONE_OWN});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::EVERYONE_OWN}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -139,7 +139,7 @@ trm::Information ssys::MailSystem::DeleteMessage(const trm::Information &informa
 {
     assert(information[0] == trm::rqs::DELETE_MESSAGE); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_MESSAGE});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::DELETE_MESSAGE}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -160,7 +160,7 @@ trm::Information ssys::MailSystem::ClearMessage(const trm::Information &informat
 {
     assert(information[0] == trm::rqs::CLEAR_MESSAGE); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_MESSAGE});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::DELETE_MESSAGE}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -178,7 +178,7 @@ trm::Information ssys::MailSystem::DeleteMessageOfOthers(const trm::Information 
 {
     assert(information[0] == trm::rqs::DELETE_MESSAGE_OF_OTHERS); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_MESSAGE_OF_OTHERS});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::DELETE_MESSAGE_OF_OTHERS}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -207,7 +207,7 @@ trm::Information ssys::MailSystem::ClearMessageOfOthers(const trm::Information &
 {
     assert(information[0] == trm::rqs::CLEAR_MESSAGE_OF_OTHERS); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_MESSAGE_OF_OTHERS});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::DELETE_MESSAGE_OF_OTHERS}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -230,7 +230,7 @@ trm::Information ssys::MailSystem::ResetMailSystem(const trm::Information &infor
 {
     assert(information[0] == trm::rqs::RESET_MAIL_SYSTEM); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::RESET_MAIL_SYSTEM});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::RESET_MAIL_SYSTEM}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }

@@ -40,7 +40,7 @@ protected:
     AccountAndAccess(const AccountAndAccess &) = delete;
     AccountAndAccess &operator=(const AccountAndAccess &) = delete;
 private:
-    static std::vector<std::string> AccessCross(const std::vector<std::string> &access, const std::vector<std::string> &creator) noexcept;
+    static std::vector<trm::Access> AccessCross(const std::vector<trm::Access> &access, const std::vector<trm::Access> &creator) noexcept;
     static const std::string ACCOUNTS;
 
     dat::DataBase base = DATA_BASE["acc_acc"];

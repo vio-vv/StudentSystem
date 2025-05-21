@@ -12,7 +12,7 @@ trm::Information ssys::Library::RestoreNewBook(const trm::Information &content) 
 {
     assert(content[0] == trm::rqs::RESTORE_BOOK);
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BOOK_MANAGE});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::AccessBox{trm::Access::BOOK_MANAGE}});
     if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
 
     if (!books.Exists(content[3])) {
@@ -32,7 +32,7 @@ trm::Information ssys::Library::BorrowBook(const trm::Information &content) noex
 {
     assert(content[0] == trm::rqs::BORROW_BOOK);
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BORROW_BOOK});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::AccessBox{trm::Access::BORROW_BOOK}});
     if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
 
     auto book = trm::Book(books[content[3]]);
@@ -80,7 +80,7 @@ trm::Information ssys::Library::RemoveBook(const trm::Information &content) noex
 {   
     assert(content[0] == trm::rqs::REMOVE_BOOK);
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BOOK_MANAGE});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::AccessBox{trm::Access::BOOK_MANAGE}});
     if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
 
     if (!books.Exists(content[3])) return {trm::rpl::NO_BOOK};
@@ -132,7 +132,7 @@ trm::Information ssys::Library::ModifyBookInfo(const trm::Information &content) 
 {   
     assert(content[0] == trm::rqs::MODIFY_BOOK_INFO);
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::BOOK_MANAGE});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::AccessBox{trm::Access::BOOK_MANAGE}});
 
     if (reply[0] == trm::rpl::NO) return {trm::rpl::ACCESS_DENIED};
 
@@ -301,7 +301,7 @@ trm::Information ssys::Library::ResetLibrary(const trm::Information &content) no
 {
     assert(content[0] == trm::rqs::RESET_LIBRARY);
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::Access::RESET_LIBRARY});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, content[1], content[2], trm::AccessBox{trm::Access::RESET_LIBRARY}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }

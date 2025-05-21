@@ -55,15 +55,17 @@ trm::Information ssys::AccountAndAccess::CheckAccess(const trm::Information &inf
     
     auto reply = SSys::Get().CheckAccount({trm::rqs::CHECK_ACCOUNT, information[1], information[2]});
 
+    auto access = trm::AccessBox{information[3]};
+
     if (reply[0] == trm::rpl::YES) {
-        if (information[3] == trm::Access::EVERYONE_OWN) {
+        if (access == trm::Access::EVERYONE_OWN) {
             return {trm::rpl::YES};
         }
 
         auto account = trm::Account(reply[1]);
 
         for (const auto &each : account.access) {
-            if (each == trm::Access::ADM || each == information[3]) {
+            if (each == trm::Access::ADM || each == access) {
                 return {trm::rpl::YES};
             }
         }
@@ -76,7 +78,7 @@ trm::Information ssys::AccountAndAccess::CreateAccount(const trm::Information &i
 {
     assert(information[0] == trm::rqs::CREATE_ACCOUNT); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::CREATE_ACCOUNT});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::CREATE_ACCOUNT}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -102,7 +104,7 @@ trm::Information ssys::AccountAndAccess::DeleteAccount(const trm::Information &i
 {
     assert(information[0] == trm::rqs::DELETE_ACCOUNT); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_ACCOUNT});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::DELETE_ACCOUNT}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -121,12 +123,14 @@ trm::Information ssys::AccountAndAccess::GrantAccess(const trm::Information &inf
 {
     assert(information[0] == trm::rqs::GRANT_ACCESS); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::GRANT_ACCESS});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::GRANT_ACCESS}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
 
-    reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], information[4]});
+    auto access = trm::AccessBox{information[4]};
+
+    reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], access});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -137,9 +141,9 @@ trm::Information ssys::AccountAndAccess::GrantAccess(const trm::Information &inf
     }
 
     auto account = trm::Account(accountBase);
-    auto iter = std::find(account.access.begin(), account.access.end(), information[4]);
+    auto iter = std::find(account.access.begin(), account.access.end(), access);
     if (iter == account.access.end()) {
-        account.access.push_back(information[4]);
+        account.access.push_back(access);
     }
     accountBase = account;
     return {trm::rpl::SUCC};
@@ -149,12 +153,14 @@ trm::Information ssys::AccountAndAccess::RevokeAccess(const trm::Information &in
 {
     assert(information[0] == trm::rqs::REVOKE_ACCESS); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::REVOKE_ACCESS});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::REVOKE_ACCESS}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
 
-    reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], information[4]});
+    auto access = trm::AccessBox{information[4]};
+
+    reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], access});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -165,7 +171,7 @@ trm::Information ssys::AccountAndAccess::RevokeAccess(const trm::Information &in
     }
 
     auto account = trm::Account(accountBase);
-    auto iter = std::find(account.access.begin(), account.access.end(), information[4]);
+    auto iter = std::find(account.access.begin(), account.access.end(), access);
     if (iter != account.access.end()) {
         account.access.erase(iter);
     }
@@ -177,7 +183,7 @@ trm::Information ssys::AccountAndAccess::RevokeAllAccess(const trm::Information 
 {
     assert(information[0] == trm::rqs::REVOKE_ALL_ACCESS); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::REVOKE_ACCESS});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::REVOKE_ACCESS}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -209,7 +215,7 @@ trm::Information ssys::AccountAndAccess::AddTag(const trm::Information &informat
 {
     assert(information[0] == trm::rqs::ADD_TAG); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADD_TAG});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::ADD_TAG}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -237,7 +243,7 @@ trm::Information ssys::AccountAndAccess::RemoveTag(const trm::Information &infor
 {
     assert(information[0] == trm::rqs::REMOVE_TAG); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::REMOVE_TAG});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::REMOVE_TAG}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -262,7 +268,7 @@ trm::Information ssys::AccountAndAccess::ClearTag(const trm::Information &inform
 {
     assert(information[0] == trm::rqs::CLEAR_TAG); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::REMOVE_TAG});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::REMOVE_TAG}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -282,7 +288,7 @@ trm::Information ssys::AccountAndAccess::ResetAccountAndAccess(const trm::Inform
 {
     assert(information[0] == trm::rqs::RESET_ACCOUNT_AND_ACCESS); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::RESET_ACCOUNT_AND_ACCESS});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::RESET_ACCOUNT_AND_ACCESS}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -295,7 +301,7 @@ trm::Information ssys::AccountAndAccess::ListAccount(const trm::Information &inf
 {
     assert(information[0] == trm::rqs::LIST_ACCOUNT); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::LIST_ACCOUNT});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::LIST_ACCOUNT}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -307,7 +313,7 @@ trm::Information ssys::AccountAndAccess::GetAccountDetail(const trm::Information
 {
     assert(information[0] == trm::rqs::GET_ACCOUNT_DETAIL); // Procession not matched.
 
-    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::LIST_ACCOUNT});
+    auto reply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::LIST_ACCOUNT}});
     if (reply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -319,7 +325,7 @@ ssys::AccountAndAccess::AccountAndAccess() noexcept
 {
     auto admBase = base[ACCOUNTS]["adm"];
     if (!admBase.Exists()) {
-        admBase = trm::Account{"adm", "123", {trm::Access::ADM}};
+        admBase = trm::Account{"adm", "123", {trm::Access::ADM}, {"name", "最高管理员"}};
     }
 }
 
@@ -328,12 +334,12 @@ ssys::AccountAndAccess::~AccountAndAccess() noexcept
     ;
 }
 
-std::vector<std::string> ssys::AccountAndAccess::AccessCross(const std::vector<std::string> &access, const std::vector<std::string> &creator) noexcept
+std::vector<trm::Access> ssys::AccountAndAccess::AccessCross(const std::vector<trm::Access> &access, const std::vector<trm::Access> &creator) noexcept
 {
-    if (std::find(creator.begin(), creator.end(), trm::Access::ADM) != creator.end()) {
+    if (std::find(creator.begin(), creator.end(), trm::AccessBox{trm::Access::ADM}) != creator.end()) {
         return access;
     }
-    std::vector<std::string> result;
+    std::vector<trm::Access> result;
     for (const auto &each : access) {
         if (std::find(creator.begin(), creator.end(), each) != creator.end()) {
             result.push_back(each);

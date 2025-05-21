@@ -120,7 +120,7 @@ trm::Information ssys::ReserveSystem::CheckReserveStatusList(const trm::Informat
 trm::Information ssys::ReserveSystem::AdmModifyReserveNumber(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::ADM_MODIFY_RESERVE_NUMBER); // Procession not matched.
-    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADM_SET_RESERVE_NUMBER});
+    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::ADM_SET_RESERVE_NUMBER}});
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -137,7 +137,7 @@ trm::Information ssys::ReserveSystem::AdmModifyReserveNumber(const trm::Informat
 trm::Information ssys::ReserveSystem::AdmAddReserveTime(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::ADM_ADD_RESERVE_TIME); // Procession not matched.
-    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADM_ADD_RESERVE_TIME});
+    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::ADM_ADD_RESERVE_TIME}});
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -154,7 +154,7 @@ trm::Information ssys::ReserveSystem::AdmAddReserveTime(const trm::Information& 
 trm::Information ssys::ReserveSystem::AdmDeleteReserveTime(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::ADM_DELETE_RESERVE_TIME); // Procession not matched.
-    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADM_DELETE_RESERVE_TIME});
+    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::ADM_DELETE_RESERVE_TIME}});
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }

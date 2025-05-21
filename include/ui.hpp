@@ -389,8 +389,6 @@ public:
     int  GetPosition(Direction direction) const noexcept { return position[direction]; }
     bool GetVisible() const noexcept { return visible; }
     
-    void Set_minSize(Direction direction, unsigned int absolute) noexcept;
-
     virtual ~Control() noexcept;
 protected:
     std::string name = "default";
@@ -401,6 +399,8 @@ protected:
      * @brief 封装的工具方法和属性。*
      * ****************************
      */
+    void Set_minSize(Direction direction, unsigned int absolute) noexcept;
+
     static Direction GetAnotherDirection(Direction direction) noexcept;
     static std::string convert(const sf::String &str);
     static sf::String convert(const std::string &str);

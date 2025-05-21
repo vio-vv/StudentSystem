@@ -181,7 +181,9 @@ trm::Account::operator std::string() const noexcept
     return Combine({
         code, 
         hashedPassword, 
-        Combine(access), 
+        Combine(Foreach<std::string, Access>(access, [](const Access &each){
+            return AccessBox{each};
+        })), 
         Combine(Foreach<std::string, Tag>(tags, [](const Tag &each){
             return Combine({each.first, each.second});
         }))
@@ -219,7 +221,9 @@ trm::Account::Account(const std::string &content) noexcept
     *this = {
         account[0], 
         account[1], 
-        trm::Split(account[2]), 
+        Foreach<Access, std::string>(trm::Split(account[2]), [](const std::string &each){
+            return AccessBox{each};
+        }), 
         trm::Foreach<std::pair<std::string, std::string>, std::string>(trm::Split(account[3]), [](const std::string &each){
             auto pair = trm::Split(each);
             return std::make_pair(pair[0], pair[1]);
@@ -380,4 +384,19 @@ std::pair<bool, trm::Information> trm::Sender::Poll() noexcept
     }
     ++count;
     return PollReply(self, id);
+}
+
+trm::AccessBox::operator std::string() const noexcept
+{
+    return ToStr((int)access);
+}
+
+trm::AccessBox::AccessBox(const std::string &content) noexcept
+{
+    *this = {(Access)ToNum(content)};
+}
+
+trm::AccessBox::operator Access() const noexcept
+{
+    return access;
 }

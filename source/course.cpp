@@ -40,7 +40,7 @@ trm::Information ssys::CourseSystem::CheckAllCourse(const trm::Information& info
 trm::Information ssys::CourseSystem::AddCourse(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::ADD_COURSE); // Procession not matched.
-    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADD_COURSE});//待修改，参数不太对
+    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::ADD_COURSE}});//待修改，参数不太对
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -60,7 +60,7 @@ trm::Information ssys::CourseSystem::AddCourse(const trm::Information& informati
 trm::Information ssys::CourseSystem::DeleteCourse(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::DELETE_COURSE); // Procession not matched.
-    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::DELETE_COURSE});//待修改，参数不太对
+    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::DELETE_COURSE}});//待修改，参数不太对
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -75,7 +75,7 @@ trm::Information ssys::CourseSystem::DeleteCourse(const trm::Information& inform
 trm::Information ssys::CourseSystem::AdmAddCour(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::ADM_ADD_COUR); // Procession not matched.
-    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADM_ADD_COUR});//待修改，参数不太对
+    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::ADM_ADD_COUR}});//待修改，参数不太对
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -90,7 +90,7 @@ trm::Information ssys::CourseSystem::AdmAddCour(const trm::Information& informat
 trm::Information ssys::CourseSystem::AdmDeleteCour(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::ADM_DELETE_COUR); // Procession not matched.
-    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::Access::ADM_DELETE_COUR});//待修改，参数不太对
+    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::ADM_DELETE_COUR}});//待修改，参数不太对
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
