@@ -908,12 +908,6 @@ unsigned long long GenerateRandomCode() noexcept;
  */
 unsigned long long GetTimeStamp() noexcept;
 
-/**
- * @brief 模糊匹配
- * @return 最长公共子序列与较短字符串比值
- */
-double FuzzyMatch(const std::string &str1, const std::string &str2) noexcept;
-
 template<typename List> concept Iterable = requires (List list) { list.begin(); list.end(); ++list.begin(); };
 template<typename List, typename InputType> concept TypeCorrespond = requires (List list, InputType input) { input = *list.begin(); };
 /**

@@ -48,6 +48,12 @@ private:
     dat::DataBase bookBorrowLog = borrowLogList["bookBorrowLog"];
     dat::DataBase accountBorrowLog = borrowLogList["accountBorrowLog"];
 
+    /**
+     * @brief 模糊匹配
+     * @return 最长公共子序列与较短字符串比值
+     */
+    double FuzzyMatch(const std::string &str1, const std::string &str2) noexcept;
+
     std::vector<trm::Book> activebookseries;
     std::vector<trm::BorrowLog> timeout;
     trm::Information CrossBorrowInfo() noexcept;

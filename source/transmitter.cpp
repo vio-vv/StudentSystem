@@ -219,23 +219,6 @@ std::string trm::Hash(const std::string &str) noexcept
     return str; // TODO: implement hash function
 }
 
-double trm::FuzzyMatch(const std::string &str1, const std::string &str2) noexcept
-{
-    const int len1 = str1.length();
-    const int len2 = str2.length();
-
-    std::vector<std::vector<int>> LCS(len1 + 1, std::vector<int>(len2 + 1));
-    for (int i = 1; i <= len1; i++) {
-        for (int j = 1; j <= len2; j++) {
-            if (str1[i - 1] == str2[j - 1]) LCS[i][j] = LCS[i - 1][j - 1] + 1;
-            else LCS[i][j] = std::max(LCS[i - 1][j], LCS[i][j - 1]);
-        }
-    }
-
-    return LCS[len1][len2] / (double) (len1 + len2) / 2;
-}
-
-
 trm::Account::operator std::string() const noexcept
 {
     return Combine({

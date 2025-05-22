@@ -101,7 +101,7 @@ trm::Information ssys::Library::RemoveBook(const trm::Information &content) noex
             bookBorrowLog[content[3]].Remove();
         }
         else {
-            if (book.bookTot - book.bookBorrowed >= ToNum(content[4])) {
+            if (book.bookTot - book.bookBorrowed >= ToNum<unsigned int>(content[4])) {
                 book.bookTot -= ToNum(content[4]);
                 books[content[3]] = book;
             }
@@ -208,7 +208,7 @@ trm::Information ssys::Library::SearchBook(const trm::Information &content) noex
         trm::Book tmp = trm::Book(bookInfo);
         switch (type) {
             case trm::rqs::bk::BOOK_ISBN:
-                matchRate = trm::FuzzyMatch(content[1], tmp.bookIsbn);
+                matchRate = FuzzyMatch(content[1], tmp.bookIsbn);
                 if (matchRate > standard) {
                     match.push_back({matchRate, tmp});
                 }
@@ -217,7 +217,7 @@ trm::Information ssys::Library::SearchBook(const trm::Information &content) noex
                 break;
             case trm::rqs::bk::BOOK_AUTHOR:
                 for (auto author : tmp.bookAuthor) {
-                    matchRate = std::max(trm::FuzzyMatch(content[1], author), matchRate);
+                    matchRate = std::max(FuzzyMatch(content[1], author), matchRate);
                 }
                 if (matchRate > standard) {
                     match.push_back({matchRate, tmp});
@@ -226,7 +226,7 @@ trm::Information ssys::Library::SearchBook(const trm::Information &content) noex
                 else f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookAuthor[0] > b.bookAuthor[0]; };
                 break;
             case trm::rqs::bk::BOOK_CATAGORY:
-                matchRate = trm::FuzzyMatch(content[1], tmp.bookCatagory);
+                matchRate = FuzzyMatch(content[1], tmp.bookCatagory);
                 if (matchRate > standard) {
                     match.push_back({matchRate, tmp});
                 }
@@ -234,7 +234,7 @@ trm::Information ssys::Library::SearchBook(const trm::Information &content) noex
                 else f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookCatagory > b.bookCatagory; };
                 break;
             case trm::rqs::bk::BOOK_PUBLISHDATE:
-                matchRate = trm::FuzzyMatch(content[1], tmp.bookPublicationDate);
+                matchRate = FuzzyMatch(content[1], tmp.bookPublicationDate);
                 if (matchRate > standard) {
                     match.push_back({matchRate, tmp});
                 }
@@ -242,7 +242,7 @@ trm::Information ssys::Library::SearchBook(const trm::Information &content) noex
                 else f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookPublicationDate > b.bookPublicationDate; };
                 break;
             default:
-                matchRate = trm::FuzzyMatch(content[1], tmp.bookName);
+                matchRate = FuzzyMatch(content[1], tmp.bookName);
                 if (matchRate > standard) {
                     match.push_back({matchRate, tmp});
                 }
@@ -308,4 +308,20 @@ trm::Information ssys::Library::ResetLibrary(const trm::Information &content) no
 
     DATA_BASE[LIBRARY].Remove();
     return{trm::rpl::SUCC};
+}
+
+double ssys::Library::FuzzyMatch(const std::string &str1, const std::string &str2) noexcept
+{
+    const int len1 = str1.length();
+    const int len2 = str2.length();
+
+    std::vector<std::vector<int>> LCS(len1 + 1, std::vector<int>(len2 + 1));
+    for (int i = 1; i <= len1; i++) {
+        for (int j = 1; j <= len2; j++) {
+            if (str1[i - 1] == str2[j - 1]) LCS[i][j] = LCS[i - 1][j - 1] + 1;
+            else LCS[i][j] = std::max(LCS[i - 1][j], LCS[i][j - 1]);
+        }
+    }
+
+    return LCS[len1][len2] / (double) (len1 + len2) / 2;
 }
