@@ -324,11 +324,13 @@ public:
     /**
      * @fn 更新组件内容尺寸位置
      * @param resetMinSize 是否重置最小尺寸
-     * @note 调用时机：组件最终尺寸和位置变化时，调用 UpdateInQueue(false)；组件内容尺寸和位置变化时，调用 UpdateInQueue(true)。
+     * @note 调用时机：组件最终尺寸和位置变化时，调用 UpdateInQueue(false)；组件内容尺寸和位置变化时，调用 UpdateInQueue(true)；而后帧循环时，分别依次调用 FreshUp() 和 FreshDown()，以落实 Update 的调用。
      * @note 实现功能：确定内容的最终尺寸和位置。
      */
     virtual void Update  (bool resetMinSize = true)                                 noexcept = 0;
-    void UpdateInQueue(bool argv = true) noexcept { inQueue = true; resetMinSize = resetMinSize || argv; } // 用以提升性能
+    virtual void UpdateInQueue (bool argv = true) noexcept { inQueue = true; resetMinSize = resetMinSize || argv; }
+    virtual void FreshUp       ()                 noexcept { Fresh(); }
+    virtual void FreshDown     ()                 noexcept { Fresh(); } // 用以提升性能
     /**
      * @fn 处理事件
      * @param event 事件
@@ -343,13 +345,7 @@ public:
      * @note 实现功能：绘制组件。
      */
     virtual void Draw    (sf::RenderWindow &screen, float delta)                    noexcept = 0;
-    /**
-     * @fn 帧刷新组件
-     * @note 调用时机：每一帧刷新时。
-     * @note 实现功能：刷新组件。
-     */
-    virtual void Tick    ()                                                         noexcept;
-
+    
     /*****************************************
      * @brief 父容器更新内容的尺寸和位置的接口。*
      * ***************************************
@@ -359,6 +355,7 @@ public:
      * @param container 父容器
      */
     void SetParent        (Container *container)                        noexcept;
+    void SetNominalParent (Control *container)                          noexcept; // 组合时用
     /**
      * @fn 设置最终尺寸
      * @param direction 方向
@@ -393,7 +390,8 @@ public:
 protected:
     std::string name = "default";
     bool inQueue = false;
-    bool resetMinSize = false; // 用以提升性能
+    bool resetMinSize = false;
+    void Fresh() noexcept; // 用以提升性能
 
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -456,6 +454,7 @@ protected:
      * **************************
      */
     Container           *parent         = nullptr;
+    Control             *nominalParent  = nullptr;
     Around<unsigned int> globalSize     = {200, 100};
     Around<int>          globalPosition = {0, 0};
 
@@ -539,10 +538,11 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true)                                 noexcept = 0;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)                    noexcept;
-    void Tick   ()                                                         noexcept;
+    void Update (bool resetMinSize = true)                               noexcept = 0;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)                  noexcept;
+    void FreshUp  () noexcept;
+    void FreshDown() noexcept;
 
     ~Container() noexcept;
 protected:
@@ -1082,6 +1082,7 @@ public:
         label->SetPreset(Preset::WRAP_AT_CENTER);
         layer.Add(rect);
         layer.Add(label);
+        layer.SetNominalParent(this);
         UpdateInQueue(true);
     }
     Button(const std::string &caption, Callback clickCallback, const std::string &name = "default") noexcept : Button()
@@ -1134,7 +1135,8 @@ public:
     void Update (bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
     void Draw   (sf::RenderWindow &screen, float delta)                    noexcept;
-    void Tick   ()                         noexcept;
+    void FreshUp  () noexcept;
+    void FreshDown() noexcept;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1193,6 +1195,7 @@ public:
         layer.Add(button);
         layer.Add(rect);
         layer.Add(label);
+        layer.SetNominalParent(this);
         UpdateInQueue(true);
     }
     void SetBeginCallback(const Callback &function)  noexcept { beginCallback = function; }
@@ -1244,10 +1247,11 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true)                                 noexcept;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)                    noexcept;
-    void Tick   ()                                                         noexcept;
+    void Update (bool resetMinSize = true)                               noexcept;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)                  noexcept;
+    void FreshUp  () noexcept;
+    void FreshDown() noexcept;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1311,6 +1315,7 @@ public:
         
         layer.Add(background);
         layer.Add(front);
+        layer.SetNominalParent(this);
     }
     void SetEnteredCallback(const Callback &function) noexcept { enteredCallback = function; }
     void SetLeaveCallback  (Callback function) noexcept { leaveCallback = function; }
@@ -1350,10 +1355,11 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true)                                 noexcept = 0;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)                    noexcept;
-    void Tick   ()                                                         noexcept;
+    void Update (bool resetMinSize = true)                               noexcept = 0;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
+    void Draw   (sf::RenderWindow &screen, float delta)                  noexcept;
+    void FreshUp  () noexcept;
+    void FreshDown() noexcept;
 protected:
     Callback enteredCallback = DO_NOTHING;
     Callback leaveCallback = DO_NOTHING;
@@ -1505,6 +1511,7 @@ public:
         rect->SetOutlineColor(sf::Color::White);
 
         layer.Add(rect);
+        layer.SetNominalParent(this);
     }
 
     /*******************************************
@@ -1533,10 +1540,12 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true)                                 noexcept = 0;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen)  noexcept;
-    void Draw(sf::RenderWindow &screen, float delta)                      noexcept;
-    void Tick()                                                           noexcept;
+    void Update   (bool resetMinSize = true)                                noexcept = 0;
+    void Process  (const sf::Event &event, const sf::RenderWindow &screen)  noexcept;
+    void Draw     (sf::RenderWindow &screen, float delta)                   noexcept;
+    void FreshUp  () noexcept;
+    void FreshDown() noexcept;
+    void UpdateInQueue(bool argv = true) noexcept;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1837,6 +1846,7 @@ public:
         ring->SetCallback([this](const std::string &name, const sf::Event &event){
             this->Count();
         });
+        layer.SetNominalParent(this);
         UpdateInQueue(true);
     }
     void SetCountCallback(const Callback &function) noexcept { countCallback = function; }
@@ -1876,7 +1886,8 @@ public:
     void Update(bool resetMinSize = true) noexcept;
     void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
     void Draw(sf::RenderWindow &screen, float delta) noexcept;
-    void Tick() noexcept;
+    void FreshUp() noexcept;
+    void FreshDown() noexcept;
 protected:
     Callback countCallback = DO_NOTHING;
     Callback finishedCallback = DO_NOTHING;
@@ -2082,7 +2093,8 @@ public:
     void Update(bool resetMinSize = true) noexcept = 0;
     void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept = 0;
     void Draw(sf::RenderWindow &screen, float delta) noexcept = 0;
-    void Tick() noexcept = 0; // 组合时需重写
+    void FreshUp() noexcept = 0;
+    void FreshDown() noexcept = 0; // 组合时需重写
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*

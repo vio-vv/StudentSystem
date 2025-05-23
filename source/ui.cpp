@@ -37,9 +37,10 @@ void ui::Control::SetCenter(Direction direction, int percentage) noexcept
 {
     center[direction] = percentage;
     if (parent) parent->UpdateInQueue();
+    else if (nominalParent) nominalParent->UpdateInQueue();
 }
 
-void ui::Control::Tick() noexcept
+void ui::Control::Fresh() noexcept
 {
     if (inQueue) {
         Update(resetMinSize); 
@@ -48,14 +49,19 @@ void ui::Control::Tick() noexcept
     }
 }
 
-void ui::Container::Tick() noexcept
+void ui::Container::FreshUp() noexcept
 {
     for (auto child : *children) {
-        child->Tick();
+        child->FreshUp();
     }
-    Control::Tick();
+    Control::FreshUp();
+}
+
+void ui::Container::FreshDown() noexcept
+{
+    Control::FreshDown();
     for (auto child : *children) {
-        child->Tick();
+        child->FreshDown();
     }
 }
 
@@ -63,18 +69,21 @@ void ui::Control::SetAnchor(Direction direction, int percentage) noexcept
 {
     anchor[direction] = percentage;
     if (parent) parent->UpdateInQueue();
+    else if (nominalParent) nominalParent->UpdateInQueue();
 }
 
 void ui::Control::SetPosition(Direction direction, int absolute) noexcept
 {
     position[direction] = absolute;
     if (parent) parent->UpdateInQueue();
+    else if (nominalParent) nominalParent->UpdateInQueue();
 }
 
 void ui::Control::SetVisible(bool flag) noexcept
 {
     visible = flag;
     if (parent) parent->UpdateInQueue();
+    else if (nominalParent) nominalParent->UpdateInQueue();
 }
 
 void ui::Control::AddTo(Container *container) noexcept
@@ -137,24 +146,28 @@ void ui::Control::SetMinSize(Direction direction, unsigned int absolute) noexcep
     if (absolute == minSize[direction]) return;
     minSize[direction] = absolute;
     if (parent) parent->UpdateInQueue();
+    else if (nominalParent) nominalParent->UpdateInQueue();
 }
 
 void ui::Control::SetSizeWrap(Direction direction, bool flag) noexcept
 {
     sizeWrap[direction] = flag;
     if (parent) parent->UpdateInQueue();
+    else if (nominalParent) nominalParent->UpdateInQueue();
 }
 
 void ui::Control::SetSizeValueType(Direction direction, ValueType valueType) noexcept
 {
     sizeValueType[direction] = valueType;
     if (parent) parent->UpdateInQueue();
+    else if (nominalParent) nominalParent->UpdateInQueue();
 }
 
 void ui::Control::SetSize(Direction direction, unsigned int value) noexcept
 {
     size[direction] = value;
     if (parent) parent->UpdateInQueue();
+    else if (nominalParent) nominalParent->UpdateInQueue();
 }
 
 void ui::Control::SetParent(Container *container) noexcept
@@ -162,16 +175,21 @@ void ui::Control::SetParent(Container *container) noexcept
     parent = container;
 }
 
+void ui::Control::SetNominalParent(Control *container) noexcept
+{
+    nominalParent = container;
+}
+
 void ui::Control::SetGlobalPosition(Direction direction, int absolute) noexcept
 {
     globalPosition[direction] = absolute;
-    UpdateInQueue(true);
+    UpdateInQueue(false);
 }
 
 void ui::Control::SetGlobalSize(Direction direction, unsigned int absolute) noexcept
 {
     globalSize[direction] = absolute;
-    UpdateInQueue(true);
+    UpdateInQueue(false);
 }
 
 void ui::Container::Add(Control *control) noexcept
@@ -368,7 +386,8 @@ void ui::Screen::Tick() noexcept
                 Process(event, screen);
             }
         }
-        Container::Tick();
+        Container::FreshUp();
+        Container::FreshDown();
     }
 }
 
@@ -484,38 +503,64 @@ void ui::Center::Update(bool resetMinSize) noexcept
     }
 }
 
-void ui::ScrollingBox::Tick() noexcept
+void ui::ScrollingBox::FreshUp() noexcept
 {
-    Container::Tick();
-    layer.Tick();
+    layer.FreshUp();
+    Control::FreshUp();
 }
 
-void ui::Button::Tick() noexcept
+void ui::ScrollingBox::FreshDown() noexcept
 {
-    layer.Tick();
-    Control::Tick();
-    layer.Tick();
+    Control::FreshDown();
+    layer.FreshDown();
 }
 
-void ui::InputBox::Tick() noexcept
+void ui::Button::FreshUp() noexcept
 {
-    layer.Tick();
-    Control::Tick();
-    layer.Tick();
+    layer.FreshUp();
+    Control::FreshUp();
 }
 
-void ui::ScrollBar::Tick() noexcept
+void ui::Button::FreshDown() noexcept
 {
-    layer.Tick();
-    Control::Tick();
-    layer.Tick();
+    Control::FreshDown();
+    layer.FreshDown();
 }
 
-void ui::LoadingRingWithText::Tick() noexcept
+void ui::InputBox::FreshUp() noexcept
 {
-    layer.Tick();
-    Control::Tick();
-    layer.Tick();
+    layer.FreshUp();
+    Control::FreshUp();
+}
+
+void ui::InputBox::FreshDown() noexcept
+{
+    Control::FreshDown();
+    layer.FreshDown();
+}
+
+void ui::ScrollBar::FreshUp() noexcept
+{
+    layer.FreshUp();
+    Control::FreshUp();
+}
+
+void ui::ScrollBar::FreshDown() noexcept
+{
+    Control::FreshDown();
+    layer.FreshDown();
+}
+
+void ui::LoadingRingWithText::FreshUp() noexcept
+{
+    layer.FreshUp();
+    Control::FreshUp();
+}
+
+void ui::LoadingRingWithText::FreshDown() noexcept
+{
+    Control::FreshDown();
+    layer.FreshDown();
 }
 
 void ui::LinearBox::SetAllChildrenWrap(Direction direction, bool flag) noexcept
@@ -778,6 +823,7 @@ void ui::Control::Set_minSize(Direction direction, unsigned int absolute) noexce
     if (absolute == _minSize[direction]) return;
     _minSize[direction] = absolute;
     if (parent) parent->UpdateInQueue();
+    else if (nominalParent) nominalParent->UpdateInQueue();
 }
 
 ui::Control::~Control() noexcept
@@ -1426,6 +1472,12 @@ void ui::ScrollingBox::Draw(sf::RenderWindow &screen, float delta) noexcept
     GetBar()->Draw(screen, delta);
 
     DRAW_DEBUG_RECT;
+}
+
+void ui::ScrollingBox::UpdateInQueue(bool argv) noexcept
+{
+    Container::UpdateInQueue(argv);
+    GetBox()->UpdateInQueue(argv);
 }
 
 void ui::ScrollingBox::SharedUpdate(bool resetMinSize, Direction direction) noexcept
