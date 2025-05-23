@@ -1159,7 +1159,7 @@ void ui::InputBox::Process(const sf::Event &event, const sf::RenderWindow &scree
             inputCallback(name, event);
         }
     } else if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::Space) {
+        if (event.key.code == sf::Keyboard::Enter) {
             if (inputting) {
                 input('\n');
                 inputCallback(name, event);

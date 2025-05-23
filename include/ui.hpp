@@ -971,7 +971,7 @@ public:
     void SetFont(const std::string &fontFile)              noexcept;
     /**
      * @fn 设置每行最大长度
-     * @param count 最大长度；0（默认值） 不限制；其他 每行的大长度
+     * @param count 最大长度：0（默认值） 不限制；其他 每行的大长度
      */
     void SetMaxCount(unsigned int count)                   noexcept;
 
