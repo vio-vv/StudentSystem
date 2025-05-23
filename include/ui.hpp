@@ -966,9 +966,14 @@ public:
      * @brief 内容属性控制接口。*
      * *************************
      */
-    void SetContent(const std::string &newContent) noexcept;
-    void SetFontSize(unsigned int size)           noexcept;
-    void SetFont(const std::string &fontFile)      noexcept;
+    void SetContent(const std::string &newContent)         noexcept;
+    void SetFontSize(unsigned int size)                    noexcept;
+    void SetFont(const std::string &fontFile)              noexcept;
+    /**
+     * @fn 设置每行最大长度
+     * @param count 最大长度；0（默认值） 不限制；其他 每行的大长度
+     */
+    void SetMaxCount(unsigned int count)                   noexcept;
 
     /***************************
      * @brief 样式属性控制接口。*
@@ -1005,6 +1010,7 @@ protected:
     unsigned int fontSize = 50;
     sf::Font font;
     sf::Text text;
+    unsigned int maxCount = 0;
 
     /********************
      * @brief 样式属性。*
@@ -1110,9 +1116,10 @@ public:
      * @brief 内容属性控制接口。*
      * *************************
      */
-    void SetCaption(const std::string &caption)   noexcept;
-    void SetFontSize(unsigned int size)            noexcept;
-    void SetFont(const std::string &fontFile)      noexcept;
+    void SetCaption(const std::string &caption)            noexcept;
+    void SetFontSize(unsigned int size)                    noexcept;
+    void SetFont(const std::string &fontFile)              noexcept;
+    void SetMaxCount(unsigned int count)                   noexcept;
 
     /***************************
      * @brief 样式属性控制接口。*
@@ -1224,10 +1231,11 @@ public:
      * @brief 内容属性控制接口。*
      * *************************
      */
-    void SetText(const std::string &text)           noexcept;
-    void SetFontSize(unsigned int size)            noexcept;
-    void SetFont(const std::string &fontFile)       noexcept;
+    void SetText(const std::string &text)        noexcept;
+    void SetFontSize(unsigned int size)          noexcept;
+    void SetFont(const std::string &fontFile)    noexcept;
     void SetProtectText(bool flag)               noexcept;
+    void SetMaxCount(unsigned int count)         noexcept;
 
     /***************************
      * @brief 样式属性控制接口。*
@@ -1239,9 +1247,9 @@ public:
     void SetInputtingBackColor(const sf::Color &color) noexcept;
     void SetFlickerInterval(unsigned int interval)     noexcept;
     void SetCursorThickness(float thickness)           noexcept;
-    void SetLengthLimit(unsigned int maxLength)              noexcept;
-    void SetContentLimit(ContentLimit limit)                 noexcept;
-    void SetSpecialCharacters(const sf::String &list) noexcept;
+    void SetLengthLimit(unsigned int maxLength)        noexcept;
+    void SetContentLimit(ContentLimit limit)           noexcept;
+    void SetSpecialCharacters(const sf::String &list)  noexcept;
 
     /************************************
      * @brief 实现了的和待实现的抽象方法。*

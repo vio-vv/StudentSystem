@@ -693,9 +693,44 @@ void ui::Label::SetFont(const std::string &fontFile) noexcept
     UpdateInQueue();
 }
 
+void ui::Button::SetMaxCount(unsigned int count) noexcept
+{
+    label->SetMaxCount(count);
+    UpdateInQueue();
+}
+
+void ui::InputBox::SetMaxCount(unsigned int count) noexcept
+{
+    label->SetMaxCount(count);
+    UpdateInQueue();
+}
+
+void ui::Label::SetMaxCount(unsigned int count) noexcept
+{
+    maxCount = count;
+    UpdateInQueue();
+}
+
 void ui::Label::Update(bool resetMinSize) noexcept
 {
-    text.setString(convert(content));
+    sf::String tmpText;
+    if (maxCount) {
+        unsigned int cur = 0;
+        for (auto c : convert(content)) {
+            tmpText += c;
+            ++cur;
+            if (c == '\n') {
+                cur = 0;
+            }
+            if (cur >= maxCount) {
+                tmpText += '\n';
+                cur = 0;
+            }
+        }
+    } else {
+        tmpText = convert(content);
+    }
+    text.setString(tmpText);
     text.setCharacterSize(fontSize);
     text.setFont(font);
     text.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]));
@@ -1115,13 +1150,20 @@ void ui::InputBox::Process(const sf::Event &event, const sf::RenderWindow &scree
                 SetText(convert(textCopy + c));
                 break;
         }
+        cursorVisible = true;
+        flickerTimer.restart();
     };
     if (event.type == sf::Event::TextEntered) {
         if (inputting) {
             input(event.text.unicode);
             inputCallback(name, event);
-            cursorVisible = true;
-            flickerTimer.restart();
+        }
+    } else if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == sf::Keyboard::Space) {
+            if (inputting) {
+                input('\n');
+                inputCallback(name, event);
+            }
         }
     } else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Left) {
