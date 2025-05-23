@@ -89,8 +89,16 @@ private:
     std::function<void ()> reorganizeAccessBox = [](){};
     ui::Button *columnAdd = nullptr;
     ui::Button *columnDel = nullptr;
-    std::vector<ui::VerticalBox *> vers;
+    std::vector<ui::ToggleButton *> accessList;
 
+    ui::VerticalBox *editBox = nullptr;
+    ui::Button *addTagBtn = nullptr;
+    int tagHorsNum = 0;
+    std::unordered_map<int, ui::HorizontalBox *> tagHors;
+    std::unordered_map<int, ui::InputBox *> tagNames;
+    std::unordered_map<int, ui::InputBox *> tagValues;
+
+    trm::Account newAccount;
     ui::Button *okBtn = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;

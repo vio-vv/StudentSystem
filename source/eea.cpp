@@ -95,12 +95,15 @@ void eea::AccountDelail::Load(ui::Screen *screen) noexcept
                 {
                     auto label = new ui::Label; {
                         label->AddTo(base);
-                        label->SetContent("权限");
+                        label->SetContent("* 权限");
                     }
                     accessBox = new ui::HorizontalBox; {
                         accessBox->AddTo(base);
                         accessBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                         accessBox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    }
+                    {
+                        ;
                     }
                     auto flat = new ui::Flat; {
                         flat->AddTo(base);
@@ -133,7 +136,17 @@ void eea::AccountDelail::Load(ui::Screen *screen) noexcept
                 {
                     auto label = new ui::Label; {
                         label->AddTo(base);
-                        label->SetContent("标签");
+                        label->SetContent("* 标签");
+                    }
+                    editBox = new ui::VerticalBox; {
+                        editBox->AddTo(base);
+                        editBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        editBox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    }
+                    addTagBtn = new ui::Button; {
+                        addTagBtn->AddTo(base);
+                        addTagBtn->SetPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                        addTagBtn->SetCaption("创建标签");
                     }
                 }
             }
@@ -152,6 +165,9 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
         SwitchTo(new EnterAccManage);
     });
 
+    userInput->SetInputCallback(UI_CALLBACK{
+        newAccount.code = userInput->GetText();
+    });
     userInput->SetExceedLimitCallback(UI_CALLBACK{
         limitTips->Show();
     });
@@ -187,8 +203,10 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
     });
 
     columnAdd->SetClickCallback(UI_CALLBACK{
-        ++columnNum;
-        reorganizeAccessBox();
+        if (columnNum < 7) {
+            ++columnNum;
+            reorganizeAccessBox();
+        }
     });
     columnDel->SetClickCallback(UI_CALLBACK{
         if (columnNum > 1) {
@@ -197,9 +215,26 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
         }
     });
 
+    auto accessOn = UI_CALLBACK{
+        newAccount.access.push_back((trm::Access)ToNum(name));
+    };
+    auto accessOff = UI_CALLBACK{
+        auto toDelete = newAccount.access.end();
+        for (auto it = newAccount.access.begin(); it != newAccount.access.end(); ++it) {
+            if (*it == (trm::Access)ToNum(name)) {
+                toDelete = it;
+                break;
+            }
+        }
+        if (toDelete != newAccount.access.end()) {
+            newAccount.access.erase(toDelete);
+        }
+    };
+
     reorganizeAccessBox = [=, this](){
         accessBox->FreeAll();
-        vers.clear();
+        accessList.clear();
+        std::vector<ui::VerticalBox *> vers;
         for (int c = columnNum; c--; ) {
             auto ver = new ui::VerticalBox; {
                 ver->AddTo(accessBox);
@@ -210,13 +245,129 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
         }
         int col = 0;
         for (int access = 0; access < trm::Access::_COMMON; ++access) {
-            auto btn = new ui::ToggleButton(trm::GetAccessInfo((trm::Access)access).name, ToStr(access));
+            auto btn = new ui::ToggleButton(trm::GetAccessInfo((trm::Access)access).name, ToStr(access),
+                accessOn, accessOff);
             btn->SetPreset(ui::Control::Preset::PLACE_AT_CENTER);
+            accessList.push_back(btn);
             vers[col]->Add(btn);
+            for (auto acc : newAccount.access) {
+                if (acc == access) {
+                    btn->SetOn();
+                    break;
+                }
+            }
             ++col;
             if (col == columnNum) col = 0;
         }
     };
+
+    auto delTag = UI_CALLBACK{
+        int idx = ToNum(name);
+        QueueFree(tagHors[idx]);
+        tagHors.erase(idx);
+        tagNames.erase(idx);
+        tagValues.erase(idx);
+    };
+
+    addTagBtn->SetClickCallback(UI_CALLBACK{
+        ++tagHorsNum;
+        auto &hbox = tagHors[tagHorsNum] = new ui::HorizontalBox; {
+            hbox->AddTo(editBox);
+            hbox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            hbox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+        }
+        {
+            auto label = new ui::Label; {
+                label->AddTo(hbox);
+                label->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                label->SetContent("标签 " + ToStr(tagHorsNum) + "：");
+            }
+            label = new ui::Label; {
+                label->AddTo(hbox);
+                label->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                label->SetContent("标签名：");
+            }
+            auto &input = tagNames[tagHorsNum] = new ui::InputBox; {
+                input->AddTo(hbox);
+                input->SetVPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                input->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                input->SetHMinSize(200);
+                input->SetLengthLimit(20);
+            }
+            label = new ui::Label; {
+                label->AddTo(hbox);
+                label->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                label->SetContent("* 标签值：");
+            }
+            auto &value = tagValues[tagHorsNum] = new ui::InputBox; {
+                value->AddTo(hbox);
+                value->SetVPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                value->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                value->SetHMinSize(200);
+                value->SetLengthLimit(64);
+            }
+            auto delBtn = new ui::Button("删除", delTag, ToStr(tagHorsNum)); {
+                delBtn->AddTo(hbox);
+                delBtn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            }
+        }
+    });
+
+    okBtn->SetClickCallback(UI_CALLBACK{
+        auto pasw = paswInput->GetText();
+        if (newAccount.code == "" || pasw == "") {
+            screen->HideAll();
+            MessageBox(screen, "学工号或密码不能为空。");
+            screen->FreeAllVisible();
+            screen->ShowAll();
+            return;
+        }
+        for (auto [k, name] : tagNames) {
+            if (name->GetText() == "") {
+                screen->HideAll();
+                MessageBox(screen, "标签名不能为空。");
+                screen->FreeAllVisible();
+                screen->ShowAll();
+                return;
+            }
+        }
+
+        newAccount.hashedPassword = trm::Hash(pasw);
+        for (auto [k, name] : tagNames) {
+            newAccount.tags.push_back({name->GetText(), tagValues[k]->GetText()});
+        }
+
+        screen->HideAll();
+        auto [success, reply] = WaitServer(screen, 
+            {trm::rqs::CREATE_ACCOUNT, username, password, newAccount}, "正在与服务端通信");
+        screen->FreeAllVisible();
+        if (success == 1) {
+            if (reply[0] == trm::rpl::SUCC) {
+                auto click = MessageBox(screen, "创建成功", {"返回帐户管理主页", "再新建一个"});
+                if (click == 0) {
+                    SwitchTo(new EnterAccManage);
+                } else if (click == 1) {
+                    SwitchTo(new AccountDelail);
+                } else {
+                    assert(false); // Impossible click.
+                }
+            } else if (reply[0] == trm::rpl::FAIL) {
+                MessageBox(screen, "创建失败！\n可能系统中已经存在该帐户");
+                screen->FreeAllVisible();
+                screen->ShowAll();
+            } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                MessageBox(screen, "对不起，您没有在系统内新建帐户的权限");
+                screen->FreeAllVisible();
+                screen->ShowAll();
+            } else {
+                assert(false); // Unexpected reply.
+            }
+        } else if (success == 0) {
+            MessageBox(screen, "服务端未响应，请检查后重试");
+            screen->FreeAllVisible();
+            screen->ShowAll();
+        }
+    });
 }
 
 void eea::AccountDelail::Ready(ui::Screen *screen) noexcept

@@ -288,6 +288,13 @@ void ui::Container::UnsyncChildren() noexcept
     children = new Children{};
 }
 
+void ui::Container::ForEachChildren(std::function<void(Control *)> func) noexcept
+{
+    for (auto child : *children) {
+        func(child);
+    }
+}
+
 void ui::Container::SetIgnoreOutside(bool flag) noexcept
 {
     ignoreOutside = flag;
@@ -844,9 +851,9 @@ void ui::Button::Update(bool resetMinSize) noexcept
 bool ui::Control::IsInside(int x, int y) const noexcept
 {
     auto x0 = globalPosition[Direction::HORIZONTAL];
-    auto xx = x0 + globalSize[Direction::HORIZONTAL];
+    auto xx = x0 + (int)globalSize[Direction::HORIZONTAL];
     auto y0 = globalPosition[Direction::VERTICAL];
-    auto yy = y0 + globalSize[Direction::VERTICAL];
+    auto yy = y0 + (int)globalSize[Direction::VERTICAL];
     if (x0 <= x && x <= xx && y0 <= y && y <= yy) {
         return true;
     }

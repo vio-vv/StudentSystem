@@ -29,6 +29,7 @@ protected:
     virtual void Unload(ui::Screen *screen) noexcept {}
 
     static std::pair<int, trm::Information> WaitServer(ui::Screen *screen, const trm::Information &information, const std::string &tips) noexcept;
+    static int MessageBox(ui::Screen *screen, const std::string &tips, const std::vector<std::string> &options = {"确定"}) noexcept;
     static std::string username;
     static std::string password;
     static trm::Account account;
@@ -40,12 +41,14 @@ protected:
     void SwitchTo(PageBase *page);
     void SetInterval(int newInterval) noexcept;
     void SetLimit(int newLimit) noexcept;
+    void QueueFree(ui::Control *control) noexcept;
 private:
     static bool initialized;
     std::vector<std::pair<trm::Sender *, Callback>> queue;
     PageBase *nextPage = nullptr;
     int interval = 500;
     int limit = 15;
+    std::vector<ui::Control *> freeQueue;
 };
 
 class Example : public PageBase {

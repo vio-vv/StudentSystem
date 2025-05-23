@@ -6,7 +6,7 @@
 #else
 #define DRAW_DEBUG_RECT \
     sf::RectangleShape ____(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL])); \
-    ____.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], (float)globalPosition[Direction::VERTICAL])); \
+    ____.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL])); \
     ____.setOutlineColor(sf::Color::Yellow); \
     ____.setOutlineThickness(1); \
     ____.setFillColor(sf::Color::Transparent); \
@@ -468,6 +468,7 @@ public:
      * *****************************************
      */
     using Children = std::vector<Control *>;
+    Children GetChildren() const noexcept { return *children; }
 
     /***************************
      * @brief 内容属性控制接口。*
@@ -522,6 +523,13 @@ public:
      * @warning 请注意检查内存泄漏。
      */
     void UnsyncChildren()                 noexcept;
+    /**
+     * @fn 遍历所有子组件
+     * @brief 遍历所有子组件，适用函数 func
+     * @param func 操作函数
+     * @note 无后效方法。
+     */
+    void ForEachChildren(std::function<void (Control *)> func) noexcept;
     
     /***************************
      * @brief 样式属性控制接口。*

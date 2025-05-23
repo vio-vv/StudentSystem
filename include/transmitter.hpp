@@ -587,7 +587,7 @@ namespace rpl{
     const std::string YES = _AS_"YES";
     const std::string NO = _AS_"NO";
     const std::string SUCC = _AS_"SUCC";
-    const std::string FAIL = _AS_"FAI";
+    const std::string FAIL = _AS_"FAIL";
     
     const std::string NO_ACCOUNT = _AS_"NO_ACCOUNT";
     const std::string WRONG_PASSWORD = _AS_"WRONG_PASSWORD";
