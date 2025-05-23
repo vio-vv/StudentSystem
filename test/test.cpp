@@ -322,7 +322,7 @@ int main()
     f(ssys.CheckReserveStatusList({trm::rqs::CHECK_RESERVE_STATUS_LIST,"123","321"})); // no no reserve exist
     
 #endif
-    while (1) ;
+   while (1) ;
 
     return 0;
 }

@@ -7,6 +7,7 @@ trm::Account clpg::PageBase::account;
 
 std::vector<std::string> clpg::PageBase::argvs;
 bool clpg::PageBase::initialized = false;
+std::string clpg::PageBase::coursename = "";
 
 clpg::PageBase::PageBase()
 {

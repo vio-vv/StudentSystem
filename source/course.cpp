@@ -54,7 +54,7 @@ trm::Information ssys::CourseSystem::AddCourse(const trm::Information& informati
       }
     studentBase[information[1]].Push(information[3],courseBase[information[3]]);//增加课程
     //待实现，按年级和课程属性来增加（模拟真实选课）
-    return {trm::rpl::SUCC};
+    return {trm::rpl::SUCC,information[3]};
 }
 
 trm::Information ssys::CourseSystem::DeleteCourse(const trm::Information& information) noexcept
@@ -69,7 +69,7 @@ trm::Information ssys::CourseSystem::DeleteCourse(const trm::Information& inform
         return {trm::rpl::FAIL,trm::rpl::NO_MATCH_COURSE};
       }
     studentBase[information[1]][information[3]].Clear();//删除课程
-    return {trm::rpl::SUCC};
+    return {trm::rpl::SUCC,information[3]};
 }
 
 trm::Information ssys::CourseSystem::AdmAddCour(const trm::Information& information) noexcept

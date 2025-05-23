@@ -32,8 +32,9 @@ protected:
     static std::string username;
     static std::string password;
     static trm::Account account;
+    static std::string coursename;
 
-    static std::vector<std::string> argvs;
+    static trm::Information argvs;
     
     void Listen(trm::Sender *sender, const Callback &callback) noexcept;
     void SwitchTo(PageBase *page);
