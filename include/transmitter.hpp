@@ -729,7 +729,7 @@ struct Book{
     std::string bookCatagory;                //  分类
     std::string storePosition;               //  藏书位置
     std::vector<std::string> bookAuthor;     //  作者
-
+    Book() noexcept { bookIsbn = ""; bookName = ""; bookPublicationDate = ""; bookCatagory = ""; storePosition = ""; bookAuthor = {}; bookTot = 0; bookBorrowed = 0; }
     Book(const std::string &_bookIsbn, const std::string &_bookName, const std::string &_bookPublicationDate, const std::string &_bookCatagory,
         const std::string &_storePosition, const std::vector<std::string> &_bookAuthor, 
         const unsigned int tot = 1, const unsigned int borrow = 0) noexcept 
