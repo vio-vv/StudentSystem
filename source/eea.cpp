@@ -162,7 +162,14 @@ void eea::AccountDelail::Load(ui::Screen *screen) noexcept
 void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
 {
     backBtn->SetClickCallback(UI_CALLBACK{
-        SwitchTo(new EnterAccManage);
+        screen->HideAll();
+        auto click = MessageBox(screen, "您将丢弃当前编辑的内容，继续返回吗？", {"确认", "取消"});
+        if (click == 0) {
+            SwitchTo(new EnterAccManage);
+        } else {
+            screen->FreeAllVisible();
+            screen->ShowAll();
+        }
     });
 
     userInput->SetInputCallback(UI_CALLBACK{
@@ -245,16 +252,17 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
         }
         int col = 0;
         for (int access = 0; access < trm::Access::_COMMON; ++access) {
+            if (std::find(account.access.begin(), account.access.end(), trm::Access::ADM) == account.access.end() && 
+                std::find(account.access.begin(), account.access.end(), (trm::Access)access) == account.access.end()) {
+                continue;
+            }
             auto btn = new ui::ToggleButton(trm::GetAccessInfo((trm::Access)access).name, ToStr(access),
                 accessOn, accessOff);
             btn->SetPreset(ui::Control::Preset::PLACE_AT_CENTER);
             accessList.push_back(btn);
             vers[col]->Add(btn);
-            for (auto acc : newAccount.access) {
-                if (acc == access) {
-                    btn->SetOn();
-                    break;
-                }
+            if (std::find(newAccount.access.begin(), newAccount.access.end(), (trm::Access)access) != newAccount.access.end()) {
+                btn->SetOn();
             }
             ++col;
             if (col == columnNum) col = 0;
@@ -293,6 +301,8 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
                 input->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 input->SetHMinSize(200);
                 input->SetLengthLimit(20);
+                input->SetContentLimit(ui::InputBox::ContentLimit::BAN_SPECIAL_CHARACTERS);
+                input->SetSpecialCharacters("\n");
             }
             label = new ui::Label; {
                 label->AddTo(hbox);
@@ -305,6 +315,8 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
                 value->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 value->SetHMinSize(200);
                 value->SetLengthLimit(64);
+                value->SetContentLimit(ui::InputBox::ContentLimit::BAN_SPECIAL_CHARACTERS);
+                value->SetSpecialCharacters("\n");
             }
             auto delBtn = new ui::Button("删除", delTag, ToStr(tagHorsNum)); {
                 delBtn->AddTo(hbox);
@@ -1025,6 +1037,48 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
 
 void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
 {
+    auto deleteCallback = UI_CALLBACK{
+        if (name == username) {
+            screen->HideAll();
+            MessageBox(screen, "不能删除自己！");
+            screen->FreeAllVisible();
+            screen->ShowAll();
+            return;
+        }
+        screen->HideAll();
+        auto click = MessageBox(screen, "您将删除该帐户 " + name + "，确认吗？", {"确认", "取消"});
+        if (click == 0) {
+            screen->FreeAllVisible();
+            auto [success, reply] = WaitServer(screen, 
+                {trm::rqs::DELETE_ACCOUNT, username, password, name}, "正在与服务端通信");
+            if (success == 1) {
+                if (reply[0] == trm::rpl::SUCC) {
+                    screen->FreeAllVisible();
+                    MessageBox(screen, "删除成功");
+                    SwitchTo(new EnterAccManage);
+                } else if (reply[0] == trm::rpl::FAIL) {
+                    screen->FreeAllVisible();
+                    MessageBox(screen, "删除失败！\n可能待删除的帐户不存在");
+                    screen->FreeAllVisible();
+                    screen->ShowAll();
+                } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                    screen->FreeAllVisible();
+                    MessageBox(screen, "对不起，您没有删除系统内帐户的权限");
+                    screen->FreeAllVisible();
+                    screen->ShowAll();
+                }
+            } else if (success == 0) {
+                screen->FreeAllVisible();
+                MessageBox(screen, "服务端未响应，请检查后重试");
+                screen->FreeAllVisible();
+                screen->ShowAll();
+            }
+        } else {
+            screen->FreeAllVisible();
+            screen->ShowAll();
+        }
+    };
+
     auto print = [=, this](const trm::Account &acc){
         auto label = new ui::Label; {
             label->AddTo(detailBox);
@@ -1062,8 +1116,13 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
         {
             box->Add(new ui::Label("标签列表：" ));
             for (auto tag : acc.tags) {
-                box->Add(new ui::Label("- " + tag.first + ": " + tag.second));
+                box->Add(new ui::Label("- " + tag.first));
+                box->Add(new ui::Label("  " + tag.second));
             }
+        }
+        auto deleteBtn = new ui::Button("删除帐户", deleteCallback, acc.code); {
+            deleteBtn->AddTo(detailBox);
+            deleteBtn->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
         }
     };
     auto detailBtnCallback = UI_CALLBACK{

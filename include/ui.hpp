@@ -126,6 +126,11 @@ class Control;
      * @brief 响应用户按键操作的组件。
      */
     class Button;
+        /**
+         * @class 单选按钮类
+         * @brief 响应用户选择操作的组件。
+         */
+        class ToggleButton;
     /**
      * @class 输入框类
      * @brief 允许用户输入文本的组件。
