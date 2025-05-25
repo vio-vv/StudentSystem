@@ -19,7 +19,7 @@ trm::Information ssys::ReserveSystem::CheckTime(const trm::Information& informat
     trm::Information timeList;
     for(auto [time,reserve]:reserveList)//遍历预约信息
     {
-        if(std::string(reserve)!="0")
+        if(ToNum(reserve))
         {
             timeList.push_back(trm::Combine({time,reserve,std::string(reserve)},':'));//将可预约时间加入列表
         }
@@ -36,7 +36,7 @@ trm::Information ssys::ReserveSystem::CheckReserveTime(const trm::Information& i
     {
         if(ToNum(targetReserve[information[2]]))//检查是否有可预约时间
         {
-            return {trm::rpl::YES};
+            return {trm::rpl::YES,information[1],information[2],targetReserve[information[2]]};//返回可预约时间
         }
         else
         {
@@ -87,10 +87,10 @@ trm::Information ssys::ReserveSystem::CancelReserve(const trm::Information& info
 trm::Information ssys::ReserveSystem::CheckReserveStatus(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::CHECK_RESERVE_STATUS); // Procession not matched.
-    auto reserve=clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]][information[2]];
+    auto reserve=clientBase[information[3]][information[1]][information[2]];
     if(reserve.Exists())//检查是否存在预约信息
     {
-        return {trm::rpl::SUCC,reserve};
+        return {trm::rpl::SUCC,information[1],information[2],reserve};
     }
     else
     {

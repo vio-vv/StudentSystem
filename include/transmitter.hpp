@@ -757,6 +757,7 @@ struct IdAndPhone
 {
     std::string id; // 身份证号
     std::string phone; // 手机号
+    IdAndPhone() noexcept = default;
     IdAndPhone(const std::string &_id, const std::string &_phone) noexcept :
         id(_id), phone(_phone) {}
     IdAndPhone(const std::string &content) noexcept;
@@ -769,6 +770,7 @@ struct ReserveDate
     std::string month; // 月份
     std::string week; // 周数
     std::string date; // 日期
+    ReserveDate() noexcept = default;
     ReserveDate(const std::string &_month, const std::string &_week, const std::string &_date) noexcept :
         month(_month), week(_week), date(_date) {}
     ReserveDate(const std::string &content) noexcept;

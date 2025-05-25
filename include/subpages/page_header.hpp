@@ -34,6 +34,9 @@ protected:
     static std::string password;
     static trm::Account account;
     static std::string coursename;
+    static trm::IdAndPhone idandphone;
+    static trm::ReserveDate rdate;
+    static std::string rtime;
 
     static trm::Information argvs;
     

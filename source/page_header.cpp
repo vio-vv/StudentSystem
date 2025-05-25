@@ -8,6 +8,9 @@ trm::Account clpg::PageBase::account;
 std::vector<std::string> clpg::PageBase::argvs;
 bool clpg::PageBase::initialized = false;
 std::string clpg::PageBase::coursename = "";
+trm::IdAndPhone clpg::PageBase::idandphone;
+trm::ReserveDate clpg::PageBase::rdate;
+std::string clpg::PageBase::rtime="";
 
 clpg::PageBase::PageBase()
 {
