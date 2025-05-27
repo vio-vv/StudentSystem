@@ -668,7 +668,7 @@ void lab::EnterReserve::Load(ui::Screen *screen) noexcept
                 btn2->AddTo(flat);
                 btn2->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 btn2->SetVAnchor(75);
-                btn2->SetCaption("查看全部预约");//可能要稍作修改
+                btn2->SetCaption("查看预约列表");//可能要稍作修改
             }//private
             hbox = new ui::HorizontalBox; {
                 hbox->AddTo(flat);
@@ -734,10 +734,15 @@ void lab::EnterReserve::Load(ui::Screen *screen) noexcept
                         phinput->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);//private
                     }
                 }
-                cfbtn=new ui::Button;{
-                    cfbtn->AddTo(vinput);
-                    cfbtn->SetPreset(ui::Control::Preset::WRAP_AT_END);
-                    cfbtn->SetCaption("确认");
+                cfbtn1=new ui::Button;{
+                    cfbtn1->AddTo(vinput);
+                    cfbtn1->SetPreset(ui::Control::Preset::WRAP_AT_END);
+                    cfbtn1->SetCaption("确认");
+                }
+                cfbtn2=new ui::Button;{
+                    cfbtn2->AddTo(vinput);
+                    cfbtn2->SetPreset(ui::Control::Preset::WRAP_AT_END);
+                    cfbtn2->SetCaption("确认");
                 }
             }
                
@@ -751,7 +756,11 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
         SwitchTo(new eea::MainPage);
     });
     btn2->SetClickCallback(UI_CALLBACK{
-        SwitchTo(new lab::ReserveList);
+        addbtn->Hide();
+        debtn->Hide();
+        vinput->ShowAll();
+        cfbtn1->Hide();
+        cfbtn2->Enable();
     });
     dinput1->SetInputCallback(UI_CALLBACK{
         rdate.month=dinput1->GetText();
@@ -775,21 +784,31 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
     });
     btn1->SetClickCallback(UI_CALLBACK{
         btn1->Enable(false);
-        if(std::string(rdate)==""||rtime=="")
-            {
-                glabel->SetContent("时间或者日期不能为空");
-                glabel->Show();
-            }
+        if(std::string(rdate)=="")
+        {
+            glabel->SetContent("日期不能为空");
+            glabel->Show();
+        }
+        if(rtime=="")
+        {
+            SwitchTo(new lab::ReserveTimeList);
+        }
         Listen(new trm::Sender({trm::rqs::CHECK_RESERVE_TIME,rdate,rtime}),SD_CALLBACK{
            if(reply[0]==trm::rpl::NO&&reply[1]==trm::rpl::NO_MATCH_TIME) 
            {
                glabel->SetContent("该时间不在可预约的时间段中");
                glabel->Show();
+               label0->SetContent("");
+               label1->SetContent("");
+               label2->SetContent("");
            }
            else if(reply[0]==trm::rpl::NO&&reply[1]==trm::rpl::NO_LEFT_RESERVE)
            {
                glabel->SetContent("该预约时间名额已满");
-               glabel->Show();
+               glabel->Show(); 
+               label0->SetContent("");
+               label1->SetContent("");
+               label2->SetContent("");
            }
            else{
             btn2->Hide();
@@ -806,24 +825,27 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
     });
     btn3->SetClickCallback(UI_CALLBACK{
         btn3->Enable(false);
-       Listen(new trm::Sender({trm::rqs::CHECK_RESERVE_STATUS,rdate,rtime,idandphone}),SD_CALLBACK{
+       Listen(new trm::Sender({trm::rqs::CHECK_RESERVE_STATUS,rdate,rtime,idandphone.id,idandphone.phone}),SD_CALLBACK{
             btn2->Hide();
             addbtn->Hide();
             debtn->Hide();
-            hbox->Show();
-            cfbtn->Show();
-            cfbtn->Enable();
             vinput->ShowAll();
+            cfbtn1->Enable();
+            cfbtn2->Hide();
             hbox->HideAll();
             if(reply[0]==trm::rpl::FAIL)
             {
                 glabel->SetContent("查询的预约不存在");//不对劲
+                glabel->Hide();
+                label0->SetContent("");
+                label1->SetContent("");
+                label2->SetContent("");
             }
             else{
                 label0->SetContent("日期:"+reply[1]);
                 label1->SetContent("时间:"+reply[2]);
                 label2->SetContent("预约状态:"+reply[3]);
-                label2->SetFontSize(20);
+                label2->SetFontSize(20);//这几个label要清空,能清空吗
             }
         });
     });
@@ -835,9 +857,13 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
         addbtn->Show();
         debtn->Show();
     });
-    cfbtn->SetClickCallback(UI_CALLBACK{
+    cfbtn1->SetClickCallback(UI_CALLBACK{
        vinput->HideAll(); 
        hbox->ShowAll();
+       glabel->Show();
+    });
+    cfbtn2->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new lab::ReserveStatusList);
     });
 }
 
@@ -846,10 +872,11 @@ void lab::EnterReserve::Ready(ui::Screen *screen) noexcept
     hbox->HideAll();
     vinput->HideAll();
     tempbackbtn->Enable(false);
-    cfbtn->Enable(false);
+    cfbtn1->Enable(false);
+    cfbtn2->Enable(false);
 }
 
-void lab::ReserveList::Load(ui::Screen *screen) noexcept
+void lab::ReserveTimeList::Load(ui::Screen *screen) noexcept
 {
     auto mar = new ui::Margin; {
         screen->Add(mar);
@@ -867,84 +894,139 @@ void lab::ReserveList::Load(ui::Screen *screen) noexcept
                 backbtn->SetPreset(ui::Control::Preset::WRAP_AT_FRONT);
                 backbtn->SetCaption("返回");//private
             }
-            auto vsbox = new ui::VerticalScrollingBox;{
+            vsbox = new ui::VerticalScrollingBox;{
                 vsbox->AddTo(flat);
                 vsbox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 vsbox->SetSize(ui::Control::Direction::HORIZONTAL,90);
                 vsbox->SetSize(ui::Control::Direction::VERTICAL, 80);
             }
-            {
-                auto hbox1 = new ui::HorizontalBox;{
-                    hbox1->AddTo(vsbox);
-                    hbox1->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
-                    hbox1->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                    hbox1->SetGap(50);
-                }
-                {
-                    label0 = new ui::Label;{
-                        label0->AddTo(hbox1);
-                        label0->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        label0->SetContent("日期");//private
-                    }
-                    label1 = new ui::Label;{
-                        label1->AddTo(hbox1);
-                        label1->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        label1->SetContent("时间");//private
-                    }
-                    label2 = new ui::Label;{
-                        label2->AddTo(hbox1);
-                        label2->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        label2->SetContent("剩余名额");//private
-                    }
-                    label3 = new ui::Label;{
-                        label3->AddTo(hbox1);
-                        label3->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        label3->SetContent("预约状态");//private 
-                    }
-                }
-                auto hbox2 = new ui::HorizontalBox;{
-                    hbox2->AddTo(vsbox);
-                    hbox2->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
-                    hbox2->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                    hbox2->SetGap(50);
-                }
-                {
-                    auto label20 = new ui::Label;{
-                        label20->AddTo(hbox2);
-                        label20->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        label20->SetContent("日期");
-                    }
-                    auto label21 = new ui::Label;{
-                        label21->AddTo(hbox2);
-                        label21->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        label21->SetContent("时间");
-                    }
-                    auto label22 = new ui::Label;{
-                        label22->AddTo(hbox2);
-                        label22->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        label22->SetContent("剩余名额");
-                    }
-                    auto label23 = new ui::Label;{
-                        label23->AddTo(hbox2);
-                        label23->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        label23->SetContent("预约状态");
-                    }
-                }
-            } 
         }
     }
 }
 
-void lab::ReserveList::Logic(ui::Screen *screen) noexcept
+void lab::ReserveTimeList::Logic(ui::Screen *screen) noexcept
 {
     backbtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new lab::EnterReserve);
     });
 }
 
-void lab::ReserveList::Ready(ui::Screen *screen) noexcept
+void lab::ReserveTimeList::Ready(ui::Screen *screen) noexcept
 {
-    ;
+    Listen(new trm::Sender({trm::rqs::CHECK_TIME,rdate}),SD_CALLBACK{
+        if(reply[0]==trm::rpl::FAIL){
+            auto glabel = new ui::Label;{
+                glabel->AddTo(vsbox);
+                glabel->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                glabel->SetContent("没有预约存在");
+            }
+        }
+        else{
+            for(int i=1;i<reply.size();i++)
+            {
+                auto hbox = new ui::HorizontalBox; {
+                    hbox->AddTo(vsbox);
+                    hbox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    hbox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    hbox->SetGap(50);
+                }
+                auto reservereply=trm::Split(reply[i],' ');
+                {
+                    auto label0 = new ui::Label;{
+                        label0->AddTo(hbox);
+                        label0->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        label0->SetContent("日期:"+reservereply[0]);
+                    }
+                    auto label1 = new ui::Label;{
+                        label1->AddTo(hbox);
+                        label1->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        label1->SetContent("时间:"+reservereply[1]);
+                    }
+                    auto label2 = new ui::Label;{
+                        label2->AddTo(hbox);
+                        label2->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        label2->SetContent("剩余人数:"+reservereply[2]);
+                    }
+                }
+            }
+        }});
+}
+
+void lab::ReserveStatusList::Load(ui::Screen *screen) noexcept
+{
+    auto mar = new ui::Margin; {
+        screen->Add(mar);
+        mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        mar->SetMargin(80, 80, 200, 200);
+    }
+    {
+        auto flat = new ui::Flat; {
+            mar->Add(flat);
+            flat->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        }
+        {
+            backbtn = new ui::Button; {
+                backbtn->AddTo(flat);
+                backbtn->SetPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backbtn->SetCaption("返回");//private
+            }
+            vsbox = new ui::VerticalScrollingBox;{
+                vsbox->AddTo(flat);
+                vsbox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                vsbox->SetSize(ui::Control::Direction::HORIZONTAL,90);
+                vsbox->SetSize(ui::Control::Direction::VERTICAL, 80);
+            }
+        }
+    }
+}
+
+void lab::ReserveStatusList::Logic(ui::Screen *screen)noexcept
+{
+    backbtn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new lab::EnterReserve);
+    });
+}
+
+void lab::ReserveStatusList::Ready(ui::Screen *screen)noexcept
+{
+    Listen(new trm::Sender({trm::rqs::CHECK_RESERVE_STATUS_LIST,idandphone.id,idandphone.phone}),SD_CALLBACK{
+        if(reply[0]==trm::rpl::FAIL){//timeout
+            auto glabel = new ui::Label;{
+                glabel->AddTo(vsbox);
+                glabel->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                glabel->SetContent("没有预约记录");
+            }
+        }
+        else{
+            for(int i=1;i<reply.size();i++)
+            {
+                auto hbox = new ui::HorizontalBox; {
+                    hbox->AddTo(vsbox);
+                    hbox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    hbox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    hbox->SetGap(50);
+                }
+                auto reservereply=trm::Split(reply[i],' ');
+                {
+                    auto label0 = new ui::Label;{
+                        label0->AddTo(hbox);
+                        label0->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        label0->SetContent("日期:"+reservereply[0]);
+                    }
+                    auto label1 = new ui::Label;{
+                        label1->AddTo(hbox);
+                        label1->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        label1->SetContent("时间:"+reservereply[1]);
+                    }
+                    auto label2 = new ui::Label;{
+                        label2->AddTo(hbox);
+                        label2->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        label2->SetContent("预约状态:"+reservereply[2]);
+                        label2->SetFontSize(20);
+                    }
+                }
+            }
+        }});
 }
 
 void lab::Reserve::Load(ui::Screen *screen) noexcept
@@ -1031,7 +1113,7 @@ void lab::Reserve::Logic(ui::Screen *screen) noexcept
         SwitchTo(new lab::EnterReserve);
     });
 }
-//刚才push不上去，写个注释
+//还是push不上
 void lab::Reserve::Ready(ui::Screen *screen) noexcept
 {
     ;

@@ -365,7 +365,9 @@ namespace rqs{
     /**
      * @brief 查询可预约时间
      * @param date 日期 @see @struct Date
-     * @return 可预约时间列表 @see @struct ReserveTime
+     * @return SUCC or FAIL
+     * @return FAIL NO_RESERVE_EXITS
+     * @return SUCC 可预约时间列表 @see @struct ReserveTime
     */
     const std::string CHECK_TIME = _AS_"CHECK_TIME";
     /**

@@ -30,7 +30,6 @@ protected:
 class CourseList : public PageBase {
 private:
     ui::Button *backbtn = nullptr;
-    ui::Flat *flat = nullptr;
     ui::VerticalScrollingBox *vsbox = nullptr;
     ui::Label *label0 = nullptr;
 protected:
@@ -91,7 +90,9 @@ private:
     ui::HorizontalBox *hinput3 = nullptr;
     ui::HorizontalBox *hinput4 = nullptr;
     ui::Button *btn3 = nullptr;
-    ui::Button *cfbtn =nullptr;
+    ui::Button *btn4 = nullptr;
+    ui::Button *cfbtn1 =nullptr;
+    ui::Button *cfbtn2 =nullptr;
     ui::InputBox *dinput1=nullptr;
     ui::InputBox *dinput2=nullptr;
     ui::InputBox *dinput3=nullptr;
@@ -101,13 +102,21 @@ protected:
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
 };
-class ReserveList : public PageBase {
+class ReserveStatusList : public PageBase {
 private:
     ui::Button *backbtn = nullptr;
-    ui::Label *label0 = nullptr;
-    ui::Label *label1 = nullptr;
-    ui::Label *label2 = nullptr;
-    ui::Label *label3 = nullptr;
+    ui::VerticalScrollingBox *vsbox = nullptr;
+    
+protected:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+class ReserveTimeList : public PageBase {
+private:
+    ui::Button *backbtn = nullptr;
+    ui::VerticalScrollingBox *vsbox = nullptr;
+    
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
