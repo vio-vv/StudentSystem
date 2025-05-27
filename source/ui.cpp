@@ -747,9 +747,125 @@ void ui::Label::Update(bool resetMinSize) noexcept
     }
 }
 
-void ui::Label::SetFontSize(unsigned int size) noexcept
+void ui::PageTurner::SetSingleMinHeight(unsigned int absolute) noexcept
 {
-    fontSize = size;
+    singleHeight = absolute;
+    UpdateInQueue();
+}
+
+void ui::PageTurner::SetSingleMinWidth(unsigned int absolute) noexcept
+{
+    singleWidth = absolute;
+    UpdateInQueue();
+}
+
+void ui::PageTurner::SetVerticalGap(unsigned int absolute) noexcept
+{
+    verticalGap = absolute;
+    UpdateInQueue();
+}
+
+void ui::PageTurner::SetHorizontalGap(unsigned int absolute) noexcept
+{
+    horizontalGap = absolute;
+    UpdateInQueue();
+}
+
+void ui::PageTurner::SetFontSize(unsigned int absolute) noexcept
+{
+    fontSize = absolute;
+    UpdateInQueue();
+}
+
+void ui::PageTurner::SetMaxPage(unsigned int absolute) noexcept
+{
+    maxPage = absolute;
+    UpdateInQueue();
+}
+
+void ui::PageTurner::SetCurrentPage(unsigned int absolute) noexcept
+{
+    currentPage = absolute;
+    turnCallback(name, {});
+    UpdateInQueue();
+}
+
+void ui::PageTurner::Update(bool resetMinSize) noexcept
+{
+    if (resetMinSize) {
+        btnBox->SetVMinSize(singleHeight);
+        gotoBox->SetVMinSize(singleHeight);
+
+        for (int i = -deltaNum - 1; i <= deltaNum + 1; ++i) {
+            auto c = center[i];
+            c->SetHMinSize(singleWidth);
+        }
+        input->SetHMinSize(singleWidth);
+
+        layer.SetGap(verticalGap);
+
+        btnBox->SetGap(horizontalGap);
+        gotoBox->SetGap(horizontalGap);
+
+        for (auto l : labels) {
+            l->SetFontSize(fontSize);
+        }
+        for (auto b : buttons) {
+            b->SetFontSize(fontSize);
+        }
+        input->SetFontSize(fontSize);
+
+        labels[0]->SetContent(ToStr(currentPage));
+        for (int i = 0; i < deltaNum * 2; ++i) {
+            auto con = currentPage + ToNum(buttons[i]->GetName());
+            if (con < 1 || con > maxPage) {
+                buttons[i]->SetCaption("-");
+                buttons[i]->Disable();
+            } else {
+                buttons[i]->SetCaption(ToStr(con));
+                buttons[i]->Enable();
+            }
+        }
+
+        maxNum->SetContent("/ " + ToStr(maxPage));
+
+        Set_minSize(Direction::HORIZONTAL, layer.GetMinSize(Direction::HORIZONTAL));
+        Set_minSize(Direction::VERTICAL, layer.GetMinSize(Direction::VERTICAL));
+    } else {
+        layer.SetGlobalPosition(Direction::HORIZONTAL, globalPosition[Direction::HORIZONTAL]);
+        layer.SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL]);
+        layer.SetGlobalSize(Direction::HORIZONTAL, globalSize[Direction::HORIZONTAL]);
+        layer.SetGlobalSize(Direction::VERTICAL, globalSize[Direction::VERTICAL]);
+    }
+}
+
+void ui::PageTurner::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
+{
+    layer.Process(event, screen);
+}
+
+void ui::PageTurner::Draw(sf::RenderWindow &screen, float delta) noexcept
+{
+    layer.Draw(screen, delta);
+
+    DRAW_DEBUG_RECT;
+}
+
+void ui::PageTurner::FreshUp() noexcept
+{
+    layer.FreshUp();
+    Control::FreshUp();
+}
+
+void ui::PageTurner::FreshDown() noexcept
+{
+    Control::FreshDown();
+    layer.FreshDown();
+}
+
+void ui::Label::SetFontSize(unsigned int absolute) noexcept
+{
+    fontSize = absolute;
     UpdateInQueue();
 }
 

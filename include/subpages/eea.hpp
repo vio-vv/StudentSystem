@@ -6,14 +6,6 @@
 namespace eea{
 using namespace clpg;
 
-class Retry : public PageBase {
-private:
-    ui::Button *btn = nullptr;
-protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
-};
 class Login : public PageBase {
 private:
     ui::InputBox *userInput = nullptr;
@@ -67,6 +59,7 @@ private:
     bool detailCalling = false;
 
     ui::Button *newBtn = nullptr;
+    ui::Button *resetBtn = nullptr;
 
     ui::Control::Callback refresh = ui::Control::DO_NOTHING;
 protected:
@@ -117,6 +110,7 @@ protected:
 class EnterMailSystem : public PageBase {
 private:
     ui::Button *backBtn = nullptr;
+
     ui::Button *l3 = nullptr;
     ui::Button *l2 = nullptr;
     ui::Button *l1 = nullptr;
@@ -124,13 +118,14 @@ private:
     ui::Button *r1 = nullptr;
     ui::Button *r2 = nullptr;
     ui::Button *r3 = nullptr;
+    ui::InputBox *input = nullptr;
+    ui::Button *goBtn = nullptr;
+    
     ui::LoadingRing *loading = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
-private:
-    void UpdateButton();
 };
 
 }

@@ -23,7 +23,10 @@ void clpg::EnterSystem::Logic(ui::Screen *screen) noexcept
                 assert(false); // Unexpected reply.
             }
         } else if (success == 0) {
-            SwitchTo(new eea::Retry);
+            screen->HideAll();
+            MessageBox(screen, "服务端未响应，请检查后重试。");
+            screen->FreeAllVisible();
+            screen->ShowAll();
         }
     });
 }

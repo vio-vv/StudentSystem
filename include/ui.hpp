@@ -178,6 +178,12 @@ class Control;
      * @brief 显示图片的组件。
      */
     class PictureBox;
+    /**
+     * @class 页面调节器类
+     * @brief 用于调整页面的组件。
+     * @note turnCallback 回调函数 event 参数失效。
+     */
+    class PageTurner;
 
 /*******************************************
  * @brief 所有组件类的接口声明。*
@@ -692,6 +698,22 @@ public:
     {
         UpdateInQueue(true);
     }
+    Center(Control *child) noexcept : Center()
+    {
+        Add(child);
+    }
+    
+    /*******************************************
+     * @brief 约定的常量和数据类型以及外工具方法。*
+     * *****************************************
+     */
+    
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+
+
     
     /*******************************************
      * @brief 约定的常量和数据类型以及外工具方法。*
@@ -980,7 +1002,7 @@ public:
      * *************************
      */
     void SetContent(const std::string &newContent)         noexcept;
-    void SetFontSize(unsigned int size)                    noexcept;
+    void SetFontSize(unsigned int absolute)                noexcept;
     void SetFont(const std::string &fontFile)              noexcept;
     /**
      * @fn 设置每行最大长度
@@ -2084,7 +2106,180 @@ protected:
     bool on = false;
     sf::Color onColor = sf::Color::Blue;
 };
-    
+
+class PageTurner : public Control {
+public:
+    PageTurner(int deltaNum = 3) noexcept
+    {
+        this->deltaNum = std::max(0, deltaNum);
+        auto turn = [this](const std::string &name, const sf::Event &event){
+            auto con = currentPage + ToNum(name);
+            if (con < 1 || con > maxPage) {
+                assert(false); // Impossible situation
+            } else {
+                SetCurrentPage(con);
+            }
+        };
+
+        layer.SetNominalParent(this);
+        btnBox = new ui::HorizontalBox; {
+            layer.Add(btnBox);
+            btnBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        }
+        {
+            center = new Center *[deltaNum * 2 + 3];
+            center += deltaNum + 1;
+
+            auto label = new ui::Label;
+            labels.push_back(label);
+            label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            center[0]  = new Center(label);
+
+            label = new ui::Label("...");
+            labels.push_back(label);
+            label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            center[-deltaNum - 1] = new Center(label);
+
+            label = new ui::Label("...");
+            labels.push_back(label);
+            label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            center[deltaNum + 1]  = new Center(label);
+
+            for (int i = -deltaNum; i <= deltaNum; ++i) {
+                if (i != 0) {
+                    auto btn = new Button;
+                    buttons.push_back(btn);
+                    btn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    btn->SetName(ToStr(i));
+                    btn->SetClickCallback(turn);
+                    center[i] = new Center(btn);
+                }
+            }
+
+            for (int i = -deltaNum - 1; i <= deltaNum + 1; ++i) {
+                auto c = center[i];
+                c->AddTo(btnBox);
+                c->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            }
+        }
+        gotoBox = new ui::HorizontalBox; {
+            layer.Add(gotoBox);
+            gotoBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            gotoBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        }
+        {
+            auto label = new ui::Label; {
+                label->AddTo(gotoBox);
+                labels.push_back(label);
+                label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                label->SetContent("跳转至");
+            }
+            input = new ui::InputBox; {
+                input->AddTo(gotoBox);
+                input->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                input->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                input->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
+                input->SetSpecialCharacters(ui::InputBox::NUMBER);
+            }
+            maxNum = new ui::Label; {
+                maxNum->AddTo(gotoBox);
+                labels.push_back(maxNum);
+                maxNum->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            }
+            goBtn = new ui::Button; {
+                goBtn->AddTo(gotoBox);
+                buttons.push_back(goBtn);
+                goBtn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                goBtn->SetCaption("跳转");
+                goBtn->SetClickCallback([this](const std::string &name, const sf::Event &event){
+                    auto num = ToNum(input->GetText());
+                    if (num < 1) num = 1;
+                    if (num > maxPage) num = maxPage;
+                    SetCurrentPage(num);
+                    input->SetText("");
+                });
+            }
+        }
+        UpdateInQueue();
+    }
+    void SetTurnCallback(const Callback &function) noexcept { turnCallback = function; }
+
+    /*******************************************
+     * @brief 约定的常量和数据类型以及外工具方法。*
+     * *****************************************
+     */
+
+    /***************************
+     * @brief 内容属性控制接口。*
+     * *************************
+     */
+    void SetSingleMinHeight(unsigned int absolute) noexcept;
+    void SetSingleMinWidth(unsigned int absolute) noexcept;
+    void SetVerticalGap(unsigned int absolute) noexcept;
+    void SetHorizontalGap(unsigned int absolute) noexcept;
+    void SetFontSize(unsigned int absolute) noexcept;
+    void SetMaxPage(unsigned int absolute) noexcept;
+    void SetCurrentPage(unsigned int absolute) noexcept;
+
+    /***************************
+     * @brief 样式属性控制接口。*
+     * *************************
+     */
+
+    /************************************
+     * @brief 实现了的和待实现的抽象方法。*
+     * **********************************
+     */
+    void Update(bool resetMinSize = true) noexcept;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
+    void Draw(sf::RenderWindow &screen, float delta) noexcept;
+    void FreshUp() noexcept;
+    void FreshDown() noexcept;
+protected:
+    Callback turnCallback = DO_NOTHING;
+
+    /******************************
+     * @brief 封装的工具方法和属性。*
+     * ****************************
+     */
+    int deltaNum = 3;
+
+    /******************************
+     * @brief 封装的数据类型和常量。*
+     * ****************************
+     */
+
+    /********************
+     * @brief 内容属性。*
+     * ******************
+     */
+    unsigned int singleHeight = 80;
+    unsigned int singleWidth = 80;
+    unsigned int verticalGap = 25;
+    unsigned int horizontalGap = 25;
+    unsigned int fontSize = 50;
+    unsigned int currentPage = 1;
+    unsigned int maxPage = 1;
+
+    std::vector<Label *> labels;
+    std::vector<Button *> buttons;
+
+    VerticalBox layer;
+
+    HorizontalBox *btnBox = nullptr;
+    Center **center = nullptr;
+
+    HorizontalBox *gotoBox = nullptr;
+    InputBox *input = nullptr;
+    Label *maxNum = nullptr;
+    Button *goBtn = nullptr;
+
+    /********************
+     * @brief 样式属性。*
+     * ******************
+     */
+};
+
 class Example : public Control {
 public:
     Example() noexcept

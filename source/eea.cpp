@@ -541,7 +541,10 @@ void eea::Login::Logic(ui::Screen *screen) noexcept
                     assert(false); // Unexpected reply.
                 }    
             } else if (success == 0) {
-                SwitchTo(new Retry);
+                screen->HideAll();
+                MessageBox(screen, "服务端未响应，请检查后重试");
+                screen->FreeAllVisible();
+                screen->ShowAll();
             }
         }
     });
@@ -637,95 +640,9 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                                 loading->Start();
                             }
                         }
-                        auto btnBox = new ui::HorizontalBox; {
-                            btnBox->AddTo(listBox);
-                            btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                            btnBox->SetVSize(80);
-                        }
-                        {
-                            auto elp1 = new ui::Label; {
-                                elp1->SetContent("...");
-                            }
-                            l3 = new ui::Button; {
-                                l3->SetName("-3");
-                            }
-                            l2 = new ui::Button; {
-                                l2->SetName("-2");
-                            }
-                            l1 = new ui::Button; {
-                                l1->SetName("-1");
-                            }
-                            auto center = new ui::Center; {
-                            }
-                            {    
-                                cur = new ui::Label; {
-                                    cur->AddTo(center);
-                                    cur->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                                    cur->SetContent("1");
-                                }
-                            }
-                            r1 = new ui::Button; {
-                                r1->SetName("+1");
-                            }
-                            r2 = new ui::Button; {
-                                r2->SetName("+2");
-                            }
-                            r3 = new ui::Button; {
-                                r3->SetName("+3");
-                            }
-                            auto elp2 = new ui::Label; {
-                                elp2->SetContent("...");
-                            }
-                            for (auto e : std::vector<ui::Control *>{elp1, l3, l2, l1, center, r1, r2, r3, elp2}) {
-                                e->AddTo(btnBox);
-                                e->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                                e->SetHMinSize(80);
-                            }
-                        }
-                        auto gotoBox = new ui::HorizontalBox; {
-                            gotoBox->AddTo(listBox);
-                            gotoBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                            gotoBox->SetVSize(80);
-                        }
-                        {
-                            auto center = new ui::Center; {
-                                center->AddTo(gotoBox);
-                                center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                            }
-                            {
-                                auto label = new ui::Label; {
-                                    label->AddTo(center);
-                                    label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                                    label->SetContent("跳转至");
-                                }
-                            }
-                            center = new ui::Center; {
-                                center->AddTo(gotoBox);
-                                center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                            }
-                            {
-                                auto input = new ui::InputBox; {
-                                    input->AddTo(center);
-                                    input->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                                    input->SetHMinSize(50);
-                                }
-                            }
-                            center = new ui::Center; {
-                                center->AddTo(gotoBox);
-                                center->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                            }
-                            {
-                                auto maxNum = new ui::Label; {
-                                    maxNum->AddTo(center);
-                                    maxNum->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                                    maxNum->SetContent("/ 1");
-                                }
-                            }
-                            auto goBtn = new ui::Button; {
-                                goBtn->AddTo(gotoBox);
-                                goBtn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                                goBtn->SetCaption("跳转");
-                            }
+                        auto turner = new ui::PageTurner; {
+                            turner->AddTo(listBox);
+                            turner->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                         }
                     }
                 }
@@ -736,13 +653,6 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
 
 void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
 {
-    for (auto e : {l3, l2, l1, r1, r2, r3}) {
-        e->SetClickCallback(UI_CALLBACK{
-            int d = ToNum(name);
-            cur->SetContent(ToStr(ToNum(cur->GetContent()) + d));
-            UpdateButton();
-        });
-    }
     backBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new MainPage);
     });
@@ -750,14 +660,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
 
 void eea::EnterMailSystem::Ready(ui::Screen *screen) noexcept
 {
-    UpdateButton();
-}
-
-void eea::EnterMailSystem::UpdateButton()
-{
-    for (auto e : {l3, l2, l1, r1, r2, r3}) {
-        e->SetCaption(ToStr(ToNum(cur->GetContent()) + ToNum(e->GetName())));
-    }
+    ;
 }
 
 void eea::MainPage::Load(ui::Screen *screen) noexcept
@@ -897,39 +800,6 @@ void eea::MainPage::Ready(ui::Screen *screen) noexcept
     ;
 }
 
-void eea::Retry::Load(ui::Screen *screen) noexcept
-{
-    auto vbox = new ui::VerticalBox; {
-        vbox->AddTo(screen);
-        vbox->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-        vbox->SetGap(50);
-    }
-    {
-        auto label = new ui::Label; {
-            label->AddTo(vbox);
-            label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-            label->SetContent("服务端未响应，请检查后重试");
-        }
-        btn = new ui::Button; {
-            btn->AddTo(vbox);
-            btn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-            btn->SetCaption("确定");
-        }
-    }
-}
-
-void eea::Retry::Logic(ui::Screen *screen) noexcept
-{
-    btn->SetClickCallback(UI_CALLBACK{
-        SwitchTo(new EnterSystem);
-    });
-}
-
-void eea::Retry::Ready(ui::Screen *screen) noexcept
-{
-    ;
-}
-
 void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
 {
     auto mar = new ui::Margin; {
@@ -1009,6 +879,11 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
                         newBtn->SetCaption("新建帐户");
                         newBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     }
+                    resetBtn = new ui::Button; {
+                        resetBtn->AddTo(btnBox);
+                        resetBtn->SetCaption("重置帐户与权限系统");
+                        resetBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    }
                 }
             }
             detailBox = new ui::VerticalScrollingBox; {
@@ -1037,6 +912,30 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
 
 void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
 {
+    resetBtn->SetClickCallback(UI_CALLBACK{
+        screen->HideAll();
+        auto click = MessageBox(screen, "你正在进行一个危险操作！\n您将重置帐户与权限系统，这意味着清空系统内所有的帐户信息，并退出登录。\n确认吗？", {"确认", "取消"});
+        screen->FreeAllVisible();
+        if (click == 0) {
+            auto [success, reply] = WaitServer(screen, {trm::rqs::RESET_ACCOUNT_AND_ACCESS, username, password}, "正在与服务端通信");
+            screen->FreeAllVisible();
+            if (success == 1) {
+                if (reply[0] == trm::rpl::SUCC) {
+                    MessageBox(screen, "重置成功\n稍后请重新登录");
+                    SwitchTo(new Login);
+                } else {
+                    MessageBox(screen, "重置失败！");
+                    screen->ShowAll();
+                }
+            } else if (success == 0) {
+                MessageBox(screen, "服务端未响应，请检查后重试");
+                screen->ShowAll();
+            }
+        } else {
+            screen->ShowAll();
+        }
+    });
+
     auto deleteCallback = UI_CALLBACK{
         if (name == username) {
             screen->HideAll();

@@ -294,6 +294,11 @@ trm::Information ssys::AccountAndAccess::ResetAccountAndAccess(const trm::Inform
     }
 
     base.Remove();
+    auto admBase = base[ACCOUNTS]["adm"];
+    if (!admBase.Exists()) {
+        admBase = trm::Account{"adm", "123", {trm::Access::ADM}, {{"name", "最高管理员"}}};
+    }
+    
     return {trm::rpl::SUCC};
 }
 
