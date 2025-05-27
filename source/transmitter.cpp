@@ -353,6 +353,42 @@ trm::Book::operator std::string() const noexcept
     });
 }
 
+bool trm::Book::operator==(const Book &other) const noexcept
+{
+    if (this == &other) return true;
+    if (this->bookIsbn != other.bookIsbn ||
+        this->bookName != other.bookName ||
+        this->bookPublicationDate != other.bookPublicationDate ||
+        this->bookCatagory != other.bookCatagory ||
+        this->storePosition != other.storePosition)
+        {
+            return false;
+        }
+    if (this->bookAuthor.size() != other.bookAuthor.size()) return false;
+    for (long long unsigned int i = 0; i < this->bookAuthor.size(); ++i) {
+        if (this->bookAuthor[i] != other.bookAuthor[i]) return false;
+    }
+    return true;
+}
+
+std::string trm::Book::GetInfo(const trm::Book &selectedBook) noexcept
+{
+    std::string tip = "";
+    tip = " ISBN " + selectedBook.bookIsbn + 
+            "\n    书名 " + selectedBook.bookName + 
+            "\n    作者 ";
+    std::string author = "";
+    for (long long unsigned int i = 0; i < selectedBook.bookAuthor.size(); ++i) {
+        if (i == selectedBook.bookAuthor.size() - 1) author += selectedBook.bookAuthor[i];
+        else author += selectedBook.bookAuthor[i] + ",";
+    }
+    tip += author;
+    tip += "\n    出版日期 " + selectedBook.bookPublicationDate + 
+            "\n    存放位置 " + selectedBook.storePosition + 
+            "\n    图书分类 " + selectedBook.bookCatagory;
+    return tip;
+}
+
 trm::Date::operator std::string() const noexcept
 {
     return trm::Combine({

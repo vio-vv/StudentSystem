@@ -22,6 +22,8 @@ trm::Information ssys::Library::RestoreNewBook(const trm::Information &content) 
     }
     else {
         trm::Book book = trm::Book(books[content[3]]);
+        trm::Book input = trm::Book(content[5]);
+        if (!(book == input)) return {trm::rpl::BOOK_INFO_CONFLICT, book};
         book.bookTot += ToNum(content[4]);
         books[content[3]] = book;
     }

@@ -315,7 +315,7 @@ namespace rqs{
      * @param isbn 作为索引 书籍 ISBN 号
      * @param amount 存放数量
      * @param bookInfo 书籍信息 @see @struct Book
-     * @return SUCC or FAIL or ACCESS_DENIED
+     * @return SUCC or BOOK_INFO_CONFLICT or ACCESS_DENIED
      * @note ACCESS REQUIRED BOOK_MANAGE
      */
     const std::string RESTORE_BOOK = _AS_"RESTORE_BOOK";
@@ -610,6 +610,7 @@ namespace rpl{
     const std::string NO_SPARE_BOOK = _AS_"NO_SPARE_BOOK";
     const std::string EXCEED_BOOK_NUM = _AS_"EXCEED_BOOK_NUM";
     const std::string NO_BORROW_RECORD = _AS_"NO_BORROW_RECORD";
+    const std::string BOOK_INFO_CONFLICT = _AS_"BOOK_INFO_CONFLICT";
 }
 
 namespace acc {
@@ -738,6 +739,8 @@ struct Book{
         bookAuthor(_bookAuthor) {};
     
     Book(const std::string &constent) noexcept;
+    static std::string GetInfo(const Book &other) noexcept;
+    bool operator==(const Book &other) const noexcept;
     operator std::string() const noexcept;
 };
 //courseName, teacher, location, weeks（vector<string>）

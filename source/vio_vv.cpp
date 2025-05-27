@@ -41,6 +41,7 @@ void vio::EnterLibrary::Load(ui::Screen *screen) noexcept
                 searchBox = new ui::InputBox;{
                     searchBox->AddTo(topBox);
                     searchBox->SetSize(1000, 30);
+                    searchBox->SetText("在此输入搜索内容");
                 }
                 searchOptBtn = new ui::Button;{
                     searchOptBtn->AddTo(topBox);
@@ -179,8 +180,12 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
         userInput = searchBox->GetText();
     });
 
+    searchBox->SetEndCallback(UI_CALLBACK{
+        if (searchBox->GetText() == "") searchBox->SetText("在此输入搜索内容");
+    });
+
     searchBox->SetBeginCallback(UI_CALLBACK{
-        searchBox->SetText("在此输入搜索内容");
+        if (searchBox->GetText() == "在此输入搜索内容") searchBox->SetText("");
     });
 
     returnBtn->SetClickCallback(UI_CALLBACK{
@@ -213,7 +218,6 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
 
     searchBtn->SetClickCallback(UI_CALLBACK{
         searchBtn->Disable();
-        
         if (userInput == "") {
             hinderBox->FreeAll();
             hinderBox->Add(new ui::Label("注意，查询内容不能为空，请检查输入"));
@@ -234,22 +238,27 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
             else if (optStr == "出版日期") searchType = trm::rqs::BOOK_PUBLISHDATE;
             else if (optStr == "馆藏位置") searchType = trm::rqs::BOOK_STROEPOSTION;
             else if (optStr == "分类") searchType = trm::rqs::BOOK_CATAGORY;
+            else searchType = trm::rqs::BOOK_NAME;
 
             Listen(new trm::Sender({trm::rqs::SEARCH_BOOK, userInput, ToStr(searchType), "false", "false"}), SD_CALLBACK{
                 hinderBox->FreeAll();
-                if (reply[0] == trm::rpl::FAIL) {
-                    hinderBox->Add(new ui::Label("查询失败，请检查输入"));
-                }
-                else if (reply[0] == trm::rpl::TIME_OUT) {
-                    hinderBox->Add(new ui::Label("服务端未响应，请稍后再试"));
-                }
-                else {
-                    books.clear();
-                    for (auto bookInfo : reply) {
-                        books.push_back(trm::Book(bookInfo));
+                if (!reply.empty()) {
+                    if (reply[0] == trm::rpl::FAIL) {
+                        hinderBox->Add(new ui::Label("查询失败，请检查输入"));
+                        return;
                     }
-                    SwitchTo(new BookList);
+                    else if (reply[0] == trm::rpl::TIME_OUT) {
+                        hinderBox->Add(new ui::Label("服务端未响应，请稍后再试"));
+                        return;
+                    }
+                    else {
+                        books.clear();
+                        for (auto bookInfo : reply) {
+                            books.push_back(trm::Book(bookInfo));
+                        }
+                    }
                 }
+                SwitchTo(new BookList);
             });
         }
         searchBtn->Enable();
@@ -416,6 +425,50 @@ void vio::BookManage::Load(ui::Screen *screen) noexcept
 
 void vio::BookManage::Logic(ui::Screen *screen) noexcept
 {
+    auto restoreprework = [=, this]() -> void {
+        ui::Label *label = new ui::Label;{
+            label->AddTo(lfMidBox);
+            label->SetFontSize(40);
+            label->SetContent(opt);
+            label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+        }
+        ui::VerticalBox *vbox = new ui::VerticalBox;{
+            vbox->AddTo(wholeBox);
+            vbox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            vbox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+        }
+        {
+            ui::HorizontalBox *hbox = new ui::HorizontalBox;{
+                hbox->AddTo(vbox);
+                hbox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                hbox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            }
+            {
+                ui::Label *storenum = new ui::Label;{
+                    storenum->AddTo(hbox);
+                    storenum->SetContent("存放数量");
+                    storenum->SetHSize(100);
+                }
+                ui::InputBox *numInput = new ui::InputBox;{
+                    numInput->AddTo(hbox);
+                    numInput->SetHSize(100);
+                    numInput->SetText(bookNum);
+                    numInput->SetInputCallback(UI_CALLBACK{
+                        bookNum = numInput->GetText();
+                    });
+                }
+            }
+            numLimitTip = new ui::Label;{
+                numLimitTip->AddTo(vbox);
+                numLimitTip->SetContent("输入需为大于0的整数");
+                numLimitTip->SetFontSize(35);
+                numLimitTip->SetFontColor(sf::Color::Red);
+                numLimitTip->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                numLimitTip->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                numLimitTip->SetVisible(false);
+            }
+        }
+    };
     auto removeprework = [=, this]() -> void {
         ui::VerticalBox *vbox = new ui::VerticalBox;{
             vbox->AddTo(wholeBox);
@@ -468,7 +521,9 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
         int slen = 0;
         int cnt = 0;
         catergoryLabel = new ui::Label("请选择分类");{
+            catergoryLabel->SetFontSize(40);
             catergoryLabel->AddTo(catergoryBox);
+            if (selectedBook.bookCatagory != "") catergoryLabel->SetContent(selectedBook.bookCatagory);
             catergoryLabel->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
             catergoryLabel->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
         }
@@ -631,6 +686,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 storePosition->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 storePosition->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 storePosition->SetContent("图书位置");
+                if (selectedBook.storePosition != "") storePosition->SetContent("图书位置" + selectedBook.storePosition);
             }
             room302Btn = new ui::Button;{
                 room302Btn->AddTo(hbox1);
@@ -776,14 +832,6 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                     }
                 
                 }
-                               
-                // ui::Label *end = new ui::Label;{
-                //     end->AddTo(wholeBox);
-                //     end->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                //     end->SetVPreset(ui::Control::Preset::WRAP_AT_END);
-                //     end->SetContent("请确认信息无误后，点击确认按钮\n==================END==================");
-                //     end->SetFontSize(35);
-                // }
             }
         }
     };
@@ -807,44 +855,37 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
 
     auto resetLeftDetail = [=, this]() -> void {
         bookList->FreeAllVisible();
-        ui::VerticalBox *vbox = new ui::VerticalBox;{
-            vbox->AddTo(bookList);
-            vbox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-            vbox->SetGap(15);
-        }
-        {   
-            ui::Button *btn;
-            for (int i = (page - 1) * 10; i < len && i < page * 10; i++) {
-                btn = new ui::Button;{
-                    btn->AddTo(vbox);
-                    btn->SetFontSize(35);
-                    btn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                    btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
-                    btn->SetCaption(books[i].bookName + "\n" + books[i].bookIsbn + "  存量" + ToStr(books[i].bookTot));
-                    btn->SetCaption(books[i].bookName + "\n" + books[i].bookIsbn + "  存量" + ToStr(books[i].bookTot));
-                }
-                btn->SetClickCallback(UI_CALLBACK{
-                    selectedBook = books[i];
-                    bookAuthor = "";
-                    int len = selectedBook.bookAuthor.size();
-                    for (int i = 0; i < len; i++) {
-                        if (i == len - 1) bookAuthor += selectedBook.bookAuthor[i];
-                        else bookAuthor += selectedBook.bookAuthor[i] + ",";
-                    }
-                    bookNum = ToStr(selectedBook.bookTot);
-                    detailBox->FreeAll();
-                    printBasicDetail();
-                    if (opt == "删除图书") removeprework();
-                    else {
-                        printBookDetail();
-                        setStorePositon();
-                    }
-                });
+        ui::Button *btn;
+        for (int i = (page - 1) * 10; i < len && i < page * 10; i++) {
+            btn = new ui::Button;{
+                btn->AddTo(bookList);
+                btn->SetFontSize(35);
+                btn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                btn->SetCaption(books[i].bookName + "\n" + books[i].bookIsbn + "  存量" + ToStr(books[i].bookTot));
+                btn->SetCaption(books[i].bookName + "\n" + books[i].bookIsbn + "  存量" + ToStr(books[i].bookTot));
             }
+            btn->SetClickCallback(UI_CALLBACK{
+                selectedBook = books[i];
+                bookAuthor = "";
+                int len = selectedBook.bookAuthor.size();
+                for (int i = 0; i < len; i++) {
+                    if (i == len - 1) bookAuthor += selectedBook.bookAuthor[i];
+                    else bookAuthor += selectedBook.bookAuthor[i] + ",";
+                }
+                bookNum = ToStr(selectedBook.bookTot);
+                detailBox->FreeAll();
+                printBasicDetail();
+                if (opt == "删除图书") removeprework();
+                else {
+                    printBookDetail();
+                    setStorePositon();
+                }
+            });
         }
         if (len == 0) {
             ui::Label *label = new ui::Label;{
-                label->AddTo(vbox);
+                label->AddTo(bookList);
                 label->SetContent("暂无图书");
                 label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
             }
@@ -1095,50 +1136,9 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
         selectedBook = trm::Book();
         detailBox->FreeAll();
         lfMidBox->FreeAll();
-        ui::Label *label = new ui::Label;{
-            label->AddTo(lfMidBox);
-            label->SetFontSize(40);
-            label->SetContent(opt);
-            label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-        }
         printBasicDetail();
         printBookDetail();
-        ui::VerticalBox *vbox = new ui::VerticalBox;{
-            vbox->AddTo(wholeBox);
-            vbox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-            vbox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
-        }
-        {
-            ui::HorizontalBox *hbox = new ui::HorizontalBox;{
-                hbox->AddTo(vbox);
-                hbox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                hbox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
-            }
-            {
-                ui::Label *storenum = new ui::Label;{
-                    storenum->AddTo(hbox);
-                    storenum->SetContent("存放数量");
-                    storenum->SetHSize(100);
-                }
-                ui::InputBox *numInput = new ui::InputBox;{
-                    numInput->AddTo(hbox);
-                    numInput->SetHSize(100);
-                    if (selectedBook.bookTot != 0) numInput->SetText(std::to_string(selectedBook.bookTot));
-                    numInput->SetInputCallback(UI_CALLBACK{
-                        bookNum = numInput->GetText();
-                    });
-                }
-            }
-            numLimitTip = new ui::Label;{
-                numLimitTip->AddTo(vbox);
-                numLimitTip->SetContent("输入需为大于0的整数");
-                numLimitTip->SetFontSize(35);
-                numLimitTip->SetFontColor(sf::Color::Red);
-                numLimitTip->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                numLimitTip->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                numLimitTip->SetVisible(false);
-            }
-        }
+        restoreprework();
         setStorePositon();
     });
 
@@ -1167,26 +1167,18 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
         std::vector<std::string> invalid = CheckInput();
         if (invalid.empty()) {
             screen->HideAll();
-            std::string tip = "";
-            tip = opt + " ISBN " + selectedBook.bookIsbn + 
-                        "\n    书名 " + selectedBook.bookName + 
-                        "\n    作者 ";
             std::string author = "";
             selectedBook.bookAuthor.clear();
             for (auto c : bookAuthor) {
                 if (c == ',') {
-                    tip += author + ", ";
                     selectedBook.bookAuthor.push_back(author);
                     author = "";
                 } else {
                     author += c;
                 }
             }
-            tip += author;
             selectedBook.bookAuthor.push_back(author);
-            tip += "\n    出版日期 " + selectedBook.bookPublicationDate + 
-                    "\n    存放位置 " + selectedBook.storePosition + 
-                    "\n    图书分类 " + selectedBook.bookCatagory;
+            std::string tip = opt + '\n' + trm::Book::GetInfo(selectedBook);
                     
             if (opt == "新增图书" || opt == "删除图书") tip += "\n    数量 " + bookNum;
             int ret = MessageBox(screen, tip, {"取消", "确认信息无误"});
@@ -1198,9 +1190,9 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 if (opt == "新增图书") {
                     screen->FreeAllVisible();
                     auto [success, reply] = WaitServer(screen, {trm::rqs::RESTORE_BOOK, account.code, account.hashedPassword, selectedBook.bookIsbn, bookNum, selectedBook}, "等待服务端响应");
+                    screen->FreeAllVisible();
                     if (success == 1) {
                         if (reply[0] == trm::rpl::SUCC) {
-                            screen->FreeAllVisible();
                             int succret =MessageBox(screen, "图书添加成功", {"确认"});
                             if (succret == 0) {
                                 SwitchTo(new BookManage);
@@ -1211,6 +1203,27 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                             if (denyret == 0) {
                                 SwitchTo(new EnterLibrary);
                             }
+                        }
+                        else if (reply[0] == trm::rpl::BOOK_INFO_CONFLICT) {
+                            trm::Book storedBook(reply[1]);
+                            int existret = MessageBox(screen, "存在的图书信息与您添加的相冲突\n你是否想添加\n" + trm::Book::GetInfo(storedBook), {"确认", "取消"});
+                            if (existret == 0) {
+                                selectedBook = storedBook;
+                                screen->FreeAllVisible();
+                                screen->ShowAll();
+                                detailBox->FreeAll();
+                                printBasicDetail();
+                                printBookDetail();
+                                restoreprework();
+                                isChanged ^= 1;
+                                setStorePositon();
+                                reSetCatergoryBox();
+                            }
+                            else {
+                                screen->FreeAllVisible();
+                                screen->ShowAll();
+                            }
+                            return;
                         }
                         else {
                             assert(false);
@@ -1226,9 +1239,9 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 else if (opt == "修改图书") {
                     screen->FreeAllVisible();
                     auto [success, reply] = WaitServer(screen, {trm::rqs::MODIFY_BOOK_INFO, account.code, account.hashedPassword, selectedBook.bookIsbn, selectedBook}, "等待服务端响应");
+                    screen->FreeAllVisible();
                     if (success == 1) {
                         if (reply[0] == trm::rpl::SUCC) {
-                            screen->FreeAllVisible();
                             int succret =MessageBox(screen, "图书修改成功", {"确认"});
                             if (succret == 0) {
                                 SwitchTo(new BookManage);
@@ -1266,9 +1279,9 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 else if (opt == "删除图书") {
                     screen->FreeAllVisible();
                     auto [success, reply] = WaitServer(screen, {trm::rqs::REMOVE_BOOK, account.code, account.hashedPassword, selectedBook.bookIsbn, bookNum}, "等待服务端响应");
+                    screen->FreeAllVisible();
                     if (success == 1) {
                         if (reply[0] == trm::rpl::SUCC) {
-                            screen->FreeAllVisible();
                             int succret =MessageBox(screen, "图书删除成功", {"确认"});
                             if (succret == 0) {
                                 SwitchTo(new BookManage);
@@ -1329,7 +1342,9 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
 
 void vio::BookManage::Ready(ui::Screen *screen) noexcept
 {
-    ;
+    bookNum = "";
+    isChanged = 0;
+    isClicked = false;
 }
 
 std::vector<std::string> vio::BookManage::CheckInput() const noexcept
