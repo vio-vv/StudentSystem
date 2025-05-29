@@ -779,12 +779,16 @@ void ui::PageTurner::SetFontSize(unsigned int absolute) noexcept
 
 void ui::PageTurner::SetMaxPage(unsigned int absolute) noexcept
 {
-    maxPage = absolute;
+    maxPage = std::max(1u, absolute);
+    if (currentPage > maxPage) currentPage = maxPage;
     UpdateInQueue();
 }
 
 void ui::PageTurner::SetCurrentPage(unsigned int absolute) noexcept
 {
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > maxPage) currentPage = maxPage;
+    if (currentPage == absolute) return;
     currentPage = absolute;
     turnCallback(name, {});
     UpdateInQueue();

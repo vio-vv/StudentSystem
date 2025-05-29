@@ -68,6 +68,19 @@ int main() noexcept
                 REGISTER(trm::rqs::LIST_ACCOUNT, ssys.ListAccount)
                 REGISTER(trm::rqs::GET_ACCOUNT_DETAIL, ssys.GetAccountDetail)
 
+                REGISTER(trm::rqs::SEND_MESSAGE, ssys.SendMessage)
+                REGISTER(trm::rqs::GET_MESSAGE_NUMBER, ssys.GetMessageNumber)
+                REGISTER(trm::rqs::GET_MESSAGE_PROFILE, ssys.GetMessageProfile)
+                REGISTER(trm::rqs::GET_MESSAGE, ssys.GetMessageProfile)
+                REGISTER(trm::rqs::MARK_AS_READ, ssys.MarkAsRead)
+                REGISTER(trm::rqs::MARK_AS_UNREAD, ssys.MarkAsUnread)
+                REGISTER(trm::rqs::GET_UNREAD_MESSAGE_NUMBER, ssys.GetUnreadMessageNumber)
+                REGISTER(trm::rqs::DELETE_MESSAGE, ssys.DeleteMessage)
+                REGISTER(trm::rqs::CLEAR_MESSAGE, ssys.DeleteMessage)
+                REGISTER(trm::rqs::DELETE_MESSAGE_OF_OTHERS, ssys.DeleteMessageOfOthers)
+                REGISTER(trm::rqs::CLEAR_MESSAGE_OF_OTHERS, ssys.DeleteMessageOfOthers)
+                REGISTER(trm::rqs::RESET_MAIL_SYSTEM, ssys.ResetMailSystem)
+
                 /*******************************
                  * @attention LAB 请在此处添加。*
                  * *****************************

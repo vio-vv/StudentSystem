@@ -2109,9 +2109,8 @@ protected:
 
 class PageTurner : public Control {
 public:
-    PageTurner(int deltaNum = 3) noexcept
+    PageTurner(int deltaNum = 3) noexcept : deltaNum(std::max(0, deltaNum))
     {
-        this->deltaNum = std::max(0, deltaNum);
         auto turn = [this](const std::string &name, const sf::Event &event){
             auto con = currentPage + ToNum(name);
             if (con < 1 || con > maxPage) {
@@ -2165,7 +2164,7 @@ public:
         gotoBox = new ui::HorizontalBox; {
             layer.Add(gotoBox);
             gotoBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
-            gotoBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            gotoBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
         }
         {
             auto label = new ui::Label; {
@@ -2192,10 +2191,7 @@ public:
                 goBtn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 goBtn->SetCaption("跳转");
                 goBtn->SetClickCallback([this](const std::string &name, const sf::Event &event){
-                    auto num = ToNum(input->GetText());
-                    if (num < 1) num = 1;
-                    if (num > maxPage) num = maxPage;
-                    SetCurrentPage(num);
+                    SetCurrentPage(ToNum(input->GetText()));
                     input->SetText("");
                 });
             }
@@ -2242,7 +2238,7 @@ protected:
      * @brief 封装的工具方法和属性。*
      * ****************************
      */
-    int deltaNum = 3;
+    const int deltaNum;
 
     /******************************
      * @brief 封装的数据类型和常量。*

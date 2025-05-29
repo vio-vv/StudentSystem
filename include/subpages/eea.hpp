@@ -111,17 +111,11 @@ class EnterMailSystem : public PageBase {
 private:
     ui::Button *backBtn = nullptr;
 
-    ui::Button *l3 = nullptr;
-    ui::Button *l2 = nullptr;
-    ui::Button *l1 = nullptr;
-    ui::Label *cur = nullptr;
-    ui::Button *r1 = nullptr;
-    ui::Button *r2 = nullptr;
-    ui::Button *r3 = nullptr;
-    ui::InputBox *input = nullptr;
-    ui::Button *goBtn = nullptr;
-    
-    ui::LoadingRing *loading = nullptr;
+    ui::VerticalBox *list = nullptr;
+    ui::VerticalScrollingBox *msgBox = nullptr;
+    ui::PageTurner *turner = nullptr;
+    ui::Center *loading = nullptr;
+    std::function<void ()> refreshList = [](){};
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;

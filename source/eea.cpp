@@ -624,25 +624,34 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                         label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                         label->SetContent("↓ 收件箱 ↓");
                     }
-                    auto listBox = new ui::VerticalBox; {
-                        listBox->AddTo(inBox);
-                        listBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    list = new ui::VerticalBox; {
+                        list->AddTo(inBox);
+                        list->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     }
                     {
-                        auto list = new ui::VerticalBox; {
-                            list->AddTo(listBox);
-                            list->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        msgBox = new ui::VerticalScrollingBox; {
+                            msgBox->AddTo(list);
+                            msgBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            msgBox->SetInsideBoxScrollable(true);
                         }
                         {
-                            loading = new ui::LoadingRing; {
-                                loading->AddTo(list);
-                                loading->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                                loading->Start();
-                            }
+                            ;
                         }
-                        auto turner = new ui::PageTurner; {
-                            turner->AddTo(listBox);
-                            turner->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        turner = new ui::PageTurner; {
+                            turner->AddTo(list);
+                            turner->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        }
+                    }
+                    loading = new ui::Center; {
+                        loading->AddTo(list);
+                        loading->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        loading->Hide();
+                    }
+                    {
+                        auto ring = new ui::LoadingRing; {
+                            ring->AddTo(loading);
+                            ring->SetSize(60, 60);
+                            ring->Start();
                         }
                     }
                 }
@@ -656,11 +665,36 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
     backBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new MainPage);
     });
+
+    refreshList = [=, this](){
+        if (loading->GetVisible()) return;
+
+        loading->Show();
+        list->Hide();
+
+        msgBox->FreeAll();
+        Listen(new trm::Sender({trm::rqs::GET_MESSAGE_NUMBER, username, password}), SD_CALLBACK{
+            if (reply[0] == trm::rpl::TIME_OUT) {
+                msgBox->Add(new ui::Label("服务端未响应，请检查后重试。"));
+                turner->SetMaxPage(1);
+                loading->Hide();
+                list->Show();
+            } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                msgBox->Add(new ui::Label("对不起，您没有查看邮件的权限。"));
+                turner->SetMaxPage(1);
+                loading->Hide();
+                list->Show();
+            } else {
+                loading->Hide();
+                list->Show();
+            }
+        });
+    };
 }
 
 void eea::EnterMailSystem::Ready(ui::Screen *screen) noexcept
 {
-    ;
+    refreshList();
 }
 
 void eea::MainPage::Load(ui::Screen *screen) noexcept
