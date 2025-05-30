@@ -80,12 +80,9 @@ private:
     ui::Button *btn1 = nullptr;
     ui::Label *glabel = nullptr;
     ui::Button *btn2 = nullptr;
-    ui::Button *addbtn = nullptr;
-    ui::Button *debtn = nullptr;
     ui::Label *label0 = nullptr;
     ui::Label *label1 = nullptr;
     ui::Label *label2 = nullptr;
-    ui::Button *tempbackbtn = nullptr;
     ui::HorizontalBox *hbox = nullptr;
     ui::HorizontalBox *hinput3 = nullptr;
     ui::HorizontalBox *hinput4 = nullptr;
@@ -127,8 +124,6 @@ protected:
 class Request : public PageBase {
 private:
     ui::Button *backbtn = nullptr;
-    ui::InputBox *input = nullptr;
-    ui::Button *btn1 = nullptr;
     ui::Label *glabel = nullptr;
     ui::HorizontalBox *hbox = nullptr;
     ui::VerticalBox *vbox = nullptr;
@@ -139,13 +134,9 @@ private:
     ui::Label *label0 = nullptr;
     ui::Label *label1 = nullptr;
     ui::Label *label2 = nullptr;
-    ui::Label *label3 = nullptr;
     ui::Label *rpllabel = nullptr;   
     ui::Button *addbtn = nullptr;
     ui::Button *cfbtn = nullptr;
-    ui::InputBox *dinput1 = nullptr;
-    ui::InputBox *dinput2 = nullptr;
-    ui::InputBox *dinput3 = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
@@ -153,7 +144,20 @@ protected:
 };
 class Cancel : public PageBase {
 private:
-    ;
+    ui::HorizontalBox *hbox = nullptr;
+    ui::Button *backbtn = nullptr;
+    ui::Button *debtn = nullptr;
+    ui::Label *rpllabel = nullptr;
+    ui::Label *label0 = nullptr;
+    ui::Label *label1 = nullptr;
+    ui::Label *label2 = nullptr;
+    ui::InputBox *idinput = nullptr;
+    ui::InputBox *phinput = nullptr;
+    ui::Button *cfbtn = nullptr;
+    ui::Label *glabel = nullptr;
+    ui::HorizontalBox *hinput3 = nullptr;
+    ui::HorizontalBox *hinput4 = nullptr;
+    ui::VerticalBox *vbox = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;

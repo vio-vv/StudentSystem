@@ -82,6 +82,10 @@ trm::Information ssys::ReserveSystem::CancelReserve(const trm::Information& info
     if(clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]][information[2]].Exists())//检查是否存在预约信息
     {
         clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]][information[2]].Clear();//清除预约信息
+        if(!clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]].Size())
+        {
+            clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]].Remove();//清除用户预约信息
+        }
         return {trm::rpl::SUCC};
     }
     else
