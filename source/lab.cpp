@@ -657,13 +657,13 @@ void lab::EnterReserve::Load(ui::Screen *screen) noexcept
                 btn2->AddTo(flat);
                 btn2->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 btn2->SetVAnchor(75);
-                btn2->SetCaption("查看预约列表");//可能要稍作修改
-            }//private
+                btn2->SetCaption("查看预约列表"); // 可能要稍作修改
+            } //private
             hbox = new ui::HorizontalBox; {
                 hbox->AddTo(flat);
                 hbox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 hbox->SetHSize(80);
-                hbox->SetVSize(20);//private
+                hbox->SetVSize(20); // private
             }
             {
                 
@@ -701,7 +701,7 @@ void lab::EnterReserve::Load(ui::Screen *screen) noexcept
                     }
                     idinput = new ui::InputBox;{
                         idinput->AddTo(hinput3);
-                        idinput->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);//private
+                        idinput->SetPreset(ui::Control::Preset::FILL_FROM_CENTER); // private
                     }
                 }
                 hinput4 =new ui::HorizontalBox();{
@@ -717,7 +717,7 @@ void lab::EnterReserve::Load(ui::Screen *screen) noexcept
                     }
                     phinput =new ui::InputBox;{
                         phinput->AddTo(hinput4);
-                        phinput->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);//private
+                        phinput->SetPreset(ui::Control::Preset::FILL_FROM_CENTER); // private
                     }
                 } // idandphoneglabel
                 cfbtn1=new ui::Button;{
@@ -1138,7 +1138,7 @@ void lab::Request::Ready(ui::Screen *screen) noexcept
                hbox->HideAll();
            }
            else{
-            label0->SetContent("日期:"+reply[1]);//待改善
+            label0->SetContent("日期:"+reply[1]); // 待改善
             label1->SetContent("时间:"+reply[2]);
             label2->SetContent("剩余名额:"+reply[3]);
            }

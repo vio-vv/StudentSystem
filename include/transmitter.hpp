@@ -652,6 +652,12 @@ enum Access{
     _
 };
 }
+namespace tag{
+    const std::string UNGRSTUDENT = _AS_"UNGRSTUDENT"; // 本科生
+    const std::string GRADUATE = _AS_"GRADUATE"; // 研究生
+    const std::string TEACHER = _AS_"TEACHER"; // 教师
+    const std::string NAME = _AS_"NAME"; // 姓名
+}
 using Access = acc::Access;
 struct AccessBox {
     Access access;
