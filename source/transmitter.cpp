@@ -307,9 +307,7 @@ trm::CourseInformation::CourseInformation(const std::string &content) noexcept
 
 trm::IdAndPhone::operator std::string() const noexcept
 {
-    std::string idandphone;
-    idandphone += id + '-' + phone;
-    return idandphone;
+    return Combine({id, phone}, '-');
 }
 
 trm::IdAndPhone::IdAndPhone(const std::string &content) noexcept
@@ -323,7 +321,7 @@ trm::IdAndPhone::IdAndPhone(const std::string &content) noexcept
 
 trm::ReserveDate::operator std::string() const noexcept
 {
-    return Combine({ToStr(month), ToStr(week), ToStr(date)},' ');
+    return Combine({ToStr(month), ToStr(week), ToStr(date)},'-');
 }
 trm::Book::Book(const std::string &content) noexcept
 {
@@ -398,7 +396,7 @@ trm::Date::operator std::string() const noexcept
 //date 和reservedate的函数交叉有点混乱，但是不建议改位置，很容易冲突
 trm::ReserveDate::ReserveDate(const std::string &content) noexcept
 {
-    auto date = trm::Split(content,' ');
+    auto date = trm::Split(content,'-');
     *this = {
        date[0],
        date[1],

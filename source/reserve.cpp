@@ -57,7 +57,7 @@ trm::Information ssys::ReserveSystem::RequestReserve(const trm::Information& inf
     auto timeReply=SSys::Get().CheckReserveTime({trm::rqs::CHECK_RESERVE_TIME,information[1],information[2]});//检查预约时间
     if(timeReply[0]!=trm::rpl::YES)
     {
-       return {trm::rpl::FAIL,trm::rpl::NO_MATCH_RESERVE,timeReply[1]};
+       return {trm::rpl::FAIL,timeReply[1]};
     }
     if(clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]][information[2]].Exists())
     {
@@ -65,9 +65,10 @@ trm::Information ssys::ReserveSystem::RequestReserve(const trm::Information& inf
     }
     auto dateInformation=trm::ReserveDate(information[1]);
     auto number=reserveBase[dateInformation.month][dateInformation.week][dateInformation.date][information[2]];
-    number=ToStr(ToNum(number)-1);//将可预约数量减一//未 test
-    clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]].Push(information[2], "HAVE RESERVED, READY TO USE"); // 将预约信息加入数据库
-    return {trm::rpl::SUCC};
+    number=ToStr(ToNum(number)-1);//将可预约数量减一
+    reserveBase[dateInformation.month][dateInformation.week][dateInformation.date][information[2]] = number;
+    clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]].Push(information[2], "HAVE RESERVED, READY TO USE"); // 将预约信息加入数据库//断点
+    return {trm::rpl::SUCC,information[1],information[2]}; // 返回成功预约的时间和状态
     //也许会返回成功预约的时间和状态，就类似自动跳转
 }
 
@@ -92,7 +93,7 @@ trm::Information ssys::ReserveSystem::CancelReserve(const trm::Information& info
 trm::Information ssys::ReserveSystem::CheckReserveStatus(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::CHECK_RESERVE_STATUS); // Procession not matched.
-    auto reserve=clientBase[trm::IdAndPhone{information[3],information[4]}][information[2]];
+    auto reserve=clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]][information[2]];
     if(reserve.Exists())//检查是否存在预约信息
     {
         return {trm::rpl::SUCC,information[1],information[2],reserve};
@@ -116,7 +117,7 @@ trm::Information ssys::ReserveSystem::CheckReserveStatusList(const trm::Informat
     {
         for(auto [time,status]:reserve)
         {
-            reserveList.push_back(trm::Combine({date,time,status},' '));//将预约信息加入列表
+            reserveList.push_back(trm::Combine({date,time,status},'_'));//将预约信息加入列表
         }
     }
     return reserveList;
