@@ -786,8 +786,8 @@ void ui::PageTurner::SetMaxPage(unsigned int absolute) noexcept
 
 void ui::PageTurner::SetCurrentPage(unsigned int absolute) noexcept
 {
-    if (currentPage < 1) currentPage = 1;
-    if (currentPage > maxPage) currentPage = maxPage;
+    if (absolute < 1) absolute = 1;
+    if (absolute > maxPage) absolute = maxPage;
     if (currentPage == absolute) return;
     currentPage = absolute;
     turnCallback(name, {});

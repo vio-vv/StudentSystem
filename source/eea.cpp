@@ -643,7 +643,7 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                         }
                     }
                     loading = new ui::Center; {
-                        loading->AddTo(list);
+                        loading->AddTo(inBox);
                         loading->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                         loading->Hide();
                     }
