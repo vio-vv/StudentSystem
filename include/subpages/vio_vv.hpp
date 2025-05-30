@@ -9,8 +9,6 @@ using namespace clpg;
 class EnterLibrary : public PageBase {
 private:
     bool isClicked = false;
-    std::string optStr = "";
-    std::string userInput = "";
     
     ui::InputBox *searchBox = nullptr;
     ui::Button *searchOptBtn = nullptr;
@@ -27,14 +25,18 @@ private:
     ui::Button *borrowManageBtn = nullptr;
     ui::Button *basicNolifyBtn = nullptr;
     ui::Button *bookManageBtn = nullptr;
-    ui::VerticalBox *optBox = nullptr;
+    ui::HorizontalBox *optBox = nullptr;
     ui::VerticalBox *vbox = nullptr;
     ui::HorizontalBox *midBox = nullptr;
     ui::HorizontalBox *hinderBox = nullptr;
 protected:
+    static int select;
+    static std::string optStr;
+    static std::string userInput;
     static trm::Book selectedBook;
     static std::vector<trm::Book> books;
     static std::vector<trm::BorrowLog> borrowLogs;
+    static std::vector<std::string> searchOption;
 
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
@@ -43,7 +45,34 @@ protected:
 
 class BookList : public EnterLibrary {
 private:
+    bool isClicked = false;
+    int page = 1;
+    int totPage = 1;
+    int len = 0;
+
+    ui::HorizontalBox *optBox = nullptr;
+//{
+    ui::Button *chooseIsbn = nullptr;
+    ui::Button *chooseBookName = nullptr;
+    ui::Button *chooseAuthor = nullptr;
+    ui::Button *choosePublishDate = nullptr;
+    ui::Button *chooseStorePosion = nullptr;
+    ui::Button *chooseCategory = nullptr;
+//}
+
     ui::Button *backBtn = nullptr;
+    ui::InputBox *searchBox = nullptr;
+    ui::Button *searchBtn = nullptr;
+    ui::Button *searchOptBtn = nullptr;
+    ui::Button *lastBtn = nullptr;
+    ui::Button *nextBtn = nullptr;
+    ui::Label *pageLabel = nullptr;
+    ui::InputBox *pageInput = nullptr;
+    ui::Button *turnToBtn = nullptr;
+    ui::Label *tip = nullptr;
+    ui::VerticalScrollingBox *listBox = nullptr;
+
+    std::function<void()> resetBookList = [](){};
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
@@ -52,7 +81,27 @@ protected:
 
 class BorrowManage : public EnterLibrary {
 private:
+    int page = 1;
+    int totPage = 1;
+    int len = 0;
+    int select = 0;
+    
+    std::vector<std::string> bookName = {};
+
     ui::Button *backBtn = nullptr;
+    ui::Button *lastBtn = nullptr;
+    ui::Button *nextBtn = nullptr;
+    ui::Label *pageLabel = nullptr;
+    ui::InputBox *pageInput = nullptr;
+    ui::Label *tip = nullptr;
+    ui::Button *confirmTurnBtn = nullptr;
+    ui::Button *confirmBtn = nullptr;
+    ui::Button *returnBtn = nullptr;
+    ui::Button *refleshBtn = nullptr;
+    ui::VerticalScrollingBox *borrowDetailBox = nullptr;
+    ui::VerticalScrollingBox *borrowLogBox = nullptr;
+
+    std::function<void()> resetBorrowList = [](){};
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
@@ -115,6 +164,24 @@ private:
     static std::vector<std::string> room621;
 
     std::vector<std::string> CheckInput() const noexcept;
+protected:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+
+class BookDetail : public EnterLibrary {
+private:
+    bool isClicked = false;
+    int day = 0;
+
+    ui::Button *backBtn = nullptr;
+    ui::Button *borrowBtn = nullptr;
+    ui::Button *confirmBtn = nullptr;
+    ui::Label *borrowLast = nullptr;
+    ui::Label *borrowTip = nullptr;
+    ui::HorizontalBox *borrowBottomBox = nullptr;
+    ui::VerticalBox *borrowBox = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;

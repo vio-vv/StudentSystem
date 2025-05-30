@@ -186,7 +186,9 @@ trm::Information ssys::Library::GetAccountBorrowList(const trm::Information &con
     auto logs = accountBorrowLog[content[1]];
     for (auto [name, log] : logs) {
         auto logInfo = trm::BorrowLog(log);
+        auto book = trm::Book(books[logInfo.bookIsbn]);
         ret.push_back(logInfo);
+        ret.push_back(book.bookName);
     }
     return ret;
 }
@@ -201,7 +203,7 @@ trm::Information ssys::Library::SearchBook(const trm::Information &content) noex
         ascending = false;
     }
     std::function<bool(const trm::Book &a, const trm::Book &b)> f;
-    const double standard = 0.10;
+    const double standard = 0.15;
 
     trm::Information ret;
     std::vector<std::pair<double, trm::Book>> match;
@@ -242,6 +244,14 @@ trm::Information ssys::Library::SearchBook(const trm::Information &content) noex
                 }
                 if (ascending) f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookPublicationDate < b.bookPublicationDate; };
                 else f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.bookPublicationDate > b.bookPublicationDate; };
+                break;
+            case trm::rqs::bk::BOOK_STROEPOSTION:
+                matchRate = FuzzyMatch(content[1], tmp.bookPublicationDate);
+                if (matchRate > standard) {
+                    match.push_back({matchRate, tmp});
+                }
+                if (ascending) f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.storePosition < b.storePosition; };
+                else f = [](const trm::Book &a, const trm::Book &b) -> bool { return a.storePosition > b.storePosition; };
                 break;
             default:
                 matchRate = FuzzyMatch(content[1], tmp.bookName);
@@ -312,10 +322,10 @@ trm::Information ssys::Library::ResetLibrary(const trm::Information &content) no
     return{trm::rpl::SUCC};
 }
 
-double ssys::Library::FuzzyMatch(const std::string &str1, const std::string &str2) noexcept
+double ssys::Library::FuzzyMatch(const sf::String &str1, const sf::String &str2) noexcept
 {
-    const int len1 = str1.length();
-    const int len2 = str2.length();
+    const int len1 = str1.getSize();
+    const int len2 = str2.getSize();
 
     std::vector<std::vector<int>> LCS(len1 + 1, std::vector<int>(len2 + 1));
     for (int i = 1; i <= len1; i++) {

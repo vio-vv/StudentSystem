@@ -1,5 +1,8 @@
 #include "client_pages.hpp"
 
+int vio::EnterLibrary::select = 0;
+std::string vio::EnterLibrary::optStr = "";
+std::string vio::EnterLibrary::userInput = "";
 trm::Book vio::EnterLibrary::selectedBook;
 std::vector<trm::Book> vio::EnterLibrary::books = {};
 std::vector<trm::BorrowLog> vio::EnterLibrary::borrowLogs = {};
@@ -10,6 +13,8 @@ std::vector<std::string> vio::BookManage::room401 = {"法律", "经济"};
 std::vector<std::string> vio::BookManage::room402 = {"马克思主义、列宁主义、毛泽东思想、邓小平理论", "社会科学", "哲学", "军事", "语言"};
 std::vector<std::string> vio::BookManage::room403 = {"文学", "艺术", "历史"};
 std::vector<std::string> vio::BookManage::room621 = {"医药、卫生"};
+
+std::vector<std::string> vio::EnterLibrary::searchOption = {"ISBN", "图书名称", "作者", "出版日期", "馆藏位置", "分类"};
 
 void vio::EnterLibrary::Load(ui::Screen *screen) noexcept
 {
@@ -76,56 +81,13 @@ void vio::EnterLibrary::Load(ui::Screen *screen) noexcept
                         hinderBox->SetVSize(100);
                     }
                 }
-                optBox = new ui::VerticalBox;{
+                optBox = new ui::HorizontalBox;{
                     optBox->AddTo(midBox);
                     optBox->SetGap(5);
                     optBox->HideAll();
                     optBox->SetHAnchor(60);
                     optBox->SetSize(120, 320);
-                }
-                {
-                    chooseIsbn = new ui::Button;{
-                        chooseIsbn->AddTo(optBox);
-                        chooseIsbn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        chooseIsbn->SetCaption("ISBN");
-                        chooseIsbn->SetFontSize(30);
-                        chooseIsbn->SetVisible(false);
-                    }
-                    chooseBookName = new ui::Button;{
-                        chooseBookName->AddTo(optBox);
-                        chooseBookName->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        chooseBookName->SetCaption("图书名称");
-                        chooseBookName->SetFontSize(30);
-                        chooseBookName->SetVisible(false);
-                    }
-                    chooseAuthor = new ui::Button;{
-                        chooseAuthor->AddTo(optBox);
-                        chooseAuthor->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        chooseAuthor->SetCaption("作者");
-                        chooseAuthor->SetFontSize(30);
-                        chooseAuthor->SetVisible(false);
-                    }
-                    choosePublishDate = new ui::Button;{
-                        choosePublishDate->AddTo(optBox);
-                        choosePublishDate->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);    
-                        choosePublishDate->SetCaption("出版日期");
-                        choosePublishDate->SetFontSize(30);
-                        choosePublishDate->SetVisible(false);
-                    }
-                    chooseStorePosion = new ui::Button;{
-                        chooseStorePosion->AddTo(optBox);
-                        chooseStorePosion->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        chooseStorePosion->SetCaption("馆藏位置");
-                        chooseStorePosion->SetFontSize(30);
-                        chooseStorePosion->SetVisible(false);
-                    }
-                    chooseCategory = new ui::Button;{
-                        chooseCategory->AddTo(optBox);
-                        chooseCategory->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        chooseCategory->SetCaption("分类");
-                        chooseCategory->SetFontSize(30);
-                        chooseCategory->SetVisible(false);
-                    }
+                    optBox->SetVisible(false);
                 }
             }
             ui::HorizontalBox *bottomBox = new ui::HorizontalBox;{
@@ -196,22 +158,41 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
         SwitchTo(new BookManage);
     });
 
+    borrowManageBtn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new BorrowManage);
+    });
+
     searchOptBtn->SetClickCallback(UI_CALLBACK{
         if (!isClicked) {
             isClicked ^= 1;
             searchOptBtn->SetCaption(optStr + "﹀");
             optBox->SetVisible(true);
-            optBox->ShowAll();
-            for (auto btn : {chooseIsbn, chooseBookName, chooseAuthor, choosePublishDate, chooseStorePosion, chooseCategory}) {
-                btn->SetClickCallback(UI_CALLBACK{
-                    optStr = btn->GetCaption();
-                    searchOptBtn->SetCaption(optStr + "﹀");
-                });
+            ui::Button *btn = nullptr;
+            ui::VerticalBox *optvBox1 = nullptr;
+            for (long long unsigned int i = 0; i < searchOption.size(); i++) {
+                if (i % 3 == 0) {
+                    optvBox1 = new ui::VerticalBox;{
+                        optvBox1->AddTo(optBox);
+                        optvBox1->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        optvBox1->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        optvBox1->SetGap(5);
+                    }
+                }
+                btn = new ui::Button;{
+                    btn->AddTo(optvBox1);
+                    btn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    btn->SetCaption(searchOption[i]);
+                    btn->SetFontSize(30);
+                    btn->SetClickCallback(UI_CALLBACK{
+                        optStr = btn->GetCaption();
+                        searchOptBtn->SetCaption(optStr + "﹀");
+                    });
+                }
             }
         }
         else {
             isClicked ^= 1;
-            optBox->HideAll();
+            optBox->FreeAll();
             if (optStr == "") searchOptBtn->SetCaption("筛选>");
         }
     });
@@ -242,6 +223,7 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
 
             Listen(new trm::Sender({trm::rqs::SEARCH_BOOK, userInput, ToStr(searchType), "false", "false"}), SD_CALLBACK{
                 hinderBox->FreeAll();
+                books.clear();
                 if (!reply.empty()) {
                     if (reply[0] == trm::rpl::FAIL) {
                         hinderBox->Add(new ui::Label("查询失败，请检查输入"));
@@ -252,7 +234,6 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
                         return;
                     }
                     else {
-                        books.clear();
                         for (auto bookInfo : reply) {
                             books.push_back(trm::Book(bookInfo));
                         }
@@ -283,26 +264,974 @@ void vio::BookList::Load(ui::Screen *screen) noexcept
         mar->SetMargin(100, 100, 150, 150);
     }
     {
-        backBtn = new ui::Button;{
-            backBtn->AddTo(mar);
-            backBtn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-            backBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
-            backBtn->SetFontSize(50);
-            backBtn->SetCaption("←返回");
+        ui::VerticalBox *wholeBox = new ui::VerticalBox;{
+            wholeBox->AddTo(mar);
+            wholeBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            wholeBox->SetGap(5);
+        }
+        {
+            backBtn = new ui::Button;{
+                backBtn->AddTo(wholeBox);
+                backBtn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backBtn->SetFontSize(50);
+                backBtn->SetCaption("←返回");
+            }
+            ui::HorizontalBox *topBox = new ui::HorizontalBox;{
+                topBox->AddTo(wholeBox);
+                topBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                topBox->SetVSize(30);
+                topBox->SetGap(5);
+            }
+            {
+                searchBox = new ui::InputBox;{
+                    searchBox->AddTo(topBox);
+                    searchBox->SetSize(1000, 30);
+                    searchBox->SetText(userInput);
+                }
+                searchOptBtn = new ui::Button;{
+                    searchOptBtn->AddTo(topBox);
+                    searchOptBtn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    if (optStr == "") optStr = "图书名称";
+                    searchOptBtn->SetCaption(optStr + ">");
+                }
+                searchBtn = new ui::Button;{
+                    searchBtn->AddTo(topBox);
+                    searchBtn->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                    searchBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    searchBtn->SetCaption("搜索");
+                }
+            }
+            optBox = new ui::HorizontalBox;{
+                optBox->AddTo(wholeBox);
+                optBox->SetGap(5);
+                optBox->HideAll();
+                optBox->SetHPosition(1000);
+                optBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                optBox->SetSize(120, 320);
+            }
+            listBox = new ui::VerticalScrollingBox;{
+                listBox->AddTo(wholeBox);
+                listBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                listBox->SetInsideBoxScrollable(true);
+            }
+            ui::VerticalBox *footBox = new ui::VerticalBox;{
+                footBox->AddTo(wholeBox);
+                footBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                footBox->SetVPreset(ui::Control::Preset::WRAP_AT_END);
+                footBox->SetGap(5);
+                footBox->SetVSize(60);
+            }
+            {
+                ui::HorizontalBox *pageBox = new ui::HorizontalBox;{
+                    pageBox->AddTo(footBox);
+                    pageBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    pageBox->SetVSize(30);
+                }
+                {
+                    lastBtn = new ui::Button;{
+                        lastBtn->AddTo(pageBox);
+                        lastBtn->SetVSize(30);
+                        lastBtn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        lastBtn->SetCaption("上一页");
+                        lastBtn->SetFontSize(35);
+                    }
+                    pageLabel = new ui::Label;{
+                        pageLabel->AddTo(pageBox);
+                        pageLabel->SetVSize(30);
+                        pageLabel->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        pageLabel->SetFontSize(35);
+                        pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
+                    }
+                    nextBtn = new ui::Button;{
+                        nextBtn->AddTo(pageBox);
+                        nextBtn->SetVSize(30);
+                        nextBtn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        nextBtn->SetCaption("下一页");
+                        nextBtn->SetFontSize(35);
+                    }
+                }
+                ui::HorizontalBox *turnToBox = new ui::HorizontalBox;{
+                    turnToBox->AddTo(footBox);
+                    turnToBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    turnToBox->SetVSize(30);
+                }
+                {
+                    turnToBtn = new ui::Button;{
+                        turnToBtn->AddTo(turnToBox);
+                        turnToBtn->SetHSize(30);
+                        turnToBtn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        turnToBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        turnToBtn->SetCaption("跳转到");
+                        turnToBtn->SetFontSize(35);
+                        turnToBtn->SetVSize(30);
+                    }
+                    pageInput = new ui::InputBox;{
+                        pageInput->AddTo(turnToBox);
+                        pageInput->SetSize(100, 30);
+                    }
+                    tip = new ui::Label;{
+                        tip->AddTo(turnToBox);
+                        tip->SetHSize(30);
+                        tip->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        tip->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        tip->SetFontSize(35);
+                        tip->SetContent("页面非法");
+                        tip->SetVisible(false);
+                    }
+                }
+            }
         }
     }
 }
 
 void vio::BookList::Logic(ui::Screen *screen) noexcept
 {
+    resetBookList = [=, this]() {
+        ui::Button *btn = nullptr;
+        pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
+        if (len == 0) {
+            ui::Label *tip = new ui::Label;{
+                tip->AddTo(listBox);
+                tip->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                tip->SetContent("没有匹配的书籍");
+            }
+            return;
+        }
+        for (int i = (page - 1) * 10; i < page * 10 && i < len; i++) {
+            btn = new ui::Button;{
+                btn->AddTo(listBox);
+                btn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                std::string bookInfo = books[i].bookName + '\n' + books[i].bookIsbn + "   " + books[i].bookPublicationDate + "   " + books[i].bookAuthor[0] + "...";
+                if (books[i].bookTot - books[i].bookBorrowed > 0) bookInfo += "\n可借  " + ToStr(books[i].bookTot - books[i].bookBorrowed);
+                btn->SetCaption(bookInfo);
+                btn->SetClickCallback(UI_CALLBACK{
+                    btn->Disable();
+                    selectedBook = books[i];
+                    select = i;
+                    SwitchTo(new BookDetail);
+                });
+            }
+        }
+    };
+
+    lastBtn->SetClickCallback(UI_CALLBACK{
+        lastBtn->Disable();
+        nextBtn->Disable();
+        if (page > 1) {
+            page--;
+            resetBookList();
+        }
+        if (page != 1) lastBtn->Enable();
+        if (page != totPage) nextBtn->Enable(); 
+    });
+
+    nextBtn->SetClickCallback(UI_CALLBACK{
+        lastBtn->Disable();
+        nextBtn->Disable();
+        if (page < totPage) {
+            page++;
+            resetBookList();
+        }
+        if (page != 1) lastBtn->Enable();
+        if (page != totPage) nextBtn->Enable(); 
+    });
+
+    turnToBtn->SetClickCallback(UI_CALLBACK{
+        std::string pageStr = pageInput->GetText();
+        tip->SetVisible(false);
+        if (pageStr.empty()) {
+            return;
+        }
+        else {
+            for (auto c : pageStr) {
+                if (c < '0' || c > '9') {
+                    tip->SetVisible(true);
+                    return;
+                }
+            }
+            int pageNum = ToNum<int>(pageStr);
+            if (pageNum < 1) page = 1;
+            else if (pageNum > totPage) page = totPage;
+            else page = pageNum;
+            pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
+            resetBookList();
+        }
+    });
+
     backBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new EnterLibrary);
+    });
+
+    searchOptBtn->SetClickCallback(UI_CALLBACK{
+        if (!isClicked) {
+            isClicked ^= 1;
+            searchOptBtn->SetCaption(optStr + "﹀");
+            optBox->SetVisible(true);
+            ui::Button *btn = nullptr;
+            ui::VerticalBox *optvBox1 = nullptr;
+            for (long long unsigned int i = 0; i < searchOption.size(); i++) {
+                if (i % 3 == 0) {
+                    optvBox1 = new ui::VerticalBox;{
+                        optvBox1->AddTo(optBox);
+                        optvBox1->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        optvBox1->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        optvBox1->SetGap(5);
+                    }
+                }
+                btn = new ui::Button;{
+                    btn->AddTo(optvBox1);
+                    btn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    btn->SetCaption(searchOption[i]);
+                    btn->SetFontSize(30);
+                    btn->SetClickCallback(UI_CALLBACK{
+                        optStr = btn->GetCaption();
+                        searchOptBtn->SetCaption(optStr + "﹀");
+                    });
+                }
+            }
+        }
+        else {
+            isClicked ^= 1;
+            optBox->FreeAll();
+            if (optStr == "") searchOptBtn->SetCaption("筛选>");
+        }
+    });
+
+    searchBtn->SetClickCallback(UI_CALLBACK{
+        searchBtn->Disable();
+        listBox->FreeAll();
+        if (userInput == "") {
+            ui::Label *tip = new ui::Label;{
+                tip->AddTo(listBox);
+                tip->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                tip->SetContent("没有匹配的书籍");
+            }
+            return;
+        }
+        else {
+            listBox->FreeAll();
+            ui::LoadingRing *loading = new ui::LoadingRing;{
+                loading->AddTo(listBox);
+                loading->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                loading->SetSize(80, 80);
+                loading->Start();
+            }
+
+            int searchType;
+            if (optStr == "ISBN") searchType = trm::rqs::BOOK_ISBN;
+            else if (optStr == "图书名称") searchType = trm::rqs::BOOK_NAME;
+            else if (optStr == "作者") searchType = trm::rqs::BOOK_AUTHOR;
+            else if (optStr == "出版日期") searchType = trm::rqs::BOOK_PUBLISHDATE;
+            else if (optStr == "馆藏位置") searchType = trm::rqs::BOOK_STROEPOSTION;
+            else if (optStr == "分类") searchType = trm::rqs::BOOK_CATAGORY;
+            else searchType = trm::rqs::BOOK_NAME;
+
+            Listen(new trm::Sender({trm::rqs::SEARCH_BOOK, userInput, ToStr(searchType), "false", "false"}), SD_CALLBACK{
+                listBox->FreeAll();
+                books.clear();
+                if (!reply.empty()) {
+                    if (reply[0] == trm::rpl::FAIL) {
+                        listBox->Add(new ui::Label("查询失败，请检查输入"));
+                        return;
+                    }
+                    else if (reply[0] == trm::rpl::TIME_OUT) {
+                        listBox->Add(new ui::Label("服务端未响应，请稍后再试"));
+                        return;
+                    }
+                    else {
+                        for (auto bookInfo : reply) {
+                            books.push_back(trm::Book(bookInfo));
+                        }
+                    }
+                }
+                len = books.size();
+                page = 1;
+                totPage = std::max((len + 9) / 10, 1);
+                resetBookList();
+            });
+        }
+        searchBtn->Enable();
     });
 }
 
 void vio::BookList::Ready(ui::Screen *screen) noexcept
 {
+    isClicked = false;
+    len = books.size();
+    page = 1;
+    totPage = std::max((len + 9) / 10, 1);
+    if (page == 1) lastBtn->Disable();
+    if (page == totPage) nextBtn->Disable();
     selectedBook = trm::Book();
+    resetBookList();
+}
+
+void vio::BookDetail::Load(ui::Screen *screen) noexcept
+{
+    ui::Margin *mar = new ui::Margin;{
+        mar->AddTo(screen);
+        mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        mar->SetMargin(150, 200, 300, 300);
+    }
+    {   
+        ui::VerticalBox *wholeBox = new ui::VerticalBox;{
+            wholeBox->AddTo(mar);
+            wholeBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        }
+        {
+            backBtn = new ui::Button;{
+                backBtn->AddTo(wholeBox);
+                backBtn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backBtn->SetFontSize(40);
+                backBtn->SetCaption("←返回");
+            }
+            ui::VerticalBox *bookDetial = new ui::VerticalBox;{
+                bookDetial->AddTo(wholeBox);
+                bookDetial->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                bookDetial->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                bookDetial->SetGap(10);
+            }
+            {
+                ui::Label *bookName = new ui::Label;{
+                    bookName->AddTo(bookDetial);
+                    bookName->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookName->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookName->SetContent(selectedBook.bookName);
+                }
+                ui::Label *bookIsbn = new ui::Label;{
+                    bookIsbn->AddTo(bookDetial);
+                    bookIsbn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookIsbn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookIsbn->SetContent("ISBN号" + selectedBook.bookIsbn);
+                    bookIsbn->SetFontSize(40);
+                }
+                ui::Label *bookAuthor = new ui::Label;{
+                    bookAuthor->AddTo(bookDetial);
+                    bookAuthor->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookAuthor->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    std::string authorStr = "";
+                    for (unsigned long long int i = 0; i < selectedBook.bookAuthor.size(); i++) {
+                        authorStr += selectedBook.bookAuthor[i] + ",";
+                    }
+                    bookAuthor->SetContent("作者" + authorStr);
+                    bookAuthor->SetFontSize(40);
+                }
+                ui::Label *bookPubDate = new ui::Label;{
+                    bookPubDate->AddTo(bookDetial);
+                    bookPubDate->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookPubDate->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookPubDate->SetContent("出版时间" + selectedBook.bookPublicationDate);
+                    bookPubDate->SetFontSize(40);
+                }
+                ui::Label *bookStorePos = new ui::Label;{
+                    bookStorePos->AddTo(bookDetial);
+                    bookStorePos->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookStorePos->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookStorePos->SetContent("藏书位置" + selectedBook.storePosition);
+                    bookStorePos->SetFontSize(40);
+                }
+                ui::Label *bookCatagory = new ui::Label;{
+                    bookCatagory->AddTo(bookDetial);
+                    bookCatagory->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookCatagory->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookCatagory->SetContent("书籍分类" + selectedBook.bookCatagory);
+                    bookCatagory->SetFontSize(40);
+                }
+                ui::Label *bookTot = new ui::Label;{
+                    bookTot->AddTo(bookDetial);
+                    bookTot->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookTot->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    bookTot->SetContent("藏书数量" + ToStr(selectedBook.bookTot));
+                    bookTot->SetFontSize(40);
+                }
+            }
+            borrowBox = new ui::VerticalBox;{
+                borrowBox->AddTo(wholeBox);
+                borrowBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                borrowBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                borrowBox->SetGap(10);
+            }
+            {
+                ui::HorizontalBox *borrowTopBox = new ui::HorizontalBox;{
+                    borrowTopBox->AddTo(borrowBox);
+                    borrowTopBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    borrowTopBox->SetVSize(40);
+                }
+                {
+                    borrowTip = new ui::Label;{
+                        borrowTip->AddTo(borrowTopBox);
+                        borrowTip->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        borrowTip->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        borrowTip->SetContent("可借" + ToStr(selectedBook.bookTot - selectedBook.bookBorrowed));
+                        borrowTip->SetFontSize(40);
+                    }
+                    borrowBtn = new ui::Button;{
+                        borrowBtn->AddTo(borrowTopBox);
+                        borrowBtn->SetCaption("借阅>");
+                        borrowBtn->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                        borrowBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        borrowBtn->SetFontSize(40);
+                    }
+                }
+                borrowBottomBox = new ui::HorizontalBox;{
+                    borrowBottomBox->AddTo(borrowBox);
+                    borrowBottomBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    borrowBottomBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    borrowBottomBox->SetVisible(false);
+                    borrowBottomBox->HideAll();
+                }
+                {
+                    borrowLast = new ui::Label;{
+                        borrowLast->AddTo(borrowBottomBox);
+                        borrowLast->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        borrowLast->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        borrowLast->SetContent("借阅时间");
+                        borrowLast->SetFontSize(40);
+                    }
+                    confirmBtn = new ui::Button;{
+                        confirmBtn->AddTo(borrowBottomBox);
+                        confirmBtn->SetHPreset(ui::Container::Preset::WRAP_AT_FRONT);
+                        confirmBtn->SetVPreset(ui::Container::Preset::WRAP_AT_FRONT);
+                        confirmBtn->SetCaption("确认");
+                    }
+
+                    for (int i = 10; i <= 60; i += 10) {
+                        ui::Button *btn = new ui::Button;{
+                            btn->AddTo(borrowBottomBox);
+                            btn->SetHPreset(ui::Container::Preset::WRAP_AT_FRONT);
+                            btn->SetVPreset(ui::Container::Preset::WRAP_AT_FRONT);
+                            btn->SetCaption(ToStr(i) + "天");
+                            btn->SetFontSize(40);
+                        }
+                        btn->SetClickCallback(UI_CALLBACK{
+                            day = i;
+                            borrowLast->SetContent("借阅时间 " + ToStr(day) + " 天");
+                        });
+                    }
+                }
+            }
+        }   
+    }
+}
+
+void vio::BookDetail::Logic(ui::Screen *screen) noexcept
+{
+    backBtn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new BookList);
+    });
+
+    borrowBtn->SetClickCallback(UI_CALLBACK{
+        if (!isClicked) {
+            isClicked ^= 1;
+            borrowBottomBox->ShowAll();
+            borrowBottomBox->SetVisible(true);
+            borrowBtn->SetCaption(std::string("借阅") + "﹀");
+        }
+        else {
+            isClicked ^= 1;
+            borrowBottomBox->HideAll();
+            borrowBottomBox->SetVisible(false);
+            borrowBtn->SetCaption("借阅>");
+        }
+    });
+
+    confirmBtn->SetClickCallback(UI_CALLBACK{
+        if (day == 0) {
+            borrowLast->SetContent("借阅时间非法");
+            return;
+        }
+        else {
+            screen->HideAll();
+            std::string tip = "是否确认借阅\n" + trm::Book::GetInfo(selectedBook);
+            tip += "\n借阅时间 " + ToStr(day) + " 天";
+            int ret = MessageBox(screen, tip, {"确认", "取消"});
+            if (ret == 1) {
+                screen->ShowAll();
+                return;
+            }
+            else {
+                Listen(new trm::Sender({trm::rqs::BORROW_BOOK, account.code, account.hashedPassword, selectedBook.bookIsbn, ToStr(day)}), SD_CALLBACK{
+                    screen->FreeAllVisible();
+                    if (reply.empty()) {
+                        int ret = MessageBox(screen, "借阅失败，请稍后再试", {"确认"});
+                        if (ret == 0) {
+                            screen->FreeAllVisible();
+                            screen->ShowAll();
+                        }
+                        return;
+                    }
+                    else if (reply[0] == trm::rpl::TIME_OUT) {
+                        int ret = MessageBox(screen, "服务端未响应，请稍后再试", {"确认"});
+                        if (ret == 0) {
+                            screen->FreeAllVisible();
+                            screen->ShowAll();
+                        }
+                    }
+                    else if (reply[0] == trm::rpl::SUCC) {
+                        selectedBook.bookBorrowed++;
+                        books[select].bookBorrowed++;
+                        time_t time = std::time(nullptr) + day * 24 * 3600;
+                        tm *lt = new tm;
+                        localtime_s(lt, &time);
+                        std::string borrowTime = std::to_string(lt->tm_year + 1900) + "-" + std::to_string(lt->tm_mon + 1) + "-" + std::to_string(lt->tm_mday);
+                        borrowTip->SetContent("可借" + ToStr(selectedBook.bookTot - selectedBook.bookBorrowed));
+                        int ret = MessageBox(screen, "借阅成功\n将在" + borrowTime + "到期", {"确认"});
+                        if (ret == 0) {
+                            screen->FreeAllVisible();
+                            screen->ShowAll();
+                        }
+                        return;
+                    }
+                    else if (reply[0] == trm::rpl::NO_BOOK) {
+                        int ret = MessageBox(screen, "借阅的图书不存在", {"确认"});
+                        if (ret == 0) {
+                            screen->FreeAllVisible();
+                            screen->ShowAll();
+                        }
+                        return;
+                    }
+                    else if (reply[0] == trm::rpl::NO_SPARE_BOOK) {
+                        int ret = MessageBox(screen, "剩余可借阅图书不足", {"确认"});
+                        if (ret == 0) {
+                            screen->FreeAllVisible();
+                            screen->ShowAll();
+                        }
+                        return;
+                    }
+                    else {
+                        assert(false);
+                    }
+                });
+            }
+        }
+    });
+}
+
+void vio::BookDetail::Ready(ui::Screen *screen) noexcept
+{
+    isClicked = false;
+}
+
+void vio::BorrowManage::Load(ui::Screen *screen) noexcept
+{
+    ui::Margin *mar = new ui::Margin;{
+        mar->AddTo(screen);
+        mar->SetMargin(150, 200, 400, 400);
+        mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+    }
+    {
+        ui::VerticalBox *wholeBox = new ui::VerticalBox;{
+            wholeBox->AddTo(mar);
+            wholeBox->SetHSizeValueType(ui::Control::ValueType::PERCENTAGE);
+            wholeBox->SetHSize(50);
+            wholeBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        }
+        {
+            ui::HorizontalBox *topBox = new ui::HorizontalBox;{
+                topBox->AddTo(wholeBox);
+                topBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                topBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            }
+            {
+                backBtn = new ui::Button;{
+                    backBtn->AddTo(topBox);
+                    backBtn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    backBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    backBtn->SetFontSize(40);
+                    backBtn->SetCaption("←返回");
+                }
+                ui::Flat *flat = new ui::Flat;{
+                    flat->AddTo(topBox);
+                    flat->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    flat->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                }
+                refleshBtn = new ui::Button;{
+                    refleshBtn->AddTo(topBox);
+                    refleshBtn->SetHPreset(ui::Control::Preset::PLACE_AT_END);
+                    refleshBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    refleshBtn->SetFontSize(40);
+                    refleshBtn->SetCaption("刷新");
+                }
+            }
+            ui::HorizontalBox *mainBox = new ui::HorizontalBox;{
+                mainBox->AddTo(wholeBox);
+                mainBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                mainBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            }
+            {
+                ui::VerticalBox *leftBox = new ui::VerticalBox;{
+                    leftBox->AddTo(mainBox);
+                    leftBox->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    leftBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                }
+                {
+                    ui::Label *lfTip = new ui::Label;{
+                        lfTip->AddTo(leftBox);
+                        lfTip->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        lfTip->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        lfTip->SetContent("借阅记录");
+                        lfTip->SetFontSize(40);
+                    }
+                    borrowLogBox = new ui::VerticalScrollingBox;{
+                        borrowLogBox->AddTo(leftBox);
+                        borrowLogBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        borrowLogBox->SetInsideBoxScrollable(true);
+                        borrowLogBox->SetVMinSize(300);
+                    }
+                    ui::HorizontalBox *pageBox = new ui::HorizontalBox;{
+                        pageBox->AddTo(leftBox);
+                        pageBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        pageBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    }
+                    {
+                        lastBtn = new ui::Button;{
+                            lastBtn->AddTo(pageBox);
+                            lastBtn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            lastBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            lastBtn->SetCaption("上一页");
+                            lastBtn->SetFontSize(40);
+                        }
+                        pageLabel = new ui::Label;{
+                            pageLabel->AddTo(pageBox);
+                            pageLabel->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            pageLabel->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            pageLabel->SetFontSize(40);
+                            pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
+                        }
+                        nextBtn = new ui::Button;{
+                            nextBtn->AddTo(pageBox);
+                            nextBtn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            nextBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            nextBtn->SetCaption("下一页");
+                            nextBtn->SetFontSize(40);
+                        }
+                    }
+                    ui::HorizontalBox *turnTobox = new ui::HorizontalBox;{
+                        turnTobox->AddTo(leftBox);
+                        turnTobox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        turnTobox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    }
+                    {
+                        confirmTurnBtn = new ui::Button;{
+                            confirmTurnBtn->AddTo(turnTobox);
+                            confirmTurnBtn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            confirmTurnBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            confirmTurnBtn->SetFontSize(40);
+                            confirmTurnBtn->SetCaption("跳转到");
+                        }
+                        pageInput = new ui::InputBox;{
+                            pageInput->AddTo(turnTobox);
+                            pageInput->SetHSize(200);
+                            pageInput->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        }
+                        tip = new ui::Label;{
+                            tip->AddTo(turnTobox);
+                            tip->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                            tip->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            tip->SetFontSize(40);
+                            tip->SetContent("页码需为非0正整数");
+                            tip->SetVisible(false);
+                        }
+                    }
+                }
+                ui::VerticalBox *rightBox = new ui::VerticalBox;{
+                    rightBox->AddTo(mainBox);
+                    rightBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    rightBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                }
+                {
+                    borrowDetailBox = new ui::VerticalScrollingBox;{
+                        borrowDetailBox->AddTo(rightBox);
+                        borrowDetailBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        borrowDetailBox->SetInsideBoxScrollable(true);
+                    }
+                    returnBtn = new ui::Button;{
+                        returnBtn->AddTo(rightBox);
+                        returnBtn->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                        returnBtn->SetVPreset(ui::Control::Preset::WRAP_AT_END);
+                        returnBtn->SetFontSize(40);
+                        returnBtn->SetCaption("确认归还");
+                    }
+                }
+            }
+        }
+    }
+}
+
+void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
+{
+    backBtn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new EnterLibrary);
+    });
+
+    auto resetBorrowDetail = [=, this]() -> void {
+        borrowDetailBox->FreeAll();
+        ui::Label *borrowTip = new ui::Label;{
+            borrowTip->AddTo(borrowDetailBox);
+            borrowTip->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            borrowTip->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            borrowTip->SetFontSize(40);
+            borrowTip->SetContent("====借阅详情====");
+        }
+        ui::Label *borrowName = new ui::Label;{
+            borrowName->AddTo(borrowDetailBox);
+            borrowName->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            borrowName->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            borrowName->SetFontSize(40);
+            borrowName->SetContent("图书名称" + bookName[select]);
+        }
+        ui::Label *borrowIsbn = new ui::Label;{
+            borrowIsbn->AddTo(borrowDetailBox);
+            borrowIsbn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            borrowIsbn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            borrowIsbn->SetFontSize(40);
+            borrowIsbn->SetContent("ISBN号" + borrowLogs[select].bookIsbn);
+        }
+        ui::Label *borrowTime = new ui::Label;{
+            borrowTime->AddTo(borrowDetailBox);
+            borrowTime->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            borrowTime->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            borrowTime->SetFontSize(40);
+            borrowTime->SetContent("借阅时间" + borrowLogs[select].start.GetDate());
+        }
+        ui::Label *borrowEndTime = new ui::Label;{
+            borrowEndTime->AddTo(borrowDetailBox);
+            borrowEndTime->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            borrowEndTime->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            borrowEndTime->SetFontSize(40);
+            borrowEndTime->SetContent("到期时间" + borrowLogs[select].end.GetDate());
+        }
+    };
+
+    resetBorrowList = [=, this]() -> void {
+        borrowLogBox->FreeAll();
+        borrowDetailBox->FreeAll();
+        
+        ui::Label *listTip = nullptr;
+        ui::Button *btn = nullptr;
+        if (len == 0) {
+            listTip = new ui::Label;{
+                listTip->AddTo(borrowLogBox);
+                listTip->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                listTip->SetVPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                listTip->SetContent("暂无借阅记录");
+            }
+            return;
+        }
+        for (int i = (page - 1) * 10; i < page * 10 + 10 && i < len; i++) {
+            btn = new ui::Button;{
+                btn->AddTo(borrowLogBox);
+                btn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                btn->SetFontSize(40);
+                btn->SetCaption(bookName[i] + '\n' + "截止" + borrowLogs[i].end.GetDate());
+                btn->SetClickCallback(UI_CALLBACK{
+                    select = i;
+                    returnBtn->Enable();
+                    resetBorrowDetail();
+                });
+            }
+        }
+    };
+
+    lastBtn->SetClickCallback(UI_CALLBACK{
+        lastBtn->Disable();
+        nextBtn->Disable();
+        if (page > 1) page--;
+        resetBorrowList();
+        pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
+        if (page == 1) lastBtn->Disable();
+        if (page == totPage) nextBtn->Disable();
+    });
+
+    nextBtn->SetClickCallback(UI_CALLBACK{
+        lastBtn->Disable();
+        nextBtn->Disable();
+        if (page < totPage) page++;
+        resetBorrowList();
+        pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
+        if (page == 1) lastBtn->Disable();
+        if (page == totPage) nextBtn->Disable();
+    });
+
+    confirmTurnBtn->SetClickCallback(UI_CALLBACK{
+        std::string input = pageInput->GetText();
+        tip->SetVisible(false);
+        if (input.empty()) {
+            return;
+        }
+        else {
+            for (auto c : input) {
+                if (c < '0' || c > '9') {
+                    tip->SetVisible(true);
+                    return;
+                }
+            }
+            int inputPage = ToNum<int>(input);
+            if (inputPage < 1) page = 1;
+            else if (inputPage > totPage) page = totPage;
+            else page = inputPage;
+            pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
+            resetBorrowList();
+        }
+    });
+
+    refleshBtn->SetClickCallback(UI_CALLBACK{
+        borrowLogBox->FreeAll();
+        borrowDetailBox->FreeAll();
+        ui::LoadingRing *ld = new ui::LoadingRing;{
+            ld->AddTo(borrowLogBox);
+            ld->SetHSize(100);
+            ld->SetVSize(100);
+            ld->Start();
+        }
+        Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_BORROW_LIST, account.code, account.hashedPassword}), SD_CALLBACK{
+            borrowLogBox->FreeAll();
+            borrowLogs.clear();
+            bookName.clear();
+            screen->HideAll();
+            if (reply.empty()) {
+                screen->ShowAll();
+            }
+            else if (reply[0] == trm::rpl::TIME_OUT) {
+                int ret = MessageBox(screen, "服务端请求超时，请稍后再试", {"确认"});
+                if (ret == 0) {
+                    screen->FreeAllVisible();
+                    screen->ShowAll();
+                }
+                return;
+            }
+            else if (reply[0] == trm::rpl::NO_ACCOUNT) {
+                screen->ShowAll();
+                screen->FreeAllVisible();
+                int reply = MessageBox(screen, "该账号不存在", {"确认"});
+                if (reply == 0) {
+                    SwitchTo(new EnterLibrary);
+                }
+            }
+            else {
+                screen->ShowAll();
+                int size = reply.size();
+                for (int i = 0; i < size; i += 2) {
+                    borrowLogs.emplace_back(reply[i]);
+                    bookName.emplace_back(reply[i + 1]);
+                }
+            }
+            len = borrowLogs.size();
+            totPage = std::max((len + 9) / 10, 1);
+            page = 1;
+            resetBorrowList();
+        });
+    });
+
+    returnBtn->SetClickCallback(UI_CALLBACK{
+        screen->HideAll();
+        std::string tip = "是否确认归还\n" + bookName[select] + '\n' + borrowLogs[select].end.GetDate();
+        int ret = MessageBox(screen, tip, {"确认", "取消"});
+        if (ret == 1) {
+            screen->ShowAll();
+            return;
+        }
+        else {
+            Listen(new trm::Sender({trm::rqs::RETURN_BOOK, account.code, account.hashedPassword, borrowLogs[select].bookIsbn, ToStr(borrowLogs[select].start.currantTime)}), SD_CALLBACK{
+                screen->FreeAllVisible();
+                if (reply.empty()) {
+                    int ret = MessageBox(screen, "归还失败，请稍后再试", {"确认"});
+                    if (ret == 0) {
+                        screen->FreeAllVisible();
+                        screen->ShowAll();
+                    }
+                    return;
+                }
+                else if (reply[0] == trm::rpl::FAIL) {
+                    int ret = MessageBox(screen, "归还失败，请稍后再试", {"确认"});
+                    if (ret == 0) {
+                        screen->FreeAllVisible();
+                        screen->ShowAll();
+                    }
+                    return;
+                }
+                else if (reply[0] == trm::rpl::SUCC) {
+                    int ret = MessageBox(screen, "归还成功", {"确认"});
+                    if (ret == 0) {
+                        screen->FreeAllVisible();
+                        screen->ShowAll();
+                    }
+                    return;
+                }
+                else if (reply[0] == trm::rpl::NO_BORROW_RECORD) {
+                    int ret = MessageBox(screen, "您无借阅记录", {"确认"});
+                    if (ret == 0) {
+                        screen->FreeAllVisible();
+                        screen->ShowAll();
+                    }
+                    return;
+                }
+                else if (reply[0] == trm::rpl::TIME_OUT) {
+                    int ret = MessageBox(screen, "服务端请求超时，请稍后再试", {"确认"});
+                    if (ret == 0) {
+                        screen->FreeAllVisible();
+                        screen->ShowAll();
+                    }
+                    return;
+                }
+            });
+        }
+    });
+}
+
+void vio::BorrowManage::Ready(ui::Screen *screen) noexcept
+{
+    ui::LoadingRing *ld = new ui::LoadingRing;{
+        ld->AddTo(borrowLogBox);
+        ld->SetHSize(100);
+        ld->SetVSize(100);
+        ld->Start();
+    }
+    Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_BORROW_LIST, account.code, account.hashedPassword}), SD_CALLBACK{
+        borrowLogBox->FreeAll();
+        borrowLogs.clear();
+        bookName.clear();
+        screen->HideAll();
+        if (reply.empty()) {
+            screen->ShowAll();
+        }
+        else if (reply[0] == trm::rpl::TIME_OUT) {
+            int ret = MessageBox(screen, "服务端请求超时，请稍后再试", {"确认"});
+            if (ret == 0) {
+                screen->FreeAllVisible();
+                screen->ShowAll();
+            }
+            return;
+        }
+        else if (reply[0] == trm::rpl::NO_ACCOUNT) {
+            screen->ShowAll();
+            screen->FreeAllVisible();
+            int reply = MessageBox(screen, "该账号不存在", {"确认"});
+            if (reply == 0) {
+                SwitchTo(new EnterLibrary);
+            }
+        }
+        else {
+            screen->ShowAll();
+            int size = reply.size();
+            for (int i = 0; i < size; i += 2) {
+                borrowLogs.emplace_back(reply[i]);
+                bookName.emplace_back(reply[i + 1]);
+            }
+        }
+        len = borrowLogs.size();
+        totPage = std::max((len + 9) / 10, 1);
+        page = 1;
+        resetBorrowList();
+    });
+
+    if (page == 1) lastBtn->Disable();
+    if (page == totPage) nextBtn->Disable();
+    returnBtn->Disable();
 }
 
 void vio::BookManage::Load(ui::Screen *screen) noexcept
@@ -960,7 +1889,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                             books.push_back(trm::Book(bookInfo));
                         }
                         len = books.size();
-                        totPage = (len + 10 - 1) / 10;
+                        totPage = std::max((len + 10 - 1) / 10, 1);
                         page = 1;
                         resetLeftDetail();
                     }
@@ -976,7 +1905,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                             books.push_back(trm::Book(bookInfo));
                         }
                         len = books.size();
-                        totPage = (len + 10 - 1) / 10;
+                        totPage = std::max((len + 10 - 1) / 10, 1);
                         page = 1;
                         resetLeftDetail();
                     }
@@ -1033,8 +1962,9 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 lastBtn->SetFontSize(35);
                 lastBtn->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
                 lastBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                if(page == 1) lastBtn->Disable();
                 lastBtn->SetClickCallback(UI_CALLBACK{
-                    nextBtn->Enable();
+                    nextBtn->Disable();
                     lastBtn->Disable();
                     if (page > 1) {
                         page--;
@@ -1059,8 +1989,9 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 nextBtn->SetFontSize(35);
                 nextBtn->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
                 nextBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                if (page == totPage) nextBtn->Disable();
                 nextBtn->SetClickCallback(UI_CALLBACK{
-                    lastBtn->Enable();
+                    lastBtn->Disable();
                     nextBtn->Disable();
                     if (page < totPage) {
                         page++;
@@ -1092,7 +2023,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
             }
             ui::Button *btn = new ui::Button;{
                 btn->AddTo(turnToBox);
-                btn->SetCaption("跳转至");
+                btn->SetCaption("跳转");
                 btn->SetFontSize(35);
                 btn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 btn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);

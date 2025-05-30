@@ -372,7 +372,7 @@ bool trm::Book::operator==(const Book &other) const noexcept
 std::string trm::Book::GetInfo(const trm::Book &selectedBook) noexcept
 {
     std::string tip = "";
-    tip = " ISBN " + selectedBook.bookIsbn + 
+    tip = "    ISBN " + selectedBook.bookIsbn + 
             "\n    书名 " + selectedBook.bookName + 
             "\n    作者 ";
     std::string author = "";
@@ -410,6 +410,13 @@ trm::Date::Date(const std::string & content) noexcept
     *this = {
         ToNum<time_t>(data[0])
     };
+}
+
+std::string trm::Date::GetDate() const noexcept
+{
+    std::string ret = "";
+    ret += ToStr(timeInfo->tm_year + 1900) + "-" + ToStr(timeInfo->tm_mon + 1) + "-" + ToStr(timeInfo->tm_mday);
+    return ret;
 }
 
 trm::BorrowLog::operator std::string() const noexcept

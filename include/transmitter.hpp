@@ -699,6 +699,7 @@ struct Date {
     Date(time_t _currantTime = 0) noexcept { currantTime = _currantTime ? _currantTime : time(nullptr); timeInfo = new tm; localtime_s(timeInfo, &currantTime); }
     Date(const std::string&) noexcept;
     operator std::string() const noexcept;
+    std::string GetDate() const noexcept;
     friend int operator-(const Date &date, const Date &other) noexcept 
     {
         double timeDiff = difftime(date.currantTime, other.currantTime);
