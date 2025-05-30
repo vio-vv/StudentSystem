@@ -698,9 +698,10 @@ public:
     {
         UpdateInQueue(true);
     }
-    Center(Control *child) noexcept : Center()
+    Center(Control *child, Preset preset = Preset::PLACE_AT_FRONT) noexcept : Center()
     {
         Add(child);
+        SetPreset(preset);
     }
     
     /*******************************************
@@ -985,9 +986,10 @@ public:
         SetFont(FONT_FILE_PATH);
         UpdateInQueue(true);
     }
-    Label(const std::string &content) noexcept : Label()
+    Label(const std::string &content, Preset preset = Preset::PLACE_AT_FRONT) noexcept : Label()
     {
         SetContent(content);
+        SetPreset(preset);
     }
     const std::string &GetContent() const noexcept { return content; }
     bool              GetError()   const noexcept { return error; }
@@ -1064,6 +1066,10 @@ public:
         rect.setOutlineColor(sf::Color::Transparent);
         rect.setFillColor(sf::Color::Transparent);
     }
+    Spacer(unsigned int width, unsigned int height) noexcept : Spacer()
+    {
+        SetSize(width, height);
+    }
     
     /*******************************************
      * @brief 约定的常量和数据类型以及外工具方法。*
@@ -1126,7 +1132,7 @@ public:
         layer.SetNominalParent(this);
         UpdateInQueue(true);
     }
-    Button(const std::string &caption, Callback clickCallback, const std::string &name = "default") noexcept : Button()
+    Button(const std::string &caption, Callback clickCallback = DO_NOTHING, const std::string &name = "default") noexcept : Button()
     {
         SetCaption(caption);
         SetClickCallback(clickCallback);
@@ -2112,6 +2118,7 @@ public:
     PageTurner(int deltaNum = 3) noexcept : deltaNum(std::max(0, deltaNum))
     {
         auto turn = [this](const std::string &name, const sf::Event &event){
+            if (!enabled) return;
             auto con = currentPage + ToNum(name);
             if (con < 1 || con > maxPage) {
                 assert(false); // Impossible situation
@@ -2191,6 +2198,7 @@ public:
                 goBtn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 goBtn->SetCaption("跳转");
                 goBtn->SetClickCallback([this](const std::string &name, const sf::Event &event){
+                    if (!enabled) return;
                     SetCurrentPage(ToNum(input->GetText()));
                     input->SetText("");
                 });
@@ -2199,6 +2207,7 @@ public:
         UpdateInQueue();
     }
     void SetTurnCallback(const Callback &function) noexcept { turnCallback = function; }
+    unsigned int GetCurrentPage() const noexcept { return currentPage; }
 
     /*******************************************
      * @brief 约定的常量和数据类型以及外工具方法。*
@@ -2213,6 +2222,8 @@ public:
     void SetSingleMinWidth(unsigned int absolute) noexcept;
     void SetVerticalGap(unsigned int absolute) noexcept;
     void SetHorizontalGap(unsigned int absolute) noexcept;
+    void SetSingle(unsigned int absolute) noexcept;
+    void SetGap(unsigned int absolute) noexcept;
     void SetFontSize(unsigned int absolute) noexcept;
     void SetMaxPage(unsigned int absolute) noexcept;
     void SetCurrentPage(unsigned int absolute) noexcept;
@@ -2221,6 +2232,8 @@ public:
      * @brief 样式属性控制接口。*
      * *************************
      */
+    void Enable(bool flag = true) noexcept;
+    void Disable() noexcept;
 
     /************************************
      * @brief 实现了的和待实现的抽象方法。*
@@ -2274,6 +2287,7 @@ protected:
      * @brief 样式属性。*
      * ******************
      */
+    bool enabled = true;
 };
 
 class Example : public Control {

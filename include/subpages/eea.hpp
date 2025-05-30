@@ -110,12 +110,24 @@ protected:
 class EnterMailSystem : public PageBase {
 private:
     ui::Button *backBtn = nullptr;
+    ui::Button *writeMailBtn = nullptr;
+    ui::Button *refreshBtn = nullptr;
 
     ui::VerticalBox *list = nullptr;
     ui::VerticalScrollingBox *msgBox = nullptr;
+    bool turnable = true;
     ui::PageTurner *turner = nullptr;
     ui::Center *loading = nullptr;
     std::function<void ()> refreshList = [](){};
+
+    ui::Label *subject = nullptr;
+    ui::Label *sender = nullptr;
+    ui::Label *receiver = nullptr;
+    ui::Label *dateTime = nullptr;
+    ui::Label *state = nullptr;
+    ui::Label *mailContent = nullptr;
+
+    const int eachPageNum = 10;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;

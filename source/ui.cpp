@@ -771,6 +771,18 @@ void ui::PageTurner::SetHorizontalGap(unsigned int absolute) noexcept
     UpdateInQueue();
 }
 
+void ui::PageTurner::SetSingle(unsigned int absolute) noexcept
+{
+    SetSingleMinHeight(absolute);
+    SetSingleMinWidth(absolute);
+}
+
+void ui::PageTurner::SetGap(unsigned int absolute) noexcept
+{
+    SetVerticalGap(absolute);
+    SetHorizontalGap(absolute);
+}
+
 void ui::PageTurner::SetFontSize(unsigned int absolute) noexcept
 {
     fontSize = absolute;
@@ -943,6 +955,16 @@ void ui::Button::SetDisabledBackColor(const sf::Color &color) noexcept
 void ui::Button::Enable(bool flag) noexcept
 {
     enabled = flag;
+}
+
+void ui::PageTurner::Enable(bool flag) noexcept
+{
+    enabled = flag;
+}
+
+void ui::PageTurner::Disable() noexcept
+{
+    Enable(false);
 }
 
 void ui::Button::Disable() noexcept

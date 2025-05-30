@@ -603,15 +603,14 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                     btnBox->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 }
                 {
-                    backBtn = new ui::Button; {
-                        backBtn->AddTo(btnBox);
-                        backBtn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        backBtn->SetCaption("返回主页");
-                    }
-                    auto writeMailBtn = new ui::Button; {
-                        writeMailBtn->AddTo(btnBox);
-                        writeMailBtn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        writeMailBtn->SetCaption("写  信");
+                    backBtn = new ui::Button("返回主页");
+                    writeMailBtn = new ui::Button("写  信");
+                    refreshBtn = new ui::Button("刷新");
+                    for (auto btn : {backBtn, writeMailBtn, refreshBtn}) {
+                        btn->AddTo(btnBox);
+                        btn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        btn->SetHSize(80);
+                        btn->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
                     }
                 }
                 auto inBox = new ui::VerticalBox; {
@@ -629,6 +628,7 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                         list->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     }
                     {
+                        list->Add(new ui::Spacer(0, 50));
                         msgBox = new ui::VerticalScrollingBox; {
                             msgBox->AddTo(list);
                             msgBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
@@ -637,9 +637,13 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                         {
                             ;
                         }
+                        list->Add(new ui::Spacer(0, 50));
                         turner = new ui::PageTurner; {
                             turner->AddTo(list);
                             turner->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            turner->SetFontSize(30);
+                            turner->SetSingle(50);
+                            turner->SetGap(15);
                         }
                     }
                     loading = new ui::Center; {
@@ -656,6 +660,46 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                     }
                 }
             }
+            auto mailDetail = new ui::VerticalBox; {
+                mailDetail->AddTo(hor);
+                mailDetail->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            }
+            {
+                subject = new ui::Label; {
+                    subject->AddTo(mailDetail);
+                    subject->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    subject->SetFontSize(75);
+                }
+                auto elseInfo = new ui::HorizontalBox; {
+                    elseInfo->AddTo(mailDetail);
+                    elseInfo->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    elseInfo->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    elseInfo->SetGap(50);
+                }
+                {
+                    sender = new ui::Label;
+                    receiver = new ui::Label;
+                    dateTime = new ui::Label;
+                    state = new ui::Label;
+                    for (auto each : {sender, receiver, dateTime, state}) {
+                        each->AddTo(elseInfo);
+                        each->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        each->SetFontSize(30);
+                        each->SetFontColor({199, 199, 199});
+                    }
+                }
+                auto content = new ui::VerticalScrollingBox; {
+                    content->AddTo(mailDetail);
+                    content->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    content->SetInsideBoxScrollable(true);
+                }
+                {
+                    mailContent = new ui::Label; {
+                        mailContent->AddTo(content);
+                        mailContent->SetMaxCount(32);
+                    }
+                }
+            }
         }
     }
 }
@@ -666,30 +710,118 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         SwitchTo(new MainPage);
     });
 
+    auto checkMail = [=, this](const std::string &name){
+        Listen(new trm::Sender({trm::rqs::GET_MESSAGE, username, password, name}), SD_CALLBACK{
+            if (reply[0] == trm::rpl::TIME_OUT) {
+                ;
+            } else if (reply[0] == trm::rpl::FAIL) {
+                ;
+            } else {
+                auto con = trm::MailContent(reply[0]);
+                subject->SetContent("主题：" + con.subject);
+                sender->SetContent("发件人：" + con.sender);
+                receiver->SetContent("收件人：" + con.receiver);
+                dateTime->SetContent("时间：" + ToStr(con.timeStamp));
+                if (con.read) state->SetContent("已读");
+                else state->SetContent("未读");
+                mailContent->SetContent(con.content);
+            }
+        });
+    };
+
+    auto getMsgItem = [=, this](const trm::MailContent &pro, unsigned long long index){
+        std::string content = "";
+        if (!pro.read) {
+            content += "【*】";
+        }
+        content += pro.subject + " | ";
+        content += pro.sender;
+
+        auto res = new ui::HorizontalBox; {
+            res->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            res->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+        }
+        {
+            auto btn = new ui::Button; {
+                btn->AddTo(res);
+                btn->SetCaption("查看");
+                btn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                btn->SetName(ToStr(index));
+                btn->SetClickCallback(UI_CALLBACK{ checkMail(name); });
+                btn->SetFontSize(40);
+            }
+            auto label = new ui::Label; {
+                label->AddTo(res);
+                label->SetContent(content);
+                label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                label->SetFontSize(40);
+            }
+        }
+        return res;
+    };
+
+    auto refreshMsgbox = UI_CALLBACK{
+        if (!turnable) return;
+        turnable = false;
+        turner->Disable();
+        refreshBtn->Disable();
+        msgBox->FreeAll();
+        auto label = new ui::Label("加载中..."); {
+            msgBox->Add(new ui::Center(label, ui::Control::Preset::FILL_FROM_CENTER));
+            label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+        }
+        unsigned long long from = (turner->GetCurrentPage() - 1) * eachPageNum;
+        Listen(new trm::Sender({trm::rqs::GET_MESSAGE_PROFILE, username, password, ToStr(from), ToStr(eachPageNum)}), SD_CALLBACK{
+            if (reply[0] == trm::rpl::TIME_OUT) {
+                label->SetContent("加载失败，请重试");
+            } else {
+                msgBox->FreeAll();
+                for (int i = 0; i < std::min(eachPageNum, (int)reply.size()); ++i) {
+                    auto pro = trm::MailContent(reply[i]);
+                    msgBox->Add(getMsgItem(pro, from + i));
+                }
+            }
+            turnable = true;
+            turner->Enable();
+            refreshBtn->Enable();
+        });
+    };
+
+    turner->SetTurnCallback(refreshMsgbox);
+
     refreshList = [=, this](){
         if (loading->GetVisible()) return;
 
         loading->Show();
         list->Hide();
+        turnable = false;
 
         msgBox->FreeAll();
         Listen(new trm::Sender({trm::rqs::GET_MESSAGE_NUMBER, username, password}), SD_CALLBACK{
             if (reply[0] == trm::rpl::TIME_OUT) {
-                msgBox->Add(new ui::Label("服务端未响应，请检查后重试。"));
-                turner->SetMaxPage(1);
-                loading->Hide();
-                list->Show();
-            } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
-                msgBox->Add(new ui::Label("对不起，您没有查看邮件的权限。"));
+                msgBox->Add(new ui::Center(
+                    new ui::Label("服务端未响应，请检查后重试。", ui::Control::Preset::WRAP_AT_CENTER), 
+                    ui::Control::Preset::FILL_FROM_CENTER)
+                );
                 turner->SetMaxPage(1);
                 loading->Hide();
                 list->Show();
             } else {
+                auto num = ToNum<unsigned long long>(reply[0]);
+                auto page = num / eachPageNum + (num % eachPageNum ? 1 : 0);
+                turner->SetMaxPage(page);
+                turner->SetCurrentPage(1);
                 loading->Hide();
                 list->Show();
+                turnable = true;
+                refreshMsgbox({}, {});
             }
         });
     };
+
+    refreshBtn->SetClickCallback(UI_CALLBACK{
+        refreshList();
+    });
 }
 
 void eea::EnterMailSystem::Ready(ui::Screen *screen) noexcept

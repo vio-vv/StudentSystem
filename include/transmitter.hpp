@@ -483,7 +483,7 @@ namespace rqs{
      * @brief 获取总的消息数量。
      * @param code 学工号
      * @param password 密码
-     * @return ull 消息数量，或者 ACCESS_DENIED
+     * @return ull 消息数量
      */
     const std::string GET_MESSAGE_NUMBER = _AS_"GET_MESSAGE_NUMBER";
     /**
@@ -492,17 +492,17 @@ namespace rqs{
      * @param password 密码
      * @param start ull 起始位置
      * @param count ull 数量
-     * @return 消息摘要列表，一般共 count 项，每项都是一个消息的摘要，或者 ACCESS_DENIED
+     * @return 消息摘要列表，一般共 count 项，每项都是一个消息的摘要
      * @note 消息摘要就是 content 属性为空的 MailContent 对象。 @see @struct MailContent
      * @note 超出索引范围，返回的相应项为空，特别地，完全超出索引范围，返回空列表，有 0 项。
      */ 
-    const std::string GET_MESSAGE_PROFILE = _AS_"GET_MESSAGE";
+    const std::string GET_MESSAGE_PROFILE = _AS_"GET_MESSAGE_PROFILE";
     /**
      * @brief 获取按时间排序的特定消息，如果该消息未读，则标记为已读。
      * @param code 学工号
      * @param password 密码
      * @param index ull 消息索引
-     * @return 消息对象 or FAIL，或者 ACCESS_DENIED @see @struct MailContent
+     * @return 消息对象 or FAIL @see @struct MailContent
      * @retval FAIL 索引超出范围等
      */
     const std::string GET_MESSAGE = _AS_"GET_MESSAGE";
@@ -511,7 +511,7 @@ namespace rqs{
      * @param code 学工号
      * @param password 密码
      * @param index ull 消息索引
-     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @return SUCC or FAIL
      * @retval FAIL 索引超出范围等
      */
     const std::string MARK_AS_READ = _AS_"MARK_AS_READ";
@@ -520,7 +520,7 @@ namespace rqs{
      * @param code 学工号
      * @param password 密码
      * @param index ull 消息索引
-     * @return SUCC or FAIL，或者 ACCESS_DENIED
+     * @return SUCC or FAIL
      * @retval FAIL 索引超出范围等
      */
     const std::string MARK_AS_UNREAD = _AS_"MARK_AS_UNREAD";
@@ -528,7 +528,7 @@ namespace rqs{
      * @brief 获取未读消息数量。
      * @param code 学工号
      * @param password 密码
-     * @return ull 未读消息数量，或者 ACCESS_DENIED
+     * @return ull 未读消息数量
      */
     const std::string GET_UNREAD_MESSAGE_NUMBER = _AS_"GET_UNREAD_MESSAGE_NUMBER";
     /**
