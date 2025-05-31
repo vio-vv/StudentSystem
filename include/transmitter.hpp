@@ -463,7 +463,48 @@ namespace rqs{
 #pragma endregion
 
 #pragma region 通知与公示系统
-    ;
+    /**
+     * @brief 发布通知
+     * @param code 学工号
+     * @param password 密码
+     * @param title 通知标题
+     * @param content 通知内容
+     * @param nolifyType 通知类型 @see @struct Nolify
+     * @return SUCC or ACCESS_DENIED
+     * @note ACCESS REQUIRED MANAGE_NOLIFY
+     */
+    const std::string PUBLISH_NOLIFY = _AS_"PUBLISH_NOLIFY";
+    /**
+     * @brief 获取通知。
+     * @param start ull 通知索引
+     * @param end ull 通知索引
+     * @param nolifyType 通知类型 @see @struct Nolify
+     * @return 通知对象 注意可能为空
+     */
+    const std::string GET_NOLIFY_LIST = _AS_"GET_NOLIFY";
+    /**
+     * @brief 获取特定通知。
+     * @param index ull 通知索引
+     * @param nolifyType 通知类型 @see @struct Nolify
+     * @return 通知对象
+     */
+    const std::string GET_NOLIFY = _AS_"GET_NOLIFY_LIST";
+    /**
+     * @brief 获取通知数量。
+     * @param nolifyType 通知类型 @see @struct Nolify
+     * @return ull 通知数量 或者 FAIL
+     */
+    const std::string GET_NOLIFY_NUMBER = _AS_"GET_NOLIFY_NUMBER";
+    /**
+     * @brief 删除通知。
+     * @param code 学工号
+     * @param password 密码
+     * @param index ull 通知索引
+     * @param nolifyType 通知类型 @see @struct Nolify
+     * @return SUCC，或者 ACCESS_DENIED
+     * @note ACCESS REQUIRED MANAGE_NOLIFY
+     */
+    const std::string DELETE_NOLIFY = _AS_"DELETE_NOLIFY";
 #pragma endregion
 
 #pragma region 消息与站内信系统
@@ -647,6 +688,8 @@ enum Access{
     BORROW_BOOK,
     RESET_LIBRARY,
 
+    MANAGE_NOLIFY,
+
     _COMMON, // 这个权限被所有人拥有
 
     _
@@ -715,6 +758,18 @@ struct Date {
     {   
         return trm::Date(date.currantTime + day * 60 * 60 * 24);
     }
+};
+
+struct Notice {
+    std::string title;
+    std::string content;
+    Date date;
+    Notice(const std::string &_title, const std::string &_content, const Date &_date = Date()) noexcept : title(_title), content(_content), date(_date) {}
+    operator std::string() const noexcept;
+    Notice(const std::string &content) noexcept;
+    std::vector<std::string> GetParagraphs() const noexcept;
+
+    static std::vector<std::string> patition;
 };
 
 struct BorrowLog {

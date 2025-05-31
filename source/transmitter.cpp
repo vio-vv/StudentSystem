@@ -4,6 +4,8 @@ std::string trm::Sender::link;
 std::string trm::Sender::self;
 std::string trm::Sender::selfAsSender;
 
+std::vector<std::string> trm::Notice::patition = {"headline", "news", "notice"};
+
 const trm::AccessInfo &trm::GetAccessInfo(Access access) noexcept
 {
     static AccessInfo accessInfo[Access::_];
@@ -42,6 +44,10 @@ const trm::AccessInfo &trm::GetAccessInfo(Access access) noexcept
          * @attention VIO_VV 请在此处添加。*
          * ********************************
          */
+        accessInfo[Access::BOOK_MANAGE] = {"图书管理", "可以管理图书馆的图书。包括新增图书，修改图书信息，删除图书。"};
+        accessInfo[Access::BORROW_BOOK] = {"借阅图书", "可以借阅图书。"};
+        accessInfo[Access::RESET_LIBRARY] = {"重置图书馆", "可以重置图书馆，即删除所有图书信息。"};
+        accessInfo[Access::MANAGE_NOLIFY] = {"管理通知", "可以管理系统的通知。包括新增通知，删除通知。"};
         // accessInfo[???] = {???, ???};
         // 也可以这样写：accessInfo[???].name = "???";
         // 不写的话会有默认值 "【未命名权限】"、"【无说明】"。
@@ -489,4 +495,37 @@ trm::AccessBox::AccessBox(const std::string &content) noexcept
 trm::AccessBox::operator Access() const noexcept
 {
     return access;
+}
+
+trm::Notice::operator std::string() const noexcept
+{
+    return Combine({
+        title,
+        content,
+        date
+    });
+}
+
+trm::Notice::Notice(const std::string &content) noexcept
+{   
+    auto data = trm::Split(content);
+    *this = {
+        data[0],
+        data[1],
+        data[2]
+    };
+}
+
+std::vector<std::string> trm::Notice::GetParagraphs() const noexcept
+{
+    std::string paragraph = "";
+    std::vector<std::string> paragraphs;
+    for (auto c : content) {
+        if (c == '\n') {
+            paragraphs.emplace_back(paragraph);
+            paragraph = "";
+        }
+        else paragraph += c;
+    }
+    return paragraphs;
 }

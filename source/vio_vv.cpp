@@ -86,7 +86,6 @@ void vio::EnterLibrary::Load(ui::Screen *screen) noexcept
                     optBox->SetGap(5);
                     optBox->HideAll();
                     optBox->SetHAnchor(60);
-                    optBox->SetSize(120, 320);
                     optBox->SetVisible(false);
                 }
             }
@@ -126,9 +125,18 @@ void vio::EnterLibrary::Load(ui::Screen *screen) noexcept
                     bookManageBtn = new ui::Button;{
                         bookManageBtn->AddTo(flat);
                         bookManageBtn->SetHPreset(ui::Control::Preset::WRAP_AT_END);
-                        bookManageBtn->SetVPosition(50);
+                        bookManageBtn->SetVPosition(5);
+                        bookManageBtn->SetVSize(40);
                         bookManageBtn->SetCaption("图书管理");
                         bookManageBtn->SetVisible(false);
+                    }
+                    resetLibraryBtn = new ui::Button;{
+                        resetLibraryBtn->AddTo(flat);
+                        resetLibraryBtn->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                        resetLibraryBtn->SetVSize(40);
+                        resetLibraryBtn->SetVPosition(90);
+                        resetLibraryBtn->SetCaption("重置图书馆");
+                        resetLibraryBtn->SetVisible(false);
                     }
                 }
             }
@@ -160,6 +168,35 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
 
     borrowManageBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new BorrowManage);
+    });
+
+    resetLibraryBtn->SetClickCallback(UI_CALLBACK{
+        screen->HideAll();
+        int ret = MessageBox(screen, "确认重置图书馆？", {"确认", "取消"});
+        if (ret == 0) {
+            Listen(new trm::Sender({trm::rqs::RESET_LIBRARY}), SD_CALLBACK{
+                screen->FreeAllVisible();
+                if (reply.empty()) {
+                    MessageBox(screen, "重置图书馆失败，请稍后再试", {"确认"});
+                }
+                else if (reply[0] == trm::rpl::TIME_OUT) {
+                    MessageBox(screen, "服务端未响应，请稍后再试", {"确认"});
+                }
+                else if (reply[0] == trm::rpl::SUCC) {
+                    MessageBox(screen, "图书馆重置成功", {"确认"});
+                }
+                else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                    MessageBox(screen, "您没有权限重置图书馆", {"确认"});
+                }
+                else assert(false);
+                screen->FreeAllVisible();
+                screen->ShowAll();
+            });
+        }
+        else {
+            screen->FreeAllVisible();
+            screen->ShowAll();
+        }
     });
 
     searchOptBtn->SetClickCallback(UI_CALLBACK{
@@ -251,8 +288,17 @@ void vio::EnterLibrary::Ready(ui::Screen *screen) noexcept
     books = {};
     borrowLogs = {};
     selectedBook = trm::Book();
-    if (account["name"] == "最高管理员") {
-        bookManageBtn->SetVisible(true);
+    for (const auto &access : account.access) {
+        if (access == trm::Access::ADM) {
+            bookManageBtn->SetVisible(true);
+            resetLibraryBtn->SetVisible(true);
+        }
+        else if (access == trm::Access::BOOK_MANAGE) {
+            bookManageBtn->SetVisible(true);
+        }
+        else if (access == trm::Access::RESET_LIBRARY) {
+            resetLibraryBtn->SetVisible(true);
+        }
     }
 }
 
@@ -388,6 +434,7 @@ void vio::BookList::Load(ui::Screen *screen) noexcept
 void vio::BookList::Logic(ui::Screen *screen) noexcept
 {
     resetBookList = [=, this]() {
+        listBox->FreeAll();
         ui::Button *btn = nullptr;
         pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
         if (len == 0) {
@@ -1018,6 +1065,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
                 listTip->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
                 listTip->SetVPreset(ui::Control::Preset::PLACE_AT_CENTER);
                 listTip->SetContent("暂无借阅记录");
+                listTip->SetFontSize(40);
             }
             return;
         }
@@ -1850,7 +1898,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 searchOpt->SetCaption("图书名称>");
                 searchOpt->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 searchOpt->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                searchOpt->SetFontSize(30);
+                searchOpt->SetFontSize(40);
                 searchOpt->SetClickCallback(UI_CALLBACK{
                     isClicked ^= 1;
                     if (isClicked) {
@@ -1868,7 +1916,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 searchBtn->SetCaption("搜索");
                 searchBtn->SetHSize(100);
                 searchBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                searchBtn->SetFontSize(30);
+                searchBtn->SetFontSize(40);
             }
             searchBtn->SetClickCallback(UI_CALLBACK{
                 searchBtn->Disable();
@@ -2344,6 +2392,13 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
 }
 
 void vio::EnterNolify::Ready(ui::Screen *screen) noexcept
-{
-    ;
+{   
+    bool pass = false;
+    for (const auto &access : account.access) {
+        if (access == trm::Access::MANAGE_NOLIFY) pass = true;
+    };
+
+    if (!pass) {
+        
+    } 
 }

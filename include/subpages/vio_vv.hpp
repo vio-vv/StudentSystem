@@ -25,6 +25,7 @@ private:
     ui::Button *borrowManageBtn = nullptr;
     ui::Button *basicNolifyBtn = nullptr;
     ui::Button *bookManageBtn = nullptr;
+    ui::Button *resetLibraryBtn = nullptr;
     ui::HorizontalBox *optBox = nullptr;
     ui::VerticalBox *vbox = nullptr;
     ui::HorizontalBox *midBox = nullptr;

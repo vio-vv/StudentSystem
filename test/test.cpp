@@ -181,6 +181,24 @@ int main()
 #endif
 
 #ifdef VIO_VV
+    f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", "content..", trm::Notice::patition[0]}));
+    f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", "content...", trm::Notice::patition[0]}));
+    f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", "content....", trm::Notice::patition[0]}));
+    f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", "content.....", trm::Notice::patition[0]}));
+    f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", "content......", trm::Notice::patition[0]}));
+    f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", "...content", trm::Notice::patition[0]}));
+    f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", "..content", trm::Notice::patition[0]}));
+    f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", ".content", trm::Notice::patition[0]}));
+
+    f(ssys.DeleteNolify({trm::rqs::DELETE_NOLIFY, "adm", "123", "4", trm::Notice::patition[0]}));
+    f(ssys.DeleteNolify({trm::rqs::DELETE_NOLIFY, "adm", "123", "3", trm::Notice::patition[0]}));
+    f(ssys.DeleteNolify({trm::rqs::DELETE_NOLIFY, "adm", "123", "2", trm::Notice::patition[0]}));
+    
+    auto reply = ssys.GetNolifyTitle({trm::rqs::GET_NOLIFY_LIST, "1", "8", trm::Notice::patition[0]});
+    for (auto& r : reply) {
+        trm::Notice n = trm::Notice(r);
+        std::cout << n.title << " " << n.content << " " << n.date.currantTime << std::endl;
+    }
     f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "999-9-99-999999-1", "15", Book{"999-9-99-999999-1", "++--", "2025-04", "科学技术", "图书馆208", {"张某某"}}}));
     f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "784-8-15-941394-1", "5", Book{"784-8-15-941394-1", "aabb", "2024-10", "科学技术", "图书馆208", {"李某某"}}}));
     f(ssys.RestoreNewBook({trm::rqs::RESTORE_BOOK, "adm", "123", "189-9-39-998899-2", "5", Book{"189-9-39-998899-2", "ccad45", "1925-12", "科学技术", "图书馆208", {"李某"}}}));
