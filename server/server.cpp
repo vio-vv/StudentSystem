@@ -112,6 +112,13 @@ int main() noexcept
                 REGISTER(trm::rqs::SEARCH_BOOK, ssys.SearchBook)
                 REGISTER(trm::rqs::GET_ACCOUNT_BORROW_LIST, ssys.GetAccountBorrowList)
                 REGISTER(trm::rqs::SEND_RETURN_REMINDER, ssys.SendReturnReminder)
+
+                REGISTER(trm::rqs::PUBLISH_NOLIFY, ssys.PublishNolify)
+                REGISTER(trm::rqs::GET_NOLIFY, ssys.GetNolifyContent)
+                REGISTER(trm::rqs::GET_NOLIFY_LIST, ssys.GetNolifyTitle)
+                REGISTER(trm::rqs::DELETE_NOLIFY, ssys.DeleteNolify)
+                REGISTER(trm::rqs::GET_NOLIFY_NUMBER, ssys.GetNolifyNumber)
+
                 // REGISTER(trm::rqs::???, ssys.???)
 
                 else {

@@ -2383,22 +2383,508 @@ std::vector<std::string> vio::BookManage::CheckInput() const noexcept
 
 void vio::EnterNolify::Load(ui::Screen *screen) noexcept
 {
-    ;
+    ui::Margin *mar = new ui::Margin;{
+        mar->AddTo(screen);
+        mar->SetMargin(180, 200, 300, 300);
+        mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+    }
+    {
+        ui::VerticalBox *wholeBox = new ui::VerticalBox;{
+            wholeBox->AddTo(mar);
+            wholeBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            wholeBox->SetGap(5);
+        }
+        {
+            backBtn = new ui::Button;{
+                backBtn->AddTo(wholeBox);
+                backBtn->SetCaption("返回");
+                backBtn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backBtn->SetFontSize(40);
+            }
+            ui::HorizontalBox *bodyBox = new ui::HorizontalBox;{
+                bodyBox->AddTo(wholeBox);
+                bodyBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            }
+            {
+                ui::VerticalBox *leftBox = new ui::VerticalBox;{
+                    leftBox->AddTo(bodyBox);
+                    leftBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                }
+                {
+                    mode = new ui::Label;{
+                        mode->AddTo(leftBox);
+                        mode->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        mode->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        mode->SetContent("请选择您的操作");
+                        mode->SetFontSize(40);
+                    }
+                    ui::HorizontalBox *optionBox = new ui::HorizontalBox;{
+                        optionBox->AddTo(leftBox);
+                        optionBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        optionBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    }
+                    {
+                        publishBtn = new ui::Button;{
+                            publishBtn->AddTo(optionBox);
+                            publishBtn->SetCaption("发布通知");
+                            publishBtn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            publishBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            publishBtn->SetFontSize(40);
+                        }
+                        deleteBtn = new ui::Button;{
+                            deleteBtn->AddTo(optionBox);
+                            deleteBtn->SetCaption("删除通知");
+                            deleteBtn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            deleteBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            deleteBtn->SetFontSize(40);
+                        }
+                    }
+                    partitionLabel = new ui::Label;{
+                        partitionLabel->AddTo(leftBox);
+                        partitionLabel->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        partitionLabel->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        partitionLabel->SetContent("请选择通知板块");
+                        partitionLabel->SetFontSize(40);
+                    }
+                    ui::VerticalBox *partitionBox = new ui::VerticalBox;{
+                        partitionBox->AddTo(leftBox);
+                        partitionBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        partitionBox->SetGap(10);
+                        partitionBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    }
+                    {
+                        headlineBtn = new ui::Button;{
+                            headlineBtn->AddTo(partitionBox);
+                            headlineBtn->SetCaption("头条");
+                            headlineBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                            headlineBtn->SetFontSize(40);
+                        }
+                        newsBtn = new ui::Button;{
+                            newsBtn->AddTo(partitionBox);
+                            newsBtn->SetCaption("新闻");
+                            newsBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                            newsBtn->SetFontSize(40);
+                        }
+                        noticeBtn = new ui::Button;{
+                            noticeBtn->AddTo(partitionBox);
+                            noticeBtn->SetCaption("通知");
+                            noticeBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                            noticeBtn->SetFontSize(40);
+                        }   
+                    }
+                    partitionTip = new ui::Label;{
+                        partitionTip->AddTo(leftBox);
+                        partitionTip->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        partitionTip->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        partitionTip->SetContent("通知类型不能为空");
+                        partitionTip->SetFontSize(40);
+                        partitionTip->SetVisible(false);
+                    }
+                }
+                ui::VerticalBox *rightBox = new ui::VerticalBox;{
+                    rightBox->AddTo(bodyBox);
+                    rightBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                }
+                {
+                    nolifyDetailBox = new ui::VerticalScrollingBox;{
+                        nolifyDetailBox->AddTo(rightBox);
+                        nolifyDetailBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        nolifyDetailBox->SetInsideBoxScrollable(true);
+                    }
+                    {
+                        ui::Label *tip = new ui::Label;{
+                            tip->AddTo(nolifyDetailBox);
+                            tip->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            tip->SetContent("请选择您的操作");
+                            tip->SetFontSize(40);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
 {
-    ;
+    auto printPublishDetail = [=, this]() {
+        nolifyDetailBox->FreeAll();
+        ui::Label *titleLabel = new ui::Label;{
+            titleLabel->AddTo(nolifyDetailBox);
+            titleLabel->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            titleLabel->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            titleLabel->SetContent("标题");
+            titleLabel->SetFontSize(40);
+        }
+        titleInputBox = new ui::InputBox;{
+            titleInputBox->AddTo(nolifyDetailBox);
+            titleInputBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            titleInputBox->SetInputCallback(UI_CALLBACK{
+                nolifyTitle = titleInputBox->GetText();
+            });
+        }
+        ui::Label *contentLabel = new ui::Label;{
+            contentLabel->AddTo(nolifyDetailBox);
+            contentLabel->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            contentLabel->SetContent("内容");
+            contentLabel->SetFontSize(40);
+            contentLabel->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+        }
+        contentInputBox = new ui::InputBox;{
+            contentInputBox->AddTo(nolifyDetailBox);
+            contentInputBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            contentInputBox->SetFontSize(20);
+            contentInputBox->SetInputCallback(UI_CALLBACK{
+                nolifyContent = contentInputBox->GetText();
+            });
+        }
+        ui::HorizontalBox *btnBox = new ui::HorizontalBox;{
+            btnBox->AddTo(nolifyDetailBox);
+            btnBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            btnBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+        }
+        {
+            ui::Label *inputTip = new ui::Label;{
+                inputTip->AddTo(btnBox);
+                inputTip->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                inputTip->SetContent("标题和内容不能为空");
+                inputTip->SetFontSize(40);
+                inputTip->SetVisible(false);
+            }
+            confirmBtn = new ui::Button;{
+                confirmBtn->AddTo(btnBox);
+                confirmBtn->SetCaption("确认");
+                confirmBtn->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                confirmBtn->SetVPreset(ui::Control::Preset::WRAP_AT_END);
+                confirmBtn->SetFontSize(40);
+                confirmBtn->SetClickCallback(UI_CALLBACK{
+                    partitionTip->SetVisible(false);
+                    if (partitionOpt == nullptr) {
+                        partitionTip->SetVisible(true);
+                        return;
+                    }
+                    if (partitionOpt->GetCaption() == "头条") type = "headline";
+                    else if (partitionOpt->GetCaption() == "新闻") type = "news";
+                    else if (partitionOpt->GetCaption() == "通知") type = "notice";
+                    else {
+                        partitionTip->SetVisible(true);
+                        return;
+                    }
+                    inputTip->SetVisible(false);
+                    if (nolifyTitle == "" || nolifyContent == "") {
+                        inputTip->SetVisible(true);
+                        return;
+                    }
+
+                    screen->HideAll();
+                    int ret = MessageBox(screen, "确认发布通知？", {"确认", "取消"});
+                    if (ret == 0) {
+                        screen->FreeAllVisible();
+                        auto [success, reply] = WaitServer(screen, {trm::rqs::PUBLISH_NOLIFY, account.code, account.hashedPassword, nolifyTitle, nolifyContent, type}, "等待服务端响应");
+                        screen->FreeAllVisible();
+                        if (success == 1) {
+                            if (reply[0] == trm::rpl::SUCC) {
+                                int succret = MessageBox(screen, "通知发布成功", {"确认"});
+                                if (succret == 0) {
+                                    screen->FreeAllVisible();
+                                    screen->ShowAll();
+                                    titleInputBox->SetText("");
+                                    contentInputBox->SetText("");
+                                }
+                            }
+                            else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                                int denyret = MessageBox(screen, "权限不足，请联系管理员", {"确认"});
+                                if (denyret == 0) {
+                                    SwitchTo(new EnterLibrary);
+                                }
+                            }
+                            else if (reply[0] == trm::rpl::TIME_OUT) {
+                                int timeoutret = MessageBox(screen, "连接超时，请重试", {"确认"});
+                                if (timeoutret == 0) {
+                                    screen->FreeAllVisible();
+                                    screen->ShowAll();
+                                }
+                            }
+                            else {
+                                assert(false);
+                            }
+                        }
+                    }
+                    else if (ret == 1) {
+                        screen->FreeAllVisible();
+                        screen->ShowAll();
+                    }
+                });
+            }
+        }
+    };
+
+    auto searchNolify = [=, this]() {
+        nolifyDetailBox->FreeAll();
+        ui::LoadingRing *loading = new ui::LoadingRing;{
+            loading->AddTo(nolifyDetailBox);
+            loading->SetPreset(ui::Control::Preset::PLACE_AT_CENTER);
+            loading->Start();
+        }
+        if (isChanged) {
+            page = 1;
+            Listen(new trm::Sender({trm::rqs::GET_NOLIFY_NUMBER, type}), SD_CALLBACK{
+                if (reply.empty()) {
+                    assert(false);
+                }
+                else if (reply[0] == trm::rpl::TIME_OUT) {
+                    screen->HideAll();
+                    int timeoutret = MessageBox(screen, "连接超时，请重试", {"确认"});
+                    if (timeoutret == 0) {
+                        screen->FreeAllVisible();
+                        screen->ShowAll();
+                    }
+                }
+                else {
+                    totPage = ToNum<unsigned long long>(reply[0]);
+                    totPage = (totPage + 9) / 10;
+                }
+            });
+        }
+        isChanged = false;
+        notices.clear();
+        Listen(new trm::Sender({trm::rqs::GET_NOLIFY_LIST, ToStr((page - 1) * 10), ToStr(page * 10), type}), SD_CALLBACK{
+            nolifyDetailBox->FreeAll();
+            if (reply.empty()) {
+                printDeleteDetail();
+            }
+            else {
+                for (auto nolify : reply) {
+                    notices.emplace_back(nolify);
+                }
+                printDeleteDetail();
+            }
+
+        });
+    };
+
+    printDeleteDetail = [=, this]() {
+        nolifyDetailBox->FreeAll();
+        ui::HorizontalBox *hBox = nullptr;
+        ui::Label *titleLbl = nullptr;
+        ui::Button *btn = nullptr;
+        if (!notices.empty()) {
+            for (unsigned long long int i = 0; i < notices.size(); i++) {
+                hBox = new ui::HorizontalBox;{
+                    hBox->AddTo(nolifyDetailBox);
+                    hBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    hBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                }
+                {
+                    titleLbl = new ui::Label;{
+                        titleLbl->AddTo(hBox);
+                        titleLbl->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        titleLbl->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+
+                        titleLbl->SetContent(notices[i].title + "  " + notices[i].date.GetDate());
+                        titleLbl->SetFontSize(40);
+                    }
+                    ui::Flat *flat = new ui::Flat;{
+                        flat->AddTo(hBox);
+                        flat->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        flat->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    }
+                    btn = new ui::Button;{
+                        btn->AddTo(hBox);
+                        btn->SetCaption("查看");
+                        btn->SetHPreset(ui::Control::Preset::PLACE_AT_END);
+                        btn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        btn->SetFontSize(40);
+                        btn->SetClickCallback(UI_CALLBACK{
+                            selectedNotice = notices[i];
+                            SwitchTo(new ViewNolify());
+                        });
+                    }
+                    btn = new ui::Button;{
+                        btn->AddTo(hBox);
+                        btn->SetCaption("删除");
+                        btn->SetHPreset(ui::Control::Preset::PLACE_AT_END);
+                        btn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        btn->SetFontSize(40);
+                        btn->SetClickCallback(UI_CALLBACK{
+                            screen->HideAll();
+                            int ret = MessageBox(screen, "确认删除通知？", {"确认", "取消"});
+                            if (ret == 0) {
+                                Listen(new trm::Sender({trm::rqs::DELETE_NOLIFY, account.code, account.hashedPassword, ToStr((page - 1) * 10 + i), type}), SD_CALLBACK{
+                                    screen->FreeAllVisible();
+                                    if (reply[0] == trm::rpl::SUCC) {
+                                        int succret = MessageBox(screen, "通知删除成功", {"确认"});
+                                        if (succret == 0) {
+                                            screen->FreeAllVisible();
+                                            screen->ShowAll();
+                                            isChanged = true;
+                                            searchNolify();
+                                        }
+                                    }
+                                    else if (reply[0] == trm::rpl::TIME_OUT) {
+                                        int timeoutret = MessageBox(screen, "连接超时，请重试", {"确认"});
+                                        if (timeoutret == 0) {
+                                            screen->FreeAllVisible();
+                                            screen->ShowAll();
+                                        }
+                                    } 
+                                    else {
+                                        assert(false);
+                                    }
+                                });
+                            }
+                            else if (ret == 1) {
+                                screen->FreeAllVisible();
+                                screen->ShowAll();
+                            }
+                        });
+                    }
+                }
+            }
+    
+            hBox = new ui::HorizontalBox;{
+                hBox->AddTo(nolifyDetailBox);
+                hBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                hBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            }
+            {
+                lastBtn = new ui::Button;{
+                    lastBtn->AddTo(hBox);
+                    lastBtn->SetCaption("上一页");
+                    lastBtn->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                    lastBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    lastBtn->SetFontSize(40);
+                    if (page == 1) lastBtn->Disable();
+                    lastBtn->SetClickCallback(UI_CALLBACK{
+                        if (page > 1) {
+                            page--;
+                            searchNolify();
+                        }
+                    });
+                }
+                pageLbl = new ui::Label;{
+                    pageLbl->AddTo(hBox);
+                    pageLbl->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    pageLbl->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    pageLbl->SetContent(ToStr(page) + "/" + ToStr(totPage));
+                    pageLbl->SetFontSize(40);
+                }
+                nextBtn = new ui::Button;{
+                    nextBtn->AddTo(hBox);
+                    nextBtn->SetCaption("下一页");
+                    nextBtn->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                    nextBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    nextBtn->SetFontSize(40);
+                    if (page == totPage) nextBtn->Disable();
+                    nextBtn->SetClickCallback(UI_CALLBACK{
+                        if (page < totPage) {
+                            page++;
+                            searchNolify();
+                        }
+                    });
+                }
+            }
+        }
+        else {
+            ui::Label *titleLbl = new ui::Label;{
+                titleLbl->AddTo(nolifyDetailBox);
+                titleLbl->SetPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                titleLbl->SetContent("暂无通知");
+                titleLbl->SetFontSize(40);
+            }
+        }
+    };
+    auto resetRightBox = [=, this]() {
+        if (opt->GetCaption() == "发布通知") {
+            printPublishDetail();
+        }
+        if (opt->GetCaption() == "删除通知") {
+            partitionTip->SetVisible(false);
+            if (partitionOpt == nullptr) {
+                partitionTip->SetVisible(true);
+                deleteBtn->Enable();
+                return;
+            }
+            if (partitionOpt->GetCaption() == "头条") type = "headline";
+            else if (partitionOpt->GetCaption() == "新闻") type = "news";
+            else if (partitionOpt->GetCaption() == "通知") type = "notice";
+            else {
+                partitionTip->SetVisible(true);
+                deleteBtn->Enable();
+                return;
+            }
+            searchNolify();
+        }
+    };
+
+    backBtn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new eea::MainPage);
+    });
+
+    for (auto btn : {publishBtn, deleteBtn}) {
+        btn->SetClickCallback(UI_CALLBACK{
+            if (opt != nullptr) opt->Enable();
+            opt = btn;
+            opt->Disable();
+            mode->SetContent(opt->GetCaption());
+            isChanged = true;
+            resetRightBox();
+        });
+    }
+
+
+    for (auto btn : {headlineBtn, newsBtn, noticeBtn}) {
+        btn->SetClickCallback(UI_CALLBACK{
+            if (partitionOpt != nullptr) partitionOpt->Enable();
+            partitionOpt = btn;
+            partitionOpt->Disable();
+            partitionLabel->SetContent(partitionOpt->GetCaption());
+            isChanged = true;
+            if (opt != nullptr) {
+                if (opt->GetCaption() == "删除通知") {
+                    resetRightBox();
+                }
+            }
+        });
+    }
 }
 
 void vio::EnterNolify::Ready(ui::Screen *screen) noexcept
 {   
     bool pass = false;
     for (const auto &access : account.access) {
-        if (access == trm::Access::MANAGE_NOLIFY) pass = true;
+        if (access == trm::Access::MANAGE_NOLIFY) {
+            pass = true;
+            break;
+        }
+        else if (access == trm::Access::ADM) {
+            pass = true;
+            break;
+        }
     };
 
     if (!pass) {
-        
-    } 
+        screen->FreeAll();
+        int ret = MessageBox(screen, "权限不足，无法进入", {"确认"});
+        if (ret == 0) {
+            screen->FreeAll();
+            SwitchTo(new eea::MainPage);
+        }
+    }
+}
+
+void vio::ViewNolify::Load(ui::Screen *screen) noexcept
+{
+    ;
+}
+
+void vio::ViewNolify::Logic(ui::Screen *screen) noexcept
+{
+    ;
+}
+
+void vio::ViewNolify::Ready(ui::Screen *screen) noexcept
+{
+    ;
 }

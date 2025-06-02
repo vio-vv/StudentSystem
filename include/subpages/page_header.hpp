@@ -37,6 +37,7 @@ protected:
     static trm::IdAndPhone idandphone;
     static trm::ReserveDate rdate;
     static std::string rtime;
+    static trm::Notice selectedNotice;
 
     static trm::Information argvs;
     

@@ -481,18 +481,18 @@ namespace rqs{
      * @param nolifyType 通知类型 @see @struct Nolify
      * @return 通知对象 注意可能为空
      */
-    const std::string GET_NOLIFY_LIST = _AS_"GET_NOLIFY";
+    const std::string GET_NOLIFY_LIST = _AS_"GET_NOLIFY_LIST";
     /**
      * @brief 获取特定通知。
      * @param index ull 通知索引
      * @param nolifyType 通知类型 @see @struct Nolify
      * @return 通知对象
      */
-    const std::string GET_NOLIFY = _AS_"GET_NOLIFY_LIST";
+    const std::string GET_NOLIFY = _AS_"GET_NOLIFY";
     /**
      * @brief 获取通知数量。
      * @param nolifyType 通知类型 @see @struct Nolify
-     * @return ull 通知数量 或者 FAIL
+     * @return ull 通知数量
      */
     const std::string GET_NOLIFY_NUMBER = _AS_"GET_NOLIFY_NUMBER";
     /**

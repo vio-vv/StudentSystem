@@ -191,7 +191,52 @@ protected:
 
 class EnterNolify : public PageBase {
 private:
-    ;
+    unsigned long long page = 1;
+    unsigned long long totPage = 1;
+    unsigned long long len = 0;
+
+    bool isChanged = false;
+    std::vector<trm::Notice> notices;
+
+    std::string type = "";
+    std::string partition = "";
+    std::string option = "";
+    std::string titltInput = "";
+    std::string contentInput = "";
+    std::string nolifyTitle = "";
+    std::string nolifyContent = "";
+
+    ui::Button *opt = nullptr;
+    ui::Button *partitionOpt = nullptr;
+
+    ui::Label *partitionLabel = nullptr;
+    ui::Button *backBtn = nullptr;
+    ui::Button *confirmBtn = nullptr;
+    ui::Button *publishBtn = nullptr;
+    ui::Button *deleteBtn = nullptr;
+    ui::Button *headlineBtn = nullptr;
+    ui::Button *newsBtn = nullptr;
+    ui::Button *noticeBtn = nullptr;
+    ui::Button *lastBtn = nullptr;
+    ui::Button *nextBtn = nullptr;
+    ui::Label *pageLbl = nullptr;
+    ui::VerticalScrollingBox *nolifyDetailBox = nullptr;
+    ui::Label *mode = nullptr;
+    ui::Label *partitionTip = nullptr;
+
+    ui::InputBox *titleInputBox = nullptr;
+    ui::InputBox *contentInputBox = nullptr;
+
+    std::function<void()> printDeleteDetail = [](){};
+protected:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+
+class ViewNolify : public PageBase {
+private:
+
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;

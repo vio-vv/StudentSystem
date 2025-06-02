@@ -40,7 +40,7 @@ trm::Information ssys::Nolify::GetNolifyTitle(const trm::Information &content) n
     unsigned long long end = std::min(nolify[content[3]].Size(), ToNum<unsigned long long>(content[2]));
 
     trm::Information result;
-    for (unsigned long long i = start; i <= end; ++i) {
+    for (unsigned long long i = start; i < end; ++i) {
         auto notice = trm::Notice(nolify[content[3]][i]);
         notice.content = "";
         result.emplace_back(notice);

@@ -12,6 +12,8 @@ trm::IdAndPhone clpg::PageBase::idandphone;
 trm::ReserveDate clpg::PageBase::rdate;
 std::string clpg::PageBase::rtime="";
 
+trm::Notice clpg::PageBase::selectedNotice = {"", ""};
+
 clpg::PageBase::PageBase()
 {
     if (!initialized) {
