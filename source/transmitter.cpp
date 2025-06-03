@@ -39,7 +39,13 @@ const trm::AccessInfo &trm::GetAccessInfo(Access access) noexcept
         // accessInfo[???] = {???, ???};
         // 也可以这样写：accessInfo[???].name = "???";
         // 不写的话会有默认值 "【未命名权限】"、"【无说明】"。
-
+        accessInfo[Access::ADD_COURSE] = {"添加课程", "学生账户可以添加课程。"};
+        accessInfo[Access::DELETE_COURSE] = {"删除课程", "学生账户可以删除课程。"};
+        accessInfo[Access::ADM_ADD_COUR] = {"开设课程", "管理员账户可以添加课程。"};
+        accessInfo[Access::ADM_DELETE_COUR] = {"撤消课程", "管理员账户可以删除课程。"};
+        accessInfo[Access::ADM_DELETE_RESERVE_TIME] = {"删除预约时间", "管理员账户可以删除预约时间。"};
+        accessInfo[Access::ADM_ADD_RESERVE_TIME] = {"增加预约时间", "管理员账户可以增加预约时间。"};
+        accessInfo[Access::ADM_MODIFTY_RESERVE_NUMBER] = {"修改预约数量", "管理员账户可以修改预约数量。"};
         /**********************************
          * @attention VIO_VV 请在此处添加。*
          * ********************************

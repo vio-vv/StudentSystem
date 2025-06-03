@@ -26,7 +26,7 @@ trm::Information ssys::ReserveSystem::CheckTime(const trm::Information& informat
     {
         if(ToNum(reserve))
         {
-            timeList.push_back(trm::Combine({time,reserve,std::string(reserve)},' '));//将可预约时间加入列表
+            timeList.push_back(trm::Combine({time,reserve,ToStr(reserve)},' '));//将可预约时间加入列表
         }
     }
     return timeList; 
@@ -130,7 +130,7 @@ trm::Information ssys::ReserveSystem::CheckReserveStatusList(const trm::Informat
 trm::Information ssys::ReserveSystem::AdmModifyReserveNumber(const trm::Information& information) noexcept
 {
     assert(information[0] == trm::rqs::ADM_MODIFY_RESERVE_NUMBER); // Procession not matched.
-    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::ADM_SET_RESERVE_NUMBER}});
+    auto accessReply = SSys::Get().CheckAccess({trm::rqs::CHECK_ACCESS, information[1], information[2], trm::AccessBox{trm::Access::ADM_MODIFTY_RESERVE_NUMBER}});
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
@@ -175,6 +175,10 @@ trm::Information ssys::ReserveSystem::AdmDeleteReserveTime(const trm::Informatio
         return {trm::rpl::FAIL,trm::rpl::NO_MATCH_TIME};
     }
     reserveList[information[4]].Clear();//清除预约时间
+    if(!reserveList.Size()) // 如果没有预约时间了，清除日期
+    {
+        reserveBase[dateInformation.month][dateInformation.week][dateInformation.date].Remove();
+    }
     return {trm::rpl::SUCC};
 }
 

@@ -48,13 +48,14 @@ trm::Information ssys::CourseSystem::AddCourse(const trm::Information& informati
       {
         return {trm::rpl::FAIL,trm::rpl::COURSE_EXISTS};
       }
-    if(!courseBase[information[3]].Exists())
+    if(!courseBase[information[3]].Exists()&&ToStr(courseBase[information[3]])=="")
       {
         return {trm::rpl::FAIL,trm::rpl::NO_MATCH_COURSE};
       }
     studentBase[information[1]].Push(information[3],courseBase[information[3]]);//增加课程
     //待实现，按年级和课程属性来增加（模拟真实选课）
-    return {trm::rpl::SUCC,information[3]};
+    auto courseInformation = trm::CourseInformation{courseBase[information[3]]};
+    return {trm::rpl::SUCC,courseInformation.courseName};
 }
 
 trm::Information ssys::CourseSystem::DeleteCourse(const trm::Information& information) noexcept
@@ -79,7 +80,7 @@ trm::Information ssys::CourseSystem::AdmAddCour(const trm::Information& informat
     if (accessReply[0] != trm::rpl::YES) {
         return {trm::rpl::ACCESS_DENIED};
     }
-    if (courseBase[information[3]].Exists()) 
+    if (courseBase[information[3]].Exists()&&ToStr(courseBase[information[3]])=="")
       {
         return {trm::rpl::FAIL,trm::rpl::COURSE_EXISTS};
       }
@@ -99,5 +100,5 @@ trm::Information ssys::CourseSystem::AdmDeleteCour(const trm::Information& infor
         return {trm::rpl::FAIL,trm::rpl::NO_MATCH_COURSE};
     }
     courseBase[information[3]].Clear();//删除课程
-    return {trm::rpl::SUCC};
+    return {trm::rpl::SUCC, information[3]};
 }

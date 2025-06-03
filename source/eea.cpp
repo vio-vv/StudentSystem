@@ -941,7 +941,7 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
     reserveBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new lab::EnterReserve);
     });
-    courseBtn->SetClickCallback(UI_CALLBACK{
+    courseBtn->SetClickCallback(UI_CALLBACK{ // 我要改一下
         SwitchTo(new lab::EnterCourse);
     });
     libraryBtn->SetClickCallback(UI_CALLBACK{

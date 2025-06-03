@@ -459,7 +459,13 @@ namespace rqs{
      * @note ACCESS REQUIRED ADM_MODIFTY_RESERVE_NUMBER
      */
     const std::string ADM_MODIFY_RESERVE_NUMBER = _AS_"ADM_MODIFY_RESERVE_NUMBER";
-    
+    /**
+     * @brief 管理员修改可预约状态
+     * @param code 学工号
+     * 
+     */
+    //todo
+
 #pragma endregion
 
 #pragma region 通知与公示系统
@@ -679,10 +685,10 @@ enum Access{
     ADM_ADD_COUR,
     ADM_DELETE_COUR,
 
-    ADM_SET_RESERVE_NUMBER, // 管理员设置可预约数量
     ADM_ADD_RESERVE_TIME, // 管理员增加可预约时间
     ADM_DELETE_RESERVE_TIME, // 管理员删除可预约时间
     ADM_MODIFTY_RESERVE_NUMBER, // 管理员修改可预约数量
+    ADM_MODIFY_RESERVE_STATUS, // 管理员修改预约状态
 
     BOOK_MANAGE,
     BORROW_BOOK,
@@ -700,6 +706,7 @@ namespace tag{
     const std::string GRADUATE = _AS_"GRADUATE"; // 研究生
     const std::string TEACHER = _AS_"TEACHER"; // 教师
     const std::string NAME = _AS_"NAME"; // 姓名
+    const std::string ADM = _AS_"ADM"; // 管理员
 }
 using Access = acc::Access;
 struct AccessBox {
@@ -814,6 +821,7 @@ struct CourseInformation {
     std::string location;   // 上课地点
     //std::string time;      // 上课时间
     std::vector<std::string> weeks; // 上课周数
+    CourseInformation() noexcept = default;
     CourseInformation(const std::string & _name,const std::string &_teacher, const std::string &_location, const std::vector<std::string> &_weeks) noexcept :
         courseName(_name), teacher(_teacher), location(_location), weeks(_weeks) {}
     operator std::string() const noexcept;
