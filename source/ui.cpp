@@ -658,7 +658,7 @@ void ui::LinearBox::UpdateLinear(Direction direction, bool resetMinSize) noexcep
                         mark[child] = true;
                         break;
                     }
-                    child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / std::max(0u, ratioSum));
+                    child->SetGlobalSize(direction, child->GetSize(direction) * sizeLeft / std::max(1u, ratioSum));
                 }
                 child->SetGlobalPosition(direction, globalPosition[direction] + tmpPosition);
                 tmpPosition += child->GetGlobalSize(direction) + gap;
@@ -1503,8 +1503,8 @@ void ui::ScrollBar::UpdateTo(Direction direction) noexcept
     layer.SetGlobalPosition(Direction::VERTICAL, globalPosition[Direction::VERTICAL]);
 
     front->SetPreset(GetAnotherDirection(direction), Preset::FILL_FROM_CENTER);
-    front->SetSize(direction, port * globalSize[direction] / std::max(0u, sum));
-    front->SetPosition(direction, rate * globalSize[direction] / std::max(0u, sum));
+    front->SetSize(direction, port * globalSize[direction] / std::max(1u, sum));
+    front->SetPosition(direction, rate * globalSize[direction] / std::max(1u, sum));
 }
 
 void ui::ScrollBar::Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept
@@ -1893,12 +1893,12 @@ void ui::PictureBox::SetScale(unsigned int percentage) noexcept
 
 void ui::PictureBox::KeepWidth(unsigned int absolute) noexcept
 {
-    SetSize(absolute, absolute * originSize.height / std::max(0u, originSize.width));
+    SetSize(absolute, absolute * originSize.height / std::max(1u, originSize.width));
 }
 
 void ui::PictureBox::KeepHeight(unsigned int absolute) noexcept
 {
-    SetSize(absolute * originSize.width / std::max(0u, originSize.height), absolute);
+    SetSize(absolute * originSize.width / std::max(1u, originSize.height), absolute);
 }
 
 void ui::PictureBox::Draw(sf::RenderWindow &screen, float delta) noexcept
@@ -1918,5 +1918,5 @@ void ui::PictureBox::Draw(sf::RenderWindow &screen, float delta) noexcept
 void ui::PictureBox::Update(bool resetMinSize) noexcept
 {
     sprite.setPosition(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL]);
-    sprite.setScale((float)globalSize[Direction::HORIZONTAL] / std::max(0u, originSize.width), (float)globalSize[Direction::VERTICAL] / std::max(0u, originSize.height));
+    sprite.setScale((float)globalSize[Direction::HORIZONTAL] / std::max(1u, originSize.width), (float)globalSize[Direction::VERTICAL] / std::max(1u, originSize.height));
 }
