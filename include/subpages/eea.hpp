@@ -134,6 +134,19 @@ protected:
     void Ready(ui::Screen *screen) noexcept;
 };
 
+class WriteMail : public PageBase {
+private:
+    ui::Button *backBtn = nullptr;
+    ui::InputBox *target = nullptr;
+    ui::InputBox *subject = nullptr;
+    ui::InputBox *inputB = nullptr;
+    ui::Button *sendBtn = nullptr;
+protected:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+
 }
 
 #endif

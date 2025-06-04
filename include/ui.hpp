@@ -1143,6 +1143,7 @@ public:
     void SetPressDownCallback(const Callback &function) noexcept { pressDownCallback = function; }
     void SetPressUpCallback(const Callback &function)   noexcept { pressUpCallback = function; }
     void SetClickCallback(const Callback &function)     noexcept { clickCallback = function; }
+    void CallClickCallback(const std::string &name, const sf::Event &event) const noexcept { clickCallback(name, event); }
     const std::string GetCaption() const noexcept { return label->GetContent(); }
     bool              GetEntered() const noexcept { return entered; }
     bool              GetPressed() const noexcept { return pressed; }
@@ -2207,6 +2208,7 @@ public:
         UpdateInQueue();
     }
     void SetTurnCallback(const Callback &function) noexcept { turnCallback = function; }
+    void CallTurnCallback(const std::string &name, const sf::Event &event) noexcept { turnCallback(name, event); }
     unsigned int GetCurrentPage() const noexcept { return currentPage; }
 
     /*******************************************

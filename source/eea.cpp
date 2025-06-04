@@ -587,7 +587,6 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
     {
         auto hor = new ui::HorizontalBox; {
             hor->AddTo(mar);
-            hor->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         }
         {
             auto ver = new ui::VerticalBox; {
@@ -604,7 +603,7 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                 }
                 {
                     backBtn = new ui::Button("返回主页");
-                    writeMailBtn = new ui::Button("写  信");
+                    writeMailBtn = new ui::Button("更多功能");
                     refreshBtn = new ui::Button("刷新");
                     for (auto btn : {backBtn, writeMailBtn, refreshBtn}) {
                         btn->AddTo(btnBox);
@@ -696,6 +695,8 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                 {
                     mailContent = new ui::Label; {
                         mailContent->AddTo(content);
+                        mailContent->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        mailContent->SetHSize(80);
                         mailContent->SetMaxCount(32);
                     }
                 }
@@ -711,6 +712,11 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
     });
 
     auto checkMail = [=, this](const std::string &name){
+        for (auto label : {subject, sender, receiver, dateTime, state, mailContent}) {
+            label->SetContent("");
+        }
+        mailContent->SetContent("加载中...");
+
         Listen(new trm::Sender({trm::rqs::GET_MESSAGE, username, password, name}), SD_CALLBACK{
             if (reply[0] == trm::rpl::TIME_OUT) {
                 ;
@@ -725,6 +731,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
                 if (con.read) state->SetContent("已读");
                 else state->SetContent("未读");
                 mailContent->SetContent(con.content);
+                turner->CallTurnCallback("", {});
             }
         });
     };
@@ -814,7 +821,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
                 loading->Hide();
                 list->Show();
                 turnable = true;
-                refreshMsgbox({}, {});
+                refreshMsgbox("", {});
             }
         });
     };
@@ -822,11 +829,187 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
     refreshBtn->SetClickCallback(UI_CALLBACK{
         refreshList();
     });
+
+    writeMailBtn->SetClickCallback(UI_CALLBACK{
+        screen->HideAll();
+        auto cli = MessageBox(screen, "更多功能：", {"写信", "清空我的信件", "重置邮件系统", "返回上一级"});
+        if (cli == 0) {
+            SwitchTo(new WriteMail);
+        } else if (cli == 1) {
+            ; // TODO
+        } else if (cli == 2) {
+            ; // TODO
+        } else if (cli == 3) {
+            screen->FreeAllVisible();
+            screen->ShowAll();
+        } else {
+            assert(false); // Impossible case.
+        }
+    });
 }
 
 void eea::EnterMailSystem::Ready(ui::Screen *screen) noexcept
 {
     refreshList();
+}
+
+void eea::WriteMail::Load(ui::Screen *screen) noexcept
+{
+    auto mar = new ui::Margin; {
+        mar->AddTo(screen);
+        mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        mar->SetMargin(80, 80, 200, 200);
+    }
+    {
+        auto hor = new ui::HorizontalBox; {
+            hor->AddTo(mar);
+            hor->SetGap(80);
+        }
+        {
+            backBtn = new ui::Button("返回上一级"); {
+                backBtn->AddTo(hor);
+                backBtn->SetVPreset(ui::Control::Preset::PLACE_AT_FRONT);
+            }
+            auto mainBox = new ui::VerticalBox; {
+                mainBox->AddTo(hor);
+                mainBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            }
+            {
+                auto tarB = new ui::HorizontalBox;
+                {
+                    tarB->Add(new ui::Label("收件人：", ui::Control::Preset::WRAP_AT_CENTER));
+                    target = new ui::InputBox; {
+                        target->AddTo(tarB);
+                        target->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    }
+                }
+                auto subB = new ui::HorizontalBox;
+                {
+                    subB->Add(new ui::Label("主  题：", ui::Control::Preset::WRAP_AT_CENTER));
+                    subject = new ui::InputBox; {
+                        subject->AddTo(subB);
+                        subject->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    }
+                }
+                for (auto b : {tarB, subB}) {
+                    b->AddTo(mainBox);
+                    b->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    b->SetHSize(80);
+                    b->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    b->SetGap(50);
+                }
+                inputB = new ui::InputBox; {
+                    inputB->AddTo(mainBox);
+                    inputB->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    inputB->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    inputB->SetMaxCount(32);
+                }
+            }
+            sendBtn = new ui::Button("确定发送"); {
+                sendBtn->AddTo(hor);
+                sendBtn->SetVPreset(ui::Control::Preset::PLACE_AT_END);
+            }
+        }
+    }
+}
+
+void eea::WriteMail::Logic(ui::Screen *screen) noexcept
+{
+    backBtn->SetClickCallback(UI_CALLBACK{
+        screen->HideAll();
+        auto cli = MessageBox(screen, "您将丢弃当前编辑的内容，继续返回吗？", {"确定", "取消"});
+        if (cli == 0) {
+            SwitchTo(new EnterMailSystem);
+        } else if (cli == 1) {
+            screen->FreeAllVisible();
+            screen->ShowAll();
+        } else {
+            assert(false); // Impossible case.
+        }
+    });
+
+    auto sendMail = [=, this](){
+        screen->HideAll();
+        auto [success, reply] = WaitServer(screen, {trm::rqs::SEND_MESSAGE, username, password, target->GetText(), subject->GetText(), inputB->GetText()}, "发送中");
+        screen->FreeAllVisible();
+        screen->ShowAll();
+        if (success == 1) {
+            if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                screen->HideAll();
+                MessageBox(screen, "对不起，您没有权限发送邮件。\n您只有接收和查看您的信件的权限。");
+                screen->FreeAllVisible();
+                screen->ShowAll();
+            } else if (reply[0] == trm::rpl::SUCC) {
+                screen->HideAll();
+                auto cli = MessageBox(screen, "发送成功", {"返回私信系统主页", "再编辑一封"});
+                if (cli == 0) {
+                    SwitchTo(new EnterMailSystem);
+                } else if (cli == 1) {
+                    SwitchTo(new WriteMail);
+                } else {
+                    assert(false); // Impossible case.
+                }
+            } else if (reply[0] == trm::rpl::FAIL) {
+                screen->HideAll();
+                MessageBox(screen, "发送失败！\n可能收件人帐户不存在");
+                screen->FreeAllVisible();
+                screen->ShowAll();
+            } else {
+                assert(false); // Unexpected reply.
+            }
+        } else if (success == 0) {
+            screen->HideAll();
+            MessageBox(screen, "服务端未响应，请检查后重试。");
+            screen->FreeAllVisible();
+            screen->ShowAll();
+        }
+    };
+
+    sendBtn->SetClickCallback(UI_CALLBACK{
+        if (target->GetText() == "" || subject->GetText() == "" || inputB->GetText() == "") {
+            screen->HideAll();
+            MessageBox(screen, "请填写完整表单！");
+            screen->FreeAllVisible();
+            screen->ShowAll();
+            return;
+        }
+        screen->HideAll();
+        auto cli = MessageBox(screen, "请检查收件人：\n" + target->GetText() + "\n确定发送吗？", {"确定", "取消"});
+        if (cli == 0) {
+            screen->FreeAllVisible();
+            screen->ShowAll();
+            sendMail();
+        } else if (cli == 1) {
+            screen->FreeAllVisible();
+            screen->ShowAll();
+        } else {
+            assert(false); // Impossible case.
+        }
+    });
+}
+
+void eea::WriteMail::Ready(ui::Screen *screen) noexcept
+{
+    screen->HideAll();
+    auto [success, reply] = WaitServer(screen, {trm::rqs::CHECK_ACCESS, username, password, trm::AccessBox{trm::Access::SEND_MESSAGE}}, "正在检查权限");
+    screen->FreeAllVisible();
+    screen->ShowAll();
+    if (success == 1) {
+        if (reply[0] == trm::rpl::YES) {
+            ;
+        } else if (reply[0] == trm::rpl::NO) {
+            screen->HideAll();
+            MessageBox(screen, "对不起，您没有权限发送邮件。\n您只有接收和查看您的信件的权限。");
+            SwitchTo(new EnterMailSystem);
+        } else {
+            assert(false); // Unexpected reply.
+        }
+    } else if (success == 0) {
+        screen->HideAll();
+        MessageBox(screen, "服务端未响应，请检查后重试。");
+        screen->FreeAllVisible();
+        screen->ShowAll();
+    }
 }
 
 void eea::MainPage::Load(ui::Screen *screen) noexcept
@@ -839,7 +1022,6 @@ void eea::MainPage::Load(ui::Screen *screen) noexcept
     {
         auto ver = new ui::VerticalBox; {
             ver->AddTo(margin);
-            ver->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         }
         {
             auto flat = new ui::Flat; {
