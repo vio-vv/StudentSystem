@@ -100,6 +100,8 @@ int main() noexcept
                 REGISTER(trm::rqs::ADM_ADD_RESERVE_TIME, ssys.AdmAddReserveTime)
                 REGISTER(trm::rqs::ADM_DELETE_RESERVE_TIME, ssys.AdmDeleteReserveTime)
                 REGISTER(trm::rqs::ADM_MODIFY_RESERVE_NUMBER, ssys.AdmModifyReserveNumber)
+                REGISTER(trm::rqs::ADM_MODIFY_RESERVE_STATUS, ssys.AdmModifyReserveStatus)
+                REGISTER(trm::rqs::ADM_SEARCH_RESERVE, ssys.AdmSearchReserve)
                 /**********************************
                  * @attention VIO_VV 请在此处添加。*
                  * ********************************

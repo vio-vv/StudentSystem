@@ -422,8 +422,6 @@ namespace rqs{
     */
     const std::string CHECK_RESERVE_STATUS_LIST = _AS_"CHECK_RESERVE_STATUS_LIST"; 
 
-   //预约状态的改变还没想好具体怎么写,可能会包装一个结构体还是枚举什么的自动对应状态 
-
     /**
      * @brief 管理员增加可预约时间
      * @param code 学工号
@@ -462,10 +460,27 @@ namespace rqs{
     /**
      * @brief 管理员修改可预约状态
      * @param code 学工号
-     * 
+     * @param password 密码 
+     * @param id 身份证号
+     * @param phone 手机号
+     * @param date 日期 @see @struct Date
+     * @param time 时间
+     * @return SUCC or FAIL 或者 ACCESS_DENIED
+     * @retval FAIL NO_MATCH_RESERVE 待修改的预约不存在
+     * @note ACCESS REQUIRED ADM_MODIFY_RESERVE_STATUS
      */
-    //todo
-
+    const std::string ADM_MODIFY_RESERVE_STATUS = _AS_"ADM_MODIFY_RESERVE_STATUS";
+    /**
+     * @brief 管理员查找特定预约 
+     * @param code 学工号
+     * @param password 密码
+     * @param date 日期 @see @struct Date
+     * @param time 时间
+     * @return SUCC or FAIL 或者 ACCESS_DENIED
+     * @retval FAIL NO_MATCH_RESERVE 待查找的预约不存在
+     * @note ACCESS REQUIRED ADM_SEARCH_RESERVE
+     */
+    const std::string ADM_SEARCH_RESERVE = _AS_"ADM_SEARCH_RESERVE";
 #pragma endregion
 
 #pragma region 通知与公示系统
@@ -689,6 +704,7 @@ enum Access{
     ADM_DELETE_RESERVE_TIME, // 管理员删除可预约时间
     ADM_MODIFTY_RESERVE_NUMBER, // 管理员修改可预约数量
     ADM_MODIFY_RESERVE_STATUS, // 管理员修改预约状态
+    ADM_SEARCH_RESERVE, // 管理员查找特定预约
 
     BOOK_MANAGE,
     BORROW_BOOK,

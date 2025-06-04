@@ -27,6 +27,8 @@ public:
     trm::Information AdmAddReserveTime(const trm::Information& infomation) noexcept;
     trm::Information AdmDeleteReserveTime(const trm::Information& infomation) noexcept;
     trm::Information AdmModifyReserveNumber(const trm::Information& infomation) noexcept;
+    trm::Information AdmModifyReserveStatus(const trm::Information& infomation) noexcept;
+    trm::Information AdmSearchReserve(const trm::Information& information) noexcept;
 protected:
     ReserveSystem() noexcept;
     ~ReserveSystem() noexcept;
