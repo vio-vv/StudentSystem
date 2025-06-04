@@ -522,16 +522,32 @@ trm::Notice::Notice(const std::string &content) noexcept
     };
 }
 
-std::vector<std::string> trm::Notice::GetParagraphs() const noexcept
-{
-    std::string paragraph = "";
-    std::vector<std::string> paragraphs;
-    for (auto c : content) {
-        if (c == '\n') {
-            paragraphs.emplace_back(paragraph);
-            paragraph = "";
-        }
-        else paragraph += c;
+std::string trm::Notice::GetTitle() const noexcept
+{   
+    std::string ret; 
+    if (title.size() <= 15) {
+        return title;
     }
-    return paragraphs;
+    else {
+        ret = title.substr(0, 15) + "...";
+        return ret;
+    }
+}
+
+std::string trm::Notice::GetHeadlineTitle() const noexcept
+{
+    int len = title.size();
+    std::string ret;
+    if (title.size() <= 18) {
+        return title;
+    }
+    else if (title.size() <= 36) {
+        ret = title.substr(0, 18) + '\n';
+        ret += title.substr(18, len - 18);
+    }
+    else {
+        ret = title.substr(0, 18) + '\n';
+        ret += title.substr(18, 18) + "...";
+    }
+    return ret;
 }

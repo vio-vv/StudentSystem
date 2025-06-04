@@ -512,7 +512,7 @@ namespace rqs{
     const std::string GET_NOLIFY = _AS_"GET_NOLIFY";
     /**
      * @brief 获取通知数量。
-     * @param nolifyType 通知类型 @see @struct Nolify
+     * @param nolifyType 通知类型,可以为多个，且按顺序返回 @see @struct Nolify
      * @return ull 通知数量
      */
     const std::string GET_NOLIFY_NUMBER = _AS_"GET_NOLIFY_NUMBER";
@@ -790,7 +790,8 @@ struct Notice {
     Notice(const std::string &_title, const std::string &_content, const Date &_date = Date()) noexcept : title(_title), content(_content), date(_date) {}
     operator std::string() const noexcept;
     Notice(const std::string &content) noexcept;
-    std::vector<std::string> GetParagraphs() const noexcept;
+    std::string GetTitle() const noexcept;
+    std::string GetHeadlineTitle() const noexcept;
 
     static std::vector<std::string> patition;
 };

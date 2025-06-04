@@ -14,7 +14,7 @@ std::string clpg::PageBase::rtime="";
 trm::CourseInformation clpg::PageBase::courseinfo;
 std::string clpg::PageBase::rnum = "";
 
-trm::Notice clpg::PageBase::selectedNotice = {"", ""};
+unsigned long long clpg::PageBase::selectedNoticeNum = 0;
 
 clpg::PageBase::PageBase()
 {

@@ -44,6 +44,15 @@ protected:
     void Ready(ui::Screen *screen) noexcept;
 };
 
+class BookPartitions : public EnterLibrary {
+private:
+    ui::Button *backBtn = nullptr;
+protected:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+};
+
 class BookList : public EnterLibrary {
 private:
     bool isClicked = false;
@@ -120,8 +129,7 @@ private:
     std::string bookAuthor = "";
     std::string bookNum = "";
     std::string opt = "";
-    
-    //rightBox{
+    //rightBox
     ui::Label *catergoryLabel = nullptr;
     ui::Label *storePosition = nullptr;
     ui::Label *numLimitTip = nullptr;
@@ -132,15 +140,14 @@ private:
     ui::VerticalScrollingBox *detailBox = nullptr;
     ui::Flat *rtFootFlat = nullptr;
     ui::Button *confirmBtn = nullptr;
-        ui::Button *room302Btn = nullptr;
-        ui::Button *room303Btn = nullptr;
-        ui::Button *room401Btn = nullptr;
-        ui::Button *room402Btn = nullptr;
-        ui::Button *room403Btn = nullptr;
-        ui::Button *room621Btn = nullptr;
-    //}
-    //leftBox{
+    ui::Button *room302Btn = nullptr;
+    ui::Button *room303Btn = nullptr;
+    ui::Button *room401Btn = nullptr;
+    ui::Button *room402Btn = nullptr;
+    ui::Button *room403Btn = nullptr;
+    ui::Button *room621Btn = nullptr;
     ui::Button *backBtn = nullptr;
+    //leftBox
     ui::Button *restoreBookBtn = nullptr;
     ui::Button *modifyBookBtn = nullptr;
     ui::Button *removeBookBtn = nullptr;
@@ -153,22 +160,22 @@ private:
     ui::Button *lastBtn = nullptr;
     ui::Label *pageLabel = nullptr;
     ui::LoadingRing *bookListLoading = nullptr;
-    //}
 
     std::function<void()> reSetCatergoryBox = [](){};
 
+    std::vector<std::string> CheckInput() const noexcept;
+    bool CheckBookDate() const noexcept;
+protected:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+public:
     static std::vector<std::string> room302;
     static std::vector<std::string> room303;
     static std::vector<std::string> room401;
     static std::vector<std::string> room402;
     static std::vector<std::string> room403;
     static std::vector<std::string> room621;
-
-    std::vector<std::string> CheckInput() const noexcept;
-protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
 };
 
 class BookDetail : public EnterLibrary {
@@ -205,6 +212,7 @@ private:
     std::string contentInput = "";
     std::string nolifyTitle = "";
     std::string nolifyContent = "";
+    trm::Notice selectedNotice = {"", ""};
 
     ui::Button *opt = nullptr;
     ui::Button *partitionOpt = nullptr;
@@ -236,11 +244,46 @@ protected:
 
 class ViewNolify : public PageBase {
 private:
+    int len = 0;
+    std::string type = "";
+    std::string from = "";
+    ui::Button *backBtn = nullptr;
+    ui::VerticalBox *bodyBox = nullptr;
+    ui::Label *titleLabel = nullptr;
+    ui::Label *contentLabel = nullptr;
+    trm::Notice notice = {"", ""};
+protected:
+    void Load(ui::Screen *screen) noexcept;
+    void Logic(ui::Screen *screen) noexcept;
+    void Ready(ui::Screen *screen) noexcept;
+public:
+    ViewNolify(const int &_len, const std::string &_type, const std::string &_from) noexcept : len(_len), type(_type), from(_from) {}
+};
+
+class ViewNolifyList : public PageBase {
+private:
+    bool isChaged = true;
+    int page = 1;
+    int totPage = 1;
+    int len = 0;
+
+    std::string type = "";
+    std::string from = "";
+    ui::Button *backBtn = nullptr;
+    ui::VerticalScrollingBox * listDetailBox = nullptr;
+    ui::Button *lastBtn = nullptr;
+    ui::Button *nextBtn = nullptr;
+    ui::Label *pageLbl = nullptr;
+
+    std::vector<trm::Notice> nolifyList;
+    std::function<void()> getNolifyList = [](){};
 
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
     void Ready(ui::Screen *screen) noexcept;
+public:
+    ViewNolifyList(const int &_len, const std::string &_type, const std::string &_from) noexcept : len(_len), type(_type), from(_from) {}
 };
 
 }

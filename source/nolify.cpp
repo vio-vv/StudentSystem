@@ -29,7 +29,14 @@ trm::Information ssys::Nolify::GetNolifyNumber(const trm::Information &content) 
 {
     assert(content[0] == trm::rqs::GET_NOLIFY_NUMBER);
 
-    return {ToStr(nolify[content[1]].Size())};
+    trm::Information result;
+    int len = content.size();
+    for (int i = 1; i < len; ++i) {
+        std::string partition = content[i];
+        result.emplace_back(ToStr(nolify[partition].Size()));
+    }
+
+    return {result};
 }
 
 trm::Information ssys::Nolify::GetNolifyTitle(const trm::Information &content) noexcept

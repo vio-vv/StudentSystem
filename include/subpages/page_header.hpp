@@ -40,6 +40,7 @@ protected:
     static trm::Notice selectedNotice;
     static trm::CourseInformation courseinfo;
     static std::string rnum;
+    static unsigned long long selectedNoticeNum;
 
     static trm::Information argvs;
     

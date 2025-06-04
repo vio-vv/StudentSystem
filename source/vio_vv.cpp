@@ -170,6 +170,10 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
         SwitchTo(new BorrowManage);
     });
 
+    basicNolifyBtn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new BookPartitions);
+    });
+
     resetLibraryBtn->SetClickCallback(UI_CALLBACK{
         screen->HideAll();
         int ret = MessageBox(screen, "确认重置图书馆？", {"确认", "取消"});
@@ -300,6 +304,179 @@ void vio::EnterLibrary::Ready(ui::Screen *screen) noexcept
             resetLibraryBtn->SetVisible(true);
         }
     }
+}
+
+void vio::BookPartitions::Load(ui::Screen *screen) noexcept
+{
+    ui::Margin *mar = new ui::Margin;{
+        mar->AddTo(screen);
+        mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        mar->SetMargin(100, 100, 200, 200);
+    }
+    {
+        ui::VerticalBox *wholeBox = new ui::VerticalBox;{
+            wholeBox->AddTo(mar);
+            wholeBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        }
+        {
+            backBtn = new ui::Button;{
+                backBtn->AddTo(wholeBox);
+                backBtn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backBtn->SetFontSize(50);
+                backBtn->SetCaption("←返回");
+            }
+            ui::VerticalScrollingBox *scrollBox = new ui::VerticalScrollingBox;{
+                scrollBox->AddTo(wholeBox);
+                scrollBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                scrollBox->SetInsideBoxScrollable(true);
+            }
+            {
+                ui::HorizontalBox *topBox = new ui::HorizontalBox;{
+                    topBox->AddTo(scrollBox);
+                    topBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    topBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                }
+                {
+                    ui::HorizontalBox *hor = new ui::HorizontalBox;{
+                        hor->AddTo(topBox);
+                        hor->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        hor->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    }
+                    {
+                        ui::Label *label = new ui::Label;{
+                            label->AddTo(hor);
+                            label->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                            label->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                            label->SetFontSize(50);
+                            label->SetContent("图书分区");
+                        }
+                    }
+                    hor = new ui::HorizontalBox;{
+                        hor->AddTo(topBox);
+                        hor->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        hor->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    }
+                    {
+                        ui::Label *label = new ui::Label;{
+                            label->AddTo(hor);
+                            label->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                            label->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                            label->SetFontSize(50);
+                            label->SetContent("藏书种类");
+                        }
+                    }
+                }
+                for (auto room : {"302", "303", "401", "402", "403", "621"}) {
+                    std::string roomName = std::string("图书馆") + room;
+                    std::string catagory = "";
+                    if (room == std::string("302")) {
+                        for (unsigned long long i = 0; i < vio::BookManage::room302.size(); ++i) {
+                            if (i != vio::BookManage::room302.size() - 1) {
+                                catagory += vio::BookManage::room302[i] + ",";
+                                if (i % 2) catagory += "\n";
+                            }
+                            else catagory += vio::BookManage::room302[i];
+                        }
+                    }
+                    else if (room == std::string("303")) {
+                        for (unsigned long long i = 0; i < vio::BookManage::room303.size(); ++i) {
+                            if (i != vio::BookManage::room303.size() - 1) {
+                                catagory += vio::BookManage::room303[i] + ",";
+                                if (i % 2) catagory += "\n";
+                            }
+                            else catagory += vio::BookManage::room303[i];
+                        }
+                    }
+                    else if (room == std::string("401")) {
+                        for (unsigned long long i = 0; i < vio::BookManage::room401.size(); ++i) {
+                            if (i != vio::BookManage::room401.size() - 1) {
+                                catagory += vio::BookManage::room401[i] + ",";
+                                if (i % 2) catagory += "\n";
+                            }
+                            else catagory += vio::BookManage::room401[i];
+                        }
+                    }
+                    else if (room == std::string("402")) {
+                        for (unsigned long long i = 0; i < vio::BookManage::room402.size(); ++i) {
+                            if (i != vio::BookManage::room402.size() - 1) {
+                                catagory += vio::BookManage::room402[i] + ",";
+                                if (i % 2) catagory += "\n";
+                            }
+                            else catagory += vio::BookManage::room402[i];
+
+                        }
+                    }
+                    else if (room == std::string("403")) {
+                        for (unsigned long long i = 0; i < vio::BookManage::room403.size(); ++i) {
+                            if (i != vio::BookManage::room403.size() - 1) {
+                                catagory += vio::BookManage::room403[i] + ",";
+                                if (i % 2) catagory += "\n";
+                            }
+                            else catagory += vio::BookManage::room403[i];
+                        }
+                    }
+                    else if (room == std::string("621")) {
+                        for (unsigned long long i = 0; i < vio::BookManage::room621.size(); ++i) {
+                            if (i != vio::BookManage::room621.size() - 1) {
+                                catagory += vio::BookManage::room621[i] + ",";
+                                if (i % 2) catagory += "\n";
+                            }
+                            else catagory += vio::BookManage::room621[i];
+                        }
+                    }
+
+                    topBox = new ui::HorizontalBox;{
+                        topBox->AddTo(scrollBox);
+                        topBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        topBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    }
+                    {
+                        ui::HorizontalBox *hor = new ui::HorizontalBox;{
+                            hor->AddTo(topBox);
+                            hor->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                            hor->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        }
+                        {
+                            ui::Label *label = new ui::Label;{
+                                label->AddTo(hor);
+                                label->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                                label->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                                label->SetFontSize(40);
+                                label->SetContent(roomName);
+                            }
+                        }
+                        hor = new ui::HorizontalBox;{
+                            hor->AddTo(topBox);
+                            hor->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            hor->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        }
+                        {
+                            ui::Label *label = new ui::Label;{
+                                label->AddTo(hor);
+                                label->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                                label->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                                label->SetFontSize(40);
+                                label->SetContent(catagory);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void vio::BookPartitions::Logic(ui::Screen *screen) noexcept
+{
+    backBtn->SetClickCallback(UI_CALLBACK{
+        SwitchTo(new EnterLibrary);
+    });
+}
+
+void vio::BookPartitions::Ready(ui::Screen *screen) noexcept
+{
+    ;
 }
 
 void vio::BookList::Load(ui::Screen *screen) noexcept
@@ -1086,8 +1263,8 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
     };
 
     lastBtn->SetClickCallback(UI_CALLBACK{
-        lastBtn->Disable();
-        nextBtn->Disable();
+        lastBtn->Enable();
+        nextBtn->Enable();
         if (page > 1) page--;
         resetBorrowList();
         pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
@@ -1096,8 +1273,8 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
     });
 
     nextBtn->SetClickCallback(UI_CALLBACK{
-        lastBtn->Disable();
-        nextBtn->Disable();
+        lastBtn->Enable();
+        nextBtn->Enable();
         if (page < totPage) page++;
         resetBorrowList();
         pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
@@ -1648,7 +1825,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 bookpublishDateLimitTip->SetHSize(300);
                 bookpublishDateLimitTip->SetFontSize(35);
                 bookpublishDateLimitTip->SetFontColor(sf::Color::Red);
-                bookpublishDateLimitTip->SetContent("出版日期的输入形式需为yyyy-mm-dd");
+                bookpublishDateLimitTip->SetContent("需要输入合法日期，同时满足xxxx-xx-xx格式");
                 bookpublishDateLimitTip->SetVisible(false);
             }
         }
@@ -2012,8 +2189,8 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 lastBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 if(page == 1) lastBtn->Disable();
                 lastBtn->SetClickCallback(UI_CALLBACK{
-                    nextBtn->Disable();
-                    lastBtn->Disable();
+                    nextBtn->Enable();
+                    lastBtn->Enable();
                     if (page > 1) {
                         page--;
                         resetLeftDetail();
@@ -2039,8 +2216,8 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 nextBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 if (page == totPage) nextBtn->Disable();
                 nextBtn->SetClickCallback(UI_CALLBACK{
-                    lastBtn->Disable();
-                    nextBtn->Disable();
+                    lastBtn->Enable();
+                    nextBtn->Enable();
                     if (page < totPage) {
                         page++;
                         resetLeftDetail();
@@ -2363,6 +2540,7 @@ std::vector<std::string> vio::BookManage::CheckInput() const noexcept
                     break;
                 }
             }
+            if (!CheckBookDate()) invalid.emplace_back("date");
         }
     }
     if (opt == "删除图书" || opt == "新增图书") {
@@ -2377,9 +2555,52 @@ std::vector<std::string> vio::BookManage::CheckInput() const noexcept
         }
         else if (opt != "删除图书") invalid.emplace_back("num");
     }
-
     return invalid;
 }
+
+bool vio::BookManage::CheckBookDate() const noexcept
+{
+    std::string _date = selectedBook.bookPublicationDate;
+    std::string _year = _date.substr(0, 4);
+    std::string _month = _date.substr(5, 2);
+    std::string _day = _date.substr(8, 2);
+
+    int year = ToNum<int>(_year);
+    int month = ToNum<int>(_month);
+    int day = ToNum<int>(_day);
+
+    time_t now = time(nullptr);
+    tm* timeinfo = new tm;
+    localtime_s(timeinfo, &now);
+
+    if (year > timeinfo->tm_year + 1900) {
+        return false;  
+    }
+    else if (year == timeinfo->tm_year + 1900 && month > timeinfo->tm_mon + 1) {
+        return false;
+    }
+    else if (year == timeinfo->tm_year + 1900 && month == timeinfo->tm_mon + 1 && day > timeinfo->tm_mday) {
+        return false;
+    }
+
+    if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+        if (day > 31 || day < 1) return false;
+    }
+    else if (month == 4 || month == 6 || month == 9 || month == 11) {
+        if (day > 30 || day < 1) return false;
+    }
+    else if (month == 2) {
+        if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
+            if (day > 29 || day < 1) return false;
+        }
+        else {
+            if (day > 28 || day < 1) return false;
+        }
+    }
+    else return false;
+    return true;
+}
+
 
 void vio::EnterNolify::Load(ui::Screen *screen) noexcept
 {
@@ -2397,7 +2618,7 @@ void vio::EnterNolify::Load(ui::Screen *screen) noexcept
         {
             backBtn = new ui::Button;{
                 backBtn->AddTo(wholeBox);
-                backBtn->SetCaption("返回");
+                backBtn->SetCaption("←返回");
                 backBtn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
                 backBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
                 backBtn->SetFontSize(40);
@@ -2698,7 +2919,35 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
                         btn->SetFontSize(40);
                         btn->SetClickCallback(UI_CALLBACK{
                             selectedNotice = notices[i];
-                            SwitchTo(new ViewNolify());
+                            screen->HideAll();
+                            auto[success, reply] = WaitServer(screen, {trm::rqs::GET_NOLIFY, ToStr((page - 1) * 10 + i), type}, "等待服务端响应");
+                            screen->FreeAllVisible();
+                            if (success == 1) {
+                                if (reply.empty()) assert(false);
+                                else if (reply[0] == trm::rpl::TIME_OUT) {
+                                    int timeoutret = MessageBox(screen, "连接超时，请重试", {"确认"});
+                                    if (timeoutret == 0) {
+                                        screen->FreeAllVisible();
+                                        screen->ShowAll();
+                                    }
+                                }
+                                else {
+                                    selectedNotice = reply[0];
+                                    std::string content = "标题：\n" + selectedNotice.title + "\n\n" + "内容：\n" + selectedNotice.content + "\n\n";
+                                    int ret = MessageBox(screen, content, {"返回"});
+                                    if (ret == 0) {
+                                        screen->FreeAllVisible();
+                                        screen->ShowAll();
+                                    }
+                                }
+                            }
+                            else {
+                                int ret = MessageBox(screen, "获取通知失败", {"确认"});
+                                if (ret == 0) {
+                                    screen->FreeAllVisible();
+                                    screen->ShowAll();
+                                }
+                            }
                         });
                     }
                     btn = new ui::Button;{
@@ -2876,15 +3125,244 @@ void vio::EnterNolify::Ready(ui::Screen *screen) noexcept
 
 void vio::ViewNolify::Load(ui::Screen *screen) noexcept
 {
-    ;
+    ui::Margin *mar = new ui::Margin;{
+        mar->AddTo(screen);
+        mar->SetMargin(150, 150, 320, 320);
+        mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+    }
+    {
+        bodyBox = new ui::VerticalBox;{
+            bodyBox->AddTo(mar);
+            bodyBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            bodyBox->SetGap(10);
+        }
+        {
+            backBtn = new ui::Button;{
+                backBtn->AddTo(bodyBox);
+                backBtn->SetCaption("←返回");
+                backBtn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            }
+            ui::Label *lbl = new ui::Label;{
+                lbl->AddTo(bodyBox);
+                lbl->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                lbl->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                lbl->SetContent("通知详情");
+            }
+            ui::VerticalScrollingBox *noticeBox = new ui::VerticalScrollingBox;{
+                noticeBox->AddTo(bodyBox);
+                noticeBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                noticeBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                noticeBox->SetInsideBoxScrollable(true);
+                noticeBox->SetBarSize(20);
+            }
+            {
+                titleLabel = new ui::Label;{
+                    titleLabel->AddTo(noticeBox);
+                    titleLabel->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    titleLabel->SetVSize(80);
+                }
+                contentLabel = new ui::Label;{
+                    contentLabel->AddTo(noticeBox);
+                    contentLabel->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    contentLabel->SetFontSize(35);
+                }
+            }
+        }
+    }
 }
 
 void vio::ViewNolify::Logic(ui::Screen *screen) noexcept
 {
-    ;
+    backBtn->SetClickCallback(UI_CALLBACK{
+        if (from == "ViewNolifyList") SwitchTo(new vio::ViewNolifyList(len, type, std::string("ViewNolify")));
+        else SwitchTo(new eea::MainPage);
+    });
+
+    screen->HideAll();
+    ui::LoadingRing *loading = new ui::LoadingRing;{
+        loading->AddTo(bodyBox);
+        loading->SetPreset(ui::Control::Preset::PLACE_AT_CENTER);
+        loading->Start();
+    }
+    Listen(new trm::Sender({trm::rqs::GET_NOLIFY, ToStr(selectedNoticeNum), type}), SD_CALLBACK{
+        screen->FreeAllVisible();
+        if (reply.empty()) {
+            int ret = MessageBox(screen, "该通知不存在", {"确认"});
+            if (ret == 0) {
+                screen->FreeAllVisible();
+                SwitchTo(new eea::MainPage);
+            }
+        }
+        else if (reply[0] == trm::rpl::TIME_OUT) {
+            int ret = MessageBox(screen, "连接超时，请重试", {"确认"});
+            if (ret == 0) {
+                screen->FreeAllVisible();
+                SwitchTo(new eea::MainPage);
+            }
+        }
+        else {
+            loading->Hide();
+            screen->FreeAllVisible();
+            screen->ShowAll();
+            notice = reply[0];
+            titleLabel->SetContent(notice.title);
+            contentLabel->SetContent(notice.content);
+        }
+    });
 }
 
 void vio::ViewNolify::Ready(ui::Screen *screen) noexcept
 {
     ;
+}
+
+void vio::ViewNolifyList::Load(ui::Screen *screen) noexcept
+{
+    ui::Margin *mar = new ui::Margin;{
+        mar->AddTo(screen);
+        mar->SetMargin(150, 150, 200, 200);
+        mar->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+    }
+    {
+        ui::VerticalBox *bodyBox = new ui::VerticalBox;{
+            bodyBox->AddTo(mar);
+            bodyBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            bodyBox->SetGap(10);
+        }
+        {
+            backBtn = new ui::Button;{
+                backBtn->AddTo(bodyBox);
+                backBtn->SetCaption("←返回");
+                backBtn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                backBtn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            }
+            listDetailBox = new ui::VerticalScrollingBox;{
+                listDetailBox->AddTo(bodyBox);
+                listDetailBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                listDetailBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                listDetailBox->SetInsideBoxScrollable(true);
+            }
+            ui::HorizontalBox *pageBox = new ui::HorizontalBox;{
+                pageBox->AddTo(bodyBox);
+                pageBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                pageBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            }
+            {
+                lastBtn = new ui::Button;{
+                    lastBtn->AddTo(pageBox);
+                    lastBtn->SetCaption("上一页");
+                    lastBtn->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                    lastBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    lastBtn->SetFontSize(40);
+                }
+                pageLbl = new ui::Label;{
+                    pageLbl->AddTo(pageBox);
+                    pageLbl->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    pageLbl->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    pageLbl->SetContent(ToStr(page) + "/" + ToStr(totPage));
+                    pageLbl->SetFontSize(40);
+                }
+                nextBtn = new ui::Button;{
+                    nextBtn->AddTo(pageBox);
+                    nextBtn->SetCaption("下一页");
+                    nextBtn->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                    nextBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    nextBtn->SetFontSize(40);
+                }
+            }
+        }
+    }
+}
+
+void vio::ViewNolifyList::Logic(ui::Screen *screen) noexcept
+{
+    backBtn->SetClickCallback(UI_CALLBACK{ 
+        SwitchTo(new eea::MainPage);
+    });
+    
+    auto printListDetail = [=, this]() {
+        listDetailBox->FreeAll();
+        pageLbl->SetContent(ToStr(page) + "/" + ToStr(totPage));
+        if (len == 0) {
+            ui::Label *tip = new ui::Label;{
+                tip->AddTo(listDetailBox);
+                tip->SetPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                tip->SetContent("暂无通知");
+            }
+        }
+        for (unsigned long long i = 0; i < nolifyList.size(); ++i) {
+            ui::HorizontalBox *hBox = new ui::HorizontalBox;{
+                hBox->AddTo(listDetailBox);
+                hBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                hBox->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            }
+            {
+                ui::Button *btn = new ui::Button;{
+                    btn->AddTo(hBox);
+                    btn->SetCaption(nolifyList[i].title);
+                    btn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    btn->SetClickCallback(UI_CALLBACK{
+                        selectedNoticeNum = i + (page - 1) * 10;
+                        SwitchTo(new vio::ViewNolify(len, type, "ViewNolifyList"));
+                    });
+                }
+                ui::Label *dateLabel = new ui::Label;{
+                    dateLabel->AddTo(hBox);
+                    dateLabel->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                    dateLabel->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    dateLabel->SetContent(nolifyList[i].date.GetDate());
+                }
+            }
+        }
+    };
+
+    getNolifyList = [=, this]() {
+        Listen(new trm::Sender({trm::rqs::GET_NOLIFY_LIST, ToStr((page - 1) * 10), ToStr(page * 10), type}), SD_CALLBACK{
+            if (!reply.empty()) {
+                if (reply[0] == trm::rpl::TIME_OUT) {
+                    screen->HideAll();
+                    int ret = MessageBox(screen, "连接超时，请重试", {"确认"});
+                    if (ret == 0) {
+                        screen->FreeAllVisible();
+                        screen->ShowAll();
+                    }
+                }
+            }
+            nolifyList.clear();
+            for (auto &notice : reply) {
+                nolifyList.emplace_back(notice);
+            }
+            printListDetail();
+        });
+    };
+
+
+    lastBtn->SetClickCallback(UI_CALLBACK{
+        nextBtn->Enable();
+        if (page > 1) {
+            page--;
+        }
+        if (page == 1) lastBtn->Disable();
+        getNolifyList();
+    });
+
+    nextBtn->SetClickCallback(UI_CALLBACK{
+        lastBtn->Enable();
+        if (page < totPage) {
+            page++;
+        }
+        if (page == totPage) nextBtn->Disable();
+        getNolifyList();
+    });
+}
+
+void vio::ViewNolifyList::Ready(ui::Screen *screen) noexcept
+{
+    totPage = std::max((len + 9) / 10, 1);
+    page = 1;
+    if (page == 1) lastBtn->Disable();
+    if (page == totPage) nextBtn->Disable();
+    getNolifyList();
 }

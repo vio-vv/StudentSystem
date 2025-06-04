@@ -1110,6 +1110,49 @@ void eea::MainPage::Load(ui::Screen *screen) noexcept
                         btn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     }
                 }
+                verNolify = new ui::VerticalScrollingBox; {
+                    verNolify->AddTo(hor);
+                    verNolify->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    verNolify->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    verNolify->SetInsideBoxScrollable(true);
+                }
+                {
+                    headlineBox = new ui::HorizontalBox; {
+                        headlineBox->AddTo(verNolify);
+                        headlineBox->SetVSize(300);
+                        headlineBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    }
+                    {
+                        headlineBtn = new ui::Button; {
+                            headlineBtn->AddTo(headlineBox);
+                            headlineBtn->SetHSize(600);
+                            headlineBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        }
+                        headlineBtnBox = new ui::VerticalBox; {
+                            headlineBtnBox->AddTo(headlineBox);
+                            headlineBtnBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            headlineBtnBox->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                        }
+                    }
+                    auto nolifyFoot = new ui::HorizontalBox; {
+                        nolifyFoot->AddTo(verNolify);
+                        nolifyFoot->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        nolifyFoot->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        nolifyFoot->SetGap(300);
+                    }
+                    {
+                        newsBox = new ui::VerticalBox; {
+                            newsBox->AddTo(nolifyFoot);
+                            newsBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            newsBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        }
+                        noticeBox = new ui::VerticalBox; {
+                            noticeBox->AddTo(nolifyFoot);
+                            noticeBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                            noticeBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                        }
+                    }
+                }
             }
         }
     }
@@ -1141,11 +1184,292 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
     accBtn->SetClickCallback(UI_CALLBACK{
         SwitchTo(new EnterAccManage);
     });
+
+    auto printHeadline = [=, this]() -> void {
+        headlineBtn->SetVisible(true);
+        if (headlineList.empty()) {
+            auto label = new ui::Label("暂无通知"); {
+                label->AddTo(headlineBox);
+                label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                label->SetFontSize(50);
+            }
+            headlineBtn->SetVisible(false);
+            return;
+        }
+
+        for (unsigned long long i = headlineList.size() - 1; i >= 0; --i) {
+            auto btn = new ui::Button; {
+                btn->AddTo(headlineBtnBox);
+                btn->SetSize(1, 1);
+                btn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                btn->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                btn->SetClickCallback(UI_CALLBACK{
+                    headlineTurners[selected]->Enable();
+                    selected = headlineList.size() - 1 - i;
+                    headlineBtn->SetCaption(headlineList[headlineList.size() - 1 - selected].first.GetHeadlineTitle());
+                    headlineBtn->SetClickCallback(UI_CALLBACK{
+                        selectedNoticeNum = headlineList[headlineList.size() - 1 - selected].second;
+                        SwitchTo(new vio::ViewNolify(headlineNum, std::string("headline"), std::string("MainPage")));
+                    });
+                    headlineTurners[selected]->Disable();
+                });
+            }
+            headlineTurners.emplace_back(btn);
+            if (i == 0) break;
+        }
+        selected = 0;
+        headlineBtn->SetCaption(headlineList[headlineList.size() - 1 - selected].first.GetHeadlineTitle());
+        headlineBtn->SetClickCallback(UI_CALLBACK{
+        selectedNoticeNum = headlineList[headlineList.size() - 1 - selected].second;
+            SwitchTo(new vio::ViewNolify(headlineNum, std::string("headline"), std::string("MainPage")));
+        });
+        headlineTurners[0]->Disable();
+    };
+
+    auto printNews = [=, this]() -> void {
+        auto hor = new ui::HorizontalBox; {
+            hor->AddTo(newsBox);
+            hor->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            hor->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+        }
+        {
+            auto label = new ui::Label; {
+                label->AddTo(hor);
+                label->SetContent("新闻");
+                label->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                label->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                label->SetFontSize(30);
+            }
+            auto button = new ui::Button; {
+                button->AddTo(hor);
+                button->SetCaption("更多");
+                button->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                button->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                button->SetFontSize(30);
+                button->SetClickCallback(UI_CALLBACK{
+                    SwitchTo(new vio::ViewNolifyList(newsNum, std::string("news"), std::string("MainPage")));
+                });
+            }
+        }
+
+        if (newsList.empty()) {
+            auto label = new ui::Label("暂无新闻"); {
+                label->AddTo(newsBox);
+                label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                label->SetFontSize(30);
+            }
+            return;
+        }
+        for (unsigned long long i = newsList.size() - 1; i >= 0; --i) {
+            auto flat = new ui::HorizontalBox; {
+                flat->AddTo(newsBox);
+                flat->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                flat->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            }  
+            {
+                auto btn = new ui::Button; {
+                    btn->AddTo(flat);
+                    btn->SetCaption(newsList[i].first.GetTitle());
+                    btn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    btn->SetFontSize(25);
+                    btn->SetClickCallback(UI_CALLBACK{
+                        selectedNoticeNum = newsList[i].second;
+                        SwitchTo(new vio::ViewNolify(newsNum, std::string("news"), std::string("MainPage")));
+                    });
+                }
+                auto label = new ui::Label; {
+                    label->AddTo(flat);
+                    label->SetHPreset(ui::Control::Preset::PLACE_AT_END);
+                    label->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    label->SetFontSize(25);
+                    label->SetContent(newsList[i].first.date.GetDate());
+                }
+            }
+            if (i == 0) break;
+        }
+    };
+
+    auto printNotice = [=, this]() -> void {
+        auto hor = new ui::HorizontalBox; {
+            hor->AddTo(noticeBox);
+            hor->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            hor->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+        }
+        {
+            auto label = new ui::Label; {
+                label->AddTo(hor);
+                label->SetContent("通知");
+                label->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                label->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                label->SetFontSize(30);
+            }
+            auto button = new ui::Button; {
+                button->AddTo(hor);
+                button->SetCaption("更多");
+                button->SetHPreset(ui::Control::Preset::WRAP_AT_END);
+                button->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                button->SetFontSize(30);
+                button->SetClickCallback(UI_CALLBACK{
+                    SwitchTo(new vio::ViewNolifyList(noticeNum, std::string("notice"), std::string("MainPage")));
+                });
+            }
+        }
+
+        if (noticeList.empty()) {
+            auto label = new ui::Label("暂无通知"); {
+                label->AddTo(noticeBox);
+                label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                label->SetFontSize(30);
+            }
+            return;
+        }
+        for (unsigned long long i = noticeList.size() - 1; i >= 0; --i) {
+            auto flat = new ui::HorizontalBox; {
+                flat->AddTo(noticeBox);
+                flat->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                flat->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+            }  
+            {
+                auto btn = new ui::Button; {
+                    btn->AddTo(flat);
+                    btn->SetCaption(noticeList[i].first.GetTitle());
+                    btn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    btn->SetFontSize(25);
+                    btn->SetClickCallback(UI_CALLBACK{
+                        selectedNoticeNum = noticeList[i].second;
+                        SwitchTo(new vio::ViewNolify(noticeNum, std::string("notice"), std::string("MainPage")));
+                    });
+                }
+                auto label = new ui::Label; {
+                    label->AddTo(flat);
+                    label->SetHPreset(ui::Control::Preset::PLACE_AT_END);
+                    label->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                    label->SetFontSize(25);
+                    label->SetContent(noticeList[i].first.date.GetDate());
+                }
+            }
+            if (i == 0) break;
+        }
+    };
+
+    initialize = [=, this]() -> void {
+        for (std::string type : {"headline", "news", "notice"}) {
+            unsigned long long low, high;
+            if (type == "headline") {
+                if (headlineNum < 5) {
+                    low = 0;
+                    high = headlineNum;
+                }
+                else {
+                    low = headlineNum - 5;
+                    high = headlineNum;
+                }
+            }
+            else if (type == "news") {
+                if (newsNum < 5) {
+                    low = 0;
+                    high = newsNum;
+                }
+                else {
+                    low = newsNum - 5;
+                    high = newsNum;
+                }
+            }
+            else if (type == "notice") {
+                if (noticeNum < 5) {
+                    low = 0;
+                    high = noticeNum;
+                }
+                else {
+                    low = noticeNum - 5;
+                    high = noticeNum;
+                }
+            }
+            Listen(new trm::Sender({trm::rqs::GET_NOLIFY_LIST, ToStr(low), ToStr(high), type}), SD_CALLBACK{
+                if (!reply.empty() && reply[0] == trm::rpl::TIME_OUT) {
+                    ui::Label *label = new ui::Label("加载失败，请重试"); {
+                        label->AddTo(verNolify);
+                        label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    }
+                }
+                else {
+                    if (type == "headline") {
+                        for (unsigned long long p = 0; p < reply.size(); ++p) {
+                            headlineList.push_back({trm::Notice(reply[p]), low + p});
+                        }
+                        printHeadline();
+                    }
+                    else if (type == "news") {
+                        for (unsigned long long p = 0; p < reply.size(); ++p) {
+                            newsList.push_back({trm::Notice(reply[p]), low + p});
+                        }    
+                        printNews();
+                    }
+                    else if (type == "notice") {
+                        for (unsigned long long p = 0; p < reply.size(); ++p) {
+                            noticeList.push_back({trm::Notice(reply[p]), low + p});
+                        }
+                        printNotice();
+                    }
+                    else assert(false);
+                } 
+            });
+        }
+    };
+
+    getListLenth = [=, this]() -> void {
+        headlineList.clear();
+        newsList.clear();
+        noticeList.clear();
+
+        Listen(new trm::Sender({trm::rqs::GET_NOLIFY_NUMBER, trm::Notice::patition[0], trm::Notice::patition[1], trm::Notice::patition[2]}), SD_CALLBACK{
+            if (reply[0] == trm::rpl::TIME_OUT) {
+                ui::Label *label = new ui::Label("加载失败，请重试"); {
+                    label->AddTo(verNolify);
+                    label->SetPreset(ui::Control::Preset::PLACE_AT_CENTER);
+                }
+            }
+            else {
+                headlineNum = ToNum(reply[0]);
+                newsNum = ToNum(reply[1]);
+                noticeNum = ToNum(reply[2]);
+                initialize();
+            }
+        });
+    };
 }
 
+
 void eea::MainPage::Ready(ui::Screen *screen) noexcept
+{   
+    getListLenth();
+}
+
+void eea::MainPage::Tick(ui::Screen *screen) noexcept
 {
-    ;
+    interval = clock.getElapsedTime();
+    if (interval.asSeconds() >= 1) {
+        elapsed += interval;
+        clock.restart();
+    }
+
+    if (elapsed.asSeconds() > 5) {
+        elapsed = sf::Time::Zero;
+        if (headlineTurners.empty()) {
+            return;
+        }
+        headlineTurners[selected]->Enable();
+        ++selected;
+        selected %= headlineNum;
+        headlineBtn->SetCaption(headlineList[headlineList.size() - 1 - selected].first.GetHeadlineTitle());
+        headlineBtn->SetClickCallback(UI_CALLBACK{
+            selectedNoticeNum = headlineList[headlineList.size() - 1 - selected].second;
+            SwitchTo(new vio::ViewNolify(headlineNum, std::string("headline"), std::string("MainPage")));
+        });
+        headlineTurners[selected]->Disable();
+    }
 }
 
 void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
