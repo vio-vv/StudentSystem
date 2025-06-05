@@ -4,3 +4,7 @@
 【扩展】 Canteen
 【扩展】 AccSys 客户端 LIST-DETAIL 布局中 LIST 使用 PageTurner 组件实现翻页功能
 【扩展】 主题切换功能
+【更新】 更优秀的 ScrollingBox 组件
+【更新】 优化目前 ScrollingBox 组件的使用（一处）
+【扩展】 动态授撤权限、增删标签
+【更新】 PageTurner 应该能设置每页显示条数

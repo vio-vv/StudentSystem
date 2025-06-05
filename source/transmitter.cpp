@@ -4,6 +4,8 @@ std::string trm::Sender::link;
 std::string trm::Sender::self;
 std::string trm::Sender::selfAsSender;
 
+const std::string trm::Information::OUT_OF_RANGE = "";
+
 std::vector<std::string> trm::Notice::patition = {"headline", "news", "notice"};
 
 const trm::AccessInfo &trm::GetAccessInfo(Access access) noexcept

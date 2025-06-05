@@ -165,6 +165,7 @@ class Control;
          * @class 加载指示器类
          * @brief 显示加载交互的组件。
          * @note callBack 回调函数 event 参数失效。
+         * @note 注意设置 minSize 属性。
          */
         class LoadingRing;
     /**
@@ -1148,6 +1149,7 @@ public:
     bool              GetEntered() const noexcept { return entered; }
     bool              GetPressed() const noexcept { return pressed; }
     bool              GetError()   const noexcept { return label->GetError(); }
+    bool              GetEnabled() const noexcept { return enabled; }
 
     /*******************************************
      * @brief 约定的常量和数据类型以及外工具方法。*
@@ -2116,7 +2118,7 @@ protected:
 
 class PageTurner : public Control {
 public:
-    PageTurner(int deltaNum = 3) noexcept : deltaNum(std::max(0, deltaNum))
+    PageTurner(int deltaNum = 3) noexcept : DELTA_NUM(std::max(0, deltaNum))
     {
         auto turn = [this](const std::string &name, const sf::Event &event){
             if (!enabled) return;
@@ -2134,8 +2136,8 @@ public:
             btnBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
         }
         {
-            center = new Center *[deltaNum * 2 + 3];
-            center += deltaNum + 1;
+            center = new Center *[DELTA_NUM * 2 + 3];
+            center += DELTA_NUM + 1;
 
             auto label = new ui::Label;
             labels.push_back(label);
@@ -2145,14 +2147,14 @@ public:
             label = new ui::Label("...");
             labels.push_back(label);
             label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-            center[-deltaNum - 1] = new Center(label);
+            center[-DELTA_NUM - 1] = new Center(label);
 
             label = new ui::Label("...");
             labels.push_back(label);
             label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
-            center[deltaNum + 1]  = new Center(label);
+            center[DELTA_NUM + 1]  = new Center(label);
 
-            for (int i = -deltaNum; i <= deltaNum; ++i) {
+            for (int i = -DELTA_NUM; i <= DELTA_NUM; ++i) {
                 if (i != 0) {
                     auto btn = new Button;
                     buttons.push_back(btn);
@@ -2163,7 +2165,7 @@ public:
                 }
             }
 
-            for (int i = -deltaNum - 1; i <= deltaNum + 1; ++i) {
+            for (int i = -DELTA_NUM - 1; i <= DELTA_NUM + 1; ++i) {
                 auto c = center[i];
                 c->AddTo(btnBox);
                 c->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
@@ -2253,7 +2255,7 @@ protected:
      * @brief 封装的工具方法和属性。*
      * ****************************
      */
-    const int deltaNum;
+    const int DELTA_NUM;
 
     /******************************
      * @brief 封装的数据类型和常量。*

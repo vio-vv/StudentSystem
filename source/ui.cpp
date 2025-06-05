@@ -812,7 +812,7 @@ void ui::PageTurner::Update(bool resetMinSize) noexcept
         btnBox->SetVMinSize(singleHeight);
         gotoBox->SetVMinSize(singleHeight);
 
-        for (int i = -deltaNum - 1; i <= deltaNum + 1; ++i) {
+        for (int i = -DELTA_NUM - 1; i <= DELTA_NUM + 1; ++i) {
             auto c = center[i];
             c->SetHMinSize(singleWidth);
         }
@@ -832,7 +832,7 @@ void ui::PageTurner::Update(bool resetMinSize) noexcept
         input->SetFontSize(fontSize);
 
         labels[0]->SetContent(ToStr(currentPage));
-        for (int i = 0; i < deltaNum * 2; ++i) {
+        for (int i = 0; i < DELTA_NUM * 2; ++i) {
             auto con = currentPage + ToNum(buttons[i]->GetName());
             if (con < 1 || con > maxPage) {
                 buttons[i]->SetCaption("-");

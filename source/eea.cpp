@@ -164,10 +164,10 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
     backBtn->SetClickCallback(UI_CALLBACK{
         screen->HideAll();
         auto click = MessageBox(screen, "您将丢弃当前编辑的内容，继续返回吗？", {"确认", "取消"});
+        screen->FreeAllVisible();
         if (click == 0) {
             SwitchTo(new EnterAccManage);
         } else {
-            screen->FreeAllVisible();
             screen->ShowAll();
         }
     });
@@ -356,6 +356,7 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
         if (success == 1) {
             if (reply[0] == trm::rpl::SUCC) {
                 auto click = MessageBox(screen, "创建成功", {"返回帐户管理主页", "再新建一个"});
+                screen->FreeAllVisible();
                 if (click == 0) {
                     SwitchTo(new EnterAccManage);
                 } else if (click == 1) {
@@ -659,9 +660,10 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                     }
                 }
             }
-            auto mailDetail = new ui::VerticalBox; {
+            auto mailDetail = new ui::VerticalScrollingBox; {
                 mailDetail->AddTo(hor);
                 mailDetail->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                mailDetail->SetInsideBoxScrollable(true);
             }
             {
                 subject = new ui::Label; {
@@ -687,18 +689,11 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                         each->SetFontColor({199, 199, 199});
                     }
                 }
-                auto content = new ui::VerticalScrollingBox; {
-                    content->AddTo(mailDetail);
-                    content->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                    content->SetInsideBoxScrollable(true);
-                }
-                {
-                    mailContent = new ui::Label; {
-                        mailContent->AddTo(content);
-                        mailContent->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        mailContent->SetHSize(80);
-                        mailContent->SetMaxCount(32);
-                    }
+                mailContent = new ui::Label; {
+                    mailContent->AddTo(mailDetail);
+                    mailContent->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    mailContent->SetHSize(80);
+                    mailContent->SetMaxCount(32);
                 }
             }
         }
@@ -719,9 +714,9 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
 
         Listen(new trm::Sender({trm::rqs::GET_MESSAGE, username, password, name}), SD_CALLBACK{
             if (reply[0] == trm::rpl::TIME_OUT) {
-                ;
+                mailContent->SetContent("服务端未响应，请检查后重试");
             } else if (reply[0] == trm::rpl::FAIL) {
-                ;
+                mailContent->SetContent("拉取信件详细内容失败！\n可能信件不存在。");
             } else {
                 auto con = trm::MailContent(reply[0]);
                 subject->SetContent("主题：" + con.subject);
@@ -807,7 +802,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         Listen(new trm::Sender({trm::rqs::GET_MESSAGE_NUMBER, username, password}), SD_CALLBACK{
             if (reply[0] == trm::rpl::TIME_OUT) {
                 msgBox->Add(new ui::Center(
-                    new ui::Label("服务端未响应，请检查后重试。", ui::Control::Preset::WRAP_AT_CENTER), 
+                    new ui::Label("服务端未响应，请检查后重试", ui::Control::Preset::WRAP_AT_CENTER), 
                     ui::Control::Preset::FILL_FROM_CENTER)
                 );
                 turner->SetMaxPage(1);
@@ -830,17 +825,50 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         refreshList();
     });
 
+    auto clearOrReset = [=, this](bool clear){
+        auto sure = MessageBox(screen, clear ? "您确定要清空您的收件箱吗？" : "你正在进行一个危险操作！\n您将重置消息与站内信系统，这意味着清空系统内所有的帐户的邮件信息。\n确认吗？", {"确定", "取消"});
+        screen->FreeAllVisible();
+        if (sure == 0) {
+            auto [success, reply] = WaitServer(screen, {clear ? trm::rqs::CLEAR_MESSAGE : trm::rqs::RESET_MAIL_SYSTEM, username, password}, "正在与服务端通信");
+            screen->FreeAllVisible();
+            if (success == 1) {
+                if (reply[0] == trm::rpl::SUCC) {
+                    MessageBox(screen, (std::string)(clear ? "清空" : "重置") + "成功");
+                    SwitchTo(new EnterMailSystem);
+                } else if (reply[0] == trm::rpl::FAIL) {
+                    MessageBox(screen, (std::string)(clear ? "清空" : "重置") + "失败！");
+                    screen->FreeAllVisible();
+                    screen->ShowAll();
+                } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                    MessageBox(screen, "对不起，您没有权限" + (std::string)(clear ? "清空收件箱" : "重置消息与站内信系统"));
+                    screen->FreeAllVisible();
+                    screen->ShowAll();
+                } else {
+                    assert(false); // Unexpected reply.
+                }
+            } else if (success == 0) {
+                MessageBox(screen, "服务端未响应，请检查后重试");
+                screen->FreeAllVisible();
+                screen->ShowAll();
+            }
+        } else if (sure == 1) {
+            screen->ShowAll();
+        } else {
+            assert(false); // Impossible case.
+        }
+    };
+
     writeMailBtn->SetClickCallback(UI_CALLBACK{
         screen->HideAll();
         auto cli = MessageBox(screen, "更多功能：", {"写信", "清空我的信件", "重置邮件系统", "返回上一级"});
+        screen->FreeAllVisible();
         if (cli == 0) {
             SwitchTo(new WriteMail);
         } else if (cli == 1) {
-            ; // TODO
+            clearOrReset(true);
         } else if (cli == 2) {
-            ; // TODO
+            clearOrReset(false);
         } else if (cli == 3) {
-            screen->FreeAllVisible();
             screen->ShowAll();
         } else {
             assert(false); // Impossible case.
@@ -881,6 +909,9 @@ void eea::WriteMail::Load(ui::Screen *screen) noexcept
                     target = new ui::InputBox; {
                         target->AddTo(tarB);
                         target->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                        target->SetLengthLimit(64);
+                        target->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
+                        target->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
                     }
                 }
                 auto subB = new ui::HorizontalBox;
@@ -918,10 +949,10 @@ void eea::WriteMail::Logic(ui::Screen *screen) noexcept
     backBtn->SetClickCallback(UI_CALLBACK{
         screen->HideAll();
         auto cli = MessageBox(screen, "您将丢弃当前编辑的内容，继续返回吗？", {"确定", "取消"});
+        screen->FreeAllVisible();
         if (cli == 0) {
             SwitchTo(new EnterMailSystem);
         } else if (cli == 1) {
-            screen->FreeAllVisible();
             screen->ShowAll();
         } else {
             assert(false); // Impossible case.
@@ -934,14 +965,10 @@ void eea::WriteMail::Logic(ui::Screen *screen) noexcept
         screen->FreeAllVisible();
         screen->ShowAll();
         if (success == 1) {
-            if (reply[0] == trm::rpl::ACCESS_DENIED) {
-                screen->HideAll();
-                MessageBox(screen, "对不起，您没有权限发送邮件。\n您只有接收和查看您的信件的权限。");
-                screen->FreeAllVisible();
-                screen->ShowAll();
-            } else if (reply[0] == trm::rpl::SUCC) {
+            if (reply[0] == trm::rpl::SUCC) {
                 screen->HideAll();
                 auto cli = MessageBox(screen, "发送成功", {"返回私信系统主页", "再编辑一封"});
+                screen->FreeAllVisible();
                 if (cli == 0) {
                     SwitchTo(new EnterMailSystem);
                 } else if (cli == 1) {
@@ -954,12 +981,17 @@ void eea::WriteMail::Logic(ui::Screen *screen) noexcept
                 MessageBox(screen, "发送失败！\n可能收件人帐户不存在");
                 screen->FreeAllVisible();
                 screen->ShowAll();
+            } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                screen->HideAll();
+                MessageBox(screen, "对不起，您没有权限发送邮件");
+                screen->FreeAllVisible();
+                screen->ShowAll();
             } else {
                 assert(false); // Unexpected reply.
             }
         } else if (success == 0) {
             screen->HideAll();
-            MessageBox(screen, "服务端未响应，请检查后重试。");
+            MessageBox(screen, "服务端未响应，请检查后重试");
             screen->FreeAllVisible();
             screen->ShowAll();
         }
@@ -975,12 +1007,11 @@ void eea::WriteMail::Logic(ui::Screen *screen) noexcept
         }
         screen->HideAll();
         auto cli = MessageBox(screen, "请检查收件人：\n" + target->GetText() + "\n确定发送吗？", {"确定", "取消"});
+        screen->FreeAllVisible();
         if (cli == 0) {
-            screen->FreeAllVisible();
             screen->ShowAll();
             sendMail();
         } else if (cli == 1) {
-            screen->FreeAllVisible();
             screen->ShowAll();
         } else {
             assert(false); // Impossible case.
@@ -999,14 +1030,15 @@ void eea::WriteMail::Ready(ui::Screen *screen) noexcept
             ;
         } else if (reply[0] == trm::rpl::NO) {
             screen->HideAll();
-            MessageBox(screen, "对不起，您没有权限发送邮件。\n您只有接收和查看您的信件的权限。");
+            MessageBox(screen, "对不起，您没有权限发送邮件");
+            screen->FreeAllVisible();
             SwitchTo(new EnterMailSystem);
         } else {
             assert(false); // Unexpected reply.
         }
     } else if (success == 0) {
         screen->HideAll();
-        MessageBox(screen, "服务端未响应，请检查后重试。");
+        MessageBox(screen, "服务端未响应，请检查后重试");
         screen->FreeAllVisible();
         screen->ShowAll();
     }
@@ -1595,12 +1627,18 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
                 if (reply[0] == trm::rpl::SUCC) {
                     MessageBox(screen, "重置成功\n稍后请重新登录");
                     SwitchTo(new Login);
-                } else {
+                } else if (reply[0] == trm::rpl::FAIL) {
                     MessageBox(screen, "重置失败！");
+                    screen->FreeAllVisible();
+                    screen->ShowAll();
+                } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                    MessageBox(screen, "对不起，您没有重置系统内帐户的权限");
+                    screen->FreeAllVisible();
                     screen->ShowAll();
                 }
             } else if (success == 0) {
                 MessageBox(screen, "服务端未响应，请检查后重试");
+                screen->FreeAllVisible();
                 screen->ShowAll();
             }
         } else {
@@ -1618,8 +1656,8 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
         }
         screen->HideAll();
         auto click = MessageBox(screen, "您将删除该帐户 " + name + "，确认吗？", {"确认", "取消"});
+        screen->FreeAllVisible();
         if (click == 0) {
-            screen->FreeAllVisible();
             auto [success, reply] = WaitServer(screen, 
                 {trm::rqs::DELETE_ACCOUNT, username, password, name}, "正在与服务端通信");
             if (success == 1) {
@@ -1645,7 +1683,6 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
                 screen->ShowAll();
             }
         } else {
-            screen->FreeAllVisible();
             screen->ShowAll();
         }
     };

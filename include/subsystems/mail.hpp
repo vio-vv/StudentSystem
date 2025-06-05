@@ -22,13 +22,13 @@ public:
     trm::Information GetMessageNumber(const trm::Information &information) noexcept;
     trm::Information GetMessageProfile(const trm::Information &information) noexcept;
     trm::Information GetMessage(const trm::Information &information) noexcept;
-    trm::Information MarkAsRead(const trm::Information &information) noexcept;
+    trm::Information MarkAsRead(const trm::Information &information) noexcept; // TODO
     trm::Information MarkAsUnread(const trm::Information &information) noexcept;
     trm::Information GetUnreadMessageNumber(const trm::Information &information) noexcept;
     trm::Information DeleteMessage(const trm::Information &information) noexcept;
     trm::Information ClearMessage(const trm::Information &information) noexcept;
     trm::Information DeleteMessageOfOthers(const trm::Information &information) noexcept;
-    trm::Information ClearMessageOfOthers(const trm::Information &information) noexcept;
+    trm::Information ClearMessageOfOthers(const trm::Information &information) noexcept; // TODO
     trm::Information ResetMailSystem(const trm::Information &information) noexcept;
 protected:
     MailSystem() noexcept;

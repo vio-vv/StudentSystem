@@ -21,12 +21,12 @@ public:
     trm::Information CheckAccount(const trm::Information &information) noexcept;
     trm::Information CreateAccount(const trm::Information &information) noexcept;
     trm::Information DeleteAccount(const trm::Information &information) noexcept;
-    trm::Information GrantAccess(const trm::Information &information) noexcept; // TODO
-    trm::Information RevokeAccess(const trm::Information &information) noexcept; // TODO
-    trm::Information RevokeAllAccess(const trm::Information &information) noexcept; // TODO
-    trm::Information AddTag(const trm::Information &information) noexcept; // TODO
-    trm::Information RemoveTag(const trm::Information &information) noexcept; // TODO
-    trm::Information ClearTag(const trm::Information &information) noexcept; // TODO
+    trm::Information GrantAccess(const trm::Information &information) noexcept;
+    trm::Information RevokeAccess(const trm::Information &information) noexcept;
+    trm::Information RevokeAllAccess(const trm::Information &information) noexcept;
+    trm::Information AddTag(const trm::Information &information) noexcept;
+    trm::Information RemoveTag(const trm::Information &information) noexcept;
+    trm::Information ClearTag(const trm::Information &information) noexcept;
     trm::Information ResetAccountAndAccess(const trm::Information &information) noexcept;
     trm::Information ListAccount(const trm::Information &information) noexcept;
     trm::Information GetAccountDetail(const trm::Information &information) noexcept;

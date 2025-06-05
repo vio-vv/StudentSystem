@@ -717,7 +717,8 @@ enum Access{
     _
 };
 }
-namespace tag{
+
+namespace [[deprecated("提议暂时弃用。无需封装。")]] tag{
     const std::string UNGRSTUDENT = _AS_"UNGRSTUDENT"; // 本科生
     const std::string GRADUATE = _AS_"GRADUATE"; // 研究生
     const std::string TEACHER = _AS_"TEACHER"; // 教师
@@ -872,7 +873,18 @@ struct ReserveDate
 
 #pragma endregion
 
-using Information = std::vector<std::string>;
+class Information : public std::vector<std::string> {
+public:
+    using std::vector<std::string>::vector;
+    static const std::string OUT_OF_RANGE;
+    Information(const std::vector<std::string> &other) noexcept : std::vector<std::string>(other) {}
+    constexpr const std::string &operator[](size_t _Pos) const noexcept
+    {
+        if (_Pos >= this->size()) return OUT_OF_RANGE;
+        return std::vector<std::string>::operator[](_Pos);
+    }
+};
+
 /**
  * @brief 客户端用以发送请求的类。
  * @note 使用前务必完成初始化。
