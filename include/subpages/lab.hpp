@@ -28,9 +28,9 @@ private:
     bool admadd=false;
     bool admde=false;
 protected:
-    void Load(ui::Screen *screen) noexcept;// # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性）。
-    void Logic(ui::Screen *screen) noexcept;// # 在这里写回调逻辑（设置组件回调函数、监听回调函数，进而动态设置组件属性、动态增减组件、跳转页面等）。
-    void Ready(ui::Screen *screen) noexcept;// # 在这里可作初始化逻辑（准备维护基类静态成员的值，发送请求，* 启动定时器等）。
+    void Load(ui::Screen *screen) noexcept override;// # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性）。
+    void Logic(ui::Screen *screen) noexcept override;// # 在这里写回调逻辑（设置组件回调函数、监听回调函数，进而动态设置组件属性、动态增减组件、跳转页面等）。
+    void Ready(ui::Screen *screen) noexcept override;// # 在这里可作初始化逻辑（准备维护基类静态成员的值，发送请求，* 启动定时器等）。
 };
 class CourseList : public PageBase {
 private:
@@ -56,9 +56,9 @@ private:
     ui::HorizontalBox *hbox = nullptr;
     ui::Label *limit = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept; 
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override; 
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class DeleteCourse : public PageBase {
 private:
@@ -73,9 +73,9 @@ private:
     ui::HorizontalBox *hbox = nullptr;
     ui::Label *limit = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept; 
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override; 
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class AdmAddCourse: public PageBase {
 private:
@@ -93,9 +93,9 @@ private:
     ui::HorizontalScrollingBox *hsbox = nullptr;
     ui::Button *wbtn = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept; 
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override; 
 };
 class AdmDeleteCourse: public PageBase {
 private:
@@ -110,9 +110,9 @@ private:
     ui::Label *rpllabel = nullptr;
     ui::Label *limit = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept; 
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override; 
 };
 
 class EnterReserve : public PageBase {
@@ -175,9 +175,9 @@ private:
     std::vector<ui::Button *> times;
     static const int MAX_TIMES = 14;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class ReserveStatusList : public PageBase {
 private:
@@ -185,9 +185,9 @@ private:
     ui::VerticalScrollingBox *vsbox = nullptr;
     
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class ReserveTimeList : public PageBase {
 private:
@@ -195,9 +195,9 @@ private:
     ui::VerticalScrollingBox *vsbox = nullptr;
     
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class Request : public PageBase {
 private:
@@ -219,9 +219,9 @@ private:
     ui::Label *label = nullptr;
     ui::Label *limit = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class Cancel : public PageBase {
 private:
@@ -243,9 +243,9 @@ private:
     ui::Label *label = nullptr;
     ui::Button *clbtn = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class AdmAddReserve : public PageBase {
 private:
@@ -258,9 +258,9 @@ private:
     ui::Label *glabel = nullptr;
     ui::Button *cfbtn = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class AdmCancelReserve : public PageBase {
 private:
@@ -284,9 +284,9 @@ private:
     ui::Label *nlabel = nullptr;
     ui::Button *clbtn = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 }; // 删除预约和修改数量
 class AdmModifyReserve:public PageBase {
 private:
@@ -300,9 +300,9 @@ private:
     ui::Button *cfbtn = nullptr;
     ui::InputBox *input6 = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 }; // 修改状态
 } 
 

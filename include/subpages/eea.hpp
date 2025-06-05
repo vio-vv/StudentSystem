@@ -15,17 +15,17 @@ private:
     ui::Button *reserveBtn = nullptr;
     ui::Label *tips = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class Forget : public PageBase {
 private:
     ;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class MainPage : public PageBase {
 private:
@@ -59,10 +59,10 @@ private:
     std::function<void ()> initialize = [](){};
     std::function<void ()> getListLenth = [](){};
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
-    void Tick(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
+    void Tick(ui::Screen *screen) noexcept override;
 };
 
 class EnterAccManage : public PageBase {
@@ -85,9 +85,9 @@ private:
 
     ui::Control::Callback refresh = ui::Control::DO_NOTHING;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 class AccountDelail : public PageBase {
@@ -116,18 +116,18 @@ private:
     trm::Account newAccount;
     ui::Button *okBtn = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 class EnterCanteen : public PageBase {
 private:
     ;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 class EnterMailSystem : public PageBase {
 private:
@@ -151,9 +151,9 @@ private:
 
     const int eachPageNum = 10;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 class WriteMail : public PageBase {
@@ -164,9 +164,9 @@ private:
     ui::InputBox *inputB = nullptr;
     ui::Button *sendBtn = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 }

@@ -23,9 +23,9 @@ class EnterSystem : public PageBase {
 private:
     ui::Button *btn;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 }

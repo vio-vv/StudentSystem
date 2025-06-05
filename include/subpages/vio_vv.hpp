@@ -39,18 +39,18 @@ protected:
     static std::vector<trm::BorrowLog> borrowLogs;
     static std::vector<std::string> searchOption;
 
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 class BookPartitions : public EnterLibrary {
 private:
     ui::Button *backBtn = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 class BookList : public EnterLibrary {
@@ -84,9 +84,9 @@ private:
 
     std::function<void()> resetBookList = [](){};
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 class BorrowManage : public EnterLibrary {
@@ -113,9 +113,9 @@ private:
 
     std::function<void()> resetBorrowList = [](){};
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 class BookManage : public EnterLibrary {
@@ -166,9 +166,9 @@ private:
     std::vector<std::string> CheckInput() const noexcept;
     bool CheckBookDate() const noexcept;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 public:
     static std::vector<std::string> room302;
     static std::vector<std::string> room303;
@@ -191,9 +191,9 @@ private:
     ui::HorizontalBox *borrowBottomBox = nullptr;
     ui::VerticalBox *borrowBox = nullptr;
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 class EnterNolify : public PageBase {
@@ -237,9 +237,9 @@ private:
 
     std::function<void()> printDeleteDetail = [](){};
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 };
 
 class ViewNolify : public PageBase {
@@ -253,9 +253,9 @@ private:
     ui::Label *contentLabel = nullptr;
     trm::Notice notice = {"", ""};
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 public:
     ViewNolify(const int &_len, const std::string &_type, const std::string &_from) noexcept : len(_len), type(_type), from(_from) {}
 };
@@ -279,9 +279,9 @@ private:
     std::function<void()> getNolifyList = [](){};
 
 protected:
-    void Load(ui::Screen *screen) noexcept;
-    void Logic(ui::Screen *screen) noexcept;
-    void Ready(ui::Screen *screen) noexcept;
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
 public:
     ViewNolifyList(const int &_len, const std::string &_type, const std::string &_from) noexcept : len(_len), type(_type), from(_from) {}
 };

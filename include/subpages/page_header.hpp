@@ -63,21 +63,21 @@ private:
     ; // # 在这里声明页面的关键成员（有回调函数的组件、被回调函数需要的组件、Sender 对象、* 定时器即 sf::Clock 对象等）。
 protected:
     Example() noexcept = default; // * 在这里可自定义长间隔监测的间隔即监听间隔，以及监听次数等。
-    void Load(ui::Screen *screen) noexcept = 0; // # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性等）。
-    void Logic(ui::Screen *screen) noexcept = 0; // # 在这里写回调逻辑（设置组件回调函数、监听回调函数，进而动态设置组件属性、动态增减组件、跳转页面等）。
-    void Ready(ui::Screen *screen) noexcept = 0; // # 在这里可作初始化逻辑（准备维护基类静态成员的值，发送请求，* 启动定时器等）。
-    void Tick(ui::Screen *screen) noexcept = 0; // * 在这里可作页面的监测（定时器等）。
-    void TickAtSpecificIntervals(ui::Screen *screen) noexcept = 0; // * 在这里可作页面的长间隔监测（可当作一个定时器等）。
-    void Unload(ui::Screen *screen) noexcept = 0; // * 在这里作页面的卸载逻辑（释放拥有所有权的指针，停止定时器等）。
+    void Load(ui::Screen *screen) noexcept override = 0; // # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性等）。
+    void Logic(ui::Screen *screen) noexcept override = 0; // # 在这里写回调逻辑（设置组件回调函数、监听回调函数，进而动态设置组件属性、动态增减组件、跳转页面等）。
+    void Ready(ui::Screen *screen) noexcept override = 0; // # 在这里可作初始化逻辑（准备维护基类静态成员的值，发送请求，* 启动定时器等）。
+    void Tick(ui::Screen *screen) noexcept override = 0; // * 在这里可作页面的监测（定时器等）。
+    void TickAtSpecificIntervals(ui::Screen *screen) noexcept override = 0; // * 在这里可作页面的长间隔监测（可当作一个定时器等）。
+    void Unload(ui::Screen *screen) noexcept override = 0; // * 在这里作页面的卸载逻辑（释放拥有所有权的指针，停止定时器等）。
 };
 
 class Copy : public PageBase {
 private:
     ;
 protected:
-    void Load(ui::Screen *screen) noexcept = 0;
-    void Logic(ui::Screen *screen) noexcept = 0;
-    void Ready(ui::Screen *screen) noexcept = 0; // ! 复制后，这些 = 0 要删掉的
+    void Load(ui::Screen *screen) noexcept override = 0;
+    void Logic(ui::Screen *screen) noexcept override = 0;
+    void Ready(ui::Screen *screen) noexcept override = 0; // ! 复制后，这些 = 0 要删掉的
 };
 
 }

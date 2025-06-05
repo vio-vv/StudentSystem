@@ -93,7 +93,7 @@ bool trm::MakeRequest(const std::string &link, const Request &request) noexcept
     std::string filePath = file::GetFilePath(link, Combine({ToStr(request.id), ToStr(GetTimeStamp()), ToStr(GenerateRandomCode())}, '.'));
     auto info = request.content;
     info.push_back(request.sender);
-    return file::WriteFile(filePath, Encode(info));
+    return file::WriteFile(filePath, Encrypt(Encode(info)));
 }
 
 std::pair<bool, std::vector<trm::Request>> trm::GetRequests(const std::string &self) noexcept
@@ -114,7 +114,7 @@ std::pair<bool, std::vector<trm::Request>> trm::GetRequests(const std::string &s
         if (!success) {
             return {false, {}};
         }
-        auto tmp = Decode(read);
+        auto tmp = Decode(Decrypt(read));
         request.sender = tmp.back();
         tmp.pop_back();
         request.content = tmp;
@@ -132,7 +132,7 @@ bool trm::SendReply(const std::string &link, int id, const Information &reply) n
         return false;
     }
     auto filePath = file::GetFilePath(link, ToStr(id));
-    return file::WriteFile(filePath, Encode(reply));
+    return file::WriteFile(filePath, Encrypt(Encode(reply)));
 }
 
 std::pair<bool, trm::Information> trm::PollReply(const std::string &self, int id) noexcept
@@ -146,7 +146,7 @@ std::pair<bool, trm::Information> trm::PollReply(const std::string &self, int id
         return {false, {}};
     }
     file::DeleteFile(filePath);
-    return {true, Decode(read)};
+    return {true, Decode(Decrypt(read))};
 }
 
 trm::Message trm::Encode(const Information &information) noexcept
@@ -552,4 +552,14 @@ std::string trm::Notice::GetHeadlineTitle() const noexcept
         ret += title.substr(18, 18) + "...";
     }
     return ret;
+}
+
+trm::Message trm::Encrypt(const trm::Message &str, const std::string &key) noexcept
+{
+    return str; // TODO
+}
+
+trm::Message trm::Decrypt(const trm::Message &str, const std::string &key) noexcept
+{
+    return str; // TODO
 }

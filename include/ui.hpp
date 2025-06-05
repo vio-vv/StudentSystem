@@ -558,13 +558,13 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true)                               noexcept = 0;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)                  noexcept;
-    void FreshUp  () noexcept;
-    void FreshDown() noexcept;
+    void Update (bool resetMinSize = true)                               noexcept override = 0;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override;
+    void Draw   (sf::RenderWindow &screen, float delta)                  noexcept override;
+    void FreshUp  () noexcept override;
+    void FreshDown() noexcept override;
 
-    ~Container() noexcept;
+    ~Container() noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -618,7 +618,7 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -736,7 +736,7 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -792,7 +792,7 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept = 0;
+    void Update(bool resetMinSize = true) noexcept override = 0;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -847,7 +847,7 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -896,7 +896,7 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -950,7 +950,7 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
 private:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1023,9 +1023,9 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept {}
-    void Draw   (sf::RenderWindow &screen, float delta) noexcept;
+    void Update (bool resetMinSize = true) noexcept override;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override {}
+    void Draw   (sf::RenderWindow &screen, float delta) noexcept override;
 protected:
     static const unsigned int REVISION_X;
     static const unsigned int REVISION_Y;
@@ -1094,9 +1094,9 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept {}
-    void Draw   (sf::RenderWindow &screen, float delta) noexcept;
+    void Update (bool resetMinSize = true) noexcept override;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override {}
+    void Draw   (sf::RenderWindow &screen, float delta) noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1183,11 +1183,11 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)                    noexcept;
-    void FreshUp  () noexcept;
-    void FreshDown() noexcept;
+    void Update (bool resetMinSize = true) noexcept override;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen)   noexcept override;
+    void Draw   (sf::RenderWindow &screen, float delta)                    noexcept override;
+    void FreshUp  () noexcept override;
+    void FreshDown() noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1299,11 +1299,11 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true)                               noexcept;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)                  noexcept;
-    void FreshUp  () noexcept;
-    void FreshDown() noexcept;
+    void Update (bool resetMinSize = true)                               noexcept override;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override;
+    void Draw   (sf::RenderWindow &screen, float delta)                  noexcept override;
+    void FreshUp  () noexcept override;
+    void FreshDown() noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1407,11 +1407,11 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update (bool resetMinSize = true)                               noexcept = 0;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
-    void Draw   (sf::RenderWindow &screen, float delta)                  noexcept;
-    void FreshUp  () noexcept;
-    void FreshDown() noexcept;
+    void Update (bool resetMinSize = true)                               noexcept override = 0;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override;
+    void Draw   (sf::RenderWindow &screen, float delta)                  noexcept override;
+    void FreshUp  () noexcept override;
+    void FreshDown() noexcept override;
 protected:
     Callback enteredCallback = DO_NOTHING;
     Callback leaveCallback = DO_NOTHING;
@@ -1479,7 +1479,7 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1529,7 +1529,7 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1592,12 +1592,12 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update   (bool resetMinSize = true)                                noexcept = 0;
-    void Process  (const sf::Event &event, const sf::RenderWindow &screen)  noexcept;
-    void Draw     (sf::RenderWindow &screen, float delta)                   noexcept;
-    void FreshUp  () noexcept;
-    void FreshDown() noexcept;
-    void UpdateInQueue(bool argv = true) noexcept;
+    void Update   (bool resetMinSize = true)                                noexcept override = 0;
+    void Process  (const sf::Event &event, const sf::RenderWindow &screen)  noexcept override;
+    void Draw     (sf::RenderWindow &screen, float delta)                   noexcept override;
+    void FreshUp  () noexcept override;
+    void FreshDown() noexcept override;
+    void UpdateInQueue(bool argv = true) noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1669,9 +1669,9 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true)                                 noexcept;
+    void Update(bool resetMinSize = true)                                 noexcept override;
 
-    ~HorizontalScrollingBox() noexcept;
+    ~HorizontalScrollingBox() noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1738,9 +1738,9 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
 
-    ~VerticalScrollingBox() noexcept;
+    ~VerticalScrollingBox() noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1793,9 +1793,9 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept {}
-    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept {}
-    void Draw(sf::RenderWindow &screen, float delta) noexcept;
+    void Update(bool resetMinSize = true) noexcept override {}
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override {}
+    void Draw(sf::RenderWindow &screen, float delta) noexcept override;
 protected:
     Callback callback = DO_NOTHING;
 
@@ -1856,9 +1856,9 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept {}
-    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept {}
-    void Draw(sf::RenderWindow &screen, float delta) noexcept;
+    void Update(bool resetMinSize = true) noexcept override {}
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override {}
+    void Draw(sf::RenderWindow &screen, float delta) noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -1935,11 +1935,11 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
-    void Draw(sf::RenderWindow &screen, float delta) noexcept;
-    void FreshUp() noexcept;
-    void FreshDown() noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override;
+    void Draw(sf::RenderWindow &screen, float delta) noexcept override;
+    void FreshUp() noexcept override;
+    void FreshDown() noexcept override;
 protected:
     Callback countCallback = DO_NOTHING;
     Callback finishedCallback = DO_NOTHING;
@@ -2005,9 +2005,9 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept {}
-    void Draw(sf::RenderWindow &screen, float delta) noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override {}
+    void Draw(sf::RenderWindow &screen, float delta) noexcept override;
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*
@@ -2086,7 +2086,7 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Draw(sf::RenderWindow &screen, float delta) noexcept;
+    void Draw(sf::RenderWindow &screen, float delta) noexcept override;
 protected:
     using Button::SetClickCallback;
     Callback toggleOncallback = DO_NOTHING;
@@ -2243,11 +2243,11 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept;
-    void Draw(sf::RenderWindow &screen, float delta) noexcept;
-    void FreshUp() noexcept;
-    void FreshDown() noexcept;
+    void Update(bool resetMinSize = true) noexcept override;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override;
+    void Draw(sf::RenderWindow &screen, float delta) noexcept override;
+    void FreshUp() noexcept override;
+    void FreshDown() noexcept override;
 protected:
     Callback turnCallback = DO_NOTHING;
 
@@ -2320,11 +2320,11 @@ public:
      * @brief 实现了的和待实现的抽象方法。*
      * **********************************
      */
-    void Update(bool resetMinSize = true) noexcept = 0;
-    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept = 0;
-    void Draw(sf::RenderWindow &screen, float delta) noexcept = 0;
-    void FreshUp() noexcept = 0;
-    void FreshDown() noexcept = 0; // 组合时需重写
+    void Update(bool resetMinSize = true) noexcept override = 0;
+    void Process(const sf::Event &event, const sf::RenderWindow &screen) noexcept override = 0;
+    void Draw(sf::RenderWindow &screen, float delta) noexcept override = 0;
+    void FreshUp() noexcept override = 0;
+    void FreshDown() noexcept override = 0; // 组合时需重写
 protected:
     /******************************
      * @brief 封装的工具方法和属性。*

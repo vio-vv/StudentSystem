@@ -1006,6 +1006,16 @@ std::string Hash(const std::string &str) noexcept;
 /**
  * TO_COMPLETE
  */
+Message Encrypt(const Message &str, const std::string &key = "") noexcept;
+
+/**
+ * TO_COMPLETE
+ */
+Message Decrypt(const Message &str, const std::string &key = "") noexcept;
+
+/**
+ * TO_COMPLETE
+ */
 unsigned long long GenerateRandomCode() noexcept;
 
 /**
