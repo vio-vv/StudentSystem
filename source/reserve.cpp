@@ -2,7 +2,7 @@
 
 ssys::ReserveSystem::ReserveSystem() noexcept
 {
-    reserveBase["10"]["1"]["20"].Push("15","10"); // 预约信息
+    reserveBase["10"]["1"]["1"].Push("15_00","10"); // 预约信息
     //TODO
 }
 
@@ -26,7 +26,7 @@ trm::Information ssys::ReserveSystem::CheckTime(const trm::Information& informat
     {
         if(ToNum(reserve))
         {
-            timeList.push_back(trm::Combine({time,reserve,ToStr(reserve)},' '));//将可预约时间加入列表
+            timeList.push_back(trm::Combine({information[1],time,reserve},' '));//将可预约时间加入列表
         }
     }
     return timeList; 
@@ -79,7 +79,7 @@ trm::Information ssys::ReserveSystem::CancelReserve(const trm::Information& info
     {
        return{trm::rpl::NO_DERESERVE_ACCESS};
     }
-    if(ToStr(clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]][information[2]])=="")//检查是否存在预约信息
+    if(ToStr(clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]][information[2]])!="")//检查是否存在预约信息 //debug
     {
         clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]][information[2]].Clear();//清除预约信息
         if(!clientBase[trm::IdAndPhone{information[3],information[4]}][information[1]].Size())

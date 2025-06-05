@@ -24,6 +24,9 @@ private:
     ui::Button *debtn = nullptr;
     ui::Button *admaddbtn = nullptr;
     ui::Button *admdebtn = nullptr;
+    ui::Label *limit= nullptr;
+    bool admadd=false;
+    bool admde=false;
 protected:
     void Load(ui::Screen *screen) noexcept;// # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性）。
     void Logic(ui::Screen *screen) noexcept;// # 在这里写回调逻辑（设置组件回调函数、监听回调函数，进而动态设置组件属性、动态增减组件、跳转页面等）。
@@ -51,6 +54,7 @@ private:
     ui::Button *btn1 = nullptr;
     ui::Label *glabel = nullptr;
     ui::HorizontalBox *hbox = nullptr;
+    ui::Label *limit = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept; 
     void Logic(ui::Screen *screen) noexcept;
@@ -67,6 +71,7 @@ private:
     ui::Button *btn1 = nullptr;
     ui::Label *glabel = nullptr;
     ui::HorizontalBox *hbox = nullptr;
+    ui::Label *limit = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept; 
     void Logic(ui::Screen *screen) noexcept;
@@ -82,6 +87,11 @@ private:
     ui::InputBox *input5 = nullptr;
     ui::Label *glabel = nullptr;
     ui::Button *cfbtn = nullptr;
+    ui::Label *limit = nullptr;
+    std::vector<ui::ToggleButton *> weeklist;
+    static const int MAX_WEEK = 16;
+    ui::HorizontalScrollingBox *hsbox = nullptr;
+    ui::Button *wbtn = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
@@ -98,6 +108,7 @@ private:
     ui::HorizontalBox *hbox = nullptr;
     ui::Button *debtn = nullptr;
     ui::Label *rpllabel = nullptr;
+    ui::Label *limit = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
@@ -106,7 +117,6 @@ protected:
 
 class EnterReserve : public PageBase {
 private:
-    ui::InputBox *input2 = nullptr;
     ui::InputBox *idinput = nullptr;
     ui::InputBox *phinput = nullptr;
     ui::Button *backbtn = nullptr;
@@ -116,15 +126,54 @@ private:
     ui::Button *btn3 = nullptr;
     ui::Button *cfbtn1 =nullptr;
     ui::Button *cfbtn2 =nullptr;
-    ui::InputBox *dinput1=nullptr;
-    ui::InputBox *dinput2=nullptr;
-    ui::InputBox *dinput3=nullptr;
     ui::VerticalBox *vinput=nullptr;
     ui::Button *relbtn = nullptr;
     ui::Button *admaddbtn = nullptr;
     ui::Button *admdebtn = nullptr;
     ui::Button *modifybtn1 = nullptr;
     ui::Button *modifybtn2 = nullptr;
+    ui::Button *dbtn1 = nullptr;
+    ui::Button *dbtn2 = nullptr;
+    ui::Button *dbtn3 = nullptr;
+    ui::VerticalScrollingBox *vsbox1 = nullptr;
+    ui::VerticalScrollingBox *vsbox2 = nullptr;
+    ui::VerticalScrollingBox *vsbox3 = nullptr;
+    ui::Button *btn13 = nullptr;
+    ui::Button *btn14 = nullptr;
+    ui::Button *btn15 = nullptr;
+    ui::Button *btn4 = nullptr;
+    ui::Button *btn5 = nullptr;
+    ui::Button *btn6 = nullptr;
+    ui::Button *btn7 = nullptr;
+    ui::Button *btn8 = nullptr;
+    ui::Button *btn9 = nullptr;
+    ui::Button *btn10 = nullptr;
+    ui::Button *btn11 = nullptr;
+    ui::Button *btn12 = nullptr;
+    ui::Button *btn20 = nullptr;
+    ui::Button *btn21 = nullptr;
+    ui::Button *btn22 = nullptr;
+    ui::Button *btn23 = nullptr;
+    ui::Button *btn30 = nullptr;
+    ui::Button *btn31 = nullptr;
+    ui::Button *btn32 = nullptr;
+    ui::Button *btn33 = nullptr;
+    ui::Button *btn34 = nullptr;
+    ui::Button *btn35 = nullptr;
+    ui::Button *btn36 = nullptr;
+    ui::Button *clbtn1 = nullptr;
+    ui::Button *clbtn2 = nullptr;
+    ui::Button *clbtn3 = nullptr;
+    ui::Label *limit1 = nullptr;
+    ui::Label *limit2 = nullptr;
+    ui::Button *tbtn = nullptr;
+    ui::HorizontalScrollingBox *hsbox = nullptr;
+    bool isadmadd = false;
+    bool isadmde = false;
+    bool isadmmodifyn = false;
+    bool isadmmodifys = false;
+    std::vector<ui::Button *> times;
+    static const int MAX_TIMES = 14;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
@@ -166,6 +215,9 @@ private:
     ui::Label *rpllabel = nullptr;   
     ui::Button *addbtn = nullptr;
     ui::Button *cfbtn = nullptr;
+    ui::Button *clbtn = nullptr;
+    ui::Label *label = nullptr;
+    ui::Label *limit = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;
@@ -187,6 +239,9 @@ private:
     ui::HorizontalBox *hinput3 = nullptr;
     ui::HorizontalBox *hinput4 = nullptr;
     ui::VerticalBox *vbox = nullptr;
+    ui::Label *limit = nullptr;
+    ui::Label *label = nullptr;
+    ui::Button *clbtn = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept;
     void Logic(ui::Screen *screen) noexcept;

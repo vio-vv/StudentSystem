@@ -2,7 +2,7 @@
 
 ssys::CourseSystem::CourseSystem() noexcept
 {
-  courseBase["10086"]=trm::CourseInformation{"工科数学分析","张三","A1 202",{"1","2","3","4","5","6"}};//TODO
+  courseBase["100860"]=trm::CourseInformation{"工科数学分析","张三","A1 202",{"第一周","第二周","第三周","第四周","第五周","第六周"}};//TODO
 }
 
 ssys::CourseSystem::~CourseSystem() noexcept
