@@ -153,7 +153,7 @@ void lab::EnterCourse::Logic(ui::Screen *screen) noexcept
        }
        else
        {
-        Listen(new trm::Sender({trm::rqs::SEARCH_COURSE_INFORMATION,account.code,coursename}),SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::SEARCH_COURSE_INFORMATION,username,coursename}),SD_CALLBACK{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -281,7 +281,7 @@ void lab::CourseList::Logic(ui::Screen *screen) noexcept
 
 void lab::CourseList::Ready(ui::Screen *screen) noexcept
 {
-    Listen(new trm::Sender({trm::rqs::CHECK_ALL_COURSE,account.code}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_ALL_COURSE,username}),SD_CALLBACK{
         if (reply[0] == trm::rpl::TIME_OUT) {
             auto glabel = new ui::Label; {
                 glabel->AddTo(vsbox);
@@ -448,7 +448,7 @@ void lab::AddCourse::Logic(ui::Screen *screen) noexcept
             glabel->SetContent("课程代号不能为空");
             glabel->Show();
         }
-        Listen(new trm::Sender({trm::rqs::ADD_COURSE,account.code,account.hashedPassword,coursename}),SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::ADD_COURSE,username,password,coursename}),SD_CALLBACK{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -595,7 +595,7 @@ void lab::DeleteCourse::Logic(ui::Screen *screen) noexcept
             glabel->SetContent("课程代号不能为空");
             glabel->Show();
         }
-        Listen(new trm::Sender({trm::rqs::DELETE_COURSE,account.code,account.hashedPassword,coursename}),SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::DELETE_COURSE,username,password,coursename}),SD_CALLBACK{
             if (reply[0] == trm::rpl::TIME_OUT) {
                 glabel->SetContent("服务端未响应，请检查后重试");
                 glabel->Show();
@@ -816,7 +816,7 @@ void lab::AdmAddCourse::Logic(ui::Screen *screen) noexcept
             glabel->Show();
         }
         else {
-            Listen(new trm::Sender({trm::rqs::ADM_ADD_COUR,account.code,account.hashedPassword,coursename,courseinfo}),SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::ADM_ADD_COUR,username,password,coursename,courseinfo}),SD_CALLBACK{
                 if (reply[0] == trm::rpl::TIME_OUT) { // debug
                     glabel->SetContent("服务端未响应，请检查后重试");
                     glabel->Show();
@@ -952,7 +952,7 @@ void lab::AdmDeleteCourse::Logic(ui::Screen *screen) noexcept
             glabel->SetContent("课程代号不能为空");
             glabel->Show();
         }
-        Listen(new trm::Sender({trm::rqs::ADM_DELETE_COUR,account.code,account.hashedPassword,coursename}),
+        Listen(new trm::Sender({trm::rqs::ADM_DELETE_COUR,username,password,coursename}),
         SD_CALLBACK{ // debug
             if (reply[0] == trm::rpl::TIME_OUT) {
                 glabel->SetContent("服务端未响应，请检查后重试");
@@ -1706,9 +1706,9 @@ void lab::EnterReserve::Ready(ui::Screen *screen) noexcept
     modifybtn1->Enable(false);
     modifybtn2->Enable(false);
     hsbox->HideAll();
-    if(account.code!=""&&account.hashedPassword!="")
+    if(password!=""&&username!="")
     {
-    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,account.code,account.hashedPassword,trm::AccessBox{trm::acc::ADM_ADD_RESERVE_TIME}}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_ADD_RESERVE_TIME}}),SD_CALLBACK{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -1722,7 +1722,7 @@ void lab::EnterReserve::Ready(ui::Screen *screen) noexcept
             //
         }
     });
-    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,account.code,account.hashedPassword,trm::AccessBox{trm::acc::ADM_DELETE_RESERVE_TIME}}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_DELETE_RESERVE_TIME}}),SD_CALLBACK{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -1736,7 +1736,7 @@ void lab::EnterReserve::Ready(ui::Screen *screen) noexcept
             //
         }
     });
-    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,account.code,account.hashedPassword,trm::AccessBox{trm::acc::ADM_MODIFTY_RESERVE_NUMBER}}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_MODIFTY_RESERVE_NUMBER}}),SD_CALLBACK{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -1750,7 +1750,7 @@ void lab::EnterReserve::Ready(ui::Screen *screen) noexcept
             //
         }
     });
-    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,account.code,account.hashedPassword,trm::AccessBox{trm::acc::ADM_MODIFY_RESERVE_STATUS}}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_MODIFY_RESERVE_STATUS}}),SD_CALLBACK{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -2542,7 +2542,7 @@ void lab::AdmAddReserve::Logic(ui::Screen *screen) noexcept
             glabel->Show();
         }
         else {
-            Listen(new trm::Sender({trm::rqs::ADM_ADD_RESERVE_TIME,account.code,account.hashedPassword,rdate,rtime,rnum}),SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::ADM_ADD_RESERVE_TIME,username,password,rdate,rtime,rnum}),SD_CALLBACK{
                 if (reply[0] == trm::rpl::TIME_OUT) {
                     glabel->SetContent("服务端未响应，请检查后重试");
                     glabel->Show();
@@ -2808,7 +2808,7 @@ void lab::AdmCancelReserve::Logic(ui::Screen *screen) noexcept
             glabel->Show();
         }
         else {
-            Listen(new trm::Sender({trm::rqs::ADM_SEARCH_RESERVE,account.code,account.hashedPassword,rdate,rtime}),SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::ADM_SEARCH_RESERVE,username,password,rdate,rtime}),SD_CALLBACK{
             if(reply[0] == trm::rpl::TIME_OUT) {
                 glabel->SetContent("服务端未响应，请检查后重试");
             }
@@ -2832,7 +2832,7 @@ void lab::AdmCancelReserve::Logic(ui::Screen *screen) noexcept
         } 
     });
     debtn->SetClickCallback(UI_CALLBACK{
-        Listen(new trm::Sender({trm::rqs::ADM_DELETE_RESERVE_TIME,account.code,account.hashedPassword,rdate,rtime}),SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::ADM_DELETE_RESERVE_TIME,username,password,rdate,rtime}),SD_CALLBACK{
             if(reply[0] == trm::rpl::TIME_OUT) {
                 glabel->SetContent("服务端未响应，请检查后重试");
             }
@@ -2862,7 +2862,7 @@ void lab::AdmCancelReserve::Logic(ui::Screen *screen) noexcept
            glabel->Show();
        }
        else {
-           Listen(new trm::Sender({trm::rqs::ADM_MODIFY_RESERVE_NUMBER,account.code,account.hashedPassword,rdate,rtime,rnum}),SD_CALLBACK{
+           Listen(new trm::Sender({trm::rqs::ADM_MODIFY_RESERVE_NUMBER,username,password,rdate,rtime,rnum}),SD_CALLBACK{
                if(reply[0] == trm::rpl::TIME_OUT) {
                    glabel->SetContent("服务端未响应，请检查后重试");
                }
@@ -3082,7 +3082,7 @@ void lab::AdmModifyReserve::Logic(ui::Screen *screen) noexcept
             glabel->Show();
         }
         else {
-            Listen(new trm::Sender({trm::rqs::ADM_MODIFY_RESERVE_STATUS,account.code,account.hashedPassword,idandphone.id,idandphone.phone,rdate,rtime}), SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::ADM_MODIFY_RESERVE_STATUS,username,password,idandphone.id,idandphone.phone,rdate,rtime}), SD_CALLBACK{
                 if(reply[0] == trm::rpl::TIME_OUT) {
                     glabel->SetContent("服务端未响应，请检查后重试");
                 }

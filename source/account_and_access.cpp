@@ -330,7 +330,7 @@ ssys::AccountAndAccess::AccountAndAccess() noexcept
 {
     auto admBase = base[ACCOUNTS]["adm"];
     if (!admBase.Exists()) {
-        admBase = trm::Account{"adm", "123", {trm::Access::ADM}, {{"name", "最高管理员"}}};
+        admBase = trm::Account{"adm", trm::Hash("123"), {trm::Access::ADM}, {{"name", "最高管理员"}}};
     }
 }
 
