@@ -233,11 +233,11 @@ std::string trm::Hash(const std::string &str) noexcept
     std::hash<std::string> hashstr;
     auto hashValue = hashstr(str);
     std::stringstream s;
-    s<<std::hex<<std::setw(16)<<std::right<<std::setfill('0')<<hashValue;
+    s << std::hex << std::setw(16) << std::right << std::setfill('0') << 
+        hashValue;
     std::string result;
-    s>>result;
+    s >> result;
     return result;
-    // TODO: implement hash function
 }
 
 trm::Account::operator std::string() const noexcept

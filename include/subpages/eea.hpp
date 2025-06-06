@@ -147,7 +147,11 @@ private:
     ui::Label *receiver = nullptr;
     ui::Label *dateTime = nullptr;
     ui::Label *state = nullptr;
+    ui::Label *indexInfo = nullptr;
     ui::Label *mailContent = nullptr;
+    ui::Button *delteMailBtn = nullptr;
+    ui::Button *markAsReadBtn = nullptr;
+    ui::Button *markAsUnreadBtn = nullptr;
 
     const int eachPageNum = 10;
 protected:

@@ -682,7 +682,8 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                     receiver = new ui::Label;
                     dateTime = new ui::Label;
                     state = new ui::Label;
-                    for (auto each : {sender, receiver, dateTime, state}) {
+                    indexInfo = new ui::Label;
+                    for (auto each : {sender, receiver, dateTime, state, indexInfo}) {
                         each->AddTo(elseInfo);
                         each->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                         each->SetFontSize(30);
@@ -695,6 +696,24 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                     mailContent->SetHSize(80);
                     mailContent->SetMaxCount(32);
                 }
+                auto hBox = new ui::HorizontalBox; {
+                    hBox->AddTo(mailDetail);
+                    hBox->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                }
+                {
+                    markAsReadBtn = new ui::Button("标为已读"); {
+                        markAsReadBtn->AddTo(hBox);
+                        markAsReadBtn->Hide();
+                    }
+                    markAsUnreadBtn = new ui::Button("标为未读"); {
+                        markAsUnreadBtn->AddTo(hBox);
+                        markAsUnreadBtn->Hide();
+                    }
+                    delteMailBtn = new ui::Button("删除邮件"); {
+                        delteMailBtn->AddTo(hBox);
+                        delteMailBtn->Hide();
+                    }
+                }
             }
         }
     }
@@ -706,13 +725,20 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         SwitchTo(new MainPage);
     });
 
-    auto checkMail = [=, this](const std::string &name){
-        for (auto label : {subject, sender, receiver, dateTime, state, mailContent}) {
+    auto clearDetail = [=, this](){
+        for (auto label : {subject, sender, receiver, dateTime, state, indexInfo, mailContent}) {
             label->SetContent("");
         }
+        for (auto btn : {markAsReadBtn, markAsUnreadBtn, delteMailBtn}) {
+            btn->Hide();
+        }
+    };
+
+    auto checkMail = [=, this](const std::string &index){
+        clearDetail();
         mailContent->SetContent("加载中...");
 
-        Listen(new trm::Sender({trm::rqs::GET_MESSAGE, username, password, name}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::GET_MESSAGE, username, password, index}), SD_CALLBACK{
             if (reply[0] == trm::rpl::TIME_OUT) {
                 mailContent->SetContent("服务端未响应，请检查后重试");
             } else if (reply[0] == trm::rpl::FAIL) {
@@ -725,7 +751,12 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
                 dateTime->SetContent("时间：" + ToStr(con.timeStamp));
                 if (con.read) state->SetContent("已读");
                 else state->SetContent("未读");
+                indexInfo->SetContent("信件编号：" + index);
+                indexInfo->SetName(index);
                 mailContent->SetContent(con.content);
+                for (auto btn : {markAsReadBtn, markAsUnreadBtn, delteMailBtn}) {
+                    btn->Show();
+                }
                 turner->CallTurnCallback("", {});
             }
         });
@@ -823,6 +854,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
 
     refreshBtn->SetClickCallback(UI_CALLBACK{
         refreshList();
+        clearDetail();
     });
 
     auto clearOrReset = [=, this](bool clear){
@@ -858,6 +890,43 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         }
     };
 
+    delteMailBtn->SetClickCallback(UI_CALLBACK{
+        screen->HideAll();
+        auto sure = MessageBox(screen, "您确定要删除该邮件吗？", {"确定", "取消"});
+        screen->FreeAllVisible();
+        if (sure == 0) {
+            auto [success, reply] = WaitServer(screen, {trm::rqs::DELETE_MESSAGE, username, password, indexInfo->GetName()}, "正在与服务端通信");
+            screen->FreeAllVisible();
+            if (success == 1) {
+                if (reply[0] == trm::rpl::SUCC) {
+                    MessageBox(screen, "删除成功");
+                    screen->FreeAllVisible();
+                    screen->ShowAll();
+                    refreshList();
+                    clearDetail();
+                } else if (reply[0] == trm::rpl::FAIL) {
+                    MessageBox(screen, "删除失败！\n可能信件已经不存在");
+                    screen->FreeAllVisible();
+                    screen->ShowAll();
+                } else if (reply[0] == trm::rpl::ACCESS_DENIED) {
+                    MessageBox(screen, "对不起，您没有权限删除邮件");
+                    screen->FreeAllVisible();
+                    screen->ShowAll();
+                } else {
+                    assert(false); // Unexpected reply.
+                }
+            } else if (success == 0) {
+                MessageBox(screen, "服务端未响应，请检查后重试");
+                screen->FreeAllVisible();
+                screen->ShowAll();
+            }
+        } else if (sure == 1) {
+            screen->ShowAll();
+        } else {
+            assert(false); // Impossible case.
+        }
+    });
+
     writeMailBtn->SetClickCallback(UI_CALLBACK{
         screen->HideAll();
         auto cli = MessageBox(screen, "更多功能：", {"写信", "清空我的信件", "重置邮件系统", "返回上一级"});
@@ -873,6 +942,35 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         } else {
             assert(false); // Impossible case.
         }
+    });
+
+    auto mark = [=, this](bool read){
+        screen->HideAll();
+        auto [success, reply] = WaitServer(screen, {read ? trm::rqs::MARK_AS_READ : trm::rqs::MARK_AS_UNREAD, 
+            username, password, indexInfo->GetName()}, "正在与服务端通信");
+        screen->FreeAllVisible();
+        if (reply[0] == trm::rpl::TIME_OUT) {
+            MessageBox(screen, "服务端未响应，请检查后重试");
+            screen->FreeAllVisible();
+            screen->ShowAll();
+        } else if (reply[0] == trm::rpl::SUCC) {
+            screen->ShowAll();
+            refreshMsgbox("", {});
+            state->SetContent(read ? "已读" : "未读");
+        } else if (reply[0] == trm::rpl::FAIL) {
+            MessageBox(screen, "操作失败！\n可能信件不存在");
+            screen->FreeAllVisible();
+            screen->ShowAll();
+        } else {
+            assert(false); // Unexpected reply.
+        }
+    };
+
+    markAsReadBtn->SetClickCallback(UI_CALLBACK{
+        mark(true);
+    });
+    markAsUnreadBtn->SetClickCallback(UI_CALLBACK{
+        mark(false);
     });
 }
 
@@ -898,9 +996,10 @@ void eea::WriteMail::Load(ui::Screen *screen) noexcept
                 backBtn->AddTo(hor);
                 backBtn->SetVPreset(ui::Control::Preset::PLACE_AT_FRONT);
             }
-            auto mainBox = new ui::VerticalBox; {
+            auto mainBox = new ui::VerticalScrollingBox; {
                 mainBox->AddTo(hor);
                 mainBox->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                mainBox->SetInsideBoxScrollable(true);
             }
             {
                 auto tarB = new ui::HorizontalBox;
@@ -932,7 +1031,7 @@ void eea::WriteMail::Load(ui::Screen *screen) noexcept
                 inputB = new ui::InputBox; {
                     inputB->AddTo(mainBox);
                     inputB->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                    inputB->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    inputB->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
                     inputB->SetMaxCount(32);
                 }
             }

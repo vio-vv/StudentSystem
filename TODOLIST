@@ -1,10 +1,13 @@
 
+【扩展】 主题切换功能
+【更新】 优化目前 ScrollingBox 组件的使用（增加 Spacer）
 【更新】 多行文本框
 【更新】 MailSys 服务端使用引用的方式管理信件
 【扩展】 Canteen
 【扩展】 AccSys 客户端 LIST-DETAIL 布局中 LIST 使用 PageTurner 组件实现翻页功能
-【扩展】 主题切换功能
 【更新】 更优秀的 ScrollingBox 组件
-【更新】 优化目前 ScrollingBox 组件的使用（一处）
 【扩展】 动态授撤权限、增删标签
 【更新】 PageTurner 应该能设置每页显示条数
+【更新】 数据库加解密
+【更新】 Account 类增加更多方法
+【扩展】 MailSys 直接回复
