@@ -146,39 +146,39 @@ void vio::EnterLibrary::Load(ui::Screen *screen) noexcept
 
 void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
 {   
-    searchBox->SetInputCallback(UI_CALLBACK{
+    searchBox->SetInputCallback(_UI_CALLBACK_{
         userInput = searchBox->GetText();
     });
 
-    searchBox->SetEndCallback(UI_CALLBACK{
+    searchBox->SetEndCallback(_UI_CALLBACK_{
         if (searchBox->GetText() == "") searchBox->SetText("在此输入搜索内容");
     });
 
-    searchBox->SetBeginCallback(UI_CALLBACK{
+    searchBox->SetBeginCallback(_UI_CALLBACK_{
         if (searchBox->GetText() == "在此输入搜索内容") searchBox->SetText("");
     });
 
-    returnBtn->SetClickCallback(UI_CALLBACK{
+    returnBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new eea::MainPage);
     });
 
-    bookManageBtn->SetClickCallback(UI_CALLBACK{
+    bookManageBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new BookManage);
     });
 
-    borrowManageBtn->SetClickCallback(UI_CALLBACK{
+    borrowManageBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new BorrowManage);
     });
 
-    basicNolifyBtn->SetClickCallback(UI_CALLBACK{
+    basicNolifyBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new BookPartitions);
     });
 
-    resetLibraryBtn->SetClickCallback(UI_CALLBACK{
+    resetLibraryBtn->SetClickCallback(_UI_CALLBACK_{
         screen->HideAll();
         int ret = MessageBox(screen, "确认重置图书馆？", {"确认", "取消"});
         if (ret == 0) {
-            Listen(new trm::Sender({trm::rqs::RESET_LIBRARY}), SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::RESET_LIBRARY}), _SD_CALLBACK_{
                 screen->FreeAllVisible();
                 if (reply.empty()) {
                     MessageBox(screen, "重置图书馆失败，请稍后再试", {"确认"});
@@ -203,7 +203,7 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
         }
     });
 
-    searchOptBtn->SetClickCallback(UI_CALLBACK{
+    searchOptBtn->SetClickCallback(_UI_CALLBACK_{
         if (!isClicked) {
             isClicked ^= 1;
             searchOptBtn->SetCaption(optStr + "﹀");
@@ -224,7 +224,7 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
                     btn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     btn->SetCaption(searchOption[i]);
                     btn->SetFontSize(30);
-                    btn->SetClickCallback(UI_CALLBACK{
+                    btn->SetClickCallback(_UI_CALLBACK_{
                         optStr = btn->GetCaption();
                         searchOptBtn->SetCaption(optStr + "﹀");
                     });
@@ -238,7 +238,7 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
         }
     });
 
-    searchBtn->SetClickCallback(UI_CALLBACK{
+    searchBtn->SetClickCallback(_UI_CALLBACK_{
         searchBtn->Disable();
         if (userInput == "") {
             hinderBox->FreeAll();
@@ -262,7 +262,7 @@ void vio::EnterLibrary::Logic(ui::Screen *screen) noexcept
             else if (optStr == "分类") searchType = trm::rqs::BOOK_CATAGORY;
             else searchType = trm::rqs::BOOK_NAME;
 
-            Listen(new trm::Sender({trm::rqs::SEARCH_BOOK, userInput, ToStr(searchType), "false", "false"}), SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::SEARCH_BOOK, userInput, ToStr(searchType), "false", "false"}), _SD_CALLBACK_{
                 hinderBox->FreeAll();
                 books.clear();
                 if (!reply.empty()) {
@@ -469,7 +469,7 @@ void vio::BookPartitions::Load(ui::Screen *screen) noexcept
 
 void vio::BookPartitions::Logic(ui::Screen *screen) noexcept
 {
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new EnterLibrary);
     });
 }
@@ -630,7 +630,7 @@ void vio::BookList::Logic(ui::Screen *screen) noexcept
                 std::string bookInfo = books[i].bookName + '\n' + books[i].bookIsbn + "   " + books[i].bookPublicationDate + "   " + books[i].bookAuthor[0] + "...";
                 if (books[i].bookTot - books[i].bookBorrowed > 0) bookInfo += "\n可借  " + ToStr(books[i].bookTot - books[i].bookBorrowed);
                 btn->SetCaption(bookInfo);
-                btn->SetClickCallback(UI_CALLBACK{
+                btn->SetClickCallback(_UI_CALLBACK_{
                     btn->Disable();
                     selectedBook = books[i];
                     select = i;
@@ -640,7 +640,7 @@ void vio::BookList::Logic(ui::Screen *screen) noexcept
         }
     };
 
-    lastBtn->SetClickCallback(UI_CALLBACK{
+    lastBtn->SetClickCallback(_UI_CALLBACK_{
         lastBtn->Disable();
         nextBtn->Disable();
         if (page > 1) {
@@ -651,7 +651,7 @@ void vio::BookList::Logic(ui::Screen *screen) noexcept
         if (page != totPage) nextBtn->Enable(); 
     });
 
-    nextBtn->SetClickCallback(UI_CALLBACK{
+    nextBtn->SetClickCallback(_UI_CALLBACK_{
         lastBtn->Disable();
         nextBtn->Disable();
         if (page < totPage) {
@@ -662,7 +662,7 @@ void vio::BookList::Logic(ui::Screen *screen) noexcept
         if (page != totPage) nextBtn->Enable(); 
     });
 
-    turnToBtn->SetClickCallback(UI_CALLBACK{
+    turnToBtn->SetClickCallback(_UI_CALLBACK_{
         std::string pageStr = pageInput->GetText();
         tip->SetVisible(false);
         if (pageStr.empty()) {
@@ -684,11 +684,11 @@ void vio::BookList::Logic(ui::Screen *screen) noexcept
         }
     });
 
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new EnterLibrary);
     });
 
-    searchOptBtn->SetClickCallback(UI_CALLBACK{
+    searchOptBtn->SetClickCallback(_UI_CALLBACK_{
         if (!isClicked) {
             isClicked ^= 1;
             searchOptBtn->SetCaption(optStr + "﹀");
@@ -709,7 +709,7 @@ void vio::BookList::Logic(ui::Screen *screen) noexcept
                     btn->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     btn->SetCaption(searchOption[i]);
                     btn->SetFontSize(30);
-                    btn->SetClickCallback(UI_CALLBACK{
+                    btn->SetClickCallback(_UI_CALLBACK_{
                         optStr = btn->GetCaption();
                         searchOptBtn->SetCaption(optStr + "﹀");
                     });
@@ -723,7 +723,7 @@ void vio::BookList::Logic(ui::Screen *screen) noexcept
         }
     });
 
-    searchBtn->SetClickCallback(UI_CALLBACK{
+    searchBtn->SetClickCallback(_UI_CALLBACK_{
         searchBtn->Disable();
         listBox->FreeAll();
         if (userInput == "") {
@@ -752,7 +752,7 @@ void vio::BookList::Logic(ui::Screen *screen) noexcept
             else if (optStr == "分类") searchType = trm::rqs::BOOK_CATAGORY;
             else searchType = trm::rqs::BOOK_NAME;
 
-            Listen(new trm::Sender({trm::rqs::SEARCH_BOOK, userInput, ToStr(searchType), "false", "false"}), SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::SEARCH_BOOK, userInput, ToStr(searchType), "false", "false"}), _SD_CALLBACK_{
                 listBox->FreeAll();
                 books.clear();
                 if (!reply.empty()) {
@@ -930,7 +930,7 @@ void vio::BookDetail::Load(ui::Screen *screen) noexcept
                             btn->SetCaption(ToStr(i) + "天");
                             btn->SetFontSize(40);
                         }
-                        btn->SetClickCallback(UI_CALLBACK{
+                        btn->SetClickCallback(_UI_CALLBACK_{
                             day = i;
                             borrowLast->SetContent("借阅时间 " + ToStr(day) + " 天");
                         });
@@ -943,11 +943,11 @@ void vio::BookDetail::Load(ui::Screen *screen) noexcept
 
 void vio::BookDetail::Logic(ui::Screen *screen) noexcept
 {
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new BookList);
     });
 
-    borrowBtn->SetClickCallback(UI_CALLBACK{
+    borrowBtn->SetClickCallback(_UI_CALLBACK_{
         if (!isClicked) {
             isClicked ^= 1;
             borrowBottomBox->ShowAll();
@@ -962,7 +962,7 @@ void vio::BookDetail::Logic(ui::Screen *screen) noexcept
         }
     });
 
-    confirmBtn->SetClickCallback(UI_CALLBACK{
+    confirmBtn->SetClickCallback(_UI_CALLBACK_{
         if (day == 0) {
             borrowLast->SetContent("借阅时间非法");
             return;
@@ -977,7 +977,7 @@ void vio::BookDetail::Logic(ui::Screen *screen) noexcept
                 return;
             }
             else {
-                Listen(new trm::Sender({trm::rqs::BORROW_BOOK, account.code, account.hashedPassword, selectedBook.bookIsbn, ToStr(day)}), SD_CALLBACK{
+                Listen(new trm::Sender({trm::rqs::BORROW_BOOK, account.code, account.hashedPassword, selectedBook.bookIsbn, ToStr(day)}), _SD_CALLBACK_{
                     screen->FreeAllVisible();
                     if (reply.empty()) {
                         int ret = MessageBox(screen, "借阅失败，请稍后再试", {"确认"});
@@ -1187,7 +1187,7 @@ void vio::BorrowManage::Load(ui::Screen *screen) noexcept
 
 void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
 {
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new EnterLibrary);
     });
 
@@ -1253,7 +1253,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
                 btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
                 btn->SetFontSize(40);
                 btn->SetCaption(bookName[i] + '\n' + "截止" + borrowLogs[i].end.GetDate());
-                btn->SetClickCallback(UI_CALLBACK{
+                btn->SetClickCallback(_UI_CALLBACK_{
                     select = i;
                     returnBtn->Enable();
                     resetBorrowDetail();
@@ -1262,7 +1262,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
         }
     };
 
-    lastBtn->SetClickCallback(UI_CALLBACK{
+    lastBtn->SetClickCallback(_UI_CALLBACK_{
         lastBtn->Enable();
         nextBtn->Enable();
         if (page > 1) page--;
@@ -1272,7 +1272,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
         if (page == totPage) nextBtn->Disable();
     });
 
-    nextBtn->SetClickCallback(UI_CALLBACK{
+    nextBtn->SetClickCallback(_UI_CALLBACK_{
         lastBtn->Enable();
         nextBtn->Enable();
         if (page < totPage) page++;
@@ -1282,7 +1282,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
         if (page == totPage) nextBtn->Disable();
     });
 
-    confirmTurnBtn->SetClickCallback(UI_CALLBACK{
+    confirmTurnBtn->SetClickCallback(_UI_CALLBACK_{
         std::string input = pageInput->GetText();
         tip->SetVisible(false);
         if (input.empty()) {
@@ -1304,7 +1304,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
         }
     });
 
-    refleshBtn->SetClickCallback(UI_CALLBACK{
+    refleshBtn->SetClickCallback(_UI_CALLBACK_{
         borrowLogBox->FreeAll();
         borrowDetailBox->FreeAll();
         ui::LoadingRing *ld = new ui::LoadingRing;{
@@ -1313,7 +1313,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
             ld->SetVSize(100);
             ld->Start();
         }
-        Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_BORROW_LIST, account.code, account.hashedPassword}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_BORROW_LIST, account.code, account.hashedPassword}), _SD_CALLBACK_{
             borrowLogBox->FreeAll();
             borrowLogs.clear();
             bookName.clear();
@@ -1352,7 +1352,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
         });
     });
 
-    returnBtn->SetClickCallback(UI_CALLBACK{
+    returnBtn->SetClickCallback(_UI_CALLBACK_{
         screen->HideAll();
         std::string tip = "是否确认归还\n" + bookName[select] + '\n' + borrowLogs[select].end.GetDate();
         int ret = MessageBox(screen, tip, {"确认", "取消"});
@@ -1361,7 +1361,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
             return;
         }
         else {
-            Listen(new trm::Sender({trm::rqs::RETURN_BOOK, account.code, account.hashedPassword, borrowLogs[select].bookIsbn, ToStr(borrowLogs[select].start.currantTime)}), SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::RETURN_BOOK, account.code, account.hashedPassword, borrowLogs[select].bookIsbn, ToStr(borrowLogs[select].start.currantTime)}), _SD_CALLBACK_{
                 screen->FreeAllVisible();
                 if (reply.empty()) {
                     int ret = MessageBox(screen, "归还失败，请稍后再试", {"确认"});
@@ -1416,7 +1416,7 @@ void vio::BorrowManage::Ready(ui::Screen *screen) noexcept
         ld->SetVSize(100);
         ld->Start();
     }
-    Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_BORROW_LIST, account.code, account.hashedPassword}), SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_BORROW_LIST, account.code, account.hashedPassword}), _SD_CALLBACK_{
         borrowLogBox->FreeAll();
         borrowLogs.clear();
         bookName.clear();
@@ -1607,7 +1607,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                     numInput->AddTo(hbox);
                     numInput->SetHSize(100);
                     numInput->SetText(bookNum);
-                    numInput->SetInputCallback(UI_CALLBACK{
+                    numInput->SetInputCallback(_UI_CALLBACK_{
                         bookNum = numInput->GetText();
                     });
                 }
@@ -1645,7 +1645,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                     numInput->AddTo(hbox);
                     numInput->SetHSize(100);
                     if (selectedBook.bookTot != 0) numInput->SetText(std::to_string(selectedBook.bookTot));
-                    numInput->SetInputCallback(UI_CALLBACK{
+                    numInput->SetInputCallback(_UI_CALLBACK_{
                         bookNum = numInput->GetText();
                     });
                 }
@@ -1653,7 +1653,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                     allBtn->AddTo(hbox);
                     allBtn->SetCaption("all");
                     allBtn->SetHSize(80);
-                    allBtn->SetClickCallback(UI_CALLBACK{
+                    allBtn->SetClickCallback(_UI_CALLBACK_{
                         bookNum = "all";
                         numInput->SetText(bookNum);
                     });
@@ -1707,7 +1707,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 catergoryBtn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 catergoryBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 catergoryBtn->SetCaption(catergory);
-                catergoryBtn->SetClickCallback(UI_CALLBACK{
+                catergoryBtn->SetClickCallback(_UI_CALLBACK_{
                     selectedBook.bookCatagory = catergoryBtn->GetCaption();
                     catergoryLabel->SetContent(selectedBook.bookCatagory);
                 });
@@ -1737,7 +1737,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
 
     auto setStorePositon = [=, this]() -> void {
         for (auto btn : {room302Btn, room303Btn, room401Btn, room402Btn, room403Btn, room621Btn}) {
-            btn->SetClickCallback(UI_CALLBACK{
+            btn->SetClickCallback(_UI_CALLBACK_{
                 selectedBook.storePosition = btn->GetCaption();
                 storePosition->SetContent("图书位置" + selectedBook.storePosition);
                 isChanged ^= 1;
@@ -1780,7 +1780,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                         bookAuthor = text;
                     }
                 }
-                authorInput->SetInputCallback(UI_CALLBACK{
+                authorInput->SetInputCallback(_UI_CALLBACK_{
                     bookAuthor= authorInput->GetText();
                 });
             }
@@ -1815,7 +1815,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                     publishDateInput->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     if (selectedBook.bookPublicationDate != "") publishDateInput->SetText(selectedBook.bookPublicationDate);    
                 }
-                publishDateInput->SetInputCallback(UI_CALLBACK{
+                publishDateInput->SetInputCallback(_UI_CALLBACK_{
                     selectedBook.bookPublicationDate = publishDateInput->GetText();
                 });
             }
@@ -1930,7 +1930,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                                 isbnInput->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                                 if (selectedBook.bookIsbn != "") isbnInput->SetText(selectedBook.bookIsbn);
                             }
-                            isbnInput->SetInputCallback(UI_CALLBACK{
+                            isbnInput->SetInputCallback(_UI_CALLBACK_{
                                 selectedBook.bookIsbn = isbnInput->GetText();
                             });
                             bookisbnLimitTip = new ui::Label;{
@@ -1972,7 +1972,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                             nameInput->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                             if (selectedBook.bookName != "") nameInput->SetText(selectedBook.bookName);
                         }
-                        nameInput->SetInputCallback(UI_CALLBACK{
+                        nameInput->SetInputCallback(_UI_CALLBACK_{
                             selectedBook.bookName = nameInput->GetText();
                         });
                     }
@@ -2019,7 +2019,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 btn->SetCaption(books[i].bookName + "\n" + books[i].bookIsbn + "  存量" + ToStr(books[i].bookTot));
                 btn->SetCaption(books[i].bookName + "\n" + books[i].bookIsbn + "  存量" + ToStr(books[i].bookTot));
             }
-            btn->SetClickCallback(UI_CALLBACK{
+            btn->SetClickCallback(_UI_CALLBACK_{
                 selectedBook = books[i];
                 bookAuthor = "";
                 int len = selectedBook.bookAuthor.size();
@@ -2066,7 +2066,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 searchBox->AddTo(hbox);
                 searchBox->SetHSize(350);
                 searchBox->SetVSize(30);
-                searchBox->SetInputCallback(UI_CALLBACK{
+                searchBox->SetInputCallback(_UI_CALLBACK_{
                     searchInput = searchBox->GetText();
                 });
             }
@@ -2076,7 +2076,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 searchOpt->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 searchOpt->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 searchOpt->SetFontSize(40);
-                searchOpt->SetClickCallback(UI_CALLBACK{
+                searchOpt->SetClickCallback(_UI_CALLBACK_{
                     isClicked ^= 1;
                     if (isClicked) {
                         optBox->SetVisible(true);
@@ -2095,7 +2095,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 searchBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 searchBtn->SetFontSize(40);
             }
-            searchBtn->SetClickCallback(UI_CALLBACK{
+            searchBtn->SetClickCallback(_UI_CALLBACK_{
                 searchBtn->Disable();
                 int searchType;
                 if (searchOpt->GetCaption() == "ISBN") searchType = trm::rqs::BOOK_ISBN;
@@ -2107,7 +2107,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                     bookListLoading->SetSize(30, 30);
                     bookListLoading->Start();
                 }
-                Listen(new trm::Sender({trm::rqs::SEARCH_BOOK, searchInput, ToStr(searchType), "false", "false"}), SD_CALLBACK{
+                Listen(new trm::Sender({trm::rqs::SEARCH_BOOK, searchInput, ToStr(searchType), "false", "false"}), _SD_CALLBACK_{
                     if (reply.empty()) {
                         books.clear();
                         for (auto bookInfo : reply) {
@@ -2153,7 +2153,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
                 btn->SetFontSize(30);
                 btn->SetVisible(false);
-                btn->SetClickCallback(UI_CALLBACK{
+                btn->SetClickCallback(_UI_CALLBACK_{
                     searchOpt->SetCaption("ISBN");
                 });
             }
@@ -2164,7 +2164,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
                 btn->SetFontSize(30);
                 btn->SetVisible(false);
-                btn->SetClickCallback(UI_CALLBACK{
+                btn->SetClickCallback(_UI_CALLBACK_{
                     searchOpt->SetCaption("图书名称");
                 });
             }
@@ -2188,7 +2188,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 lastBtn->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
                 lastBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 if(page == 1) lastBtn->Disable();
-                lastBtn->SetClickCallback(UI_CALLBACK{
+                lastBtn->SetClickCallback(_UI_CALLBACK_{
                     nextBtn->Enable();
                     lastBtn->Enable();
                     if (page > 1) {
@@ -2215,7 +2215,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 nextBtn->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
                 nextBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                 if (page == totPage) nextBtn->Disable();
-                nextBtn->SetClickCallback(UI_CALLBACK{
+                nextBtn->SetClickCallback(_UI_CALLBACK_{
                     lastBtn->Enable();
                     nextBtn->Enable();
                     if (page < totPage) {
@@ -2252,7 +2252,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 btn->SetFontSize(35);
                 btn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 btn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                btn->SetClickCallback(UI_CALLBACK{
+                btn->SetClickCallback(_UI_CALLBACK_{
                     std::string input = inputBox->GetText();
                     tip->SetVisible(false);
                     for (auto c : input) {
@@ -2282,11 +2282,11 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
     };
 
 #pragma region keybutton logic
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new EnterLibrary);
     });
 
-    restoreBookBtn->SetClickCallback(UI_CALLBACK{
+    restoreBookBtn->SetClickCallback(_UI_CALLBACK_{
         opt = "新增图书";
         optEnable();
         selectedBook = trm::Book();
@@ -2298,7 +2298,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
         setStorePositon();
     });
 
-    modifyBookBtn->SetClickCallback(UI_CALLBACK{
+    modifyBookBtn->SetClickCallback(_UI_CALLBACK_{
         opt = "修改图书";
         optEnable();
         selectedBook = trm::Book();
@@ -2309,7 +2309,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
         setStorePositon();
     });
 
-    removeBookBtn->SetClickCallback(UI_CALLBACK{
+    removeBookBtn->SetClickCallback(_UI_CALLBACK_{
         opt = "删除图书";
         optEnable();
         selectedBook = trm::Book();
@@ -2319,7 +2319,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
         removeprework();
     });
 
-    confirmBtn->SetClickCallback(UI_CALLBACK{
+    confirmBtn->SetClickCallback(_UI_CALLBACK_{
         std::vector<std::string> invalid = CheckInput();
         if (invalid.empty()) {
             screen->HideAll();
@@ -2741,7 +2741,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
         titleInputBox = new ui::InputBox;{
             titleInputBox->AddTo(nolifyDetailBox);
             titleInputBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-            titleInputBox->SetInputCallback(UI_CALLBACK{
+            titleInputBox->SetInputCallback(_UI_CALLBACK_{
                 nolifyTitle = titleInputBox->GetText();
             });
         }
@@ -2756,7 +2756,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
             contentInputBox->AddTo(nolifyDetailBox);
             contentInputBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
             contentInputBox->SetFontSize(20);
-            contentInputBox->SetInputCallback(UI_CALLBACK{
+            contentInputBox->SetInputCallback(_UI_CALLBACK_{
                 nolifyContent = contentInputBox->GetText();
             });
         }
@@ -2779,7 +2779,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
                 confirmBtn->SetHPreset(ui::Control::Preset::WRAP_AT_END);
                 confirmBtn->SetVPreset(ui::Control::Preset::WRAP_AT_END);
                 confirmBtn->SetFontSize(40);
-                confirmBtn->SetClickCallback(UI_CALLBACK{
+                confirmBtn->SetClickCallback(_UI_CALLBACK_{
                     partitionTip->SetVisible(false);
                     if (partitionOpt == nullptr) {
                         partitionTip->SetVisible(true);
@@ -2850,7 +2850,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
         }
         if (isChanged) {
             page = 1;
-            Listen(new trm::Sender({trm::rqs::GET_NOLIFY_NUMBER, type}), SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::GET_NOLIFY_NUMBER, type}), _SD_CALLBACK_{
                 if (reply.empty()) {
                     assert(false);
                 }
@@ -2870,7 +2870,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
         }
         isChanged = false;
         notices.clear();
-        Listen(new trm::Sender({trm::rqs::GET_NOLIFY_LIST, ToStr((page - 1) * 10), ToStr(page * 10), type}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::GET_NOLIFY_LIST, ToStr((page - 1) * 10), ToStr(page * 10), type}), _SD_CALLBACK_{
             nolifyDetailBox->FreeAll();
             if (reply.empty()) {
                 printDeleteDetail();
@@ -2917,7 +2917,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
                         btn->SetHPreset(ui::Control::Preset::PLACE_AT_END);
                         btn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                         btn->SetFontSize(40);
-                        btn->SetClickCallback(UI_CALLBACK{
+                        btn->SetClickCallback(_UI_CALLBACK_{
                             selectedNotice = notices[i];
                             screen->HideAll();
                             auto[success, reply] = WaitServer(screen, {trm::rqs::GET_NOLIFY, ToStr((page - 1) * 10 + i), type}, "等待服务端响应");
@@ -2956,11 +2956,11 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
                         btn->SetHPreset(ui::Control::Preset::PLACE_AT_END);
                         btn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                         btn->SetFontSize(40);
-                        btn->SetClickCallback(UI_CALLBACK{
+                        btn->SetClickCallback(_UI_CALLBACK_{
                             screen->HideAll();
                             int ret = MessageBox(screen, "确认删除通知？", {"确认", "取消"});
                             if (ret == 0) {
-                                Listen(new trm::Sender({trm::rqs::DELETE_NOLIFY, account.code, account.hashedPassword, ToStr((page - 1) * 10 + i), type}), SD_CALLBACK{
+                                Listen(new trm::Sender({trm::rqs::DELETE_NOLIFY, account.code, account.hashedPassword, ToStr((page - 1) * 10 + i), type}), _SD_CALLBACK_{
                                     screen->FreeAllVisible();
                                     if (reply[0] == trm::rpl::SUCC) {
                                         int succret = MessageBox(screen, "通知删除成功", {"确认"});
@@ -3005,7 +3005,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
                     lastBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     lastBtn->SetFontSize(40);
                     if (page == 1) lastBtn->Disable();
-                    lastBtn->SetClickCallback(UI_CALLBACK{
+                    lastBtn->SetClickCallback(_UI_CALLBACK_{
                         if (page > 1) {
                             page--;
                             searchNolify();
@@ -3026,7 +3026,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
                     nextBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     nextBtn->SetFontSize(40);
                     if (page == totPage) nextBtn->Disable();
-                    nextBtn->SetClickCallback(UI_CALLBACK{
+                    nextBtn->SetClickCallback(_UI_CALLBACK_{
                         if (page < totPage) {
                             page++;
                             searchNolify();
@@ -3067,12 +3067,12 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
         }
     };
 
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new eea::MainPage);
     });
 
     for (auto btn : {publishBtn, deleteBtn}) {
-        btn->SetClickCallback(UI_CALLBACK{
+        btn->SetClickCallback(_UI_CALLBACK_{
             if (opt != nullptr) opt->Enable();
             opt = btn;
             opt->Disable();
@@ -3084,7 +3084,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
 
 
     for (auto btn : {headlineBtn, newsBtn, noticeBtn}) {
-        btn->SetClickCallback(UI_CALLBACK{
+        btn->SetClickCallback(_UI_CALLBACK_{
             if (partitionOpt != nullptr) partitionOpt->Enable();
             partitionOpt = btn;
             partitionOpt->Disable();
@@ -3174,7 +3174,7 @@ void vio::ViewNolify::Load(ui::Screen *screen) noexcept
 
 void vio::ViewNolify::Logic(ui::Screen *screen) noexcept
 {
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         if (from == "ViewNolifyList") SwitchTo(new vio::ViewNolifyList(len, type, std::string("ViewNolify")));
         else SwitchTo(new eea::MainPage);
     });
@@ -3185,7 +3185,7 @@ void vio::ViewNolify::Logic(ui::Screen *screen) noexcept
         loading->SetPreset(ui::Control::Preset::PLACE_AT_CENTER);
         loading->Start();
     }
-    Listen(new trm::Sender({trm::rqs::GET_NOLIFY, ToStr(selectedNoticeNum), type}), SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::GET_NOLIFY, ToStr(selectedNoticeNum), type}), _SD_CALLBACK_{
         screen->FreeAllVisible();
         if (reply.empty()) {
             int ret = MessageBox(screen, "该通知不存在", {"确认"});
@@ -3277,7 +3277,7 @@ void vio::ViewNolifyList::Load(ui::Screen *screen) noexcept
 
 void vio::ViewNolifyList::Logic(ui::Screen *screen) noexcept
 {
-    backBtn->SetClickCallback(UI_CALLBACK{ 
+    backBtn->SetClickCallback(_UI_CALLBACK_{ 
         SwitchTo(new eea::MainPage);
     });
     
@@ -3303,7 +3303,7 @@ void vio::ViewNolifyList::Logic(ui::Screen *screen) noexcept
                     btn->SetCaption(nolifyList[i].title);
                     btn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
-                    btn->SetClickCallback(UI_CALLBACK{
+                    btn->SetClickCallback(_UI_CALLBACK_{
                         selectedNoticeNum = i + (page - 1) * 10;
                         SwitchTo(new vio::ViewNolify(len, type, "ViewNolifyList"));
                     });
@@ -3319,7 +3319,7 @@ void vio::ViewNolifyList::Logic(ui::Screen *screen) noexcept
     };
 
     getNolifyList = [=, this]() {
-        Listen(new trm::Sender({trm::rqs::GET_NOLIFY_LIST, ToStr((page - 1) * 10), ToStr(page * 10), type}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::GET_NOLIFY_LIST, ToStr((page - 1) * 10), ToStr(page * 10), type}), _SD_CALLBACK_{
             if (!reply.empty()) {
                 if (reply[0] == trm::rpl::TIME_OUT) {
                     screen->HideAll();
@@ -3339,7 +3339,7 @@ void vio::ViewNolifyList::Logic(ui::Screen *screen) noexcept
     };
 
 
-    lastBtn->SetClickCallback(UI_CALLBACK{
+    lastBtn->SetClickCallback(_UI_CALLBACK_{
         nextBtn->Enable();
         if (page > 1) {
             page--;
@@ -3348,7 +3348,7 @@ void vio::ViewNolifyList::Logic(ui::Screen *screen) noexcept
         getNolifyList();
     });
 
-    nextBtn->SetClickCallback(UI_CALLBACK{
+    nextBtn->SetClickCallback(_UI_CALLBACK_{
         lastBtn->Enable();
         if (page < totPage) {
             page++;

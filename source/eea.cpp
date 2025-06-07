@@ -161,7 +161,7 @@ void eea::AccountDelail::Load(ui::Screen *screen) noexcept
 
 void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
 {
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         screen->HideAll();
         auto click = MessageBox(screen, "您将丢弃当前编辑的内容，继续返回吗？", {"确认", "取消"});
         screen->FreeAllVisible();
@@ -172,13 +172,13 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
         }
     });
 
-    userInput->SetInputCallback(UI_CALLBACK{
+    userInput->SetInputCallback(_UI_CALLBACK_{
         newAccount.code = userInput->GetText();
     });
-    userInput->SetExceedLimitCallback(UI_CALLBACK{
+    userInput->SetExceedLimitCallback(_UI_CALLBACK_{
         limitTips->Show();
     });
-    paswInput->SetExceedLimitCallback(UI_CALLBACK{
+    paswInput->SetExceedLimitCallback(_UI_CALLBACK_{
         limitTips->Show();
     });
 
@@ -203,29 +203,29 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
         } while (c == '1' || c == 'l' || c == 'I' || c == '0' || c == 'O');
         return c;
     };
-    randPaswBtn->SetClickCallback(UI_CALLBACK{
+    randPaswBtn->SetClickCallback(_UI_CALLBACK_{
         std::string newPasw;
         for (int c = 10; c--; ) newPasw += rand();
         paswInput->SetText(newPasw);
     });
 
-    columnAdd->SetClickCallback(UI_CALLBACK{
+    columnAdd->SetClickCallback(_UI_CALLBACK_{
         if (columnNum < 7) {
             ++columnNum;
             reorganizeAccessBox();
         }
     });
-    columnDel->SetClickCallback(UI_CALLBACK{
+    columnDel->SetClickCallback(_UI_CALLBACK_{
         if (columnNum > 1) {
             --columnNum;
             reorganizeAccessBox();
         }
     });
 
-    auto accessOn = UI_CALLBACK{
+    auto accessOn = _UI_CALLBACK_{
         newAccount.access.push_back((trm::Access)ToNum(name));
     };
-    auto accessOff = UI_CALLBACK{
+    auto accessOff = _UI_CALLBACK_{
         auto toDelete = newAccount.access.end();
         for (auto it = newAccount.access.begin(); it != newAccount.access.end(); ++it) {
             if (*it == (trm::Access)ToNum(name)) {
@@ -269,7 +269,7 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
         }
     };
 
-    auto delTag = UI_CALLBACK{
+    auto delTag = _UI_CALLBACK_{
         int idx = ToNum(name);
         QueueFree(tagHors[idx]);
         tagHors.erase(idx);
@@ -277,7 +277,7 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
         tagValues.erase(idx);
     };
 
-    addTagBtn->SetClickCallback(UI_CALLBACK{
+    addTagBtn->SetClickCallback(_UI_CALLBACK_{
         ++tagHorsNum;
         auto &hbox = tagHors[tagHorsNum] = new ui::HorizontalBox; {
             hbox->AddTo(editBox);
@@ -325,7 +325,7 @@ void eea::AccountDelail::Logic(ui::Screen *screen) noexcept
         }
     });
 
-    okBtn->SetClickCallback(UI_CALLBACK{
+    okBtn->SetClickCallback(_UI_CALLBACK_{
         auto pasw = paswInput->GetText();
         if (newAccount.code == "" || pasw == "") {
             screen->HideAll();
@@ -400,7 +400,10 @@ void eea::EnterCanteen::Logic(ui::Screen *screen) noexcept
 
 void eea::EnterCanteen::Ready(ui::Screen *screen) noexcept
 {
-    ;
+    screen->HideAll();
+    MessageBox(screen, "尽情期待");
+    screen->FreeAllVisible();
+    SwitchTo(new MainPage);
 }
 
 void eea::Login::Load(ui::Screen *screen) noexcept
@@ -507,21 +510,21 @@ void eea::Login::Load(ui::Screen *screen) noexcept
 
 void eea::Login::Logic(ui::Screen *screen) noexcept
 {
-    userInput->SetInputCallback(UI_CALLBACK{
+    userInput->SetInputCallback(_UI_CALLBACK_{
         username = userInput->GetText();
     });
-    userInput->SetExceedLimitCallback(UI_CALLBACK{
+    userInput->SetExceedLimitCallback(_UI_CALLBACK_{
         tips->SetContent("帐号只能由数字、大小写字母以及 _-@. 构成，\n且长度不超过 64 个字符。");
         tips->Show();
     });
-    paswInput->SetInputCallback(UI_CALLBACK{
+    paswInput->SetInputCallback(_UI_CALLBACK_{
         password = paswInput->GetText();
     });
-    paswInput->SetExceedLimitCallback(UI_CALLBACK{
+    paswInput->SetExceedLimitCallback(_UI_CALLBACK_{
         tips->SetContent("密码只能由 ASCII 字符构成，\n且长度不超过 64 个字符。");
         tips->Show();
     });
-    loginBtn->SetClickCallback(UI_CALLBACK{
+    loginBtn->SetClickCallback(_UI_CALLBACK_{
         if (username == "" || password == "") {
             tips->SetContent("帐号或密码不能为空。");
             tips->Show();
@@ -549,10 +552,10 @@ void eea::Login::Logic(ui::Screen *screen) noexcept
             }
         }
     });
-    forgetBtn->SetClickCallback(UI_CALLBACK{
+    forgetBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new Forget);
     });
-    reserveBtn->SetClickCallback(UI_CALLBACK{
+    reserveBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterReserve);
     });
 }
@@ -628,6 +631,11 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                         list->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     }
                     {
+                        unreadNum = new ui::Label("当前未读邮件数：【0】"); {
+                            unreadNum->AddTo(list);
+                            unreadNum->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            unreadNum->SetFontSize(30);
+                        }
                         list->Add(new ui::Spacer(0, 50));
                         msgBox = new ui::VerticalScrollingBox; {
                             msgBox->AddTo(list);
@@ -721,7 +729,7 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
 
 void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
 {
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new MainPage);
     });
 
@@ -738,7 +746,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         clearDetail();
         mailContent->SetContent("加载中...");
 
-        Listen(new trm::Sender({trm::rqs::GET_MESSAGE, username, password, index}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::GET_MESSAGE, username, password, index}), _SD_CALLBACK_{
             if (reply[0] == trm::rpl::TIME_OUT) {
                 mailContent->SetContent("服务端未响应，请检查后重试");
             } else if (reply[0] == trm::rpl::FAIL) {
@@ -748,7 +756,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
                 subject->SetContent("主题：" + con.subject);
                 sender->SetContent("发件人：" + con.sender);
                 receiver->SetContent("收件人：" + con.receiver);
-                dateTime->SetContent("时间：" + ToStr(con.timeStamp));
+                dateTime->SetContent("时间：" + trm::timestampToString(ToStr(con.timeStamp)));
                 if (con.read) state->SetContent("已读");
                 else state->SetContent("未读");
                 indexInfo->SetContent("信件编号：" + index);
@@ -780,7 +788,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
                 btn->SetCaption("查看");
                 btn->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 btn->SetName(ToStr(index));
-                btn->SetClickCallback(UI_CALLBACK{ checkMail(name); });
+                btn->SetClickCallback(_UI_CALLBACK_{ checkMail(name); });
                 btn->SetFontSize(40);
             }
             auto label = new ui::Label; {
@@ -793,7 +801,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         return res;
     };
 
-    auto refreshMsgbox = UI_CALLBACK{
+    auto refreshMsgbox = _UI_CALLBACK_{
         if (!turnable) return;
         turnable = false;
         turner->Disable();
@@ -804,7 +812,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
             label->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
         }
         unsigned long long from = (turner->GetCurrentPage() - 1) * eachPageNum;
-        Listen(new trm::Sender({trm::rqs::GET_MESSAGE_PROFILE, username, password, ToStr(from), ToStr(eachPageNum)}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::GET_MESSAGE_PROFILE, username, password, ToStr(from), ToStr(eachPageNum)}), _SD_CALLBACK_{
             if (reply[0] == trm::rpl::TIME_OUT) {
                 label->SetContent("加载失败，请重试");
             } else {
@@ -818,6 +826,13 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
             turner->Enable();
             refreshBtn->Enable();
         });
+        Listen(new trm::Sender({trm::rqs::GET_UNREAD_MESSAGE_NUMBER, username, password}), _SD_CALLBACK_{
+            if (reply[0] == trm::rpl::TIME_OUT) {
+                unreadNum->SetContent("当前未读邮件数：【获取超时】");
+            } else {
+                unreadNum->SetContent("当前未读邮件数：【" + reply[0] + "】");
+            }
+        });
     };
 
     turner->SetTurnCallback(refreshMsgbox);
@@ -830,7 +845,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         turnable = false;
 
         msgBox->FreeAll();
-        Listen(new trm::Sender({trm::rqs::GET_MESSAGE_NUMBER, username, password}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::GET_MESSAGE_NUMBER, username, password}), _SD_CALLBACK_{
             if (reply[0] == trm::rpl::TIME_OUT) {
                 msgBox->Add(new ui::Center(
                     new ui::Label("服务端未响应，请检查后重试", ui::Control::Preset::WRAP_AT_CENTER), 
@@ -852,7 +867,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         });
     };
 
-    refreshBtn->SetClickCallback(UI_CALLBACK{
+    refreshBtn->SetClickCallback(_UI_CALLBACK_{
         refreshList();
         clearDetail();
     });
@@ -890,7 +905,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         }
     };
 
-    delteMailBtn->SetClickCallback(UI_CALLBACK{
+    delteMailBtn->SetClickCallback(_UI_CALLBACK_{
         screen->HideAll();
         auto sure = MessageBox(screen, "您确定要删除该邮件吗？", {"确定", "取消"});
         screen->FreeAllVisible();
@@ -899,11 +914,11 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
             screen->FreeAllVisible();
             if (success == 1) {
                 if (reply[0] == trm::rpl::SUCC) {
+                    refreshList();
+                    clearDetail();
                     MessageBox(screen, "删除成功");
                     screen->FreeAllVisible();
                     screen->ShowAll();
-                    refreshList();
-                    clearDetail();
                 } else if (reply[0] == trm::rpl::FAIL) {
                     MessageBox(screen, "删除失败！\n可能信件已经不存在");
                     screen->FreeAllVisible();
@@ -927,7 +942,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         }
     });
 
-    writeMailBtn->SetClickCallback(UI_CALLBACK{
+    writeMailBtn->SetClickCallback(_UI_CALLBACK_{
         screen->HideAll();
         auto cli = MessageBox(screen, "更多功能：", {"写信", "清空我的信件", "重置邮件系统", "返回上一级"});
         screen->FreeAllVisible();
@@ -966,10 +981,10 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
         }
     };
 
-    markAsReadBtn->SetClickCallback(UI_CALLBACK{
+    markAsReadBtn->SetClickCallback(_UI_CALLBACK_{
         mark(true);
     });
-    markAsUnreadBtn->SetClickCallback(UI_CALLBACK{
+    markAsUnreadBtn->SetClickCallback(_UI_CALLBACK_{
         mark(false);
     });
 }
@@ -1045,7 +1060,7 @@ void eea::WriteMail::Load(ui::Screen *screen) noexcept
 
 void eea::WriteMail::Logic(ui::Screen *screen) noexcept
 {
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         screen->HideAll();
         auto cli = MessageBox(screen, "您将丢弃当前编辑的内容，继续返回吗？", {"确定", "取消"});
         screen->FreeAllVisible();
@@ -1096,7 +1111,7 @@ void eea::WriteMail::Logic(ui::Screen *screen) noexcept
         }
     };
 
-    sendBtn->SetClickCallback(UI_CALLBACK{
+    sendBtn->SetClickCallback(_UI_CALLBACK_{
         if (target->GetText() == "" || subject->GetText() == "" || inputB->GetText() == "") {
             screen->HideAll();
             MessageBox(screen, "请填写完整表单！");
@@ -1291,28 +1306,28 @@ void eea::MainPage::Load(ui::Screen *screen) noexcept
 
 void eea::MainPage::Logic(ui::Screen *screen) noexcept
 {
-    logoutBtn->SetClickCallback(UI_CALLBACK{
+    logoutBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new Login);
     });
-    reserveBtn->SetClickCallback(UI_CALLBACK{
+    reserveBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterReserve);
     });
-    courseBtn->SetClickCallback(UI_CALLBACK{ // 我要改一下
+    courseBtn->SetClickCallback(_UI_CALLBACK_{ // 我要改一下
         SwitchTo(new lab::EnterCourse);
     });
-    libraryBtn->SetClickCallback(UI_CALLBACK{
+    libraryBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new vio::EnterLibrary);
     });
-    canteenBtn->SetClickCallback(UI_CALLBACK{
+    canteenBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new EnterCanteen);
     });
-    mailBtn->SetClickCallback(UI_CALLBACK{
+    mailBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new EnterMailSystem);
     });
-    nolifyBtn->SetClickCallback(UI_CALLBACK{
+    nolifyBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new vio::EnterNolify);
     });
-    accBtn->SetClickCallback(UI_CALLBACK{
+    accBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new EnterAccManage);
     });
 
@@ -1334,11 +1349,11 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
                 btn->SetSize(1, 1);
                 btn->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 btn->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
-                btn->SetClickCallback(UI_CALLBACK{
+                btn->SetClickCallback(_UI_CALLBACK_{
                     headlineTurners[selected]->Enable();
                     selected = headlineList.size() - 1 - i;
                     headlineBtn->SetCaption(headlineList[headlineList.size() - 1 - selected].first.GetHeadlineTitle());
-                    headlineBtn->SetClickCallback(UI_CALLBACK{
+                    headlineBtn->SetClickCallback(_UI_CALLBACK_{
                         selectedNoticeNum = headlineList[headlineList.size() - 1 - selected].second;
                         SwitchTo(new vio::ViewNolify(headlineNum, std::string("headline"), std::string("MainPage")));
                     });
@@ -1350,7 +1365,7 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
         }
         selected = 0;
         headlineBtn->SetCaption(headlineList[headlineList.size() - 1 - selected].first.GetHeadlineTitle());
-        headlineBtn->SetClickCallback(UI_CALLBACK{
+        headlineBtn->SetClickCallback(_UI_CALLBACK_{
         selectedNoticeNum = headlineList[headlineList.size() - 1 - selected].second;
             SwitchTo(new vio::ViewNolify(headlineNum, std::string("headline"), std::string("MainPage")));
         });
@@ -1377,7 +1392,7 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
                 button->SetHPreset(ui::Control::Preset::WRAP_AT_END);
                 button->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
                 button->SetFontSize(30);
-                button->SetClickCallback(UI_CALLBACK{
+                button->SetClickCallback(_UI_CALLBACK_{
                     SwitchTo(new vio::ViewNolifyList(newsNum, std::string("news"), std::string("MainPage")));
                 });
             }
@@ -1404,7 +1419,7 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
                     btn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
                     btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
                     btn->SetFontSize(25);
-                    btn->SetClickCallback(UI_CALLBACK{
+                    btn->SetClickCallback(_UI_CALLBACK_{
                         selectedNoticeNum = newsList[i].second;
                         SwitchTo(new vio::ViewNolify(newsNum, std::string("news"), std::string("MainPage")));
                     });
@@ -1441,7 +1456,7 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
                 button->SetHPreset(ui::Control::Preset::WRAP_AT_END);
                 button->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
                 button->SetFontSize(30);
-                button->SetClickCallback(UI_CALLBACK{
+                button->SetClickCallback(_UI_CALLBACK_{
                     SwitchTo(new vio::ViewNolifyList(noticeNum, std::string("notice"), std::string("MainPage")));
                 });
             }
@@ -1468,7 +1483,7 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
                     btn->SetHPreset(ui::Control::Preset::WRAP_AT_FRONT);
                     btn->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
                     btn->SetFontSize(25);
-                    btn->SetClickCallback(UI_CALLBACK{
+                    btn->SetClickCallback(_UI_CALLBACK_{
                         selectedNoticeNum = noticeList[i].second;
                         SwitchTo(new vio::ViewNolify(noticeNum, std::string("notice"), std::string("MainPage")));
                     });
@@ -1518,7 +1533,7 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
                     high = noticeNum;
                 }
             }
-            Listen(new trm::Sender({trm::rqs::GET_NOLIFY_LIST, ToStr(low), ToStr(high), type}), SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::GET_NOLIFY_LIST, ToStr(low), ToStr(high), type}), _SD_CALLBACK_{
                 if (!reply.empty() && reply[0] == trm::rpl::TIME_OUT) {
                     ui::Label *label = new ui::Label("加载失败，请重试"); {
                         label->AddTo(verNolify);
@@ -1555,7 +1570,7 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
         newsList.clear();
         noticeList.clear();
 
-        Listen(new trm::Sender({trm::rqs::GET_NOLIFY_NUMBER, trm::Notice::patition[0], trm::Notice::patition[1], trm::Notice::patition[2]}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::GET_NOLIFY_NUMBER, trm::Notice::patition[0], trm::Notice::patition[1], trm::Notice::patition[2]}), _SD_CALLBACK_{
             if (reply[0] == trm::rpl::TIME_OUT) {
                 ui::Label *label = new ui::Label("加载失败，请重试"); {
                     label->AddTo(verNolify);
@@ -1595,7 +1610,7 @@ void eea::MainPage::Tick(ui::Screen *screen) noexcept
         ++selected;
         selected %= headlineNum;
         headlineBtn->SetCaption(headlineList[headlineList.size() - 1 - selected].first.GetHeadlineTitle());
-        headlineBtn->SetClickCallback(UI_CALLBACK{
+        headlineBtn->SetClickCallback(_UI_CALLBACK_{
             selectedNoticeNum = headlineList[headlineList.size() - 1 - selected].second;
             SwitchTo(new vio::ViewNolify(headlineNum, std::string("headline"), std::string("MainPage")));
         });
@@ -1715,7 +1730,7 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
 
 void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
 {
-    resetBtn->SetClickCallback(UI_CALLBACK{
+    resetBtn->SetClickCallback(_UI_CALLBACK_{
         screen->HideAll();
         auto click = MessageBox(screen, "你正在进行一个危险操作！\n您将重置帐户与权限系统，这意味着清空系统内所有的帐户信息，并退出登录。\n确认吗？", {"确认", "取消"});
         screen->FreeAllVisible();
@@ -1745,7 +1760,7 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
         }
     });
 
-    auto deleteCallback = UI_CALLBACK{
+    auto deleteCallback = _UI_CALLBACK_{
         if (name == username) {
             screen->HideAll();
             MessageBox(screen, "不能删除自己！");
@@ -1832,7 +1847,7 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
             deleteBtn->SetHPreset(ui::Control::Preset::PLACE_AT_CENTER);
         }
     };
-    auto detailBtnCallback = UI_CALLBACK{
+    auto detailBtnCallback = _UI_CALLBACK_{
         if (detailCalling) return;
         detailCalling = true;
         detailBox->FreeAll();
@@ -1847,7 +1862,7 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
                 ring->Start();
             }
         }
-        Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_DETAIL, username, password, name}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_DETAIL, username, password, name}), _SD_CALLBACK_{
             center->FreeAll();
             if (reply[0] == trm::rpl::TIME_OUT) {
                 center->Add(new ui::Label("服务端未响应，请检查后重试"));
@@ -1860,10 +1875,10 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
             detailCalling = false;
         });
     };
-    backBtn->SetClickCallback(UI_CALLBACK{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new MainPage);
     });
-    refreshBtn->SetClickCallback(refresh = UI_CALLBACK{
+    refreshBtn->SetClickCallback(refresh = _UI_CALLBACK_{
         refreshBtn->Enable(false);
         list->FreeAll();
         auto label = new ui::Label; {
@@ -1875,7 +1890,7 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
         list->Hide();
         labelCenter->Hide();
         ringCenter->Show();
-        Listen(new trm::Sender({trm::rqs::LIST_ACCOUNT, username, password}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::LIST_ACCOUNT, username, password}), _SD_CALLBACK_{
             list->Hide();
             labelCenter->Hide();
             ringCenter->Hide();
@@ -1901,7 +1916,7 @@ void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
             refreshBtn->Enable();
         });
     });
-    newBtn->SetClickCallback(UI_CALLBACK{
+    newBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new AccountDelail);
     });
 }

@@ -5,26 +5,26 @@
 #include "transmitter.hpp"
 #include "data_base.hpp"
 
-#define EEA
-#define LAB
-#define VIO_VV
+#define _EEA_
+#define _LAB_
+#define _VIO_VV_
 
-#ifdef D_EEA
-    #undef LAB
-    #undef VIO_VV
+#ifdef D__EEA_
+    #undef _LAB_
+    #undef _VIO_VV_
 #endif
-#ifdef D_LAB
-    #undef EEA
-    #undef VIO_VV
+#ifdef D__LAB_
+    #undef _EEA_
+    #undef _VIO_VV_
 #endif
-#ifdef D_VIO_VV
-    #undef EEA
-    #undef LAB
+#ifdef D__VIO_VV_
+    #undef _EEA_
+    #undef _LAB_
 #endif
 
-#ifdef LAB
-    #define COURSE
-    #define RESERVE
+#ifdef _LAB_
+    #define _COURSE_
+    #define _RESERVE_
 #endif
 
 #define f(info) cout << __LINE__ << " >>> "; for (const auto &each : info) { cout << each << " :: "; } cout << endl;
@@ -37,7 +37,7 @@ int main()
     freopen("out.txt", "w", stdout);
     auto &ssys = SSys::Get();
 
-#ifdef EEA
+#ifdef _EEA_
 
     f(ssys.ListAccount({trm::rqs::LIST_ACCOUNT, "adm", "123"}));
 
@@ -180,7 +180,7 @@ int main()
 
 #endif
 
-#ifdef VIO_VV
+#ifdef _VIO_VV_
     f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", "content..", trm::Notice::patition[0]}));
     f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", "content...", trm::Notice::patition[0]}));
     f(ssys.PublishNolify({trm::rqs::PUBLISH_NOLIFY, "adm", "123", "Title", "content....", trm::Notice::patition[0]}));
@@ -294,7 +294,7 @@ int main()
     f(ssys.ResetMailSystem({trm::rqs::RESET_MAIL_SYSTEM, "adm", "123"}));
 
 #endif
-#ifdef LAB
+#ifdef _LAB_
     f(ssys.AddCourse({trm::rqs::ADD_COURSE,"adm","123","10086"})); // succ//ac
     f(ssys.AddCourse({trm::rqs::ADD_COURSE,"adm","123","10086"})); // fail course exist
     f(ssys.AddCourse({trm::rqs::ADD_COURSE,"adm","123","12345"})); // fail no match course//ac

@@ -2,9 +2,9 @@
 #define __UI_HPP__
 
 #ifdef NDEBUG
-#define DRAW_DEBUG_RECT
+#define _DRAW_DEBUG_RECT_
 #else
-#define DRAW_DEBUG_RECT \
+#define _DRAW_DEBUG_RECT_ \
     sf::RectangleShape ____(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL])); \
     ____.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL])); \
     ____.setOutlineColor(sf::Color::Yellow); \

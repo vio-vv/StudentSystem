@@ -18,3 +18,4 @@ makefile
 /debug/debug.cpp
 /client/space/
 /server/space/
+server/log.txt

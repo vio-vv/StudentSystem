@@ -1,12 +1,8 @@
 #ifndef __PAGE_HEADER_HPP__
 #define __PAGE_HEADER_HPP__
 
-#define LINK "..\\server\\space"
-#define SELF ".\\space"
-#define SELF_AS_SENDER "..\\client\\space"
-
-#define UI_CALLBACK [=, this](const std::string &name, const sf::Event &event) -> void 
-#define SD_CALLBACK [=, this](int id, const trm::Information &reply) -> void 
+#define _UI_CALLBACK_ [=, this](const std::string &name, const sf::Event &event) -> void 
+#define _SD_CALLBACK_ [=, this](int id, const trm::Information &reply) -> void 
 
 #include <iostream>
 #include <cassert>
@@ -18,7 +14,6 @@ namespace clpg{
 class PageBase {
 public:
     using Callback = std::function<void (int, const trm::Information &)>;
-    PageBase();
     PageBase *RunOn(ui::Screen *screen) noexcept;
 protected:
     virtual void Load(ui::Screen *screen) noexcept = 0;
@@ -50,7 +45,6 @@ protected:
     void SetLimit(int newLimit) noexcept;
     void QueueFree(ui::Control *control) noexcept;
 private:
-    static bool initialized;
     std::vector<std::pair<trm::Sender *, Callback>> queue;
     PageBase *nextPage = nullptr;
     int interval = 500;

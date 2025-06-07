@@ -6,7 +6,6 @@ std::string clpg::PageBase::password = "";
 trm::Account clpg::PageBase::account;
 
 std::vector<std::string> clpg::PageBase::argvs;
-bool clpg::PageBase::initialized = false;
 std::string clpg::PageBase::coursename = "";
 trm::IdAndPhone clpg::PageBase::idandphone;
 trm::ReserveDate clpg::PageBase::rdate;
@@ -15,16 +14,6 @@ trm::CourseInformation clpg::PageBase::courseinfo;
 std::string clpg::PageBase::rnum = "";
 
 unsigned long long clpg::PageBase::selectedNoticeNum = 0;
-
-clpg::PageBase::PageBase()
-{
-    if (!initialized) {
-
-        trm::Sender::Init(LINK, SELF, SELF_AS_SENDER);
-
-        initialized = true;
-    }
-}
 
 clpg::PageBase *clpg::PageBase::RunOn(ui::Screen *screen) noexcept
 {

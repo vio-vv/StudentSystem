@@ -344,7 +344,7 @@ void ui::Container::Draw(sf::RenderWindow &screen, float delta) noexcept
         child->Draw(screen, delta);
     }
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 ui::Container::~Container() noexcept
@@ -864,7 +864,7 @@ void ui::PageTurner::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
     layer.Draw(screen, delta);
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::PageTurner::FreshUp() noexcept
@@ -902,7 +902,7 @@ void ui::Label::Draw(sf::RenderWindow &screen, float delta) noexcept
         screen.draw(rect);
     }
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::Button::SetCaption(const std::string &caption) noexcept
@@ -1114,7 +1114,7 @@ void ui::ToggleButton::Draw(sf::RenderWindow &screen, float delta) noexcept
     }
     layer.Draw(screen, delta);
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::Button::Draw(sf::RenderWindow &screen, float delta) noexcept
@@ -1136,7 +1136,7 @@ void ui::Button::Draw(sf::RenderWindow &screen, float delta) noexcept
     }
     layer.Draw(screen, delta);
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::Button::SetEntered(bool flag) noexcept
@@ -1352,7 +1352,7 @@ void ui::InputBox::Draw(sf::RenderWindow &screen, float delta) noexcept
         }
     }
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::InputBox::SetInputting(bool flag) noexcept
@@ -1425,7 +1425,7 @@ void ui::Spacer::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
     screen.draw(rect);
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::ScrollBar::SetPort(unsigned int absolute) noexcept
@@ -1550,7 +1550,7 @@ void ui::ScrollBar::Draw(sf::RenderWindow &screen, float delta) noexcept
 {
     layer.Draw(screen, delta);
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::HorizontalScrollBar::Update(bool resetMinSize) noexcept
@@ -1662,7 +1662,7 @@ void ui::ScrollingBox::Draw(sf::RenderWindow &screen, float delta) noexcept
 
     GetBar()->Draw(screen, delta);
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::ScrollingBox::UpdateInQueue(bool argv) noexcept
@@ -1752,7 +1752,7 @@ void ui::Timer::Draw(sf::RenderWindow &screen, float delta) noexcept {
         clock.restart();
     }
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::LoadingRing::Draw(sf::RenderWindow &screen, float delta) noexcept
@@ -1775,7 +1775,7 @@ void ui::LoadingRing::Draw(sf::RenderWindow &screen, float delta) noexcept
 
     screen.draw(circle);
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::LoadingRingWithText::SetFontSize(unsigned int size) noexcept
@@ -1857,7 +1857,7 @@ void ui::LoadingRingWithText::Draw(sf::RenderWindow &screen, float delta) noexce
 {
     layer.Draw(screen, delta);
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::LoadingRingWithText::Count() noexcept
@@ -1912,7 +1912,7 @@ void ui::PictureBox::Draw(sf::RenderWindow &screen, float delta) noexcept
         screen.draw(rect);
     }
 
-    DRAW_DEBUG_RECT;
+    _DRAW_DEBUG_RECT_;
 }
 
 void ui::PictureBox::Update(bool resetMinSize) noexcept

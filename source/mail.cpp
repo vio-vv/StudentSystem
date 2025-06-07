@@ -17,7 +17,7 @@ trm::Information ssys::MailSystem::SendMessage(const trm::Information &informati
         return {trm::rpl::FAIL};
     }
 
-    base[BOX][information[3]].Push(trm::MailContent{trm::GetTimeStamp(), information[1], information[3], information[4], information[5], false});
+    base[BOX][information[3]].Push(trm::MailContent{trm::GetTimestamp(), information[1], information[3], information[4], information[5], false});
     base[UNREAD_NUM][information[3]] = ToStr(ToNum<unsigned long long>(base[UNREAD_NUM][information[3]]) + 1);
 
     return {trm::rpl::SUCC};

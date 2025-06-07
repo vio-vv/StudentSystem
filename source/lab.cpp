@@ -127,24 +127,24 @@ void lab::EnterCourse::Load(ui::Screen *screen) noexcept
 
 void lab::EnterCourse::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new eea::MainPage);
     });
-    btn2->SetClickCallback(UI_CALLBACK{
+    btn2->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::CourseList);
     });
-    input->SetInputCallback(UI_CALLBACK{
+    input->SetInputCallback(_UI_CALLBACK_{
         coursename = input->GetText();
     });
-    input->SetBeginCallback(UI_CALLBACK{
+    input->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入课程代号");
         glabel->Show();
     });
-    input->SetExceedLimitCallback(UI_CALLBACK{
+    input->SetExceedLimitCallback(_UI_CALLBACK_{
         limit->SetContent("课程代号只能是由字母和数字组成的六个字符");
         limit->Show();
     });
-    btn1->SetClickCallback(UI_CALLBACK{
+    btn1->SetClickCallback(_UI_CALLBACK_{
         btn1->Enable(false);
        if(coursename=="") 
        {
@@ -153,7 +153,7 @@ void lab::EnterCourse::Logic(ui::Screen *screen) noexcept
        }
        else
        {
-        Listen(new trm::Sender({trm::rqs::SEARCH_COURSE_INFORMATION,username,coursename}),SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::SEARCH_COURSE_INFORMATION,username,coursename}),_SD_CALLBACK_{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -182,13 +182,13 @@ void lab::EnterCourse::Logic(ui::Screen *screen) noexcept
             btn1->Enable();
         }
     );
-    addbtn->SetClickCallback(UI_CALLBACK{
+    addbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::AddCourse);
     });
-    debtn->SetClickCallback(UI_CALLBACK{
+    debtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::DeleteCourse);
     });
-    tempbackbtn->SetClickCallback(UI_CALLBACK{
+    tempbackbtn->SetClickCallback(_UI_CALLBACK_{
         btn2->Show();
         addbtn->Show();
         debtn->Show();
@@ -202,10 +202,10 @@ void lab::EnterCourse::Logic(ui::Screen *screen) noexcept
             admdebtn->Show();
         }
     });
-    admaddbtn->SetClickCallback(UI_CALLBACK{
+    admaddbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::AdmAddCourse);
     });
-    admdebtn->SetClickCallback(UI_CALLBACK{
+    admdebtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::AdmDeleteCourse);
     });
 }
@@ -273,7 +273,7 @@ void lab::CourseList::Load(ui::Screen *screen) noexcept
 
 void lab::CourseList::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterCourse);
     });
    
@@ -281,7 +281,7 @@ void lab::CourseList::Logic(ui::Screen *screen) noexcept
 
 void lab::CourseList::Ready(ui::Screen *screen) noexcept
 {
-    Listen(new trm::Sender({trm::rqs::CHECK_ALL_COURSE,username}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_ALL_COURSE,username}),_SD_CALLBACK_{
         if (reply[0] == trm::rpl::TIME_OUT) {
             auto glabel = new ui::Label; {
                 glabel->AddTo(vsbox);
@@ -427,28 +427,28 @@ void lab::AddCourse::Load(ui::Screen *screen) noexcept
 
 void lab::AddCourse::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterCourse);
     });
-    input->SetInputCallback(UI_CALLBACK{
+    input->SetInputCallback(_UI_CALLBACK_{
         coursename = input->GetText();
     });
-    input->SetBeginCallback(UI_CALLBACK{
+    input->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入课程代号");
         glabel->Show();
     });
-    input->SetExceedLimitCallback(UI_CALLBACK{
+    input->SetExceedLimitCallback(_UI_CALLBACK_{
         limit->SetContent("课程代号只能是由字母和数字组成的五个字符");
         limit->Show();
     });
-    btn1->SetClickCallback(UI_CALLBACK{
+    btn1->SetClickCallback(_UI_CALLBACK_{
         btn1->Enable(false);
         if(coursename=="") 
         {
             glabel->SetContent("课程代号不能为空");
             glabel->Show();
         }
-        Listen(new trm::Sender({trm::rqs::ADD_COURSE,username,password,coursename}),SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::ADD_COURSE,username,password,coursename}),_SD_CALLBACK_{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -474,7 +474,7 @@ void lab::AddCourse::Logic(ui::Screen *screen) noexcept
         });
         btn1->Enable();
     });
-    addbtn->SetClickCallback(UI_CALLBACK{
+    addbtn->SetClickCallback(_UI_CALLBACK_{
                 rpllabel->SetContent("添加成功");
                 rpllabel->Show();
     });
@@ -574,28 +574,28 @@ void lab::DeleteCourse::Load(ui::Screen *screen) noexcept
 
 void lab::DeleteCourse::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterCourse);
     });
-    input->SetInputCallback(UI_CALLBACK{
+    input->SetInputCallback(_UI_CALLBACK_{
         coursename = input->GetText();
     });
-    input->SetBeginCallback(UI_CALLBACK{
+    input->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入课程代号");
         glabel->Show();
     });
-    input->SetExceedLimitCallback(UI_CALLBACK{
+    input->SetExceedLimitCallback(_UI_CALLBACK_{
         limit->SetContent("课程代号只能是由字母和数字组成的五个字符");
         limit->Show();
     });
-    btn1->SetClickCallback(UI_CALLBACK{
+    btn1->SetClickCallback(_UI_CALLBACK_{
         btn1->Enable(false);
         if(coursename=="") 
         {
             glabel->SetContent("课程代号不能为空");
             glabel->Show();
         }
-        Listen(new trm::Sender({trm::rqs::DELETE_COURSE,username,password,coursename}),SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::DELETE_COURSE,username,password,coursename}),_SD_CALLBACK_{
             if (reply[0] == trm::rpl::TIME_OUT) {
                 glabel->SetContent("服务端未响应，请检查后重试");
                 glabel->Show();
@@ -617,7 +617,7 @@ void lab::DeleteCourse::Logic(ui::Screen *screen) noexcept
         });
         btn1->Enable();
     }); // 这里的debtn其实是伪debtn
-    debtn->SetClickCallback(UI_CALLBACK{
+    debtn->SetClickCallback(_UI_CALLBACK_{
                 rpllabel->SetContent("删除成功");
                 rpllabel->Show();
     });
@@ -766,57 +766,57 @@ void lab::AdmAddCourse::Load(ui::Screen *screen) noexcept
 
 void lab::AdmAddCourse::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterCourse);
     });
-    input1->SetInputCallback(UI_CALLBACK{
+    input1->SetInputCallback(_UI_CALLBACK_{
         coursename = input1->GetText();
     });
-    input1->SetBeginCallback(UI_CALLBACK{
+    input1->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入课程代号");
         glabel->Show();
     });
-    input1->SetExceedLimitCallback(UI_CALLBACK{
+    input1->SetExceedLimitCallback(_UI_CALLBACK_{
         limit->SetContent("课程代号只能是由字母和数字组成的五个字符");
         limit->Show();
     });
-    input2->SetInputCallback(UI_CALLBACK{
+    input2->SetInputCallback(_UI_CALLBACK_{
         courseinfo.courseName = input2->GetText();
     });
-    input2->SetBeginCallback(UI_CALLBACK{
+    input2->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入课程名称");
         glabel->Show();
     });
-    input3->SetInputCallback(UI_CALLBACK{
+    input3->SetInputCallback(_UI_CALLBACK_{
         courseinfo.teacher = input3->GetText();
     });
-    input3->SetBeginCallback(UI_CALLBACK{
+    input3->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入上课老师");
         glabel->Show();
     });
-    input4->SetInputCallback(UI_CALLBACK{
+    input4->SetInputCallback(_UI_CALLBACK_{
         courseinfo.location = input4->GetText();
     });
-    input4->SetBeginCallback(UI_CALLBACK{
+    input4->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入上课地点");
         glabel->Show();
     });
     for(auto i:weeklist)
     {
-        i->SetToggleCallback(UI_CALLBACK{
+        i->SetToggleCallback(_UI_CALLBACK_{
             courseinfo.weeks.push_back(i->GetCaption());
         });
     }
-    wbtn->SetClickCallback(UI_CALLBACK{
+    wbtn->SetClickCallback(_UI_CALLBACK_{
         hsbox->ShowAll();
     });
-    cfbtn->SetClickCallback(UI_CALLBACK{
+    cfbtn->SetClickCallback(_UI_CALLBACK_{
         if(coursename==""||courseinfo.courseName==""||courseinfo.teacher==""||courseinfo.location==""||courseinfo.weeks.empty()) {
             glabel->SetContent("请填写完整信息");
             glabel->Show();
         }
         else {
-            Listen(new trm::Sender({trm::rqs::ADM_ADD_COUR,username,password,coursename,courseinfo}),SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::ADM_ADD_COUR,username,password,coursename,courseinfo}),_SD_CALLBACK_{
                 if (reply[0] == trm::rpl::TIME_OUT) { // debug
                     glabel->SetContent("服务端未响应，请检查后重试");
                     glabel->Show();
@@ -931,21 +931,21 @@ void lab::AdmDeleteCourse::Load(ui::Screen *screen) noexcept
 
 void lab::AdmDeleteCourse::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterCourse);
     });
-    input->SetInputCallback(UI_CALLBACK{
+    input->SetInputCallback(_UI_CALLBACK_{
         coursename = input->GetText();
     });
-    input->SetBeginCallback(UI_CALLBACK{
+    input->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入课程代号");
         glabel->Show();
     });
-    input->SetExceedLimitCallback(UI_CALLBACK{
+    input->SetExceedLimitCallback(_UI_CALLBACK_{
         limit->SetContent("课程代号只能是由字母和数字组成的五个字符");
         limit->Show();
     });
-    btn1->SetClickCallback(UI_CALLBACK{
+    btn1->SetClickCallback(_UI_CALLBACK_{
         btn1->Enable(false);
         if(coursename=="") 
         {
@@ -953,7 +953,7 @@ void lab::AdmDeleteCourse::Logic(ui::Screen *screen) noexcept
             glabel->Show();
         }
         Listen(new trm::Sender({trm::rqs::ADM_DELETE_COUR,username,password,coursename}),
-        SD_CALLBACK{ // debug
+        _SD_CALLBACK_{ // debug
             if (reply[0] == trm::rpl::TIME_OUT) {
                 glabel->SetContent("服务端未响应，请检查后重试");
                 glabel->Show();
@@ -975,7 +975,7 @@ void lab::AdmDeleteCourse::Logic(ui::Screen *screen) noexcept
         });
         btn1->Enable();
     }); // 这里的debtn其实是伪debtn
-    debtn->SetClickCallback(UI_CALLBACK{
+    debtn->SetClickCallback(_UI_CALLBACK_{
         rpllabel->SetContent("删除成功");
         rpllabel->Show();
     });
@@ -1423,10 +1423,10 @@ void lab::EnterReserve::Load(ui::Screen *screen) noexcept
 
 void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new eea::MainPage);
     });
-    btn2->SetClickCallback(UI_CALLBACK{
+    btn2->SetClickCallback(_UI_CALLBACK_{
         btn2->Hide();
         vinput->ShowAll();
         cfbtn1->Hide();
@@ -1438,21 +1438,21 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
         modifybtn1->Hide();
         modifybtn2->Hide();
     });
-    dbtn1->SetClickCallback(UI_CALLBACK{
+    dbtn1->SetClickCallback(_UI_CALLBACK_{
         vsbox1->ShowAll();
     });
-    dbtn2->SetClickCallback(UI_CALLBACK{
+    dbtn2->SetClickCallback(_UI_CALLBACK_{
         vsbox2->ShowAll();
     });
-    dbtn3->SetClickCallback(UI_CALLBACK{
+    dbtn3->SetClickCallback(_UI_CALLBACK_{
         vsbox3->ShowAll();
     });
-    tbtn->SetClickCallback(UI_CALLBACK{
+    tbtn->SetClickCallback(_UI_CALLBACK_{
         hsbox->ShowAll();
     });
     for(auto i:times)
     {
-        i->SetClickCallback(UI_CALLBACK{
+        i->SetClickCallback(_UI_CALLBACK_{
             if(i->GetName()=="clbtn")
             {
                 rtime="";
@@ -1468,29 +1468,29 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
             }
         });
     }
-    idinput->SetInputCallback(UI_CALLBACK{
+    idinput->SetInputCallback(_UI_CALLBACK_{
         idandphone.id=idinput->GetText();
     });
-    idinput->SetBeginCallback(UI_CALLBACK{
+    idinput->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入身份证号");
         glabel->Show();
     });
-    idinput->SetExceedLimitCallback(UI_CALLBACK{
+    idinput->SetExceedLimitCallback(_UI_CALLBACK_{
         limit2->SetContent("身份证号只能是18位数字或17位数字加字母X");
         limit2->Show();
     });
-    phinput->SetInputCallback(UI_CALLBACK{
+    phinput->SetInputCallback(_UI_CALLBACK_{
         idandphone.phone=phinput->GetText();
     });
-    phinput->SetBeginCallback(UI_CALLBACK{
+    phinput->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入手机号");
         glabel->Show();
     });
-    phinput->SetExceedLimitCallback(UI_CALLBACK{
+    phinput->SetExceedLimitCallback(_UI_CALLBACK_{
         limit2->SetContent("手机号只能是11位数字");
         limit2->Show();
     });
-    btn1->SetClickCallback(UI_CALLBACK{
+    btn1->SetClickCallback(_UI_CALLBACK_{
         if(ToStr(rdate)=="")
         {
             glabel->SetContent("日期不能为空");
@@ -1505,7 +1505,7 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
             SwitchTo(new lab::Request);
         }
     });
-    btn3->SetClickCallback(UI_CALLBACK{
+    btn3->SetClickCallback(_UI_CALLBACK_{
         btn2->Hide();
         admaddbtn->Hide();
         admdebtn->Hide();
@@ -1516,13 +1516,13 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
         cfbtn2->Hide();
         relbtn->Enable();
     });
-    cfbtn1->SetClickCallback(UI_CALLBACK{
+    cfbtn1->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::Cancel);
     });
-    cfbtn2->SetClickCallback(UI_CALLBACK{
+    cfbtn2->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::ReserveStatusList);
     });
-    relbtn->SetClickCallback(UI_CALLBACK{
+    relbtn->SetClickCallback(_UI_CALLBACK_{
         vinput->HideAll();
         btn2->Show();
         glabel->SetContent("");
@@ -1543,144 +1543,144 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
             modifybtn2->Show();
         }
     });
-    admaddbtn->SetClickCallback(UI_CALLBACK{
+    admaddbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::AdmAddReserve);
     });
-    admdebtn->SetClickCallback(UI_CALLBACK{
+    admdebtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::AdmCancelReserve);
     });
-    modifybtn1->SetClickCallback(UI_CALLBACK{
+    modifybtn1->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::AdmCancelReserve);
     });
-    modifybtn2->SetClickCallback(UI_CALLBACK{
+    modifybtn2->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::AdmModifyReserve);
     });
-    btn13->SetClickCallback(UI_CALLBACK{
+    btn13->SetClickCallback(_UI_CALLBACK_{
         rdate.month="1";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：一月");
     });
-    btn14->SetClickCallback(UI_CALLBACK{
+    btn14->SetClickCallback(_UI_CALLBACK_{
         rdate.month="2";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：二月");
     });
-    btn15->SetClickCallback(UI_CALLBACK{
+    btn15->SetClickCallback(_UI_CALLBACK_{
         rdate.month="3";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：三月");
     });
-    btn4->SetClickCallback(UI_CALLBACK{
+    btn4->SetClickCallback(_UI_CALLBACK_{
         rdate.month="4";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：四月");
     });
-    btn5->SetClickCallback(UI_CALLBACK{
+    btn5->SetClickCallback(_UI_CALLBACK_{
         rdate.month="5";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：五月");
     });
-    btn6->SetClickCallback(UI_CALLBACK{
+    btn6->SetClickCallback(_UI_CALLBACK_{
         rdate.month="6";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：六月");
     });
-    btn7->SetClickCallback(UI_CALLBACK{
+    btn7->SetClickCallback(_UI_CALLBACK_{
         rdate.month="7";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：七月");
     });
-    btn8->SetClickCallback(UI_CALLBACK{
+    btn8->SetClickCallback(_UI_CALLBACK_{
         rdate.month="8";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：八月");
     });
-    btn9->SetClickCallback(UI_CALLBACK{
+    btn9->SetClickCallback(_UI_CALLBACK_{
         rdate.month="9";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：九月");
     });
-    btn10->SetClickCallback(UI_CALLBACK{
+    btn10->SetClickCallback(_UI_CALLBACK_{
         rdate.month="10";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：十月");
     });
-    btn11->SetClickCallback(UI_CALLBACK{
+    btn11->SetClickCallback(_UI_CALLBACK_{
         rdate.month="11";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：十一月");
     });
-    btn12->SetClickCallback(UI_CALLBACK{
+    btn12->SetClickCallback(_UI_CALLBACK_{
         rdate.month="12";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份：十二月");
     });
-    btn20->SetClickCallback(UI_CALLBACK{
+    btn20->SetClickCallback(_UI_CALLBACK_{
         rdate.week="1";
         vsbox2->HideAll();
         dbtn2->SetCaption("周数：第一周");
     });
-    btn21->SetClickCallback(UI_CALLBACK{
+    btn21->SetClickCallback(_UI_CALLBACK_{
         rdate.week="2";
         vsbox2->HideAll();
         dbtn2->SetCaption("周数：第二周");
     });
-    btn22->SetClickCallback(UI_CALLBACK{
+    btn22->SetClickCallback(_UI_CALLBACK_{
         rdate.week="3";
         vsbox2->HideAll();
         dbtn2->SetCaption("周数：第三周");
     });
-    btn23->SetClickCallback(UI_CALLBACK{
+    btn23->SetClickCallback(_UI_CALLBACK_{
         rdate.week="4";
         vsbox2->HideAll();
         dbtn2->SetCaption("周数：第四周");
     });
-    btn30->SetClickCallback(UI_CALLBACK{
+    btn30->SetClickCallback(_UI_CALLBACK_{
         rdate.date="1";
         vsbox3->HideAll();
         dbtn3->SetCaption("星期：星期一");
     });
-    btn31->SetClickCallback(UI_CALLBACK{
+    btn31->SetClickCallback(_UI_CALLBACK_{
         rdate.date="2";
         vsbox3->HideAll();
         dbtn3->SetCaption("星期：星期二");
     });
-    btn32->SetClickCallback(UI_CALLBACK{
+    btn32->SetClickCallback(_UI_CALLBACK_{
         rdate.date="3";
         vsbox3->HideAll();
         dbtn3->SetCaption("星期：星期三");
     });
-    btn33->SetClickCallback(UI_CALLBACK{
+    btn33->SetClickCallback(_UI_CALLBACK_{
         rdate.date="4";
         vsbox3->HideAll();
         dbtn3->SetCaption("星期：星期四");
     });
-    btn34->SetClickCallback(UI_CALLBACK{
+    btn34->SetClickCallback(_UI_CALLBACK_{
         rdate.date="5";
         vsbox3->HideAll();
         dbtn3->SetCaption("星期：星期五");
     });
-    btn35->SetClickCallback(UI_CALLBACK{
+    btn35->SetClickCallback(_UI_CALLBACK_{
         rdate.date="6";
         vsbox3->HideAll();
         dbtn3->SetCaption("星期：星期六");
     });
-    btn36->SetClickCallback(UI_CALLBACK{
+    btn36->SetClickCallback(_UI_CALLBACK_{
         rdate.date="7";
         vsbox3->HideAll();
         dbtn3->SetCaption("星期：星期日");
     });
-    clbtn1->SetClickCallback(UI_CALLBACK{
+    clbtn1->SetClickCallback(_UI_CALLBACK_{
         rdate.month="";
         vsbox1->HideAll();
         dbtn1->SetCaption("月份");
     });
-    clbtn2->SetClickCallback(UI_CALLBACK{
+    clbtn2->SetClickCallback(_UI_CALLBACK_{
         rdate.week="";
         vsbox2->HideAll();
         dbtn2->SetCaption("周数");
     });
-    clbtn3->SetClickCallback(UI_CALLBACK{
+    clbtn3->SetClickCallback(_UI_CALLBACK_{
         rdate.date="";
         vsbox3->HideAll();
         dbtn3->SetCaption("星期");
@@ -1708,7 +1708,7 @@ void lab::EnterReserve::Ready(ui::Screen *screen) noexcept
     hsbox->HideAll();
     if(password!=""&&username!="")
     {
-    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_ADD_RESERVE_TIME}}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_ADD_RESERVE_TIME}}),_SD_CALLBACK_{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -1722,7 +1722,7 @@ void lab::EnterReserve::Ready(ui::Screen *screen) noexcept
             //
         }
     });
-    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_DELETE_RESERVE_TIME}}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_DELETE_RESERVE_TIME}}),_SD_CALLBACK_{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -1736,7 +1736,7 @@ void lab::EnterReserve::Ready(ui::Screen *screen) noexcept
             //
         }
     });
-    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_MODIFTY_RESERVE_NUMBER}}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_MODIFTY_RESERVE_NUMBER}}),_SD_CALLBACK_{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -1750,7 +1750,7 @@ void lab::EnterReserve::Ready(ui::Screen *screen) noexcept
             //
         }
     });
-    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_MODIFY_RESERVE_STATUS}}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_MODIFY_RESERVE_STATUS}}),_SD_CALLBACK_{
         if (reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -1797,14 +1797,14 @@ void lab::ReserveTimeList::Load(ui::Screen *screen) noexcept
 
 void lab::ReserveTimeList::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterReserve);
     });
 }
 
 void lab::ReserveTimeList::Ready(ui::Screen *screen) noexcept
 {
-    Listen(new trm::Sender({trm::rqs::CHECK_TIME,rdate}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_TIME,rdate}),_SD_CALLBACK_{
         if (reply[0] == trm::rpl::TIME_OUT) {
             auto glabel = new ui::Label;{
                 glabel->AddTo(vsbox);
@@ -1880,14 +1880,14 @@ void lab::ReserveStatusList::Load(ui::Screen *screen) noexcept
 
 void lab::ReserveStatusList::Logic(ui::Screen *screen)noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterReserve);
     });
 }
 
 void lab::ReserveStatusList::Ready(ui::Screen *screen)noexcept
 {
-    Listen(new trm::Sender({trm::rqs::CHECK_RESERVE_STATUS_LIST,idandphone.id,idandphone.phone}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_RESERVE_STATUS_LIST,idandphone.id,idandphone.phone}),_SD_CALLBACK_{
         if (reply[0] == trm::rpl::TIME_OUT) {
             auto glabel = new ui::Label;{
                 glabel->AddTo(vsbox);
@@ -2065,44 +2065,44 @@ void lab::Request::Load(ui::Screen *screen) noexcept
 
 void lab::Request::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterReserve);
     });
-    idinput->SetInputCallback(UI_CALLBACK{
+    idinput->SetInputCallback(_UI_CALLBACK_{
         idandphone.id = idinput->GetText();
     });
-    idinput->SetBeginCallback(UI_CALLBACK{
+    idinput->SetBeginCallback(_UI_CALLBACK_{
         label->SetContent("请输入身份证号");
         label->Show();
     });
-    idinput->SetExceedLimitCallback(UI_CALLBACK{
+    idinput->SetExceedLimitCallback(_UI_CALLBACK_{
         limit->SetContent("身份证号只能是18位数字或17位数字加字母X");
         limit->Show();
     });
-    phinput->SetInputCallback(UI_CALLBACK{
+    phinput->SetInputCallback(_UI_CALLBACK_{
         idandphone.phone = phinput->GetText();
     });
-    phinput->SetBeginCallback(UI_CALLBACK{
+    phinput->SetBeginCallback(_UI_CALLBACK_{
         label->SetContent("请输入手机号");
         label->Show();
     });
-    phinput->SetExceedLimitCallback(UI_CALLBACK{
+    phinput->SetExceedLimitCallback(_UI_CALLBACK_{
         limit->SetContent("手机号只能是11位数字");
         limit->Show();
     });
-    addbtn->SetClickCallback(UI_CALLBACK{
+    addbtn->SetClickCallback(_UI_CALLBACK_{
         vbox->ShowAll();
         cfbtn->Enable();
         clbtn->Enable();
         hbox->HideAll();
     });
-    cfbtn->SetClickCallback(UI_CALLBACK{
+    cfbtn->SetClickCallback(_UI_CALLBACK_{
         cfbtn->Enable(false);
         vbox->HideAll();
         hbox->ShowAll();
         glabel->Show();
         rpllabel->Show(); 
-        Listen(new trm::Sender({trm::rqs::REQUEST_RESERVE, rdate, rtime,idandphone.id,idandphone.phone}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::REQUEST_RESERVE, rdate, rtime,idandphone.id,idandphone.phone}), _SD_CALLBACK_{
             if(reply[0] == trm::rpl::TIME_OUT)
             {
                 glabel->SetContent("服务端未响应，请检查后重试");
@@ -2125,7 +2125,7 @@ void lab::Request::Logic(ui::Screen *screen) noexcept
             }
         });
     });
-    clbtn->SetClickCallback(UI_CALLBACK{
+    clbtn->SetClickCallback(_UI_CALLBACK_{
         vbox->HideAll();
         hbox->ShowAll();
         cfbtn->Enable(false);
@@ -2138,7 +2138,7 @@ void lab::Request::Ready(ui::Screen *screen) noexcept
     vbox->HideAll();
     cfbtn->Enable(false);
     clbtn->Enable(false);
-    Listen(new trm::Sender({trm::rqs::CHECK_RESERVE_TIME,rdate,rtime}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_RESERVE_TIME,rdate,rtime}),_SD_CALLBACK_{
             if(reply[0] == trm::rpl::TIME_OUT) {
                 glabel->SetContent("服务端未响应，请检查后重试");
                 glabel->Show();
@@ -2297,44 +2297,44 @@ void lab::Cancel::Load(ui::Screen *screen) noexcept
 
 void lab::Cancel::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterReserve);
     });
-    idinput->SetInputCallback(UI_CALLBACK{
+    idinput->SetInputCallback(_UI_CALLBACK_{
         idandphone.id = idinput->GetText();
     });
-    idinput->SetBeginCallback(UI_CALLBACK{
+    idinput->SetBeginCallback(_UI_CALLBACK_{
         label->SetContent("请输入身份证号");
         label->Show();
     });
-    idinput->SetExceedLimitCallback(UI_CALLBACK{
+    idinput->SetExceedLimitCallback(_UI_CALLBACK_{
         limit->SetContent("身份证号只能是18位数字或17位数字加字母X");
         limit->Show();
     });
-    phinput->SetInputCallback(UI_CALLBACK{
+    phinput->SetInputCallback(_UI_CALLBACK_{
         idandphone.phone = phinput->GetText();
     });
-    phinput->SetBeginCallback(UI_CALLBACK{
+    phinput->SetBeginCallback(_UI_CALLBACK_{
         label->SetContent("请输入手机号");
         label->Show();
     });
-    phinput->SetExceedLimitCallback(UI_CALLBACK{
+    phinput->SetExceedLimitCallback(_UI_CALLBACK_{
         limit->SetContent("手机号只能是11位数字");
         limit->Show();
     });
-    debtn->SetClickCallback(UI_CALLBACK{
+    debtn->SetClickCallback(_UI_CALLBACK_{
         vbox->ShowAll();
         cfbtn->Enable();
         clbtn->Enable();
         hbox->HideAll();
     });
-    cfbtn->SetClickCallback(UI_CALLBACK{
+    cfbtn->SetClickCallback(_UI_CALLBACK_{
         cfbtn->Enable(false);
         vbox->HideAll();
         hbox->ShowAll();
         glabel->Show();
         rpllabel->Show(); 
-        Listen(new trm::Sender({trm::rqs::CANCEL_RESERVE, rdate, rtime,idandphone.id,idandphone.phone}), SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::CANCEL_RESERVE, rdate, rtime,idandphone.id,idandphone.phone}), _SD_CALLBACK_{
             if(reply[0] == trm::rpl::TIME_OUT)
             {
                 glabel->SetContent("服务端未响应，请检查后重试");
@@ -2360,7 +2360,7 @@ void lab::Cancel::Ready(ui::Screen *screen) noexcept
     vbox->HideAll();
     cfbtn->Enable(false);
     clbtn->Enable(false);
-    Listen(new trm::Sender({trm::rqs::CHECK_RESERVE_STATUS,rdate,rtime,idandphone.id,idandphone.phone}),SD_CALLBACK{
+    Listen(new trm::Sender({trm::rqs::CHECK_RESERVE_STATUS,rdate,rtime,idandphone.id,idandphone.phone}),_SD_CALLBACK_{
         if(reply[0] == trm::rpl::TIME_OUT) {
             glabel->SetContent("服务端未响应，请检查后重试");
             glabel->Show();
@@ -2496,53 +2496,53 @@ void lab::AdmAddReserve::Load(ui::Screen *screen) noexcept
 
 void lab::AdmAddReserve::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterReserve);
     });
-    input1->SetInputCallback(UI_CALLBACK{
+    input1->SetInputCallback(_UI_CALLBACK_{
         rdate.month = input1->GetText();
     });
-    input1->SetBeginCallback(UI_CALLBACK{
+    input1->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入月份");
         glabel->Show();
     });
-    input2->SetInputCallback(UI_CALLBACK{
+    input2->SetInputCallback(_UI_CALLBACK_{
         rdate.week = input2->GetText();
     });
-    input2->SetBeginCallback(UI_CALLBACK{
+    input2->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入周数");
         glabel->Show();
     });
-    input3->SetInputCallback(UI_CALLBACK{
+    input3->SetInputCallback(_UI_CALLBACK_{
         rdate.date = input3->GetText();
     });
-    input3->SetBeginCallback(UI_CALLBACK{
+    input3->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入星期几");
         glabel->Show();
     });
-    input4->SetInputCallback(UI_CALLBACK{
+    input4->SetInputCallback(_UI_CALLBACK_{
         auto temp = input4->GetText();
         std::replace(temp.begin(), temp.end(), ':', '_');
         rtime = temp;
     });
-    input4->SetBeginCallback(UI_CALLBACK{
+    input4->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入时间");
         glabel->Show();
     });
-    input5->SetInputCallback(UI_CALLBACK{
+    input5->SetInputCallback(_UI_CALLBACK_{
         rnum = input5->GetText();
     });
-    input5->SetBeginCallback(UI_CALLBACK{
+    input5->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入可预约人数");
         glabel->Show();
     });
-    cfbtn->SetClickCallback(UI_CALLBACK{
+    cfbtn->SetClickCallback(_UI_CALLBACK_{
         if(ToStr(rdate)==""||rtime==""||rnum=="") {
             glabel->SetContent("请填写完整信息");
             glabel->Show();
         }
         else {
-            Listen(new trm::Sender({trm::rqs::ADM_ADD_RESERVE_TIME,username,password,rdate,rtime,rnum}),SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::ADM_ADD_RESERVE_TIME,username,password,rdate,rtime,rnum}),_SD_CALLBACK_{
                 if (reply[0] == trm::rpl::TIME_OUT) {
                     glabel->SetContent("服务端未响应，请检查后重试");
                     glabel->Show();
@@ -2769,46 +2769,46 @@ void lab::AdmCancelReserve::Load(ui::Screen *screen) noexcept
 
 void lab::AdmCancelReserve::Logic(ui::Screen *screen) noexcept
 {
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterReserve);
     });
-    dinput1->SetInputCallback(UI_CALLBACK{
+    dinput1->SetInputCallback(_UI_CALLBACK_{
         rdate.month = dinput1->GetText();
     });
-    dinput1->SetBeginCallback(UI_CALLBACK{
+    dinput1->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入月份");
         glabel->Show();
     });
-    dinput2->SetInputCallback(UI_CALLBACK{
+    dinput2->SetInputCallback(_UI_CALLBACK_{
         rdate.week = dinput2->GetText();
     });
-    dinput2->SetBeginCallback(UI_CALLBACK{
+    dinput2->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入周数");
         glabel->Show();
     });
-    dinput3->SetInputCallback(UI_CALLBACK{
+    dinput3->SetInputCallback(_UI_CALLBACK_{
         rdate.date = dinput3->GetText();
     });
-    dinput3->SetBeginCallback(UI_CALLBACK{
+    dinput3->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入星期几");
         glabel->Show();
     });
-    input2->SetInputCallback(UI_CALLBACK{
+    input2->SetInputCallback(_UI_CALLBACK_{
         auto temp = input2->GetText();
         std::replace(temp.begin(), temp.end(), ':', '_');
         rtime= temp;
     });
-    input2->SetBeginCallback(UI_CALLBACK{
+    input2->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入时间");
         glabel->Show();
     });
-    btn1->SetClickCallback(UI_CALLBACK{
+    btn1->SetClickCallback(_UI_CALLBACK_{
         if(ToStr(rdate)==""||rtime=="") {
             glabel->SetContent("请填写完整信息");
             glabel->Show();
         }
         else {
-            Listen(new trm::Sender({trm::rqs::ADM_SEARCH_RESERVE,username,password,rdate,rtime}),SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::ADM_SEARCH_RESERVE,username,password,rdate,rtime}),_SD_CALLBACK_{
             if(reply[0] == trm::rpl::TIME_OUT) {
                 glabel->SetContent("服务端未响应，请检查后重试");
             }
@@ -2831,8 +2831,8 @@ void lab::AdmCancelReserve::Logic(ui::Screen *screen) noexcept
         });
         } 
     });
-    debtn->SetClickCallback(UI_CALLBACK{
-        Listen(new trm::Sender({trm::rqs::ADM_DELETE_RESERVE_TIME,username,password,rdate,rtime}),SD_CALLBACK{
+    debtn->SetClickCallback(_UI_CALLBACK_{
+        Listen(new trm::Sender({trm::rqs::ADM_DELETE_RESERVE_TIME,username,password,rdate,rtime}),_SD_CALLBACK_{
             if(reply[0] == trm::rpl::TIME_OUT) {
                 glabel->SetContent("服务端未响应，请检查后重试");
             }
@@ -2847,22 +2847,22 @@ void lab::AdmCancelReserve::Logic(ui::Screen *screen) noexcept
             }
         });
     });
-    modifybtn->SetClickCallback(UI_CALLBACK{
+    modifybtn->SetClickCallback(_UI_CALLBACK_{
        vbox2->ShowAll();
        cfbtn->Enable();
        clbtn->Enable();
        hbox2->HideAll();
    });
-   input->SetInputCallback(UI_CALLBACK{
+   input->SetInputCallback(_UI_CALLBACK_{
          rnum = input->GetText();
    });
-   cfbtn->SetClickCallback(UI_CALLBACK{
+   cfbtn->SetClickCallback(_UI_CALLBACK_{
        if(rnum == "") {
            glabel->SetContent("请输入预约人数");
            glabel->Show();
        }
        else {
-           Listen(new trm::Sender({trm::rqs::ADM_MODIFY_RESERVE_NUMBER,username,password,rdate,rtime,rnum}),SD_CALLBACK{
+           Listen(new trm::Sender({trm::rqs::ADM_MODIFY_RESERVE_NUMBER,username,password,rdate,rtime,rnum}),_SD_CALLBACK_{
                if(reply[0] == trm::rpl::TIME_OUT) {
                    glabel->SetContent("服务端未响应，请检查后重试");
                }
@@ -2879,7 +2879,7 @@ void lab::AdmCancelReserve::Logic(ui::Screen *screen) noexcept
            });
        }
    });
-   clbtn->SetClickCallback(UI_CALLBACK{
+   clbtn->SetClickCallback(_UI_CALLBACK_{
        vbox2->HideAll();
        hbox2->ShowAll();
        modifybtn->Enable();
@@ -3029,60 +3029,60 @@ void lab::AdmModifyReserve::Load(ui::Screen *screen) noexcept
 
 void lab::AdmModifyReserve::Logic(ui::Screen *screen) noexcept
 {
-    input1->SetInputCallback(UI_CALLBACK{
+    input1->SetInputCallback(_UI_CALLBACK_{
         rdate.month = input1->GetText();
     });
-    input1->SetBeginCallback(UI_CALLBACK{
+    input1->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入月份");
         glabel->Show();
     });
-    input2->SetInputCallback(UI_CALLBACK{
+    input2->SetInputCallback(_UI_CALLBACK_{
         rdate.week = input2->GetText();
     });
-    input2->SetBeginCallback(UI_CALLBACK{
+    input2->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入周数");
         glabel->Show();
     });
-    input3->SetInputCallback(UI_CALLBACK{
+    input3->SetInputCallback(_UI_CALLBACK_{
         rdate.date = input3->GetText();
     });
-    input3->SetBeginCallback(UI_CALLBACK{
+    input3->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入星期几");
         glabel->Show();
     });
-    input4->SetInputCallback(UI_CALLBACK{
+    input4->SetInputCallback(_UI_CALLBACK_{
         auto temp = input4->GetText();
         std::replace(temp.begin(), temp.end(), ':', '_');
         rtime = temp;
     });
-    input4->SetBeginCallback(UI_CALLBACK{
+    input4->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入时间");
         glabel->Show();
     });
-    input5->SetInputCallback(UI_CALLBACK{
+    input5->SetInputCallback(_UI_CALLBACK_{
         idandphone.id = input5->GetText();
     });
-    input5->SetBeginCallback(UI_CALLBACK{
+    input5->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入身份证号");
         glabel->Show();
     });
-    input6->SetInputCallback(UI_CALLBACK{
+    input6->SetInputCallback(_UI_CALLBACK_{
         idandphone.phone = input6->GetText();
     });
-    input6->SetBeginCallback(UI_CALLBACK{
+    input6->SetBeginCallback(_UI_CALLBACK_{
         glabel->SetContent("请输入手机号");
         glabel->Show();
     });
-    backbtn->SetClickCallback(UI_CALLBACK{
+    backbtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new lab::EnterReserve);
     });
-    cfbtn->SetClickCallback(UI_CALLBACK{
+    cfbtn->SetClickCallback(_UI_CALLBACK_{
         if(ToStr(rdate) == "" || rtime == "" || idandphone.id == "" || idandphone.phone == "") {
             glabel->SetContent("请填写完整信息");
             glabel->Show();
         }
         else {
-            Listen(new trm::Sender({trm::rqs::ADM_MODIFY_RESERVE_STATUS,username,password,idandphone.id,idandphone.phone,rdate,rtime}), SD_CALLBACK{
+            Listen(new trm::Sender({trm::rqs::ADM_MODIFY_RESERVE_STATUS,username,password,idandphone.id,idandphone.phone,rdate,rtime}), _SD_CALLBACK_{
                 if(reply[0] == trm::rpl::TIME_OUT) {
                     glabel->SetContent("服务端未响应，请检查后重试");
                 }

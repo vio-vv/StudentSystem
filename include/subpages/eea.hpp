@@ -136,6 +136,7 @@ private:
     ui::Button *refreshBtn = nullptr;
 
     ui::VerticalBox *list = nullptr;
+    ui::Label *unreadNum = nullptr;
     ui::VerticalScrollingBox *msgBox = nullptr;
     bool turnable = true;
     ui::PageTurner *turner = nullptr;

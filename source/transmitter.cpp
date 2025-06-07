@@ -90,7 +90,7 @@ bool trm::MakeRequest(const std::string &link, const Request &request) noexcept
     if (!file::CheckDirectoryExists(link)) {
         return false;
     }
-    std::string filePath = file::GetFilePath(link, Combine({ToStr(request.id), ToStr(GetTimeStamp()), ToStr(GenerateRandomCode())}, '.'));
+    std::string filePath = file::GetFilePath(link, Combine({ToStr(request.id), ToStr(GetTimestamp()), ToStr(GenerateRandomCode())}, '.'));
     auto info = request.content;
     info.push_back(request.sender);
     return file::WriteFile(filePath, Encrypt(Encode(info)));
@@ -223,7 +223,7 @@ unsigned long long trm::GenerateRandomCode() noexcept
     return distribution(generator);
 }
 
-unsigned long long trm::GetTimeStamp() noexcept
+unsigned long long trm::GetTimestamp() noexcept
 {
     return time(nullptr);
 }
@@ -464,7 +464,6 @@ trm::BorrowLog::BorrowLog(const std::string &content) noexcept
 void trm::Sender::SetSelf(const std::string &selfSpace) noexcept
 {
     self = selfSpace;
-    Initialize(self);
 }
 
 trm::Sender::Sender(const Information &content, bool autoSend) noexcept
@@ -569,4 +568,14 @@ trm::Message trm::Encrypt(const trm::Message &str, const std::string &key) noexc
 trm::Message trm::Decrypt(const trm::Message &str, const std::string &key) noexcept
 {
     return str; // TODO
+}
+
+std::string trm::timestampToString(const std::string &timestamp)
+{
+    time_t t = std::stoll(timestamp);
+    tm local_time;
+    localtime_s(&local_time, &t);
+    char buffer[20];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &local_time);
+    return buffer;
 }
