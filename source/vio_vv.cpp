@@ -977,7 +977,7 @@ void vio::BookDetail::Logic(ui::Screen *screen) noexcept
                 return;
             }
             else {
-                Listen(new trm::Sender({trm::rqs::BORROW_BOOK, account.code, account.hashedPassword, selectedBook.bookIsbn, ToStr(day)}), _SD_CALLBACK_{
+                Listen(new trm::Sender({trm::rqs::BORROW_BOOK, account.code, password, selectedBook.bookIsbn, ToStr(day)}), _SD_CALLBACK_{
                     screen->FreeAllVisible();
                     if (reply.empty()) {
                         int ret = MessageBox(screen, "借阅失败，请稍后再试", {"确认"});
@@ -1313,7 +1313,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
             ld->SetVSize(100);
             ld->Start();
         }
-        Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_BORROW_LIST, account.code, account.hashedPassword}), _SD_CALLBACK_{
+        Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_BORROW_LIST, account.code, password}), _SD_CALLBACK_{
             borrowLogBox->FreeAll();
             borrowLogs.clear();
             bookName.clear();
@@ -1361,7 +1361,7 @@ void vio::BorrowManage::Logic(ui::Screen *screen) noexcept
             return;
         }
         else {
-            Listen(new trm::Sender({trm::rqs::RETURN_BOOK, account.code, account.hashedPassword, borrowLogs[select].bookIsbn, ToStr(borrowLogs[select].start.currantTime)}), _SD_CALLBACK_{
+            Listen(new trm::Sender({trm::rqs::RETURN_BOOK, account.code, password, borrowLogs[select].bookIsbn, ToStr(borrowLogs[select].start.currantTime)}), _SD_CALLBACK_{
                 screen->FreeAllVisible();
                 if (reply.empty()) {
                     int ret = MessageBox(screen, "归还失败，请稍后再试", {"确认"});
@@ -1416,7 +1416,7 @@ void vio::BorrowManage::Ready(ui::Screen *screen) noexcept
         ld->SetVSize(100);
         ld->Start();
     }
-    Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_BORROW_LIST, account.code, account.hashedPassword}), _SD_CALLBACK_{
+    Listen(new trm::Sender({trm::rqs::GET_ACCOUNT_BORROW_LIST, account.code, password}), _SD_CALLBACK_{
         borrowLogBox->FreeAll();
         borrowLogs.clear();
         bookName.clear();
@@ -2345,7 +2345,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
             else {
                 if (opt == "新增图书") {
                     screen->FreeAllVisible();
-                    auto [success, reply] = WaitServer(screen, {trm::rqs::RESTORE_BOOK, account.code, account.hashedPassword, selectedBook.bookIsbn, bookNum, selectedBook}, "等待服务端响应");
+                    auto [success, reply] = WaitServer(screen, {trm::rqs::RESTORE_BOOK, account.code, password, selectedBook.bookIsbn, bookNum, selectedBook}, "等待服务端响应");
                     screen->FreeAllVisible();
                     if (success == 1) {
                         if (reply[0] == trm::rpl::SUCC) {
@@ -2394,7 +2394,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 }
                 else if (opt == "修改图书") {
                     screen->FreeAllVisible();
-                    auto [success, reply] = WaitServer(screen, {trm::rqs::MODIFY_BOOK_INFO, account.code, account.hashedPassword, selectedBook.bookIsbn, selectedBook}, "等待服务端响应");
+                    auto [success, reply] = WaitServer(screen, {trm::rqs::MODIFY_BOOK_INFO, account.code, password, selectedBook.bookIsbn, selectedBook}, "等待服务端响应");
                     screen->FreeAllVisible();
                     if (success == 1) {
                         if (reply[0] == trm::rpl::SUCC) {
@@ -2434,7 +2434,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                 }
                 else if (opt == "删除图书") {
                     screen->FreeAllVisible();
-                    auto [success, reply] = WaitServer(screen, {trm::rqs::REMOVE_BOOK, account.code, account.hashedPassword, selectedBook.bookIsbn, bookNum}, "等待服务端响应");
+                    auto [success, reply] = WaitServer(screen, {trm::rqs::REMOVE_BOOK, account.code, password, selectedBook.bookIsbn, bookNum}, "等待服务端响应");
                     screen->FreeAllVisible();
                     if (success == 1) {
                         if (reply[0] == trm::rpl::SUCC) {
@@ -2802,7 +2802,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
                     int ret = MessageBox(screen, "确认发布通知？", {"确认", "取消"});
                     if (ret == 0) {
                         screen->FreeAllVisible();
-                        auto [success, reply] = WaitServer(screen, {trm::rqs::PUBLISH_NOLIFY, account.code, account.hashedPassword, nolifyTitle, nolifyContent, type}, "等待服务端响应");
+                        auto [success, reply] = WaitServer(screen, {trm::rqs::PUBLISH_NOLIFY, account.code, password, nolifyTitle, nolifyContent, type}, "等待服务端响应");
                         screen->FreeAllVisible();
                         if (success == 1) {
                             if (reply[0] == trm::rpl::SUCC) {
@@ -2960,7 +2960,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
                             screen->HideAll();
                             int ret = MessageBox(screen, "确认删除通知？", {"确认", "取消"});
                             if (ret == 0) {
-                                Listen(new trm::Sender({trm::rqs::DELETE_NOLIFY, account.code, account.hashedPassword, ToStr((page - 1) * 10 + i), type}), _SD_CALLBACK_{
+                                Listen(new trm::Sender({trm::rqs::DELETE_NOLIFY, account.code, password, ToStr((page - 1) * 10 + i), type}), _SD_CALLBACK_{
                                     screen->FreeAllVisible();
                                     if (reply[0] == trm::rpl::SUCC) {
                                         int succret = MessageBox(screen, "通知删除成功", {"确认"});
