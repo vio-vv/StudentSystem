@@ -38,10 +38,6 @@ public:
         bool operator>(const iterator &other) const noexcept { return it > other.it; }
         bool operator>=(const iterator &other) const noexcept { return it >= other.it; }
         std::pair<std::string, DataBase> operator*() const noexcept { return {*it, DataBase(*space)[*it]}; }
-        // std::pair<std::string, DataBase> operator->() const noexcept
-        // {
-        //     return {*it, DataBase(*space)[*it]};
-        // }
     private:
         const std::string *space;
         innerInterator it;
