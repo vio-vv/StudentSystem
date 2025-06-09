@@ -3,7 +3,6 @@
 ssys::ReserveSystem::ReserveSystem() noexcept
 {
     reserveBase["10"]["1"]["1"].Push("15_00","10"); // 预约信息
-    //TODO
 }
 
 ssys::ReserveSystem::~ReserveSystem() noexcept
@@ -121,7 +120,7 @@ trm::Information ssys::ReserveSystem::CheckReserveStatusList(const trm::Informat
     {
         for(auto [time,status]:reserve)
         {
-            reserveList.push_back(trm::Combine({date,time,status},'_'));//将预约信息加入列表
+            reserveList.push_back(trm::Combine({date,time,status},'+'));//将预约信息加入列表
         }
     }
     return reserveList;

@@ -36,7 +36,7 @@ protected:
     ReserveSystem& operator=(const ReserveSystem&) = delete;
 private:
     dat::DataBase clientBase = DATA_BASE["reserve"]["client"];
-    dat::DataBase reserveBase = DATA_BASE["reserve"]["server"]; //一个存用户预约，一个存预约信息
+    dat::DataBase reserveBase = DATA_BASE["reserve"]["server"]; // 一个存用户预约，一个存预约信息
 };
 
 }

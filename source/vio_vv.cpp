@@ -292,6 +292,8 @@ void vio::EnterLibrary::Ready(ui::Screen *screen) noexcept
     books = {};
     borrowLogs = {};
     selectedBook = trm::Book();
+    userInput = "";
+
     for (const auto &access : account.access) {
         if (access == trm::Access::ADM) {
             bookManageBtn->SetVisible(true);
@@ -680,6 +682,10 @@ void vio::BookList::Logic(ui::Screen *screen) noexcept
             else if (pageNum > totPage) page = totPage;
             else page = pageNum;
             pageLabel->SetContent(ToStr(page) + '/' + ToStr(totPage));
+            lastBtn->Enable();
+            nextBtn->Enable();
+            if (page == 1) lastBtn->Disable();
+            if (page == totPage) nextBtn->Disable();  
             resetBookList();
         }
     });
@@ -773,6 +779,9 @@ void vio::BookList::Logic(ui::Screen *screen) noexcept
                 len = books.size();
                 page = 1;
                 totPage = std::max((len + 9) / 10, 1);
+                lastBtn->Disable();
+                nextBtn->Enable();
+                if (page == totPage) nextBtn->Disable(); 
                 resetBookList();
             });
         }
@@ -2116,6 +2125,8 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                         len = books.size();
                         totPage = std::max((len + 10 - 1) / 10, 1);
                         page = 1;
+                        nextBtn->Enable();
+                        if (page == totPage) nextBtn->Disable();
                         resetLeftDetail();
                     }
                     else if (reply[0] == trm::rpl::FAIL) {
@@ -2132,6 +2143,9 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                         len = books.size();
                         totPage = std::max((len + 10 - 1) / 10, 1);
                         page = 1;
+                        lastBtn->Disable();
+                        nextBtn->Enable();
+                        if (page == totPage) nextBtn->Disable();
                         resetLeftDetail();
                     }
                 });
@@ -2274,6 +2288,10 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
                     else {
                         page = inputPage;
                     }
+                    lastBtn->Enable();
+                    nextBtn->Enable();
+                    if (page == 1) lastBtn->Disable();
+                    if (page == totPage) nextBtn->Disable();
                     pageLabel->SetContent(ToStr(page) + "/" + ToStr(totPage));
                     resetLeftDetail();
                 });
@@ -2289,6 +2307,7 @@ void vio::BookManage::Logic(ui::Screen *screen) noexcept
     restoreBookBtn->SetClickCallback(_UI_CALLBACK_{
         opt = "新增图书";
         optEnable();
+        bookNum = "0";
         selectedBook = trm::Book();
         detailBox->FreeAll();
         lfMidBox->FreeAll();
@@ -2741,6 +2760,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
         titleInputBox = new ui::InputBox;{
             titleInputBox->AddTo(nolifyDetailBox);
             titleInputBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            titleInputBox->SetMaxCount(20);
             titleInputBox->SetInputCallback(_UI_CALLBACK_{
                 nolifyTitle = titleInputBox->GetText();
             });
@@ -2756,6 +2776,7 @@ void vio::EnterNolify::Logic(ui::Screen *screen) noexcept
             contentInputBox->AddTo(nolifyDetailBox);
             contentInputBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
             contentInputBox->SetFontSize(20);
+            contentInputBox->SetMaxCount(50);
             contentInputBox->SetInputCallback(_UI_CALLBACK_{
                 nolifyContent = contentInputBox->GetText();
             });
