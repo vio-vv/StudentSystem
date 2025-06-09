@@ -121,7 +121,7 @@ trm::Information ssys::ReserveSystem::CheckReserveStatusList(const trm::Informat
     {
         for(auto [time,status]:reserve)
         {
-            reserveList.push_back(trm::Combine({date,time,status},'_'));//将预约信息加入列表
+            reserveList.push_back(trm::Combine({date,time,status},'+'));//将预约信息加入列表
         }
     }
     return reserveList;

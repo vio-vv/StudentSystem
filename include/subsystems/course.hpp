@@ -31,8 +31,7 @@ protected:
     CourseSystem& operator=(const CourseSystem&) = delete;  
 private:
     dat::DataBase studentBase = DATA_BASE["course"]["studentCourse"];
-    dat::DataBase courseBase = DATA_BASE["course"]["courseList"];//一个存学生选课，一个存课程信息
-    //或许可以有个tag来标记本科生研究生博士生课程，待实现
+    dat::DataBase courseBase = DATA_BASE["course"]["courseList"]; // 一个存学生选课，一个存课程信息
 };
 
 }

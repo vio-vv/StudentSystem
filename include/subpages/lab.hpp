@@ -28,9 +28,9 @@ private:
     bool admadd=false;
     bool admde=false;
 protected:
-    void Load(ui::Screen *screen) noexcept override;// # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性）。
-    void Logic(ui::Screen *screen) noexcept override;// # 在这里写回调逻辑（设置组件回调函数、监听回调函数，进而动态设置组件属性、动态增减组件、跳转页面等）。
-    void Ready(ui::Screen *screen) noexcept override;// # 在这里可作初始化逻辑（准备维护基类静态成员的值，发送请求，* 启动定时器等）。
+    void Load(ui::Screen *screen) noexcept override; // # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性）。
+    void Logic(ui::Screen *screen) noexcept override; // # 在这里写回调逻辑（设置组件回调函数、监听回调函数，进而动态设置组件属性、动态增减组件、跳转页面等）。
+    void Ready(ui::Screen *screen) noexcept override; // # 在这里可作初始化逻辑（准备维护基类静态成员的值，发送请求，* 启动定时器等）。
 };
 class CourseList : public PageBase {
 private:
@@ -138,29 +138,6 @@ private:
     ui::VerticalScrollingBox *vsbox1 = nullptr;
     ui::VerticalScrollingBox *vsbox2 = nullptr;
     ui::VerticalScrollingBox *vsbox3 = nullptr;
-    ui::Button *btn13 = nullptr;
-    ui::Button *btn14 = nullptr;
-    ui::Button *btn15 = nullptr;
-    ui::Button *btn4 = nullptr;
-    ui::Button *btn5 = nullptr;
-    ui::Button *btn6 = nullptr;
-    ui::Button *btn7 = nullptr;
-    ui::Button *btn8 = nullptr;
-    ui::Button *btn9 = nullptr;
-    ui::Button *btn10 = nullptr;
-    ui::Button *btn11 = nullptr;
-    ui::Button *btn12 = nullptr;
-    ui::Button *btn20 = nullptr;
-    ui::Button *btn21 = nullptr;
-    ui::Button *btn22 = nullptr;
-    ui::Button *btn23 = nullptr;
-    ui::Button *btn30 = nullptr;
-    ui::Button *btn31 = nullptr;
-    ui::Button *btn32 = nullptr;
-    ui::Button *btn33 = nullptr;
-    ui::Button *btn34 = nullptr;
-    ui::Button *btn35 = nullptr;
-    ui::Button *btn36 = nullptr;
     ui::Button *clbtn1 = nullptr;
     ui::Button *clbtn2 = nullptr;
     ui::Button *clbtn3 = nullptr;
@@ -172,7 +149,13 @@ private:
     bool isadmde = false;
     bool isadmmodifyn = false;
     bool isadmmodifys = false;
+    std::vector<ui::Button *> months;
+    std::vector<ui::Button *> weeks;
+    std::vector<ui::Button *> days;
     std::vector<ui::Button *> times;
+    static const int MAX_MONTHS = 12;
+    static const int MAX_WEEKS = 4;
+    static const int MAX_DAYS = 7;
     static const int MAX_TIMES = 14;
 protected:
     void Load(ui::Screen *screen) noexcept override;
