@@ -989,30 +989,42 @@ std::string Combine(const std::vector<std::string> &series) noexcept;
 std::vector<std::string> Split(const std::string &str) noexcept;
 
 /**
- * TO_COMPLETE
+ * @brief 将字符串数组信息转化为字符串，可自定义分隔符。
  */
 std::string Combine(const std::vector<std::string> &series, char delimiter) noexcept;
 
 /**
- * TO_COMPLETE
+ * @brief 将字符串转化为字符串数组，可自定义分隔符。
  */
 std::vector<std::string> Split(const std::string &str, char delimiter) noexcept;
 
 /**
- * TO_COMPLETE
+ * @brief 哈希函数
  */
 std::string Hash(const std::string &str) noexcept;
 
+/**
+ * @brief base64转码加密
+ */
 Message base64Encode(const unsigned char *str, int len) noexcept;
 
+/**
+ * @brief base64解码解密
+ */
 Message base64Decode(const Message &str) noexcept;
 
+/**
+ * @brief 对称加密函数
+ */
 Message Encrypt(const Message &str, const std::string &key = "&!#^zY-zE)>2d9'cD|*6F<g.h8:_7H=m") noexcept;
 
+/**
+ * @brief 对称解密函数
+ */
 Message Decrypt(const Message &str, const std::string &key = "&!#^zY-zE)>2d9'cD|*6F<g.h8:_7H=m") noexcept;
 
 /**
- * TO_COMPLETE
+ * @brief 生成随机数。
  */
 unsigned long long GenerateRandomCode() noexcept;
 
@@ -1027,7 +1039,7 @@ std::string timestampToString(const std::string &timestamp);
 template<typename List> concept Iterable = requires (List list) { list.begin(); list.end(); ++list.begin(); };
 template<typename List, typename InputType> concept TypeCorrespond = requires (List list, InputType input) { input = *list.begin(); };
 /**
- * TO_COMPLETE
+ * @brief 遍历列表进行批处理操作
  */
 template<typename ReturnType, typename InputType, typename List> requires Iterable<List> && TypeCorrespond<List, InputType>
 std::vector<ReturnType> Foreach(const List &series, const std::function<ReturnType (const InputType &)> &func) noexcept
