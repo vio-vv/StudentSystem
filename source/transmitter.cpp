@@ -8,8 +8,6 @@ const std::string trm::Information::OUT_OF_RANGE = "";
 
 std::vector<std::string> trm::Notice::patition = {"headline", "news", "notice"};
 
-static const std::string base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
 const trm::AccessInfo &trm::GetAccessInfo(Access access) noexcept
 {
     static AccessInfo accessInfo[Access::_];
@@ -35,14 +33,12 @@ const trm::AccessInfo &trm::GetAccessInfo(Access access) noexcept
         accessInfo[Access::REMOVE_TAG] = {"删除标签", "可以删除系统内的帐户的标签。"};
         accessInfo[Access::RESET_ACCOUNT_AND_ACCESS] = {"重置帐户和权限系统", "可以重置帐户和权限系统，即删除所有帐户信息。"};
         accessInfo[Access::LIST_ACCOUNT] = {"查看系统内帐户", "可以查看系统内的帐户信息。"};
+        // TODO
 
         /*******************************
          * @attention LAB 请在此处添加。*
          * *****************************
          */
-        // accessInfo[???] = {???, ???};
-        // 也可以这样写：accessInfo[???].name = "???";
-        // 不写的话会有默认值 "【未命名权限】"、"【无说明】"。
         accessInfo[Access::ADD_COURSE] = {"添加课程", "学生账户可以添加课程。"};
         accessInfo[Access::DELETE_COURSE] = {"删除课程", "学生账户可以删除课程。"};
         accessInfo[Access::ADM_ADD_COUR] = {"开设课程", "管理员账户可以添加课程。"};
@@ -50,6 +46,7 @@ const trm::AccessInfo &trm::GetAccessInfo(Access access) noexcept
         accessInfo[Access::ADM_DELETE_RESERVE_TIME] = {"删除预约时间", "管理员账户可以删除预约时间。"};
         accessInfo[Access::ADM_ADD_RESERVE_TIME] = {"增加预约时间", "管理员账户可以增加预约时间。"};
         accessInfo[Access::ADM_MODIFTY_RESERVE_NUMBER] = {"修改预约数量", "管理员账户可以修改预约数量。"};
+
         /**********************************
          * @attention VIO_VV 请在此处添加。*
          * ********************************
@@ -58,9 +55,6 @@ const trm::AccessInfo &trm::GetAccessInfo(Access access) noexcept
         accessInfo[Access::BORROW_BOOK] = {"借阅图书", "可以借阅图书。"};
         accessInfo[Access::RESET_LIBRARY] = {"重置图书馆", "可以重置图书馆，即删除所有图书信息。"};
         accessInfo[Access::MANAGE_NOLIFY] = {"管理通知", "可以管理系统的通知。包括新增通知，删除通知。"};
-        // accessInfo[???] = {???, ???};
-        // 也可以这样写：accessInfo[???].name = "???";
-        // 不写的话会有默认值 "【未命名权限】"、"【无说明】"。
 
         initialized = true;
     }
@@ -566,249 +560,7 @@ std::string trm::Notice::GetHeadlineTitle() const noexcept
     return ret;
 }
 
-trm::Message trm::base64Encode(const unsigned char *str, int len) noexcept
-{
-    std::string res = "";
-    
-    int i = 0;
-    int j = 0;
-    unsigned char char_3[3];
-    unsigned char char_4[4];
-
-    while (len--) {
-        char_3[i++] = *(str++);
-        if (i == 3) {
-            char_4[0] = (char_3[0] & 0xfc) >> 2;
-            char_4[1] = ((char_3[0] & 0x03) << 4) + ((char_3[1] & 0xf0) >> 4);
-            char_4[2] = ((char_3[1] & 0x0f) << 2) + ((char_3[2] & 0xc0) >> 6);
-            char_4[3] = char_3[2] & 0x3f;
-            
-            for (i = 0; i < 4; i++) {
-                res += base64Chars[char_4[i]];
-            }
-            i = 0;
-        }
-
-    }
-
-    if (i) {
-        for (j = i; j < 3; ++j) {
-            char_3[j] = '\0';
-        }
-
-        char_4[0] = (char_3[0] & 0xfc) >> 2;
-        char_4[1] = ((char_3[0] & 0x03) << 4) + ((char_3[1] & 0xf0) >> 4);
-        char_4[2] = ((char_3[1] & 0x0f) << 2) + ((char_3[2] & 0xc0) >> 6);
-        
-        for (j = 0; j < i + 1; ++j) {
-            res += base64Chars[char_4[j]];
-        }
-
-        while ((i++ < 3)) {
-            res += '=';
-        }
-    }
-
-    return res;
-}
-
-trm::Message trm::base64Decode(const trm::Message &str) noexcept
-{
-    int len = str.size();
-    std::string res = "";
-    unsigned char char_3[3];
-    unsigned char char_4[4];
-    int i = 0;
-    int j = 0;
-    int pos = 0;
-
-    while (len-- && str[pos] != '=') {
-        char_4[i++] = str[pos];
-        ++pos;
-        if (i == 4) {
-            for (int i = 0; i < 4; ++i) {
-                char_4[i] = base64Chars.find(char_4[i]) & 0xff;
-            }
-            char_3[0] = (char_4[0] << 2) + ((char_4[1] & 0x30) >> 4);
-            char_3[1] = ((char_4[1] & 0xf) << 4) + ((char_4[2] & 0x3c) >> 2);
-            char_3[2] = ((char_4[2] & 0x3) << 6) + char_4[3];
-            
-            for (int i = 0; i < 3; ++i) {
-                res += char_3[i];
-            }
-            i = 0;
-        }
-
-    }
-
-    if (i) {
-        for (j = 0; j < i; ++j) {
-            char_4[j] = base64Chars.find(char_4[j]) & 0xff;
-        }
-
-        char_3[0] = (char_4[0] << 2) + ((char_4[1] & 0x30) >> 4);
-        char_3[1] = ((char_4[1] & 0xf) << 4) + ((char_4[2] & 0x3c) >> 2);
-
-        for (int j = 0; j < i - 1; ++j) res += char_3[j];
-    }
-    return res;
-}
-
-template<typename String>
-std::string encode(String s) {
-    return trm::base64Encode(reinterpret_cast<const unsigned char*>(s.data()), s.size());
-}
-
-trm::Message trm::Encrypt(const trm::Message &str, const std::string &key) noexcept
-{
-     int len = str.length();
-
-    std::string res = str;
-    
-    std::string _key = "&!#^zY-zE)>2d9'cD|*6F<g.h8:_7H=m";
-    int keylen = key.size();
-    _key = key + _key;
-
-    std::vector<std::string> keybox;
-
-    if (keylen < 32) keylen = 32;
-    else if (keylen % 8) keylen += 8 - keylen % 8;
-
-    std::string subkey = "";
-    for (int i = 0; i < keylen; ++i) {
-        subkey += _key[i];
-        if ((i + 1) % 8 == 0) {
-            keybox.emplace_back(subkey);
-            subkey = "";
-        }
-    }
-
-    int loop = keybox.size();
-    std::string leftstr;
-    std::string rightstr;
-
-    while (loop < 8) {
-        subkey = "";
-        if ((loop + 1) % 4 == 0) {
-            subkey = keybox[loop - 1];
-            for (int i = 0; i < 8; ++i) {
-                subkey[i] = ((subkey[i] * loop) ^ keybox[loop - 4][i]) % 128;
-            }
-        }
-        else {
-            subkey = keybox[loop - 1];
-            for (int i = 0; i < 8; ++i) {
-                subkey[i] ^= keybox[loop - 4][i];
-            }
-        }
-        keybox.emplace_back(subkey);
-        ++loop;
-    }
-
-    for (int i = 0; i < loop; ++i) {
-        for (int j = 0; j < len; ++j) {
-            res[j] ^= keybox[i][j % 8];
-        }
-        if (i % 2) {
-            for (int i = 0; i + 1 < len; ++i) {
-                if (i % 2) res[i + 1] ^= (res[i] * 51 >> 1) % 71;
-                else res[i + 1] ^= (res[i] * 53 << 1) % 67;
-            }
-        }
-        else {
-            for (int i = len - 1; i > 0; --i) {
-                if (i % 2) res[i - 1] ^= (res[i] * 51 >> 1) % 71;
-                else res[i - 1] ^= (res[i] * 53 << 1) % 67;
-            }
-        }
-        leftstr = res.substr(0, len / 3);
-        for (auto &c : leftstr) {
-            c ^= keybox[i][i % 8];
-        }
-        rightstr = res.substr(len / 3, len - len / 3);
-        res = rightstr + leftstr;
-    }
-
-    res = encode(res);
-
-    return res;
-}
-
-trm::Message trm::Decrypt(const trm::Message &str, const std::string &key) noexcept
-{
-    std::string res = str;
-    res = base64Decode(res);
-
-    int len = res.length();
-
-    std::string _key = "&!#^zY-zE)>2d9'cD|*6F<g.h8:_7H=m";
-    int keylen = key.size();
-    _key = key + _key;
-
-    std::vector<std::string> keybox;
-
-    if (keylen < 32) keylen = 32;
-    else if (keylen % 8) keylen += 8 - keylen % 8;
-
-    std::string subkey = "";
-    for (int i = 0; i < keylen; ++i) {
-        subkey += _key[i];
-        if ((i + 1) % 8 == 0) {
-            keybox.emplace_back(subkey);
-            subkey = "";
-        }
-    }
-
-    int loop = keybox.size();
-    std::string leftstr;
-    std::string rightstr;
-
-    while (loop < 8) {
-        subkey = "";
-        if ((loop + 1) % 4 == 0) {
-            subkey = keybox[loop - 1];
-            for (int i = 0; i < 8; ++i) {
-                subkey[i] = ((subkey[i] * loop) ^ keybox[loop - 4][i]) % 128;
-            }
-        }
-        else {
-            subkey = keybox[loop - 1];
-            for (int i = 0; i < 8; ++i) {
-                subkey[i] ^= keybox[loop - 4][i];
-            }
-        }
-        keybox.emplace_back(subkey);
-        ++loop;
-    }
-
-    for (int i = loop - 1; i >= 0; --i) {
-        rightstr = res.substr(0, len - len / 3);
-        leftstr = res.substr(len - len / 3, len / 3);
-        for (auto &c : leftstr) {
-            c ^= keybox[i][i % 8];
-        }
-        res = leftstr + rightstr;
-        if (i % 2) {
-            for (int i = len - 1; i > 0; --i) {
-                if ((i - 1) % 2) res[i] ^= (res[i - 1] * 51 >> 1) % 71;
-                else res[i] ^= (res[i - 1] * 53 << 1) % 67;
-            }
-        }
-        else {
-            for (int i = 1; i < len; ++i) {
-                if (i % 2) res[i - 1] ^= (res[i] * 51 >> 1) % 71;
-                else res[i - 1] ^= (res[i] * 53 << 1) % 67;
-            }
-        }
-        for (int j = 0; j < len; ++j) {
-            res[j] ^= keybox[i][j % 8];
-        }
-    }
-
-    return res;
-}
-
-std::string trm::timestampToString(const std::string &timestamp)
+std::string trm::TimestampToString(const std::string &timestamp)
 {
     time_t t = std::stoll(timestamp);
     tm local_time;

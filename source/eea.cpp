@@ -756,7 +756,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
                 subject->SetContent("主题：" + con.subject);
                 sender->SetContent("发件人：" + con.sender);
                 receiver->SetContent("收件人：" + con.receiver);
-                dateTime->SetContent("时间：" + trm::timestampToString(ToStr(con.timeStamp)));
+                dateTime->SetContent("时间：" + trm::TimestampToString(ToStr(con.timeStamp)));
                 if (con.read) state->SetContent("已读");
                 else state->SetContent("未读");
                 indexInfo->SetContent("信件编号：" + index);

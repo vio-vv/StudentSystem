@@ -1003,14 +1003,6 @@ std::vector<std::string> Split(const std::string &str, char delimiter) noexcept;
  */
 std::string Hash(const std::string &str) noexcept;
 
-Message base64Encode(const unsigned char *str, int len) noexcept;
-
-Message base64Decode(const Message &str) noexcept;
-
-Message Encrypt(const Message &str, const std::string &key = "&!#^zY-zE)>2d9'cD|*6F<g.h8:_7H=m") noexcept;
-
-Message Decrypt(const Message &str, const std::string &key = "&!#^zY-zE)>2d9'cD|*6F<g.h8:_7H=m") noexcept;
-
 /**
  * TO_COMPLETE
  */
@@ -1022,7 +1014,7 @@ unsigned long long GenerateRandomCode() noexcept;
  */
 unsigned long long GetTimestamp() noexcept;
 
-std::string timestampToString(const std::string &timestamp);
+std::string TimestampToString(const std::string &timestamp);
 
 template<typename List> concept Iterable = requires (List list) { list.begin(); list.end(); ++list.begin(); };
 template<typename List, typename InputType> concept TypeCorrespond = requires (List list, InputType input) { input = *list.begin(); };

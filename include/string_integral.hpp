@@ -60,4 +60,8 @@ ReturnType ToNum(const std::string &s) noexcept
 }
 int ToNum(char c) noexcept;
 
+std::string Encrypt(const std::string &str, const std::string &key = "&!#^zY-zE)>2d9'cD|*6F<g.h8:_7H=m") noexcept;
+
+std::string Decrypt(const std::string &str, const std::string &key = "&!#^zY-zE)>2d9'cD|*6F<g.h8:_7H=m") noexcept;
+
 #endif

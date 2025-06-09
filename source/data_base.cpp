@@ -5,7 +5,7 @@ bool dat::DataBase::fail = false;
 dat::DataBase::operator std::string() const noexcept
 {
     if (!file::CheckFileExists(space)) {
-        if (!file::WriteFile(space, "")) {
+        if (!file::WriteFile(space, Encrypt(""))) {
             std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file:" << space << std::endl;
             fail = true;
             return "";
@@ -17,7 +17,7 @@ dat::DataBase::operator std::string() const noexcept
         fail = true;
         return "";
     }
-    return content;
+    return Decrypt(content);
 }
 
 void dat::DataBase::Clear() const noexcept
@@ -169,7 +169,7 @@ bool dat::DataBase::Exists(const std::string &keyName) const noexcept
 
 const std::string &dat::DataBase::operator=(const std::string &value) const noexcept
 {
-    if (!file::WriteFile(space, value)) {
+    if (!file::WriteFile(space, Encrypt(value))) {
         std::cout << __FILE__ << ':' << __LINE__ << ":Failed to write file:" << space << std::endl;
         fail = true;
         return value;
