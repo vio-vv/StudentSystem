@@ -160,10 +160,11 @@ private:
 
     const bool fromLogin;
 protected:
-    EnterReserve(bool fromLogin = false) noexcept : fromLogin(fromLogin) {}
     void Load(ui::Screen *screen) noexcept override;
     void Logic(ui::Screen *screen) noexcept override;
     void Ready(ui::Screen *screen) noexcept override;
+public:
+    EnterReserve(bool fromLogin = false) noexcept : fromLogin(fromLogin) {}
 };
 class ReserveStatusList : public PageBase {
 private:

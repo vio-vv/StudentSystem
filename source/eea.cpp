@@ -556,7 +556,7 @@ void eea::Login::Logic(ui::Screen *screen) noexcept
         SwitchTo(new Forget);
     });
     reserveBtn->SetClickCallback(_UI_CALLBACK_{
-        SwitchTo(new lab::EnterReserve);
+        SwitchTo(new lab::EnterReserve(true));
     });
 }
 
