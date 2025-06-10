@@ -1,6 +1,65 @@
 #include "client_pages.hpp"
 #include "eea.hpp"
 
+void eea::AccessList::Load(ui::Screen *screen) noexcept
+{
+    backBtn = new ui::Button; {
+        backBtn->AddTo(screen);
+        backBtn->SetPosition(100, 100);
+        backBtn->SetCaption("返回上一级");
+    }
+
+    list = new ui::VerticalScrollingBox; {
+        list->AddTo(screen);
+        list->SetPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        list->SetSize(50, 90);
+        list->SetInsideBoxScrollable(true);
+    }
+}
+
+void eea::AccessList::Logic(ui::Screen *screen) noexcept
+{
+    backBtn->SetClickCallback(_UI_CALLBACK_{
+        SwitchTo(new EnterAccManage);
+    });
+}
+
+void eea::AccessList::Ready(ui::Screen *screen) noexcept
+{
+    auto box = new ui::HorizontalBox; {
+        box->AddTo(list);
+        box->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        box->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+        auto name = new ui::Label("权限名称", ui::Control::Preset::WRAP_AT_CENTER);
+        name->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        name->SetHSize(35);
+        box->Add(name);
+        auto decr = new ui::Label("权限描述", ui::Control::Preset::WRAP_AT_CENTER);
+        decr->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+        name->SetHSize(65);
+        box->Add(decr);
+    }
+    for (int access = 0; access < trm::Access::_COMMON; ++access) {
+        auto info = trm::GetAccessInfo((trm::Access)access);
+        box = new ui::HorizontalBox; {
+            box->AddTo(list);
+            box->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            box->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+            auto name = new ui::Label(info.name, ui::Control::Preset::WRAP_AT_CENTER);
+            name->SetFontSize(40);
+            name->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            name->SetHSize(35);
+            box->Add(name);
+            auto decr = new ui::Label(info.description, ui::Control::Preset::WRAP_AT_CENTER);
+            decr->SetFontSize(30);
+            decr->SetMaxCount(16);
+            decr->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
+            name->SetHSize(65);
+            box->Add(decr);
+        }
+    }
+}
+
 void eea::AccountDelail::Load(ui::Screen *screen) noexcept
 {
     auto mar = new ui::Margin; {
@@ -711,6 +770,10 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
                     hBox->SetPreset(ui::Control::Preset::WRAP_AT_CENTER);
                 }
                 {
+                    replyBtn = new ui::Button("回复"); {
+                        replyBtn->AddTo(hBox);
+                        replyBtn->Hide();
+                    }
                     markAsReadBtn = new ui::Button("标为已读"); {
                         markAsReadBtn->AddTo(hBox);
                         markAsReadBtn->Hide();
@@ -731,15 +794,22 @@ void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
 
 void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
 {
+    const std::vector<ui::Button *> detailBtn = {replyBtn, markAsReadBtn, markAsUnreadBtn, delteMailBtn};
+    const std::vector<ui::Label *> detailLabel = {subject, sender, receiver, dateTime, state, indexInfo, mailContent};
+
     backBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new MainPage);
     });
 
+    replyBtn->SetClickCallback(_UI_CALLBACK_{
+        SwitchTo(new WriteMail(sender->GetName()));
+    });
+
     auto clearDetail = [=, this](){
-        for (auto label : {subject, sender, receiver, dateTime, state, indexInfo, mailContent}) {
+        for (auto label : detailLabel) {
             label->SetContent("");
         }
-        for (auto btn : {markAsReadBtn, markAsUnreadBtn, delteMailBtn}) {
+        for (auto btn : detailBtn) {
             btn->Hide();
         }
     };
@@ -757,6 +827,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
                 auto con = trm::MailContent(reply[0]);
                 subject->SetContent("主题：" + con.subject);
                 sender->SetContent("发件人：" + con.sender);
+                sender->SetName(con.sender);
                 receiver->SetContent("收件人：" + con.receiver);
                 dateTime->SetContent("时间：" + trm::TimestampToString(ToStr(con.timeStamp)));
                 if (con.read) state->SetContent("已读");
@@ -764,7 +835,7 @@ void eea::EnterMailSystem::Logic(ui::Screen *screen) noexcept
                 indexInfo->SetContent("信件编号：" + index);
                 indexInfo->SetName(index);
                 mailContent->SetContent(con.content);
-                for (auto btn : {markAsReadBtn, markAsUnreadBtn, delteMailBtn}) {
+                for (auto btn : detailBtn) {
                     btn->Show();
                 }
                 turner->CallTurnCallback("", {});
@@ -1028,6 +1099,7 @@ void eea::WriteMail::Load(ui::Screen *screen) noexcept
                         target->SetLengthLimit(64);
                         target->SetContentLimit(ui::InputBox::ContentLimit::ALLOW_SPECIAL_CHARACTERS_ONLY);
                         target->SetSpecialCharacters(ui::InputBox::NUMBER + ui::InputBox::LOWER_LETTER + ui::InputBox::UPPER_LETTER + "_-@.");
+                        target->SetText(targetName);
                     }
                 }
                 auto subB = new ui::HorizontalBox;
@@ -1049,6 +1121,7 @@ void eea::WriteMail::Load(ui::Screen *screen) noexcept
                     inputB->AddTo(mainBox);
                     inputB->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     inputB->SetVPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                    inputB->SetVMinSize(500);
                     inputB->SetMaxCount(32);
                 }
             }
@@ -1659,6 +1732,11 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
                         backBtn->SetCaption("返回主页");
                         backBtn->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     }
+                    accList = new ui::Button; {
+                        accList->AddTo(btnBox);
+                        accList->SetCaption("权限一览");
+                        accList->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
+                    }
                     refreshBtn = new ui::Button; {
                         refreshBtn->AddTo(btnBox);
                         refreshBtn->SetCaption("刷新");
@@ -1740,6 +1818,10 @@ void eea::EnterAccManage::Load(ui::Screen *screen) noexcept
 
 void eea::EnterAccManage::Logic(ui::Screen *screen) noexcept
 {
+    accList->SetClickCallback(_UI_CALLBACK_{
+        SwitchTo(new AccessList);
+    });
+
     resetBtn->SetClickCallback(_UI_CALLBACK_{
         screen->HideAll();
         auto click = MessageBox(screen, "你正在进行一个危险操作！\n您将重置帐户与权限系统，这意味着清空系统内所有的帐户信息，并退出登录。\n确认吗？", {"确认", "取消"});

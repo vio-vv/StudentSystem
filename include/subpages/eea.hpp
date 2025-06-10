@@ -69,6 +69,7 @@ protected:
 class EnterAccManage : public PageBase {
 private:
     ui::Button *backBtn = nullptr;
+    ui::Button *accList = nullptr;
     ui::Button *refreshBtn = nullptr;
 
     ui::Center *labelCenter = nullptr;
@@ -85,6 +86,16 @@ private:
     ui::Button *resetBtn = nullptr;
 
     ui::Control::Callback refresh = ui::Control::DO_NOTHING;
+protected:
+    void Load(ui::Screen *screen) noexcept override;
+    void Logic(ui::Screen *screen) noexcept override;
+    void Ready(ui::Screen *screen) noexcept override;
+};
+
+class AccessList : public PageBase {
+private:
+    ui::Button *backBtn = nullptr;
+    ui::VerticalScrollingBox *list = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept override;
     void Logic(ui::Screen *screen) noexcept override;
@@ -151,9 +162,10 @@ private:
     ui::Label *state = nullptr;
     ui::Label *indexInfo = nullptr;
     ui::Label *mailContent = nullptr;
-    ui::Button *delteMailBtn = nullptr;
+    ui::Button *replyBtn = nullptr;
     ui::Button *markAsReadBtn = nullptr;
     ui::Button *markAsUnreadBtn = nullptr;
+    ui::Button *delteMailBtn = nullptr;
 
     const int eachPageNum = 10;
 protected:
@@ -169,10 +181,14 @@ private:
     ui::InputBox *subject = nullptr;
     ui::InputBox *inputB = nullptr;
     ui::Button *sendBtn = nullptr;
+
+    const std::string targetName;
 protected:
     void Load(ui::Screen *screen) noexcept override;
     void Logic(ui::Screen *screen) noexcept override;
     void Ready(ui::Screen *screen) noexcept override;
+public:
+    WriteMail(const std::string &targetName = "") noexcept :  targetName(targetName) {}
 };
 
 }
