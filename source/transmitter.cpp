@@ -33,7 +33,10 @@ const trm::AccessInfo &trm::GetAccessInfo(Access access) noexcept
         accessInfo[Access::REMOVE_TAG] = {"删除标签", "可以删除系统内的帐户的标签。"};
         accessInfo[Access::RESET_ACCOUNT_AND_ACCESS] = {"重置帐户和权限系统", "可以重置帐户和权限系统，即删除所有帐户信息。"};
         accessInfo[Access::LIST_ACCOUNT] = {"查看系统内帐户", "可以查看系统内的帐户信息。"};
-        // TODO
+        accessInfo[Access::SEND_MESSAGE] = {"发送站内信", "可以发送系统内的站内信。"};
+        accessInfo[Access::DELETE_MESSAGE] = {"删除站内信", "可以删除系统内的自己收到的站内信。"};
+        accessInfo[Access::DELETE_MESSAGE_OF_OTHERS] = {"管理站内信", "可以删除系统内的别人收到的站内信。"};
+        accessInfo[Access::RESET_MAIL_SYSTEM] = {"重置邮件系统", "可以重置邮件系统，即删除所有邮件信息。"};
 
         /*******************************
          * @attention LAB 请在此处添加。*

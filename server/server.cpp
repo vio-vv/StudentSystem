@@ -1,19 +1,19 @@
 #define _SELF_ ".\\space"
 
-#define _REGISTER_(ENUM, FUNC)                                             \
-    else if (request.content[0] == ENUM) {                                 \
-        std::cout << "GET:\n\t";                                           \
-        for (auto each : request.content) {                                \
-            std::cout << each << ", ";                                     \
-        }                                                                  \
-        std::cout << std::endl;                                            \
-        auto ____ = FUNC(request.content);                                 \
-        trm::SendReply(request.sender, request.id, ____);                  \
-        std::cout << "SEND:\n\t";                                          \
-        for (auto each : ____) {                                           \
-            std::cout << each << ", ";                                     \
-        }                                                                  \
-        std::cout << std::endl;                                            \
+#define _REGISTER_(ENUM, FUNC)                                                         \
+    else if (request.content[0] == ENUM) {                                             \
+        std::cout << trm::TimestampToString(ToStr(trm::GetTimestamp())) << "GET:\n\t"; \
+        for (auto each : request.content) {                                            \
+            std::cout << each << ", ";                                                 \
+        }                                                                              \
+        std::cout << std::endl;                                                        \
+        auto ____ = FUNC(request.content);                                             \
+        trm::SendReply(request.sender, request.id, ____);                              \
+        std::cout << "SEND:\n\t";                                                      \
+        for (auto each : ____) {                                                       \
+            std::cout << each << ", ";                                                 \
+        }                                                                              \
+        std::cout << std::endl;                                                        \
     }
 
 /**
@@ -57,7 +57,7 @@ int main() noexcept
             for (const auto &request : ok_requests.second) {
                 assert(request.content.size() > 0); // Unexpected information size.
                 if (request.content[0] == trm::rqs::CHECK_ONLINE) {
-                    std::cout << "GET:\n\t";
+                    std::cout << trm::TimestampToString(ToStr(trm::GetTimestamp())) << " GET:\n\t";
                     for (auto each : request.content) {
                         std::cout << each << ", ";
                     }

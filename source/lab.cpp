@@ -219,7 +219,7 @@ void lab::EnterCourse::Ready(ui::Screen *screen) noexcept
     admadd=false;
     admde=false;
     if(username!=""&&password!="") {
-        Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_ADD_COUR}}),_SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_ADD_COUR}}),_SD_CALLBACK_{
             if(reply[0] == trm::rpl::YES) {
                 admaddbtn->Show();
                 admaddbtn->Enable();
@@ -229,7 +229,7 @@ void lab::EnterCourse::Ready(ui::Screen *screen) noexcept
                 ;
             }
         });
-        Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_DELETE_COUR}}),_SD_CALLBACK{
+        Listen(new trm::Sender({trm::rqs::CHECK_ACCESS,username,password,trm::AccessBox{trm::acc::ADM_DELETE_COUR}}),_SD_CALLBACK_{
             if(reply[0] == trm::rpl::YES) {
                 admdebtn->Show();
                 admdebtn->Enable();
@@ -1533,7 +1533,7 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
     });
     for(auto i:months)
     {
-        i->SetClickCallback(_UI_CALLBACK{
+        i->SetClickCallback(_UI_CALLBACK_{
             if(i->GetName()=="cancel")
             {
                 rdate.month="";
@@ -1550,7 +1550,7 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
     }
     for(auto i:weeks)
     {
-        i->SetClickCallback(_UI_CALLBACK{
+        i->SetClickCallback(_UI_CALLBACK_{
             if(i->GetName()=="cancel")
             {
                 rdate.week="";
@@ -1567,7 +1567,7 @@ void lab::EnterReserve::Logic(ui::Screen *screen) noexcept
     }
     for(auto i:days)
     {
-        i->SetClickCallback(_UI_CALLBACK{
+        i->SetClickCallback(_UI_CALLBACK_{
             if(i->GetName()=="cancel")
             {
                 rdate.date="";

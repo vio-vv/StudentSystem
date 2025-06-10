@@ -157,7 +157,10 @@ private:
     static const int MAX_WEEKS = 4;
     static const int MAX_DAYS = 7;
     static const int MAX_TIMES = 14;
+
+    const bool fromLogin;
 protected:
+    EnterReserve(bool fromLogin = false) noexcept : fromLogin(fromLogin) {}
     void Load(ui::Screen *screen) noexcept override;
     void Logic(ui::Screen *screen) noexcept override;
     void Ready(ui::Screen *screen) noexcept override;

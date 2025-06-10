@@ -37,6 +37,7 @@ private:
     ui::Button *mailBtn = nullptr;
     ui::Button *nolifyBtn = nullptr;
     ui::Button *accBtn = nullptr;
+    ui::ToggleButton *debugModeSwitch = nullptr;
 
     ui::Button *headlineBtn = nullptr;
     ui::HorizontalBox *headlineBox = nullptr;

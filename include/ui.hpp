@@ -1,17 +1,15 @@
 #ifndef __UI_HPP__
 #define __UI_HPP__
 
-#ifdef NDEBUG
-#define _DRAW_DEBUG_RECT_
-#else
 #define _DRAW_DEBUG_RECT_ \
-    sf::RectangleShape ____(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL])); \
-    ____.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL])); \
-    ____.setOutlineColor(sf::Color::Yellow); \
-    ____.setOutlineThickness(1); \
-    ____.setFillColor(sf::Color::Transparent); \
-    screen.draw(____)
-#endif
+    if (Theme::Get().GetDebugMode()) { \
+        sf::RectangleShape ____(sf::Vector2f(globalSize[Direction::HORIZONTAL], globalSize[Direction::VERTICAL])); \
+        ____.setPosition(sf::Vector2f(globalPosition[Direction::HORIZONTAL], globalPosition[Direction::VERTICAL])); \
+        ____.setOutlineColor(sf::Color::Yellow); \
+        ____.setOutlineThickness(1); \
+        ____.setFillColor(sf::Color::Transparent); \
+        screen.draw(____); \
+    }
 
 #define _ASSETS_ "../assets/"
 
@@ -186,9 +184,28 @@ class Control;
      */
     class PageTurner;
 
-/*******************************************
+/**
+ * @class 主题控制单例
+ */
+class Theme{
+public:
+    static Theme &Get() noexcept
+    {
+        static Theme instance;
+        return instance;
+    }
+    void SetDebugMode(bool flag) noexcept { debugMode = flag; }
+    bool GetDebugMode() const noexcept { return debugMode; }
+private:
+    Theme() = default;
+    Theme(const Theme &) = delete;
+    Theme &operator=(const Theme &) = delete;
+    bool debugMode = false;
+};
+
+/******************************
  * @brief 所有组件类的接口声明。*
- * **********************************************
+ * ****************************
  */
 class Control{
 public:

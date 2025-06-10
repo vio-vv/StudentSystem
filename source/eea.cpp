@@ -578,7 +578,9 @@ void eea::Forget::Logic(ui::Screen *screen) noexcept
 
 void eea::Forget::Ready(ui::Screen *screen) noexcept
 {
-    ;
+    screen->HideAll();
+    MessageBox(screen, "功能暂未开放");
+    SwitchTo(new Login);
 }
 
 void eea::EnterMailSystem::Load(ui::Screen *screen) noexcept
@@ -1251,7 +1253,11 @@ void eea::MainPage::Load(ui::Screen *screen) noexcept
                     accBtn = new ui::Button; {
                         accBtn->SetCaption("帐户权限管理");
                     }
-                    for (auto btn : {reserveBtn, courseBtn, libraryBtn, canteenBtn, mailBtn, nolifyBtn, accBtn}) {
+                    debugModeSwitch = new ui::ToggleButton; {
+                        debugModeSwitch->SetCaption("调试模式");
+                        debugModeSwitch->SetOn(ui::Theme::Get().GetDebugMode());
+                    }
+                    for (auto btn : std::vector<ui::Button *>{reserveBtn, courseBtn, libraryBtn, canteenBtn, mailBtn, nolifyBtn, accBtn, debugModeSwitch}) {
                         btn->AddTo(ver);
                         btn->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                     }
@@ -1329,6 +1335,10 @@ void eea::MainPage::Logic(ui::Screen *screen) noexcept
     });
     accBtn->SetClickCallback(_UI_CALLBACK_{
         SwitchTo(new EnterAccManage);
+    });
+
+    debugModeSwitch->SetToggleCallback(_UI_CALLBACK_{
+        ui::Theme::Get().SetDebugMode(debugModeSwitch->GetOn());
     });
 
     auto printHeadline = [=, this]() -> void {

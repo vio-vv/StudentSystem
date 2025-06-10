@@ -2,6 +2,7 @@
 
 /test/out.txt
 server/log.txt
+client/log.txt
 
 /test/data/
 /server/data/

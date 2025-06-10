@@ -16,6 +16,11 @@
 
 int main() noexcept
 {
+    freopen("log.txt", "at", stdout);
+    if (file::CheckFileExists("debug")) {
+        ui::Theme::Get().SetDebugMode(true);
+    }
+
     ui::Screen screen(1500, 1000, "校园系统 - 大作业");
 
     std::string link, self, selfAsSender;

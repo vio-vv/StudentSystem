@@ -23,7 +23,25 @@ protected:
     virtual void TickAtSpecificIntervals(ui::Screen *screen) noexcept {}
     virtual void Unload(ui::Screen *screen) noexcept {}
 
+    /**
+     * @brief 向服务器发送请求并等待回复。
+     * @param screen 屏幕指针
+     * @param information 请求信息
+     * @param tips 提示信息
+     * @return 服务器返回的状态码和回复信息
+     * @note 该函数会阻塞线程，直到收到回复或超时。
+     * @note 状态码定义：1 成功；0 超时；-1 窗口被关闭。
+     */
     static std::pair<int, trm::Information> WaitServer(ui::Screen *screen, const trm::Information &information, const std::string &tips) noexcept;
+    /**
+     * @brief 弹出消息框。
+     * @param screen 屏幕指针
+     * @param tips 提示信息
+     * @param options 选项列表
+     * @return 选项序号
+     * @note 该函数会阻塞线程，直到用户选择选项或关闭窗口。
+     * @note 选项序号从 0 开始。
+     */
     static int MessageBox(ui::Screen *screen, const std::string &tips, const std::vector<std::string> &options = {"确定"}) noexcept;
     static std::string username;
     static std::string password;
@@ -39,10 +57,34 @@ protected:
 
     static std::vector<std::string> argvs;
     
+    /**
+     * @brief 监听指定 Sender 对象。
+     * @param sender 待监听的 Sender 对象
+     * @param callback 回调函数
+     * @note 该函数不会会阻塞线程，收到回复或超时才会调用回调函数。
+     * @note 回调函数的第一个参数为请求的 ID，第二个参数为回复信息。
+     * @note 超时时，回调函数的第二个参数为 trm::rpl::TIME_OUT。
+     */
     void Listen(trm::Sender *sender, const Callback &callback) noexcept;
+    /**
+     * @brief 切换到指定页面。
+     * @param page 目标页面
+     */
     void SwitchTo(PageBase *page);
+    /**
+     * @brief 设置监听间隔。
+     * @param newInterval 新的监听间隔（毫秒）
+     */
     void SetInterval(int newInterval) noexcept;
+    /**
+     * @brief 设置监听次数限制。
+     * @param newLimit 新的监听次数限制
+     */
     void SetLimit(int newLimit) noexcept;
+    /**
+     * @brief 将某个组件放入释放队列，以使其在这一帧结束时被释放。
+     * @param control 待释放的组件
+     */
     void QueueFree(ui::Control *control) noexcept;
 private:
     std::vector<std::pair<trm::Sender *, Callback>> queue;
