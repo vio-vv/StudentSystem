@@ -1361,20 +1361,20 @@ void eea::MainPage::Load(ui::Screen *screen) noexcept
                     }
                     auto nolifyFoot = new ui::HorizontalBox; {
                         nolifyFoot->AddTo(verNolify);
-                        nolifyFoot->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
+                        nolifyFoot->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
                         nolifyFoot->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                        nolifyFoot->SetGap(300);
+                        nolifyFoot->SetGap(5);
                     }
                     {
                         newsBox = new ui::VerticalBox; {
                             newsBox->AddTo(nolifyFoot);
                             newsBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                            newsBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            newsBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                         }
                         noticeBox = new ui::VerticalBox; {
                             noticeBox->AddTo(nolifyFoot);
                             noticeBox->SetVPreset(ui::Control::Preset::FILL_FROM_CENTER);
-                            noticeBox->SetHPreset(ui::Control::Preset::WRAP_AT_CENTER);
+                            noticeBox->SetHPreset(ui::Control::Preset::FILL_FROM_CENTER);
                         }
                     }
                 }

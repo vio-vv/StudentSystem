@@ -847,7 +847,8 @@ void vio::BookDetail::Load(ui::Screen *screen) noexcept
                     bookAuthor->SetVPreset(ui::Control::Preset::WRAP_AT_FRONT);
                     std::string authorStr = "";
                     for (unsigned long long int i = 0; i < selectedBook.bookAuthor.size(); i++) {
-                        authorStr += selectedBook.bookAuthor[i] + ",";
+                        if (i == selectedBook.bookAuthor.size() - 1) authorStr += selectedBook.bookAuthor[i];
+                        else authorStr += selectedBook.bookAuthor[i] + ",";
                     }
                     bookAuthor->SetContent("作者" + authorStr);
                     bookAuthor->SetFontSize(40);
