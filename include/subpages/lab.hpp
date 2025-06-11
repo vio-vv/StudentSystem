@@ -27,6 +27,8 @@ private:
     ui::Label *limit= nullptr;
     bool admadd=false;
     bool admde=false;
+    bool add=false;
+    bool del=false;
 protected:
     void Load(ui::Screen *screen) noexcept override; // # 在这里写页面的布局（根据基类静态成员的值，写页面组件的父子关系，设置组件的属性）。
     void Logic(ui::Screen *screen) noexcept override; // # 在这里写回调逻辑（设置组件回调函数、监听回调函数，进而动态设置组件属性、动态增减组件、跳转页面等）。
@@ -46,7 +48,6 @@ class AddCourse : public PageBase {
 private:
     ui::Button *backbtn = nullptr; 
     ui::Button *addbtn = nullptr;
-    ui::Button *debtn = nullptr;
     ui::Label *rpllabel = nullptr;
     ui::Label *label0 = nullptr;
     ui::Label *label1 = nullptr;
@@ -84,7 +85,6 @@ private:
     ui::InputBox *input2 = nullptr;
     ui::InputBox *input3 = nullptr;
     ui::InputBox *input4 = nullptr;
-    ui::InputBox *input5 = nullptr;
     ui::Label *glabel = nullptr;
     ui::Button *cfbtn = nullptr;
     ui::Label *limit = nullptr;
@@ -141,7 +141,6 @@ private:
     ui::Button *clbtn1 = nullptr;
     ui::Button *clbtn2 = nullptr;
     ui::Button *clbtn3 = nullptr;
-    ui::Label *limit1 = nullptr;
     ui::Label *limit2 = nullptr;
     ui::Button *tbtn = nullptr;
     ui::HorizontalScrollingBox *hsbox = nullptr;
@@ -164,7 +163,9 @@ protected:
     void Logic(ui::Screen *screen) noexcept override;
     void Ready(ui::Screen *screen) noexcept override;
 public:
-    EnterReserve(bool fromLogin = false) noexcept : fromLogin(fromLogin) {}
+    EnterReserve(bool fromLogin = false) noexcept : fromLogin(fromLogin) {
+        // 构造函数，fromLogin用于判断是否从登录页面进入,是为false
+    }
 };
 class ReserveStatusList : public PageBase {
 private:
@@ -251,6 +252,7 @@ protected:
 };
 class AdmCancelReserve : public PageBase {
 private:
+    ui::Label *limit = nullptr;
     ui::InputBox *dinput1 = nullptr;
     ui::InputBox *dinput2 = nullptr;
     ui::InputBox *dinput3 = nullptr;
@@ -270,10 +272,16 @@ private:
     ui::Button *cfbtn = nullptr;
     ui::Label *nlabel = nullptr;
     ui::Button *clbtn = nullptr;
+
+    const bool fromModify;
 protected:
     void Load(ui::Screen *screen) noexcept override;
     void Logic(ui::Screen *screen) noexcept override;
     void Ready(ui::Screen *screen) noexcept override;
+public:
+    AdmCancelReserve(bool fromModify=false) noexcept : fromModify(fromModify) { 
+        // 构造函数，fromModify用于判断是否从修改预约按钮进入
+    }
 }; // 删除预约和修改数量
 class AdmModifyReserve:public PageBase {
 private:
@@ -286,11 +294,12 @@ private:
     ui::Label *glabel = nullptr;
     ui::Button *cfbtn = nullptr;
     ui::InputBox *input6 = nullptr;
+    ui::Label *limit = nullptr;
 protected:
     void Load(ui::Screen *screen) noexcept override;
     void Logic(ui::Screen *screen) noexcept override;
     void Ready(ui::Screen *screen) noexcept override;
 }; // 修改状态
-} 
+}
 
 #endif // __LAB_HPP__
